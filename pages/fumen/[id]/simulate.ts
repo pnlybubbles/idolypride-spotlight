@@ -211,7 +211,7 @@ function deriveBuffLanes(target: BuffTarget, selfLane: Lane, idol: ArrayN<Idol, 
   }
 }
 
-function isType<Type extends string>(type: Type) {
+export function isType<Type extends string>(type: Type) {
   return <Value extends { type: string }>(value: Value): value is Extract<Value, { type: Type }> => value.type === type
 }
 

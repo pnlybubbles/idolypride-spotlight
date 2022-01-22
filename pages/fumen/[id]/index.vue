@@ -16,7 +16,7 @@
 <script setup lang="ts">
 import liveData from '~/data/live'
 import idolData from '~/data/idol'
-import { simulate } from './simulate'
+import { isType, simulate } from './simulate'
 import { mapArrayN } from '~~/utils'
 
 const route = useRoute()
@@ -31,6 +31,24 @@ const idolIdbyLane = ['reiTakadai', 'reiOsorenai', 'nagisaEmal', 'aoiNureta', 'r
 const idols = mapArrayN(idolIdbyLane, (id) => idolData[id])
 
 const { result } = simulate(live, idols)
+
+type RenderProps = {
+  beat: number
+  style: { top: string; left?: string; height?: string }
+} & (
+  | {
+      type: 'sp' | 'a'
+      fail: boolean
+    }
+  | {
+      type: 'p'
+    }
+  | {
+      type: 'buff'
+      span: number
+      shift: number
+    }
+)
 
 const lanes = LANES.map((lane) =>
   result
@@ -47,6 +65,28 @@ const lanes = LANES.map((lane) =>
           : {}),
       },
     }))
+    .reduce((acc, c) => {
+      if (c.type !== 'buff') {
+        return [...acc, c]
+      }
+      const occupiedShift = acc
+        .filter(isType('buff'))
+        .filter((v) => v.beat + v.span >= c.beat)
+        .map((v) => v.shift)
+      const availableShift = new Array(occupiedShift.reduce((p, c) => Math.max(p, c), 0) + 2)
+        .fill(null)
+        .map((_, i) => i)
+        .filter((v) => !occupiedShift.includes(v))
+      const shift = availableShift[0] ?? 0
+      return [
+        ...acc,
+        {
+          ...c,
+          shift,
+          style: { ...c.style, left: `calc(50% + ${shift * 10}px)` },
+        },
+      ]
+    }, [] as RenderProps[])
 )
 </script>
 <style lang="scss" scoped>
@@ -96,8 +136,9 @@ const lanes = LANES.map((lane) =>
   --size: 2px;
   border-radius: 999999999px;
   width: calc(var(--size) * 2);
-  transform: translate(-50%, calc((var(--size) + var(--border)) * -1));
-  border-color: rgba(white, 0.4);
+  transform: translate(-50%, calc(var(--size) * -1));
+  border: none;
+  background-color: rgba(white, 0.4);
 }
 
 .fail {
