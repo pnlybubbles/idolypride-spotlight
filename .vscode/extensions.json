@@ -1,3 +1,4 @@
 {
-  "recommendations": ["octref.vetur", "dbaeumer.vscode-eslint", "esbenp.prettier-vscode"]
+  "recommendations": ["johnsoncodehk.volar", "dbaeumer.vscode-eslint", "esbenp.prettier-vscode"],
+  "unwantedRecommendations": ["octref.vetur"]
 }
