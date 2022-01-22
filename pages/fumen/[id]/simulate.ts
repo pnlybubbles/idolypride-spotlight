@@ -1,6 +1,7 @@
 import { LiveData } from '~/data/live'
-import { Idol, Skill } from '~/data/idol'
+import { BuffTarget, Idol, Skill } from '~/data/idol'
 import isNonNullable from 'is-non-nullable'
+import { unreachable } from '~~/utils'
 
 type Result = ({
   beat: number
@@ -29,7 +30,7 @@ export function simulate(live: LiveData, idol: Idol[]) {
   return BEATS.reduce(
     ({ result, state }, currentBeat) => {
       // Aスキルの発動チェック
-      const aState: State = live.a
+      const aState = live.a
         .map((laneData, lane) => {
           // いまのビートがAのタイミングかどうかをチェック
           const skillTiming = laneData.find((beat) => beat === currentBeat)
@@ -39,13 +40,16 @@ export function simulate(live: LiveData, idol: Idol[]) {
           // アイドルが発動可能なAスキルを持っているかをチェック
           // アイドルの過去に発動したAスキルのうちCT中のもの
           const aSkillsCT = state
+            // スキル失敗をフィルタ
             .map((v) => (v.skill === null ? null : { ...v, skill: v.skill }))
             .filter(isNonNullable)
-            .filter((v) => v.lane === lane && v.skill?.type === 'a' && v.beat + v.skill.ct >= currentBeat)
+            // 対象レーンのaスキル発動のログのうちCT中のスキルのみを抽出
+            .filter((v) => v.lane === lane && v.skill.type === 'a' && v.beat + v.skill.ct >= currentBeat)
           // 発動可能なAスキルを絞り込む
           const aSkillCanTrigger = idol[lane].skills
+            .filter(isType('a'))
+            // CT中に含まれていない保持スキルを絞り込む
             .filter((skill) => !aSkillsCT.map((v) => v.skill.index).includes(skill.index))
-            .filter((v) => v.type === 'a')
           const aSkillHead = aSkillCanTrigger.length > 0 ? aSkillCanTrigger[0] : null
           return { lane, beat: currentBeat, skill: aSkillHead }
         })
@@ -53,7 +57,7 @@ export function simulate(live: LiveData, idol: Idol[]) {
       const aResult: Result = aState.map(({ lane, skill }) => ({
         type: 'a' as const,
         beat: currentBeat,
-        lane: lane,
+        lane,
         fail: skill === null,
       }))
 
@@ -70,7 +74,7 @@ export function simulate(live: LiveData, idol: Idol[]) {
               if (ability.type !== 'buff') {
                 return null
               }
-              const lanes = ability.target === 'all' ? [0, 1, 2, 3, 4] : ability.target === 'self' ? [lane] : []
+              const lanes = deriveBuffLanes(ability.target, lane, idol)
               return {
                 type: 'buff' as const,
                 beat: currentBeat,
@@ -101,7 +105,7 @@ export function simulate(live: LiveData, idol: Idol[]) {
       const spResult: Result = spState.map(({ lane, skill }) => ({
         type: 'sp' as const,
         beat: currentBeat,
-        lane: lane,
+        lane,
         fail: skill === null,
       }))
 
@@ -112,4 +116,47 @@ export function simulate(live: LiveData, idol: Idol[]) {
     },
     { result: [] as Result, state: [] as State }
   )
+}
+
+function deriveBuffLanes(target: BuffTarget, selfLane: number, idol: Idol[]) {
+  switch (target) {
+    case 'all':
+      return [0, 1, 2, 3, 4]
+    case 'self':
+      return [selfLane]
+    case '1-scorer': {
+      const candidate = idol
+        .map(enumerate)
+        .filter(([v]) => v.role === 'scorer')
+        .map(toIndex)
+        .sort(comparebyCenter)
+      return [candidate[0]].filter(isNonNullable)
+    }
+    case '2-scorers': {
+      const candidate = idol
+        .map(enumerate)
+        .filter(([v]) => v.role === 'scorer')
+        .map(toIndex)
+        .sort(comparebyCenter)
+      return [candidate[0], candidate[1]].filter(isNonNullable)
+    }
+    default:
+      unreachable(target)
+  }
+}
+
+function isType<Type extends string>(type: Type) {
+  return <Value extends { type: string }>(value: Value): value is Extract<Value, { type: Type }> => value.type === type
+}
+
+function enumerate<T>(value: T, index: number) {
+  return [value, index] as const
+}
+
+function toIndex([, index]: readonly [unknown, number]) {
+  return index
+}
+
+function comparebyCenter(a: number, b: number) {
+  return Math.abs(2.1 - a) - Math.abs(2.1 - b)
 }

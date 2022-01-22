@@ -1,56 +1,74 @@
-type SkillData = {
+export type BuffType =
+  | 'vocal'
+  | 'dance'
+  | 'visual'
+  | 'critical'
+  | 'critical-score'
+  | 'ct'
+  | 'score'
+  | 'beat-score'
+  | 'a-score'
+  | 'sp-score'
+  | 'stamina'
+  | 'buff-span'
+  | 'buff-amount'
+export type BuffTarget = 'all' | 'self' | '1-scorer' | '2-scorers'
+export type PassiveBuffTarget = BuffTarget | 'triggered'
+type Ability = {
+  type: 'buff'
+  buff: BuffType
+  target: BuffTarget
+  amount: number
+  span: number
+}
+type PassiveAbility = {
+  type: 'buff'
+  buff: BuffType
+  target: PassiveBuffTarget
+  amount: number
+  span: number
+}
+type SkillTrigger =
+  | {
+      type: 'idle' | 'critical' | 'sp'
+    }
+  | {
+      type: 'combo'
+      amount: 50
+    }
+export type SkillData = {
   label: string
-  ability: {
-    type: 'buff'
-    buff:
-      | 'vocal'
-      | 'dance'
-      | 'visual'
-      | 'critical'
-      | 'critical-score'
-      | 'ct'
-      | 'score'
-      | 'beat-score'
-      | 'a-score'
-      | 'sp-score'
-      | 'stamina'
-      | 'buff-beat'
-      | 'buff-amount'
-    target: 'all' | 'self' | '2scorers' | 'scorer' | 'any-sp' | 'any-a'
-    amount: number
-    span: number
-  }[]
 } & (
   | {
       type: 'sp'
+      ability: Ability[]
     }
   | {
       type: 'a'
+      ability: Ability[]
       ct: number
     }
   | {
       type: 'p'
+      ability: PassiveAbility[]
       ct: number
-      trigger:
-        | {
-            type: 'idle' | 'critical'
-          }
-        | {
-            type: 'combo'
-            amount: 50
-          }
+      trigger: SkillTrigger
     }
 )
 
 interface IdolData {
   name: string
   sub: string
+  role: 'scorer' | 'buffer' | 'supporter'
+  type: 'vocal' | 'dance' | 'visual'
   skills: SkillData[]
 }
 
 const reiTakadai: IdolData = {
   name: '一ノ瀬怜',
   sub: '高台をかける薫風',
+  role: 'buffer',
+  type: 'dance',
   skills: [
     {
       label: '優勝への決意',
@@ -106,6 +124,8 @@ const reiTakadai: IdolData = {
 const reiOsorenai: IdolData = {
   name: '一ノ瀬怜',
   sub: '失敗なんて恐れない',
+  role: 'scorer',
+  type: 'visual',
   skills: [
     {
       label: 'ウソみたいに、体が軽い',
@@ -135,9 +155,107 @@ const reiOsorenai: IdolData = {
   ],
 }
 
+const nagisaEmal: IdolData = {
+  name: '伊吹渚',
+  sub: 'この瞬間の主役',
+  role: 'scorer',
+  type: 'vocal',
+  skills: [
+    {
+      label: 'ここであのスマイル！',
+      type: 'sp',
+      ability: [
+        {
+          type: 'buff',
+          target: 'self',
+          buff: 'score',
+          amount: 11,
+          span: 64,
+        },
+      ],
+    },
+    {
+      label: '彼女が見ている景色',
+      type: 'a',
+      ability: [],
+      ct: 50,
+    },
+    {
+      label: '私も輝けたら',
+      type: 'a',
+      ability: [
+        {
+          type: 'buff',
+          target: 'self',
+          buff: 'critical-score',
+          amount: 4,
+          span: 43,
+        },
+      ],
+      ct: 50,
+    },
+  ],
+}
+
+const aoiNureta: IdolData = {
+  name: '井川葵',
+  sub: '濡れた髪は何を語る',
+  role: 'buffer',
+  type: 'dance',
+  skills: [
+    {
+      label: '熱狂の余韻',
+      type: 'a',
+      ability: [
+        {
+          type: 'buff',
+          target: '2-scorers',
+          buff: 'critical',
+          amount: 4,
+          span: 72,
+        },
+      ],
+      ct: 50,
+    },
+    {
+      label: 'ステージの華',
+      type: 'a',
+      ability: [
+        {
+          type: 'buff',
+          target: '2-scorers',
+          buff: 'buff-span',
+          amount: 6,
+          span: 0,
+        },
+      ],
+      ct: 50,
+    },
+    {
+      label: '安堵の笑顔',
+      type: 'p',
+      trigger: {
+        type: 'sp',
+      },
+      ability: [
+        {
+          type: 'buff',
+          target: 'triggered',
+          buff: 'dance',
+          amount: 8,
+          span: 27,
+        },
+      ],
+      ct: 50,
+    },
+  ],
+}
+
 const characters = {
   reiOsorenai,
   reiTakadai,
+  nagisaEmal,
+  aoiNureta,
 }
 
 const charactersWithIndex = Object.fromEntries(
@@ -146,5 +264,6 @@ const charactersWithIndex = Object.fromEntries(
 
 export type Idol = typeof charactersWithIndex[string]
 export type Skill = Idol['skills'][number]
+export type IdolId = keyof typeof characters
 
 export default charactersWithIndex
