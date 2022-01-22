@@ -7,7 +7,11 @@ type Result = ({
   beat: number
 } & (
   | {
-      type: 'sp' | 'a' | 'p'
+      type: 'p'
+      lane: Lane
+    }
+  | {
+      type: 'sp' | 'a'
       lane: Lane
       fail: boolean
     }
@@ -25,10 +29,18 @@ type State = {
   skill: Skill | null // アイドルのスキル, nullのときは失敗
 }[]
 
-export function simulate(live: LiveData, idol: ArrayN<Idol, 5>) {
+export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
   const BEATS = new Array(live.beat).fill(0).map((_, i) => i)
   return BEATS.reduce(
     ({ result, state }, currentBeat) => {
+      // CT中のスキルを絞り込む
+      const ctState = state
+        // 失敗したスキルはCT中ではないので除く
+        .map((v) => (v.skill === null ? null : { ...v, skill: v.skill }))
+        .filter(isNonNullable)
+        // 対象レーンのスキル発動のログのうちCT中のスキルのみを抽出
+        .filter((v) => v.skill.type !== 'sp' && v.beat + v.skill.ct >= currentBeat)
+
       // Aスキルの発動チェック
       const aState = indexed(live.a)
         .map(([laneData, lane]) => {
@@ -38,19 +50,16 @@ export function simulate(live: LiveData, idol: ArrayN<Idol, 5>) {
             return null
           }
           // アイドルが発動可能なAスキルを持っているかをチェック
-          // アイドルの過去に発動したAスキルのうちCT中のもの
-          const aSkillsCT = state
-            // スキル失敗をフィルタ
-            .map((v) => (v.skill === null ? null : { ...v, skill: v.skill }))
-            .filter(isNonNullable)
-            // 対象レーンのaスキル発動のログのうちCT中のスキルのみを抽出
-            .filter((v) => v.lane === lane && v.skill.type === 'a' && v.beat + v.skill.ct >= currentBeat)
+          const ctSkills = ctState
+            .filter((v) => v.lane === lane)
+            .map((v) => v.skill)
+            .filter(isType('a'))
           // 発動可能なAスキルを絞り込む
-          const aSkillCanTrigger = idol[lane].skills
+          const canTriggerSkills = idols[lane].skills
             .filter(isType('a'))
             // CT中に含まれていない保持スキルを絞り込む
-            .filter((skill) => !aSkillsCT.map((v) => v.skill.index).includes(skill.index))
-          return { lane, beat: currentBeat, skill: aSkillCanTrigger[0] ?? null }
+            .filter((skill) => !ctSkills.map((v) => v.index).includes(skill.index))
+          return { lane, beat: currentBeat, skill: canTriggerSkills[0] ?? null }
         })
         .filter(isNonNullable)
       const aResult: Result = aState.map(({ lane, skill }) => ({
@@ -70,7 +79,7 @@ export function simulate(live: LiveData, idol: ArrayN<Idol, 5>) {
           return skill.ability
             .filter(isType('buff'))
             .map((ability) => {
-              const lanes = deriveBuffLanes(ability.target, lane, idol)
+              const lanes = deriveBuffLanes(ability.target, lane, idols)
               return {
                 type: 'buff' as const,
                 beat: currentBeat,
@@ -91,23 +100,55 @@ export function simulate(live: LiveData, idol: ArrayN<Idol, 5>) {
             return null
           }
           // アイドルがSPを持っているかどうかをチェック
-          const skill = idol[lane].skills.find(isType('sp'))
+          const skill = idols[lane].skills.find(isType('sp'))
           if (skill === undefined) {
             return { lane, beat: currentBeat, skill: null }
           }
           return { lane, beat: currentBeat, skill }
         })
         .filter(isNonNullable)
-      const spResult: Result = spState.map(({ lane, skill }) => ({
+      const spResult = spState.map(({ lane, skill }) => ({
         type: 'sp' as const,
         beat: currentBeat,
         lane,
         fail: skill === null,
       }))
 
+      // Pスキルの発動チェック
+      const pState = indexed(idols).flatMap(([idol, lane]) => {
+        const ctSkills = ctState
+          .filter((v) => v.lane === lane)
+          .map((v) => v.skill)
+          .filter(isType('p'))
+        const canTriggerSkills = idol.skills
+          .filter(isType('p'))
+          .filter((skill) => !ctSkills.map((v) => v.index).includes(skill.index))
+        return canTriggerSkills
+          .map((skill) => {
+            switch (skill.trigger.type) {
+              case 'idle':
+                return { lane, beat: currentBeat, skill }
+              case 'sp': {
+                const spLane = spResult.find((v) => !v.fail)?.lane
+                return spLane === undefined ? null : { lane, beat: currentBeat, skill }
+              }
+              case 'critical':
+                return null
+              case 'combo':
+                return null
+            }
+          })
+          .filter(isNonNullable)
+      })
+      const pResult = pState.map(({ lane }) => ({
+        type: 'p' as const,
+        beat: currentBeat,
+        lane,
+      }))
+
       return {
-        result: [...result, ...aResult, ...aBuffResult, ...spResult],
-        state: [...state, ...aState, ...spState],
+        result: [...result, ...aResult, ...aBuffResult, ...spResult, ...pResult],
+        state: [...state, ...aState, ...spState, ...pState],
       }
     },
     { result: [] as Result, state: [] as State }

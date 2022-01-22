@@ -28,9 +28,9 @@ const height = `${live.beat * SCALE_FACTOR}px`
 
 const LANES = [0, 1, 2, 3, 4] as const
 const idolIdbyLane = ['reiTakadai', 'reiOsorenai', 'nagisaEmal', 'aoiNureta', 'reiOsorenai'] as const
-const idol = mapArrayN(idolIdbyLane, (id) => idolData[id])
+const idols = mapArrayN(idolIdbyLane, (id) => idolData[id])
 
-const { result } = simulate(live, idol)
+const { result } = simulate(live, idols)
 
 const lanes = LANES.map((lane) =>
   result
@@ -77,6 +77,12 @@ const lanes = LANES.map((lane) =>
   @include skill;
   width: 20px;
   height: 20px;
+}
+
+.p {
+  @include skill;
+  width: 4px;
+  height: 4px;
 }
 
 .sp {
