@@ -26,14 +26,14 @@ const SCALE_FACTOR = 5
 const height = `${live.beat * SCALE_FACTOR}px`
 
 const LANES = [0, 1, 2, 3, 4]
-const idolIdbyLane: string[] = ['reiTakadai', 'reiOsorenai', 'reiTakadai', 'reiTakadai', 'reiTakadai']
+const idolIdbyLane: string[] = ['reiTakadai', 'reiOsorenai', 'reiOsorenai', 'reiOsorenai', 'reiOsorenai']
 const idol = idolIdbyLane.map((id) => idolData[id])
 
 const { result } = simulate(live, idol)
 
 const lanes = LANES.map((lane) =>
   result
-    .filter((v) => (v.type === 'buff' ? v.lane.includes(lane) : v.lane === lane))
+    .filter((v) => (v.type === 'buff' ? v.lanes.includes(lane) : v.lane === lane))
     .sort((a, b) => a.beat - b.beat)
     .map((v) => ({
       ...v,

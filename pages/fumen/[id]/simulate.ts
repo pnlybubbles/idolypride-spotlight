@@ -12,7 +12,7 @@ type Result = ({
     }
   | {
       type: 'buff'
-      lane: number[]
+      lanes: number[]
       span: number
     }
 ))[]
@@ -60,16 +60,26 @@ export function simulate(live: LiveData, idol: Idol[]) {
       // Aスキルによるバフ
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const aBuffResult: Result = aState
-        .map(({ skill }) =>
-          skill !== null
-            ? {
+        .flatMap(({ lane, skill }) => {
+          // nullのときはスキル失敗なので、バフの計算はしない
+          if (skill === null) {
+            return []
+          }
+          return skill.ability
+            .map((ability) => {
+              if (ability.type !== 'buff') {
+                return null
+              }
+              const lanes = ability.target === 'all' ? [0, 1, 2, 3, 4] : ability.target === 'self' ? [lane] : []
+              return {
                 type: 'buff' as const,
                 beat: currentBeat,
-                lane: [0, 1, 2, 3, 4],
-                span: skill.span,
+                lanes: lanes,
+                span: ability.span,
               }
-            : null
-        )
+            })
+            .filter(isNonNullable)
+        })
         .filter(isNonNullable)
 
       // SPスキルの発動チェック
@@ -96,7 +106,7 @@ export function simulate(live: LiveData, idol: Idol[]) {
       }))
 
       return {
-        result: [...result, ...aResult, ...[], ...spResult],
+        result: [...result, ...aResult, ...aBuffResult, ...spResult],
         state: [...state, ...aState, ...spState],
       }
     },
