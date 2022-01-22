@@ -15,8 +15,9 @@
 </template>
 <script setup lang="ts">
 import liveData from '~/data/live'
-import idolData, { IdolId } from '~/data/idol'
+import idolData from '~/data/idol'
 import { simulate } from './simulate'
+import { mapArrayN } from '~~/utils'
 
 const route = useRoute()
 // TODO: !
@@ -26,8 +27,8 @@ const SCALE_FACTOR = 5
 const height = `${live.beat * SCALE_FACTOR}px`
 
 const LANES = [0, 1, 2, 3, 4]
-const idolIdbyLane: IdolId[] = ['reiTakadai', 'reiOsorenai', 'nagisaEmal', 'aoiNureta', 'reiOsorenai']
-const idol = idolIdbyLane.map((id) => idolData[id])
+const idolIdbyLane = ['reiTakadai', 'reiOsorenai', 'nagisaEmal', 'aoiNureta', 'reiOsorenai'] as const
+const idol = mapArrayN(idolIdbyLane, (id) => idolData[id])
 
 const { result } = simulate(live, idol)
 

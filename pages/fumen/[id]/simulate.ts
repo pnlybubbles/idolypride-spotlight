@@ -1,7 +1,7 @@
 import { LiveData } from '~/data/live'
 import { BuffTarget, Idol, Skill } from '~/data/idol'
 import isNonNullable from 'is-non-nullable'
-import { unreachable } from '~~/utils'
+import { ArrayN, indexed, unreachable } from '~~/utils'
 
 type Result = ({
   beat: number
@@ -25,13 +25,13 @@ type State = {
   skill: Skill | null // アイドルのスキル, nullのときは失敗
 }[]
 
-export function simulate(live: LiveData, idol: Idol[]) {
+export function simulate(live: LiveData, idol: ArrayN<Idol, 5>) {
   const BEATS = new Array(live.beat).fill(0).map((_, i) => i)
   return BEATS.reduce(
     ({ result, state }, currentBeat) => {
       // Aスキルの発動チェック
-      const aState = live.a
-        .map((laneData, lane) => {
+      const aState = indexed(live.a)
+        .map(([laneData, lane]) => {
           // いまのビートがAのタイミングかどうかをチェック
           const skillTiming = laneData.find((beat) => beat === currentBeat)
           if (skillTiming === undefined) {
@@ -50,8 +50,7 @@ export function simulate(live: LiveData, idol: Idol[]) {
             .filter(isType('a'))
             // CT中に含まれていない保持スキルを絞り込む
             .filter((skill) => !aSkillsCT.map((v) => v.skill.index).includes(skill.index))
-          const aSkillHead = aSkillCanTrigger.length > 0 ? aSkillCanTrigger[0] : null
-          return { lane, beat: currentBeat, skill: aSkillHead }
+          return { lane, beat: currentBeat, skill: aSkillCanTrigger[0] ?? null }
         })
         .filter(isNonNullable)
       const aResult: Result = aState.map(({ lane, skill }) => ({
@@ -84,8 +83,8 @@ export function simulate(live: LiveData, idol: Idol[]) {
         .filter(isNonNullable)
 
       // SPスキルの発動チェック
-      const spState: State = live.sp
-        .map((laneData, lane) => {
+      const spState: State = indexed(live.sp)
+        .map(([laneData, lane]) => {
           // いまのビートがSPのタイミングかどうかをチェック
           const skillTiming = laneData.find((beat) => beat === currentBeat)
           if (skillTiming === undefined) {
@@ -115,7 +114,7 @@ export function simulate(live: LiveData, idol: Idol[]) {
   )
 }
 
-function deriveBuffLanes(target: BuffTarget, selfLane: number, idol: Idol[]) {
+function deriveBuffLanes(target: BuffTarget, selfLane: number, idol: ArrayN<Idol, 5>) {
   switch (target) {
     case 'all':
       return [0, 1, 2, 3, 4]

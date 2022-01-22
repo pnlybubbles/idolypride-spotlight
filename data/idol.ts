@@ -1,3 +1,5 @@
+import { mapObject } from '~~/utils'
+
 export type BuffType =
   | 'vocal'
   | 'dance'
@@ -258,12 +260,13 @@ const characters = {
   aoiNureta,
 }
 
-const charactersWithIndex = Object.fromEntries(
-  Object.entries(characters).map(([id, v]) => [id, { ...v, skills: v.skills.map((w, index) => ({ ...w, index })) }])
-)
+const charactersWithIndex = mapObject(characters, (v) => ({
+  ...v,
+  skills: v.skills.map((w, index) => ({ ...w, index })),
+}))
 
-export type Idol = typeof charactersWithIndex[string]
+export type IdolId = keyof typeof charactersWithIndex
+export type Idol = typeof charactersWithIndex[IdolId]
 export type Skill = Idol['skills'][number]
-export type IdolId = keyof typeof characters
 
 export default charactersWithIndex

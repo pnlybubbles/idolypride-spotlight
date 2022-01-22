@@ -1,9 +1,11 @@
+import { ArrayN } from '~~/utils'
+
 export interface LiveData {
-  id: string
-  title: string
-  a: number[][]
-  sp: number[][]
-  beat: number
+  readonly id: string
+  readonly title: string
+  readonly a: ArrayN<readonly number[], 5>
+  readonly sp: ArrayN<readonly number[], 5>
+  readonly beat: number
 }
 
 /**
@@ -21,6 +23,6 @@ const sunnyPeaceHarmony: LiveData = {
   ],
   sp: [[], [99], [63], [], []],
   beat: 167,
-}
+} as const
 
 export default [sunnyPeaceHarmony]
