@@ -40,7 +40,11 @@ const lanes = LANES.map((lane) =>
       ...v,
       style: {
         top: `${v.beat * SCALE_FACTOR}px`,
-        height: v.type === 'buff' ? `${v.span * SCALE_FACTOR}px` : undefined,
+        ...(v.type === 'buff'
+          ? {
+              height: `${v.span * SCALE_FACTOR}px`,
+            }
+          : {}),
       },
     }))
 )
