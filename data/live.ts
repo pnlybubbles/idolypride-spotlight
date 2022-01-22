@@ -1,4 +1,6 @@
-import { ArrayN } from '~~/utils'
+import { ArrayN, NumberUnion } from '~~/utils'
+
+export type Lane = NumberUnion<5>
 
 export interface LiveData {
   readonly id: string

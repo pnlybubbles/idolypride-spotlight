@@ -26,7 +26,7 @@ const live = liveData.find((v) => v.id === route.params.id)!
 const SCALE_FACTOR = 5
 const height = `${live.beat * SCALE_FACTOR}px`
 
-const LANES = [0, 1, 2, 3, 4]
+const LANES = [0, 1, 2, 3, 4] as const
 const idolIdbyLane = ['reiTakadai', 'reiOsorenai', 'nagisaEmal', 'aoiNureta', 'reiOsorenai'] as const
 const idol = mapArrayN(idolIdbyLane, (id) => idolData[id])
 

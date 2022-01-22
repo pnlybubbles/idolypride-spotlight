@@ -1,4 +1,4 @@
-import { LiveData } from '~/data/live'
+import { Lane, LiveData } from '~/data/live'
 import { BuffTarget, Idol, Skill } from '~/data/idol'
 import isNonNullable from 'is-non-nullable'
 import { ArrayN, indexed, unreachable } from '~~/utils'
@@ -8,12 +8,12 @@ type Result = ({
 } & (
   | {
       type: 'sp' | 'a' | 'p'
-      lane: number
+      lane: Lane
       fail: boolean
     }
   | {
       type: 'buff'
-      lanes: number[]
+      lanes: Lane[]
       span: number
     }
 ))[]
@@ -83,7 +83,7 @@ export function simulate(live: LiveData, idol: ArrayN<Idol, 5>) {
         .filter(isNonNullable)
 
       // SPスキルの発動チェック
-      const spState: State = indexed(live.sp)
+      const spState = indexed(live.sp)
         .map(([laneData, lane]) => {
           // いまのビートがSPのタイミングかどうかをチェック
           const skillTiming = laneData.find((beat) => beat === currentBeat)
@@ -114,25 +114,23 @@ export function simulate(live: LiveData, idol: ArrayN<Idol, 5>) {
   )
 }
 
-function deriveBuffLanes(target: BuffTarget, selfLane: number, idol: ArrayN<Idol, 5>) {
+function deriveBuffLanes(target: BuffTarget, selfLane: Lane, idol: ArrayN<Idol, 5>): Lane[] {
   switch (target) {
     case 'all':
       return [0, 1, 2, 3, 4]
     case 'self':
       return [selfLane]
     case '1-scorer': {
-      const candidate = idol
-        .map(enumerate)
+      const candidate = indexed(idol)
         .filter(([v]) => v.role === 'scorer')
-        .map(toIndex)
+        .map(second)
         .sort(comparebyCenter)
       return [candidate[0]].filter(isNonNullable)
     }
     case '2-scorers': {
-      const candidate = idol
-        .map(enumerate)
+      const candidate = indexed(idol)
         .filter(([v]) => v.role === 'scorer')
-        .map(toIndex)
+        .map(second)
         .sort(comparebyCenter)
       return [candidate[0], candidate[1]].filter(isNonNullable)
     }
@@ -145,12 +143,8 @@ function isType<Type extends string>(type: Type) {
   return <Value extends { type: string }>(value: Value): value is Extract<Value, { type: Type }> => value.type === type
 }
 
-function enumerate<T>(value: T, index: number) {
-  return [value, index] as const
-}
-
-function toIndex([, index]: readonly [unknown, number]) {
-  return index
+function second<T>([, value]: readonly [unknown, T]) {
+  return value
 }
 
 function comparebyCenter(a: number, b: number) {

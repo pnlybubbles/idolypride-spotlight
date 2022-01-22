@@ -1,4 +1,4 @@
-import { mapObject } from '~~/utils'
+import { ArrayN, mapArrayN, mapObject } from '~~/utils'
 
 export type BuffType =
   | 'vocal'
@@ -63,7 +63,7 @@ interface IdolData {
   sub: string
   role: 'scorer' | 'buffer' | 'supporter'
   type: 'vocal' | 'dance' | 'visual'
-  skills: SkillData[]
+  skills: ArrayN<SkillData, 3>
 }
 
 const reiTakadai: IdolData = {
@@ -262,7 +262,7 @@ const characters = {
 
 const charactersWithIndex = mapObject(characters, (v) => ({
   ...v,
-  skills: v.skills.map((w, index) => ({ ...w, index })),
+  skills: mapArrayN(v.skills, (w, index) => ({ ...w, index })),
 }))
 
 export type IdolId = keyof typeof charactersWithIndex

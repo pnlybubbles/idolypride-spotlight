@@ -11,27 +11,39 @@ export function unreachable(value?: never): never {
  * Create upto specified number of union
  *
  * @example
- * type A = NumberUnion<3> // => 0 | 1 | 2
+ * NumberUnion<3> // => 0 | 1 | 2
  */
 export type NumberUnion<N extends number, T extends unknown[] = [], U extends number = never> = T extends { length: N }
   ? U
   : NumberUnion<N, [...T, unknown], U | (T extends { length: infer L } ? L : never)>
 
+/**
+ * Create fixed length array
+ *
+ * @example
+ * ArrayN<string, 3> // => readonly [string, string, string]
+ */
 export type ArrayN<T, N extends number, A extends unknown[] = []> = A extends { length: N }
   ? Readonly<A>
   : ArrayN<T, N, [...A, T]>
 
-export function indexed<A extends readonly unknown[]>(
-  array: A
-): A extends { length: infer L } ? (L extends number ? [A[number], NumberUnion<L>][] : unknown) : unknown {
+/**
+ * Derive length of array
+ *
+ * @example
+ * Length<[string, string, string]> // => 3
+ */
+type Length<A> = A extends { length: infer N } ? N : never
+
+export function indexed<A extends readonly unknown[]>(array: A): [A[number], NumberUnion<Length<A>>][] {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return array.map((value, index) => [value, index]) as any
 }
 
 export function mapArrayN<A extends readonly unknown[], U>(
   array: A,
-  map: (domain: A[number], index: keyof A) => U
-): A extends { length: infer L } ? (L extends number ? ArrayN<U, L> : unknown) : unknown {
+  map: (domain: A[number], index: NumberUnion<Length<A>>) => U
+): ArrayN<U, Length<A>> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (array as any).map(map)
 }
