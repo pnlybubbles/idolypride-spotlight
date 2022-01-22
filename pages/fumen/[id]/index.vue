@@ -3,8 +3,9 @@
     <h1>{{ live.title }}</h1>
     <div class="sheet">
       <div class="lane guide-lane">
-        <div v-for="guide in guides" :key="guide.beat" class="guide" :style="guide.style">
-          <div class="handle">{{ guide.beat }}</div>
+        <div v-for="(guide, i) in guides" :key="i" class="guide" :class="[guide.type]" :style="guide.style">
+          <div v-if="guide.type === 'line'" class="handle">{{ guide.num }}</div>
+          <div v-else-if="guide.type === 'interval'" class="interval-annotation">{{ guide.num }}</div>
         </div>
       </div>
       <div v-for="(lane, i) in lanes" :key="i" class="lane">
@@ -35,6 +36,7 @@ import liveData from '~/data/live'
 import idolData from '~/data/idol'
 import { isType, simulate } from './simulate'
 import { mapArrayN } from '~~/utils'
+import isNonNullable from 'is-non-nullable'
 
 const route = useRoute()
 // TODO: !
@@ -43,7 +45,43 @@ const live = liveData.find((v) => v.id === route.params.id)!
 const SCALE_FACTOR = 5
 const height = `${live.beat * SCALE_FACTOR}px`
 const beatGuides = ref<number[]>([])
-const guides = computed(() => beatGuides.value.map((beat) => ({ beat, style: { top: `${beat * SCALE_FACTOR}px` } })))
+type GuideProps = {
+  style: { top: string }
+} & (
+  | {
+      type: 'line'
+      num: number
+    }
+  | {
+      type: 'interval'
+      num: number
+    }
+)
+const guides = computed<GuideProps[]>(() => {
+  const lines = [
+    ...beatGuides.value.map((beat) => ({
+      type: 'line' as const,
+      num: beat,
+      style: { top: `${beat * SCALE_FACTOR}px` },
+    })),
+  ].sort((a, b) => a.num - b.num)
+  const intervals = lines
+    .reduce((acc, v) => {
+      const prev = acc[acc.length - 1]
+      return prev
+        ? [...acc, { prevBeat: v.num, interval: v.num - prev.prevBeat }]
+        : [...acc, { prevBeat: v.num, interval: null }]
+    }, [] as { interval: number | null; prevBeat: number }[])
+    .map(({ interval, ...v }) => (interval ? { ...v, interval } : null))
+    .filter(isNonNullable)
+    .map(({ interval, prevBeat }) => ({
+      type: 'interval' as const,
+      num: interval,
+      style: { top: `${(prevBeat - interval / 2) * SCALE_FACTOR}px` },
+    }))
+  console.log(lines, intervals)
+  return [...lines, ...intervals]
+})
 const tapSP = (item: Item) => {
   updateGuide(item.beat)
 }
@@ -130,7 +168,7 @@ const lanes = LANES.map((lane) =>
 }
 
 .lane + .lane {
-  border-left: 1px solid #333;
+  /* border-left: 1px solid #333; */
 }
 
 .lane {
@@ -185,9 +223,13 @@ const lanes = LANES.map((lane) =>
 
 .guide {
   position: absolute;
-  border-top: solid 1px rgba(white, 0.2);
   width: 100vw;
   display: flex;
+  pointer-events: none;
+
+  &.line {
+    border-top: solid 1px rgba(white, 0.2);
+  }
 }
 
 .handle {
@@ -198,5 +240,18 @@ const lanes = LANES.map((lane) =>
   background-color: black;
   border: solid 1px rgba(white, 0.2);
   border-left: none;
+  font-weight: bold;
+  color: rgba(white, 0.2);
+  pointer-events: auto;
+}
+
+.interval-annotation {
+  z-index: 1;
+  padding: 4px;
+  transform: translateY(-50%);
+  color: rgba(white, 0.2);
+  font-weight: bold;
+  font-size: 12px;
+  pointer-events: auto;
 }
 </style>
