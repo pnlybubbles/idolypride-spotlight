@@ -62,7 +62,6 @@ export function simulate(live: LiveData, idol: Idol[]) {
       }))
 
       // Aスキルによるバフ
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const aBuffResult: Result = aState
         .flatMap(({ lane, skill }) => {
           // nullのときはスキル失敗なので、バフの計算はしない
@@ -70,10 +69,8 @@ export function simulate(live: LiveData, idol: Idol[]) {
             return []
           }
           return skill.ability
+            .filter(isType('buff'))
             .map((ability) => {
-              if (ability.type !== 'buff') {
-                return null
-              }
               const lanes = deriveBuffLanes(ability.target, lane, idol)
               return {
                 type: 'buff' as const,
@@ -95,7 +92,7 @@ export function simulate(live: LiveData, idol: Idol[]) {
             return null
           }
           // アイドルがSPを持っているかどうかをチェック
-          const skill = idol[lane].skills.find((skill) => skill.type === 'sp')
+          const skill = idol[lane].skills.find(isType('sp'))
           if (skill === undefined) {
             return { lane, beat: currentBeat, skill: null }
           }
