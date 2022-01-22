@@ -82,7 +82,7 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
               return {
                 type: 'buff' as const,
                 lanes: lanes,
-                span: ability.span,
+                span: clampSpan(ability.span, live.beat, currentBeat),
               }
             })
             .filter(isNonNullable)
@@ -164,7 +164,7 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
               return {
                 type: 'buff' as const,
                 lanes: lanes,
-                span: ability.span,
+                span: clampSpan(ability.span, live.beat, currentBeat),
               }
             })
             .filter(isNonNullable)
@@ -209,6 +209,10 @@ function deriveBuffLanes(target: BuffTarget, selfLane: Lane, idol: ArrayN<Idol, 
     default:
       unreachable(target)
   }
+}
+
+function clampSpan(span: number, liveBeat: number, currentBeat: number) {
+  return Math.min(span, liveBeat - currentBeat)
 }
 
 export function isType<Type extends string>(type: Type) {
