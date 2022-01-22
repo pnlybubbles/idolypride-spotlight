@@ -2,10 +2,27 @@
   <div>
     <h1>{{ live.title }}</h1>
     <div class="sheet">
+      <div class="lane guide-lane">
+        <div v-for="guide in guides" :key="guide.beat" class="guide" :style="guide.style">
+          <div class="handle">{{ guide.beat }}</div>
+        </div>
+      </div>
       <div v-for="(lane, i) in lanes" :key="i" class="lane">
         <template v-for="(item, j) in lane" :key="`${i}-${j}`">
-          <div v-if="item.type === 'sp'" class="sp" :class="{ fail: item.fail }" :style="item.style"></div>
-          <div v-else-if="item.type === 'a'" class="a" :class="{ fail: item.fail }" :style="item.style"></div>
+          <div
+            v-if="item.type === 'sp'"
+            class="sp"
+            :class="{ fail: item.fail }"
+            :style="item.style"
+            @click="tapSP(item)"
+          ></div>
+          <div
+            v-else-if="item.type === 'a'"
+            class="a"
+            :class="{ fail: item.fail }"
+            :style="item.style"
+            @click="tapA(item)"
+          ></div>
           <div v-else-if="item.type === 'p'" class="p" :style="item.style"></div>
           <div v-else-if="item.type === 'buff'" class="buff" :style="item.style"></div>
         </template>
@@ -25,6 +42,22 @@ const route = useRoute()
 const live = liveData.find((v) => v.id === route.params.id)!
 const SCALE_FACTOR = 5
 const height = `${live.beat * SCALE_FACTOR}px`
+const beatGuides = ref<number[]>([])
+const guides = computed(() => beatGuides.value.map((beat) => ({ beat, style: { top: `${beat * SCALE_FACTOR}px` } })))
+const tapSP = (item: Item) => {
+  updateGuide(item.beat)
+}
+const tapA = (item: Item) => {
+  updateGuide(item.beat)
+}
+const updateGuide = (beat: number) => {
+  const index = beatGuides.value.findIndex((v) => v === beat)
+  if (index !== -1) {
+    beatGuides.value.splice(index, 1)
+  } else {
+    beatGuides.value.push(beat)
+  }
+}
 
 const LANES = [0, 1, 2, 3, 4] as const
 const idolIdbyLane = ['reiTakadai', 'reiOsorenai', 'nagisaEmal', 'aoiNureta', 'reiOsorenai'] as const
@@ -32,7 +65,7 @@ const idols = mapArrayN(idolIdbyLane, (id) => idolData[id])
 
 const { result } = simulate(live, idols)
 
-type RenderProps = {
+type Item = {
   beat: number
   style: { top: string; left?: string; height?: string }
 } & (
@@ -86,14 +119,14 @@ const lanes = LANES.map((lane) =>
           style: { ...c.style, left: `calc(50% + ${shift * 10}px)` },
         },
       ]
-    }, [] as RenderProps[])
+    }, [] as Item[])
 )
 </script>
 <style lang="scss" scoped>
 .sheet {
   height: v-bind(height);
   display: grid;
-  grid: auto / repeat(5, auto);
+  grid: auto / 20px repeat(5, auto);
 }
 
 .lane + .lane {
@@ -111,6 +144,11 @@ const lanes = LANES.map((lane) =>
   transform: translate(-50%, -50%);
   border-radius: 100%;
   border: var(--border) solid white;
+
+  &.fail {
+    border-color: red;
+    background: repeating-linear-gradient(45deg, red, red 2px, rgba(red, 0) 2px, rgba(red, 0) 6px);
+  }
 }
 
 .a {
@@ -141,8 +179,24 @@ const lanes = LANES.map((lane) =>
   background-color: rgba(white, 0.4);
 }
 
-.fail {
-  @include skill;
-  border-color: rgba(white, 0.2);
+.guide-lane {
+  z-index: 1;
+}
+
+.guide {
+  position: absolute;
+  border-top: solid 1px rgba(white, 0.2);
+  width: 100vw;
+  display: flex;
+}
+
+.handle {
+  box-sizing: border-box;
+  padding: 4px;
+  transform: translateY(-50%);
+  z-index: 1;
+  background-color: black;
+  border: solid 1px rgba(white, 0.2);
+  border-left: none;
 }
 </style>
