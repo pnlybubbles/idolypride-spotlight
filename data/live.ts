@@ -1,7 +1,15 @@
+export interface LiveData {
+  id: string
+  title: string
+  a: number[][]
+  sp: number[][]
+  beat: number
+}
+
 /**
  * Sunny Peace Harmony
  */
-const sunnyPeaceHarmony = {
+const sunnyPeaceHarmony: LiveData = {
   id: 'sunny-peace-harmony',
   title: 'SUNNY PEACE HARMONY',
   a: [

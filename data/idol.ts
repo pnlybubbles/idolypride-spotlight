@@ -1,4 +1,4 @@
-type NativeSkill = {
+type SkillData = {
   label: string;
   target: "all" | "self" | "2scorers" | "scorer" | "any-sp" | "any-a";
   buff:
@@ -35,15 +35,13 @@ type NativeSkill = {
     }
 );
 
-export type Skill = NativeSkill & { index: number }
-
-interface Character {
+interface IdolData {
   name: string;
   sub: string;
-  skills: NativeSkill[];
+  skills: SkillData[];
 }
 
-const ichinoseReiTakadai: Character = {
+const reiTakadai: IdolData = {
   name: "一ノ瀬怜",
   sub: "高台をかける薫風",
   skills: [
@@ -83,7 +81,7 @@ const ichinoseReiTakadai: Character = {
   ],
 };
 
-const ichinoseReiShippai: Character = {
+const reiOsorenai: IdolData = {
   name: "一ノ瀬怜",
   sub: "高台をかける薫風",
   skills: [
@@ -123,14 +121,19 @@ const ichinoseReiShippai: Character = {
   ],
 };
 
-function withIndex(character: { [id: string]: Character }) {
-  return Object.fromEntries(Object.entries(character).map(([id, v]) => [
+const characters = {
+  reiOsorenai,
+  reiTakadai,
+};
+
+const charactersWithIndex = Object.fromEntries(
+  Object.entries(characters).map(([id, v]) => [
     id,
     { ...v, skills: v.skills.map((w, index) => ({ ...w, index })) },
-  ]));
-}
+  ])
+);
 
-export default withIndex({
-  rei_hojoken: ichinoseReiTakadai,
-  rei_jinken: ichinoseReiShippai,
-});
+export type Idol = (typeof charactersWithIndex)[string]
+export type Skill = Idol['skills'][number]
+
+export default charactersWithIndex;
