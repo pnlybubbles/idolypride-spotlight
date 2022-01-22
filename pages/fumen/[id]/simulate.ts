@@ -58,6 +58,7 @@ export function simulate(live: LiveData, idol: Idol[]) {
       }))
 
       // Aスキルによるバフ
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const aBuffResult: Result = aState
         .map(({ skill }) =>
           skill !== null
