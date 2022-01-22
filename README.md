@@ -1,6 +1,4 @@
-# Nuxt 3 Minimal Starter
-
-We recommend to look at the [documentation](https://v3.nuxtjs.org).
+# Idoly Pride Spotlight
 
 ## Setup
 
@@ -17,6 +15,10 @@ Start the development server on http://localhost:3000
 ```bash
 yarn dev
 ```
+
+## Editor settings (Optional)
+
+Enable Take Over Mode for Volar extension integration. [How to enable](https://github.com/johnsoncodehk/volar/discussions/471).
 
 ## Production
 

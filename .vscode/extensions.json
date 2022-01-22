@@ -1,4 +1,4 @@
 {
   "recommendations": ["johnsoncodehk.volar", "dbaeumer.vscode-eslint", "esbenp.prettier-vscode"],
-  "unwantedRecommendations": ["octref.vetur"]
+  "unwantedRecommendations": ["octref.vetur", "vscode.typescript-language-features"]
 }
