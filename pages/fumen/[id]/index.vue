@@ -2,12 +2,12 @@
   <div>
     <h1>{{ live.title }}</h1>
     <div class="sheet">
-      <div class="lane" v-for="(lane, i) in lanes" :key="i">
+      <div v-for="(lane, i) in lanes" :key="i" class="lane">
         <div
-          class="skill"
-          :class="[item.type, { fail: item.fail }]"
           v-for="(item, j) in lane"
           :key="`${i}-${j}`"
+          class="skill"
+          :class="[item.type, { fail: item.fail }]"
           :style="item.style"
         ></div>
       </div>
@@ -15,43 +15,35 @@
   </div>
 </template>
 <script setup lang="ts">
-import liveData from "../../../data/live";
-import idolData from "../../../data/idol";
+import liveData from '~/data/live'
+import idolData from '~/data/idol'
 import { simulate } from './simulate'
 
-const route = useRoute();
+const route = useRoute()
 // TODO: !
-const live = liveData.find((v) => v.id === route.params.id)!;
-const SCALE_FACTOR = 5;
-const height = `${live.beat * SCALE_FACTOR}px`;
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+const live = liveData.find((v) => v.id === route.params.id)!
+const SCALE_FACTOR = 5
+const height = `${live.beat * SCALE_FACTOR}px`
 
-const LANES = [0, 1, 2, 3, 4];
-const idolIdbyLane: string[] = [
-  "reiTakadai",
-  "reiOsorenai",
-  "reiTakadai",
-  "reiTakadai",
-  "reiTakadai",
-];
+const LANES = [0, 1, 2, 3, 4]
+const idolIdbyLane: string[] = ['reiTakadai', 'reiOsorenai', 'reiTakadai', 'reiTakadai', 'reiTakadai']
 const idol = idolIdbyLane.map((id) => idolData[id])
 
 const { result } = simulate(live, idol)
 
 const lanes = LANES.map((lane) =>
   result
-    .filter((v) =>
-      v.type === "buff" ? v.lane.includes(lane) : v.lane === lane
-    )
+    .filter((v) => (v.type === 'buff' ? v.lane.includes(lane) : v.lane === lane))
     .sort((a, b) => a.beat - b.beat)
     .map((v) => ({
       ...v,
       style: {
         top: `${v.beat * SCALE_FACTOR}px`,
-        height: v.type === "buff" ? `${v.span * SCALE_FACTOR}px` : null,
+        height: v.type === 'buff' ? `${v.span * SCALE_FACTOR}px` : null,
       },
     }))
-);
-console.log(lanes);
+)
 </script>
 <style lang="scss" scoped>
 .sheet {

@@ -1,17 +1,15 @@
 <template>
   <div>
-    <h1>
-      IDOLY PRIDE SPOTLIGHT
-    </h1>
+    <h1>IDOLY PRIDE SPOTLIGHT</h1>
     <div>
-      <NuxtLink :to="`/fumen/${item.id}`" class="item" v-for="item in data" :key="item.id">
-        {{item.title}}
+      <NuxtLink v-for="item in data" :key="item.id" :to="`/fumen/${item.id}`" class="item">
+        {{ item.title }}
       </NuxtLink>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import data from '../data/music'
+import data from '~/data/live'
 </script>
 <style lang="scss" scoped>
 .item {

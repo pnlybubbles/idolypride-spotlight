@@ -20,7 +20,7 @@ const sunnyPeaceHarmony: LiveData = {
     [32, 105, 142],
   ],
   sp: [[], [99], [63], [], []],
-  beat: 167
+  beat: 167,
 }
 
 export default [sunnyPeaceHarmony]
