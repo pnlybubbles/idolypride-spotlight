@@ -32,7 +32,7 @@ type PassiveAbility = {
 }
 type SkillTrigger =
   | {
-      type: 'idle' | 'critical' | 'sp'
+      type: 'idle' | 'critical' | 'sp' | 'a'
     }
   | {
       type: 'combo'

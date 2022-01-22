@@ -59,18 +59,17 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
             .filter(isType('a'))
             // CT中に含まれていない保持スキルを絞り込む
             .filter((skill) => !ctSkills.map((v) => v.index).includes(skill.index))
-          return { lane, beat: currentBeat, skill: canTriggerSkills[0] ?? null }
+          return { lane, skill: canTriggerSkills[0] ?? null }
         })
         .filter(isNonNullable)
-      const aResult: Result = aState.map(({ lane, skill }) => ({
+      const aResult = aState.map(({ lane, skill }) => ({
         type: 'a' as const,
-        beat: currentBeat,
         lane,
         fail: skill === null,
       }))
 
       // Aスキルによるバフ
-      const aBuffResult: Result = aState
+      const aBuffResult = aState
         .flatMap(({ lane, skill }) => {
           // nullのときはスキル失敗なので、バフの計算はしない
           if (skill === null) {
@@ -82,7 +81,6 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
               const lanes = deriveBuffLanes(ability.target, lane, idols)
               return {
                 type: 'buff' as const,
-                beat: currentBeat,
                 lanes: lanes,
                 span: ability.span,
               }
@@ -102,14 +100,13 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
           // アイドルがSPを持っているかどうかをチェック
           const skill = idols[lane].skills.find(isType('sp'))
           if (skill === undefined) {
-            return { lane, beat: currentBeat, skill: null }
+            return { lane, skill: null }
           }
-          return { lane, beat: currentBeat, skill }
+          return { lane, skill }
         })
         .filter(isNonNullable)
       const spResult = spState.map(({ lane, skill }) => ({
         type: 'sp' as const,
-        beat: currentBeat,
         lane,
         fail: skill === null,
       }))
@@ -127,28 +124,62 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
           .map((skill) => {
             switch (skill.trigger.type) {
               case 'idle':
-                return { lane, beat: currentBeat, skill }
+                return { triggeredLane: null, skill }
               case 'sp': {
                 const spLane = spResult.find((v) => !v.fail)?.lane
-                return spLane === undefined ? null : { lane, beat: currentBeat, skill }
+                return spLane === undefined ? null : { triggeredLane: spLane, skill }
+              }
+              case 'a': {
+                const aLane = aResult.find((v) => !v.fail)?.lane
+                return aLane === undefined ? null : { triggeredLane: aLane, skill }
               }
               case 'critical':
                 return null
               case 'combo':
                 return null
+              default:
+                unreachable(skill.trigger)
             }
           })
           .filter(isNonNullable)
+          .map((v) => ({ ...v, lane }))
       })
       const pResult = pState.map(({ lane }) => ({
         type: 'p' as const,
-        beat: currentBeat,
         lane,
       }))
 
+      // Pスキルによるバフ
+      const pBuffResult = pState
+        .flatMap(({ lane, skill, triggeredLane }) => {
+          return skill.ability
+            .filter(isType('buff'))
+            .map((ability) => {
+              const lanes =
+                ability.target === 'triggered'
+                  ? triggeredLane
+                    ? [triggeredLane]
+                    : []
+                  : deriveBuffLanes(ability.target, lane, idols)
+              return {
+                type: 'buff' as const,
+                lanes: lanes,
+                span: ability.span,
+              }
+            })
+            .filter(isNonNullable)
+        })
+        .filter(isNonNullable)
+
       return {
-        result: [...result, ...aResult, ...aBuffResult, ...spResult, ...pResult],
-        state: [...state, ...aState, ...spState, ...pState],
+        result: [
+          ...result,
+          ...[...aResult, ...aBuffResult, ...spResult, ...pResult, ...pBuffResult].map((v) => ({
+            ...v,
+            beat: currentBeat,
+          })),
+        ],
+        state: [...state, ...[...aState, ...spState, ...pState].map((v) => ({ ...v, beat: currentBeat }))],
       }
     },
     { result: [] as Result, state: [] as State }
