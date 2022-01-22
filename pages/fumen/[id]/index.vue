@@ -3,13 +3,12 @@
     <h1>{{ live.title }}</h1>
     <div class="sheet">
       <div v-for="(lane, i) in lanes" :key="i" class="lane">
-        <div
-          v-for="(item, j) in lane"
-          :key="`${i}-${j}`"
-          class="skill"
-          :class="[item.type, { fail: item.fail }]"
-          :style="item.style"
-        ></div>
+        <template v-for="(item, j) in lane" :key="`${i}-${j}`">
+          <div v-if="item.type === 'sp'" class="sp" :class="{ fail: item.fail }" :style="item.style"></div>
+          <div v-else-if="item.type === 'a'" class="a" :class="{ fail: item.fail }" :style="item.style"></div>
+          <div v-else-if="item.type === 'p'" class="p" :style="item.style"></div>
+          <div v-else-if="item.type === 'buff'" class="buff" :style="item.style"></div>
+        </template>
       </div>
     </div>
   </div>
@@ -40,7 +39,7 @@ const lanes = LANES.map((lane) =>
       ...v,
       style: {
         top: `${v.beat * SCALE_FACTOR}px`,
-        height: v.type === 'buff' ? `${v.span * SCALE_FACTOR}px` : null,
+        height: v.type === 'buff' ? `${v.span * SCALE_FACTOR}px` : undefined,
       },
     }))
 )
@@ -60,34 +59,38 @@ const lanes = LANES.map((lane) =>
   position: relative;
 }
 
-.skill {
-  --size: 2px;
+@mixin skill {
   --border: 2px;
   position: absolute;
   left: 50%;
   transform: translate(-50%, -50%);
   border-radius: 100%;
   border: var(--border) solid white;
+}
 
-  &.a {
-    width: 20px;
-    height: 20px;
-  }
+.a {
+  @include skill;
+  width: 20px;
+  height: 20px;
+}
 
-  &.sp {
-    width: 40px;
-    height: 40px;
-  }
+.sp {
+  @include skill;
+  width: 40px;
+  height: 40px;
+}
 
-  &.buff {
-    border-radius: 999999999px;
-    width: calc(var(--size) * 2);
-    transform: translate(-50%, calc((var(--size) + var(--border)) * -1));
-    border-color: rgba(white, 0.4);
-  }
+.buff {
+  @include skill;
+  --size: 2px;
+  border-radius: 999999999px;
+  width: calc(var(--size) * 2);
+  transform: translate(-50%, calc((var(--size) + var(--border)) * -1));
+  border-color: rgba(white, 0.4);
+}
 
-  &.fail {
-    border-color: rgba(white, 0.2);
-  }
+.fail {
+  @include skill;
+  border-color: rgba(white, 0.2);
 }
 </style>
