@@ -1,10 +1,12 @@
 import { Idol, Skill } from '~/data/idol'
-import { BuffTarget, Lane, LiveData } from '~/utils/types'
+import { BuffTarget, BuffType, Lane, LiveData } from '~/utils/types'
 import isNonNullable from 'is-non-nullable'
 import { ArrayN, indexed, unreachable } from '~~/utils'
 
 type Result = ({
   beat: number
+  // 色付けに使うバフID
+  buff: BuffType | null
 } & (
   | {
       type: 'p'
@@ -64,6 +66,7 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
         .filter(isNonNullable)
       const aResult = aState.map(({ lane, skill }) => ({
         type: 'a' as const,
+        buff: skill?.ability[0]?.buff ?? null,
         lane,
         fail: skill === null,
       }))
@@ -81,6 +84,7 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
               const lanes = deriveBuffLanes(ability.target, lane, idols)
               return {
                 type: 'buff' as const,
+                buff: ability.buff,
                 lanes: lanes,
                 span: clampSpan(ability.span, live.beat, currentBeat),
               }
@@ -107,6 +111,7 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
         .filter(isNonNullable)
       const spResult = spState.map(({ lane, skill }) => ({
         type: 'sp' as const,
+        buff: skill?.ability[0]?.buff ?? null,
         lane,
         fail: skill === null,
       }))
@@ -144,8 +149,9 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
           .filter(isNonNullable)
           .map((v) => ({ ...v, lane }))
       })
-      const pResult = pState.map(({ lane }) => ({
+      const pResult = pState.map(({ lane, skill }) => ({
         type: 'p' as const,
+        buff: skill.ability[0]?.buff ?? null,
         lane,
       }))
 
@@ -163,6 +169,7 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
                   : deriveBuffLanes(ability.target, lane, idols)
               return {
                 type: 'buff' as const,
+                buff: skill.ability[0]?.buff ?? null,
                 lanes: lanes,
                 span: clampSpan(ability.span, live.beat, currentBeat),
               }

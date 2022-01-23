@@ -37,6 +37,7 @@ import idolData from '~/data/idol'
 import { isType, simulate } from './simulate'
 import { mapArrayN } from '~~/utils'
 import isNonNullable from 'is-non-nullable'
+import { theme } from '~~/utils/theme'
 
 const route = useRoute()
 // TODO: !
@@ -132,6 +133,7 @@ const lanes = LANES.map((lane) =>
       ...v,
       style: {
         top: `${v.beat * SCALE_FACTOR}px`,
+        '--color': v.buff ? theme.buff[v.buff] : theme.buff.otherwise,
         ...(v.type === 'buff'
           ? {
               height: `${v.span * SCALE_FACTOR}px`,
@@ -184,7 +186,7 @@ const lanes = LANES.map((lane) =>
   left: 50%;
   transform: translate(-50%, -50%);
   border-radius: 100%;
-  border: var(--border) solid white;
+  border: var(--border) solid var(--color);
 
   &.fail {
     border-color: red;
@@ -214,13 +216,15 @@ const lanes = LANES.map((lane) =>
 }
 
 .buff {
-  @include skill;
   --size: 2px;
+  position: absolute;
+  left: 50%;
   border-radius: 999999999px;
   width: calc(var(--size) * 2);
   transform: translate(-50%, calc(var(--size) * -1));
   border: none;
-  background-color: rgba(white, 0.4);
+  background-color: var(--color);
+  opacity: 0.4;
   z-index: 0;
 }
 
