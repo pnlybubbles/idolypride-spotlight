@@ -1,5 +1,5 @@
-import { Lane, LiveData } from '~/data/live'
-import { BuffTarget, Idol, Skill } from '~/data/idol'
+import { Idol, Skill } from '~/data/idol'
+import { BuffTarget, Lane, LiveData } from '~/utils/types'
 import isNonNullable from 'is-non-nullable'
 import { ArrayN, indexed, unreachable } from '~~/utils'
 

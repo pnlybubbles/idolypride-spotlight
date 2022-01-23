@@ -1,14 +1,4 @@
-import { ArrayN, NumberUnion } from '~~/utils'
-
-export type Lane = NumberUnion<5>
-
-export interface LiveData {
-  readonly id: string
-  readonly title: string
-  readonly a: ArrayN<readonly number[], 5>
-  readonly sp: ArrayN<readonly number[], 5>
-  readonly beat: number
-}
+import { LiveData } from '~/utils/types'
 
 /**
  * Sunny Peace Harmony
