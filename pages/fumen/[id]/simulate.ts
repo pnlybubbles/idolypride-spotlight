@@ -30,7 +30,7 @@ type State = {
 }[]
 
 export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
-  const BEATS = new Array(live.beat).fill(0).map((_, i) => i)
+  const BEATS = new Array(live.beat).fill(0).map((_, i) => i + 1)
   return BEATS.reduce(
     ({ result, state }, currentBeat) => {
       // CT中のスキルを絞り込む
@@ -212,7 +212,7 @@ function deriveBuffLanes(target: BuffTarget, selfLane: Lane, idol: ArrayN<Idol, 
 }
 
 function clampSpan(span: number, liveBeat: number, currentBeat: number) {
-  return Math.min(span, liveBeat - currentBeat)
+  return Math.min(span, liveBeat - currentBeat + 1)
 }
 
 export function isType<Type extends string>(type: Type) {
