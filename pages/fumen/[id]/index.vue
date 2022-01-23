@@ -141,7 +141,7 @@ const lanes = LANES.map((lane) =>
         '--color': v.buff ? theme.buff[v.buff] : theme.buff.otherwise,
         ...(v.type === 'buff'
           ? {
-              height: `${v.span * SCALE_FACTOR}px`,
+              height: `${(v.span - 1) * SCALE_FACTOR}px`,
             }
           : {}),
       },
