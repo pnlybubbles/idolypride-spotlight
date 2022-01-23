@@ -24,7 +24,7 @@
             :style="item.style"
             @click="tapA(item)"
           ></div>
-          <div v-else-if="item.type === 'p'" class="p" :style="item.style"></div>
+          <div v-else-if="item.type === 'p'" class="p" :style="item.style" @click="tapP(item)"></div>
           <div v-else-if="item.type === 'buff'" class="buff" :style="item.style"></div>
         </template>
       </div>
@@ -86,6 +86,9 @@ const tapSP = (item: Item) => {
   updateGuide(item.beat)
 }
 const tapA = (item: Item) => {
+  updateGuide(item.beat)
+}
+const tapP = (item: Item) => {
   updateGuide(item.beat)
 }
 const updateGuide = (beat: number) => {
@@ -168,7 +171,7 @@ const lanes = LANES.map((lane) =>
 }
 
 .lane + .lane {
-  /* border-left: 1px solid #333; */
+  border-left: 1px solid rgba(white, 0.1);
 }
 
 .lane {
@@ -193,18 +196,21 @@ const lanes = LANES.map((lane) =>
   @include skill;
   width: 20px;
   height: 20px;
+  z-index: 1;
 }
 
 .p {
   @include skill;
-  width: 4px;
-  height: 4px;
+  width: 8px;
+  height: 8px;
+  z-index: 1;
 }
 
 .sp {
   @include skill;
   width: 40px;
   height: 40px;
+  z-index: 1;
 }
 
 .buff {
@@ -215,6 +221,7 @@ const lanes = LANES.map((lane) =>
   transform: translate(-50%, calc(var(--size) * -1));
   border: none;
   background-color: rgba(white, 0.4);
+  z-index: 0;
 }
 
 .guide-lane {
