@@ -55,3 +55,7 @@ export function mapObject<S extends string | number, T, U>(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return Object.fromEntries(Object.entries(object).map(([key, value]) => [key, map(value as T)])) as any
 }
+
+export function uid() {
+  return Math.random().toString(36).substr(2, 9)
+}

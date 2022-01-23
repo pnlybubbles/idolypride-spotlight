@@ -1,9 +1,10 @@
 import { Idol, Skill } from '~/data/idol'
 import { BuffTarget, BuffType, Lane, LiveData } from '~/utils/types'
 import isNonNullable from 'is-non-nullable'
-import { ArrayN, indexed, unreachable } from '~~/utils'
+import { ArrayN, indexed, uid, unreachable } from '~~/utils'
 
 type Result = ({
+  id: string
   beat: number
   // 色付けに使うバフID
   buff: BuffType | null
@@ -21,6 +22,7 @@ type Result = ({
       type: 'buff'
       lane: Lane
       span: number
+      affected: boolean
     }
 ))[]
 
@@ -48,7 +50,10 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
   return BEATS.reduce(
     ({ result, state }, currentBeat) => {
       const appendBeat = <T>(v: T) => ({ ...v, beat: currentBeat })
+      const appendAffected = <T>(v: T) => ({ ...v, affected: false })
+      const appendId = <T>(v: T) => ({ ...v, id: uid() })
       const inCT = (beat: number, ct: number) => beat + ct >= currentBeat
+      const clampSpan = (span: number, liveBeat: number) => Math.min(span, liveBeat - currentBeat + 1)
 
       // CT中のスキルを絞り込む
       const ctState = state
@@ -120,6 +125,7 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
           fail: skill === null,
         }))
         .map(appendBeat)
+        .map(appendId)
 
       if (!true) {
         const _: Result = aResult
@@ -141,13 +147,15 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
                 type: 'buff' as const,
                 buff: ability.buff,
                 lane,
-                span: clampSpan(ability.span, live.beat, currentBeat),
+                span: clampSpan(ability.span, live.beat),
               }))
             })
             .filter(isNonNullable)
         })
         .filter(isNonNullable)
         .map(appendBeat)
+        .map(appendAffected)
+        .map(appendId)
 
       if (!true) {
         const _: Result = aBuffResult
@@ -186,6 +194,7 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
           fail: skill === null,
         }))
         .map(appendBeat)
+        .map(appendId)
 
       if (!true) {
         const _: Result = spResult
@@ -207,13 +216,15 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
                 type: 'buff' as const,
                 buff: ability.buff,
                 lane,
-                span: clampSpan(ability.span, live.beat, currentBeat),
+                span: clampSpan(ability.span, live.beat),
               }))
             })
             .filter(isNonNullable)
         })
         .filter(isNonNullable)
         .map(appendBeat)
+        .map(appendAffected)
+        .map(appendId)
 
       if (!true) {
         const _: Result = spBuffResult
@@ -275,6 +286,7 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
           lane,
         }))
         .map(appendBeat)
+        .map(appendId)
 
       if (!true) {
         const _: Result = pResult
@@ -297,21 +309,54 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
                 type: 'buff' as const,
                 buff: ability.buff,
                 lane,
-                span: clampSpan(ability.span, live.beat, currentBeat),
+                span: clampSpan(ability.span, live.beat),
               }))
             })
             .filter(isNonNullable)
         })
         .filter(isNonNullable)
         .map(appendBeat)
+        .map(appendAffected)
+        .map(appendId)
 
       if (!true) {
         const _: Result = pBuffResult
         _
       }
 
+      const tmpResult = [
+        ...result,
+        ...aResult,
+        ...aBuffResult,
+        ...spResult,
+        ...spBuffResult,
+        ...pResult,
+        ...pBuffResult,
+      ]
+
+      // スコア獲得スキルにバフが効いているかをチェック
+      // 注意:
+      // - このビートで発動したSP,A,Pスキルでのバフはそのスキル自身のスコア獲得に影響を与える (Pは未検証)
+      // - スコア獲得スキルを持たないSP,Aスキルは存在しない前提
+
+      // 現在のバフを取得
+      const availableBuffs = tmpResult.filter(isType('buff')).filter(
+        (v) =>
+          // スキルが発動したビートからバフがかかる
+          // バフがかかる最後のビートは、発動ビート + 持続ビート数 - 1
+          currentBeat >= v.beat && currentBeat <= v.beat + v.span - 1
+      )
+      // TODO: Pのスコア獲得スキル対応
+      // スコア獲得スキルが発動したレーン
+      const scoredLanes = [...aState, ...spState].map((v) => v.lane)
+      const affectedBuffs = availableBuffs
+        .filter((v) => scoredLanes.includes(v.lane))
+        .map((v) => ({ ...v, affected: true }))
+
+      const newResult = [...tmpResult.filter((v) => !affectedBuffs.map((v) => v.id).includes(v.id)), ...affectedBuffs]
+
       return {
-        result: [...result, ...aResult, ...aBuffResult, ...spResult, ...spBuffResult, ...pResult, ...pBuffResult],
+        result: newResult,
         state: [...state, ...aState, ...spState, ...pState],
       }
     },
@@ -342,10 +387,6 @@ function deriveBuffLanes(target: BuffTarget, selfLane: Lane, idol: ArrayN<Idol, 
     default:
       unreachable(target)
   }
-}
-
-function clampSpan(span: number, liveBeat: number, currentBeat: number) {
-  return Math.min(span, liveBeat - currentBeat + 1)
 }
 
 export const isType =

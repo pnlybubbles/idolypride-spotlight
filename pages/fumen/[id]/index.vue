@@ -25,7 +25,12 @@
             @click="tapA(item)"
           ></div>
           <div v-else-if="item.type === 'p'" class="p" :style="item.style" @click="tapP(item)"></div>
-          <div v-else-if="item.type === 'buff'" class="buff" :style="item.style"></div>
+          <div
+            v-else-if="item.type === 'buff'"
+            class="buff"
+            :class="{ shade: !item.affected }"
+            :style="item.style"
+          ></div>
         </template>
       </div>
     </div>
@@ -80,7 +85,6 @@ const guides = computed<GuideProps[]>(() => {
       num: interval,
       style: { top: `${(prevBeat - interval / 2) * SCALE_FACTOR}px` },
     }))
-  console.log(lines, intervals)
   return [...lines, ...intervals]
 })
 const tapSP = (item: Item) => {
@@ -120,6 +124,7 @@ type Item = {
     }
   | {
       type: 'buff'
+      affected: boolean
       span: number
       shift: number
     }
@@ -190,7 +195,7 @@ const lanes = LANES.map((lane) =>
 
   &.fail {
     border-color: red;
-    background: repeating-linear-gradient(45deg, red, red 2px, rgba(red, 0) 2px, rgba(red, 0) 6px);
+    background: repeating-linear-gradient(45deg, red, red 2px, transparent 2px, transparent 6px);
   }
 }
 
@@ -226,6 +231,10 @@ const lanes = LANES.map((lane) =>
   background-color: var(--color);
   opacity: 0.4;
   z-index: 0;
+
+  &.shade {
+    background: repeating-linear-gradient(45deg, var(--color), var(--color) 2px, transparent 2px, transparent 4px);
+  }
 }
 
 .guide-lane {
