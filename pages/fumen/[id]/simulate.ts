@@ -19,7 +19,7 @@ type Result = ({
     }
   | {
       type: 'buff'
-      lanes: Lane[]
+      lane: Lane
       span: number
     }
 ))[]
@@ -135,14 +135,14 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
           }
           return skill.ability
             .filter(isType('buff'))
-            .map((ability) => {
+            .flatMap((ability) => {
               const lanes = deriveBuffLanes(ability.target, lane, idols)
-              return {
+              return lanes.map((lane) => ({
                 type: 'buff' as const,
                 buff: ability.buff,
-                lanes: lanes,
+                lane,
                 span: clampSpan(ability.span, live.beat, currentBeat),
-              }
+              }))
             })
             .filter(isNonNullable)
         })
@@ -201,14 +201,14 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
           }
           return skill.ability
             .filter(isType('buff'))
-            .map((ability) => {
+            .flatMap((ability) => {
               const lanes = deriveBuffLanes(ability.target, lane, idols)
-              return {
+              return lanes.map((lane) => ({
                 type: 'buff' as const,
                 buff: ability.buff,
-                lanes: lanes,
+                lane,
                 span: clampSpan(ability.span, live.beat, currentBeat),
-              }
+              }))
             })
             .filter(isNonNullable)
         })
@@ -286,24 +286,29 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
         .flatMap(({ lane, skill, triggeredLane }) => {
           return skill.ability
             .filter(isType('buff'))
-            .map((ability) => {
+            .flatMap((ability) => {
               const lanes =
                 ability.target === 'triggered'
                   ? triggeredLane
                     ? [triggeredLane]
                     : []
                   : deriveBuffLanes(ability.target, lane, idols)
-              return {
+              return lanes.map((lane) => ({
                 type: 'buff' as const,
-                buff: skill.ability[0]?.buff ?? null,
-                lanes: lanes,
+                buff: ability.buff,
+                lane,
                 span: clampSpan(ability.span, live.beat, currentBeat),
-              }
+              }))
             })
             .filter(isNonNullable)
         })
         .filter(isNonNullable)
         .map(appendBeat)
+
+      if (!true) {
+        const _: Result = pBuffResult
+        _
+      }
 
       return {
         result: [...result, ...aResult, ...aBuffResult, ...spResult, ...spBuffResult, ...pResult, ...pBuffResult],

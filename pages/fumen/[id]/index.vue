@@ -127,7 +127,7 @@ type Item = {
 
 const lanes = LANES.map((lane) =>
   result
-    .filter((v) => (v.type === 'buff' ? v.lanes.includes(lane) : v.lane === lane))
+    .filter((v) => v.lane === lane)
     .sort((a, b) => a.beat - b.beat)
     .map((v) => ({
       ...v,
