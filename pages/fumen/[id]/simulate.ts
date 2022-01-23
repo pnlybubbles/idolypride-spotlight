@@ -116,8 +116,31 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
         fail: skill === null,
       }))
 
+      // SPスキルによるバフ
+      const spBuffResult = spState
+        .flatMap(({ lane, skill }) => {
+          // nullのときはスキル失敗なので、バフの計算はしない
+          if (skill === null) {
+            return []
+          }
+          return skill.ability
+            .filter(isType('buff'))
+            .map((ability) => {
+              const lanes = deriveBuffLanes(ability.target, lane, idols)
+              return {
+                type: 'buff' as const,
+                buff: ability.buff,
+                lanes: lanes,
+                span: clampSpan(ability.span, live.beat, currentBeat),
+              }
+            })
+            .filter(isNonNullable)
+        })
+        .filter(isNonNullable)
+
       // Pスキルの発動チェック
       const pState = indexed(idols).flatMap(([idol, lane]) => {
+        // CT中ではない発動可能なPスキルがあるかチェック
         const ctSkills = ctState
           .filter((v) => v.lane === lane)
           .map((v) => v.skill)
@@ -129,18 +152,23 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
           .map((skill) => {
             switch (skill.trigger.type) {
               case 'idle':
+                // 無条件
                 return { triggeredLane: null, skill }
               case 'sp': {
+                // 誰かがSPスキルは発動時
                 const spLane = spResult.find((v) => !v.fail)?.lane
                 return spLane === undefined ? null : { triggeredLane: spLane, skill }
               }
               case 'a': {
+                // 誰かがAスキル発動時
                 const aLane = aResult.find((v) => !v.fail)?.lane
                 return aLane === undefined ? null : { triggeredLane: aLane, skill }
               }
               case 'critical':
+                // TODO
                 return null
               case 'combo':
+                // TODO
                 return null
               default:
                 unreachable(skill.trigger)
@@ -181,7 +209,7 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
       return {
         result: [
           ...result,
-          ...[...aResult, ...aBuffResult, ...spResult, ...pResult, ...pBuffResult].map((v) => ({
+          ...[...aResult, ...aBuffResult, ...spResult, ...spBuffResult, ...pResult, ...pBuffResult].map((v) => ({
             ...v,
             beat: currentBeat,
           })),
