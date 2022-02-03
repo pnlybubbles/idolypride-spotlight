@@ -9,28 +9,18 @@
         </div>
       </div>
       <div v-for="(lane, i) in lanes" :key="i" class="lane">
-        <template v-for="(item, j) in lane" :key="`${i}-${j}`">
-          <div
-            v-if="item.type === 'sp'"
-            class="sp"
-            :class="{ fail: item.fail }"
-            :style="item.style"
-            @click="tapSP(item)"
-          ></div>
-          <div
-            v-else-if="item.type === 'a'"
-            class="a"
-            :class="{ fail: item.fail }"
-            :style="item.style"
-            @click="tapA(item)"
-          ></div>
-          <div v-else-if="item.type === 'p'" class="p" :style="item.style" @click="tapP(item)"></div>
-          <div
+        <template v-for="item in lane" :key="item.id">
+          <SpSkill v-if="item.type === 'sp'" :beat="item.beat" :buff="item.buff" :fail="item.fail"></SpSkill>
+          <ASkill v-else-if="item.type === 'a'" :beat="item.beat" :buff="item.buff" :fail="item.fail"></ASkill>
+          <PSkill v-else-if="item.type === 'p'" :beat="item.beat" :buff="item.buff"></PSkill>
+          <Buff
             v-else-if="item.type === 'buff'"
-            class="buff"
-            :class="{ shade: !item.affected }"
-            :style="item.style"
-          ></div>
+            :beat="item.beat"
+            :buff="item.buff"
+            :affected="item.affected"
+            :span="item.span"
+            :shift="item.shift"
+          ></Buff>
         </template>
       </div>
     </div>
@@ -42,14 +32,14 @@ import idolData from '~/data/idol'
 import { isType, simulate } from './simulate'
 import { mapArrayN } from '~~/utils'
 import isNonNullable from 'is-non-nullable'
-import { theme } from '~~/utils/theme'
+import { BuffType } from '~~/utils/types'
 
 const route = useRoute()
 // TODO: !
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const live = liveData.find((v) => v.id === route.params.id)!
 const SCALE_FACTOR = 5
-const height = `${live.beat * SCALE_FACTOR}px`
+const beat = live.beat
 const beatGuides = ref<number[]>([])
 type GuideProps = {
   style: { top: string }
@@ -112,8 +102,9 @@ const idols = mapArrayN(idolIdbyLane, (id) => idolData[id])
 const { result } = simulate(live, idols)
 
 type Item = {
+  id: string
   beat: number
-  style: { top: string; left?: string; height?: string }
+  buff: BuffType
 } & (
   | {
       type: 'sp' | 'a'
@@ -134,18 +125,6 @@ const lanes = LANES.map((lane) =>
   result
     .filter((v) => v.lane === lane)
     .sort((a, b) => a.beat - b.beat)
-    .map((v) => ({
-      ...v,
-      style: {
-        top: `${v.beat * SCALE_FACTOR}px`,
-        '--color': v.buff ? theme.buff[v.buff] : theme.buff.otherwise,
-        ...(v.type === 'buff'
-          ? {
-              height: `${(v.span - 1) * SCALE_FACTOR}px`,
-            }
-          : {}),
-      },
-    }))
     .reduce((acc, c) => {
       if (c.type !== 'buff') {
         return [...acc, c]
@@ -164,15 +143,16 @@ const lanes = LANES.map((lane) =>
         {
           ...c,
           shift,
-          style: { ...c.style, left: `calc(50% + ${shift * 10}px)` },
         },
       ]
     }, [] as Item[])
 )
 </script>
 <style lang="scss" scoped>
+@import '~/utils/variables.scss';
+
 .sheet {
-  height: v-bind(height);
+  height: calc(v-bind(beat) * $scale-factor);
   display: grid;
   grid: auto / 20px repeat(5, auto);
 }
@@ -183,58 +163,6 @@ const lanes = LANES.map((lane) =>
 
 .lane {
   position: relative;
-}
-
-@mixin skill {
-  --border: 2px;
-  position: absolute;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  border-radius: 100%;
-  border: var(--border) solid var(--color);
-
-  &.fail {
-    border-color: red;
-    background: repeating-linear-gradient(45deg, red, red 2px, transparent 2px, transparent 6px);
-  }
-}
-
-.a {
-  @include skill;
-  width: 20px;
-  height: 20px;
-  z-index: 1;
-}
-
-.p {
-  @include skill;
-  width: 8px;
-  height: 8px;
-  z-index: 1;
-}
-
-.sp {
-  @include skill;
-  width: 40px;
-  height: 40px;
-  z-index: 1;
-}
-
-.buff {
-  --size: 2px;
-  position: absolute;
-  left: 50%;
-  border-radius: 999999999px;
-  width: calc(var(--size) * 2);
-  transform: translate(-50%, calc(var(--size) * -1));
-  border: none;
-  background-color: var(--color);
-  opacity: 0.4;
-  z-index: 0;
-
-  &.shade {
-    background: repeating-linear-gradient(45deg, var(--color), var(--color) 2px, transparent 2px, transparent 4px);
-  }
 }
 
 .guide-lane {

@@ -17,7 +17,7 @@ export const colors = [
 const normal = '#cccccc'
 
 type Theme = {
-  buff: { [key in BuffType | 'otherwise']: string }
+  buff: { [key in BuffType]: string }
 }
 
 export const theme: Theme = {
@@ -35,6 +35,6 @@ export const theme: Theme = {
     ct: normal,
     'buff-amount': normal,
     'buff-span': normal,
-    otherwise: normal,
+    unknown: normal,
   },
 }

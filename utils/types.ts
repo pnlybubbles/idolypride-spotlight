@@ -14,6 +14,7 @@ export type BuffType =
   | 'stamina'
   | 'buff-span'
   | 'buff-amount'
+  | 'unknown'
 
 export type BuffTarget = 'all' | 'self' | '1-scorer' | '2-scorers'
 

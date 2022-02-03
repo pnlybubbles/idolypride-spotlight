@@ -1,0 +1,19 @@
+$skill-border: 2px;
+
+@mixin skill($size, $color, $top) {
+  position: absolute;
+  top: $top;
+  left: 50%;
+  border: $skill-border solid $color;
+  width: $size;
+  height: $size;
+  transform: translate(-50%, -50%);
+  border-radius: 100%;
+}
+
+@mixin failable {
+  &.fail {
+    border-color: red;
+    background: repeating-linear-gradient(45deg, red, red 2px, transparent 2px, transparent 6px);
+  }
+}

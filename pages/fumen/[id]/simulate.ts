@@ -7,7 +7,7 @@ type Result = ({
   id: string
   beat: number
   // 色付けに使うバフID
-  buff: BuffType | null
+  buff: BuffType
 } & (
   | {
       type: 'p'
@@ -120,7 +120,7 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
       const aResult = aState
         .map(({ lane, skill }) => ({
           type: 'a' as const,
-          buff: skill?.ability[0]?.buff ?? null,
+          buff: skill?.ability[0]?.buff ?? 'unknown',
           lane,
           fail: skill === null,
         }))
@@ -189,7 +189,7 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
       const spResult = spState
         .map(({ lane, skill }) => ({
           type: 'sp' as const,
-          buff: skill?.ability[0]?.buff ?? null,
+          buff: skill?.ability[0]?.buff ?? 'unknown',
           lane,
           fail: skill === null,
         }))
@@ -282,7 +282,7 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
       const pResult = pState
         .map(({ lane, skill }) => ({
           type: 'p' as const,
-          buff: skill.ability[0]?.buff ?? null,
+          buff: skill.ability[0]?.buff ?? 'unknown',
           lane,
         }))
         .map(appendBeat)
