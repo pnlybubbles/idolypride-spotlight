@@ -1,6 +1,8 @@
 <template>
   <div>
     <h1>IDOLY PRIDE SPOTLIGHT</h1>
+    <div v-if="isAuthenticated">{{ user?.displayName }}</div>
+    <button v-else @click="signIn">Sign In</button>
     <div>
       <NuxtLink v-for="item in data" :key="item.id" :to="`/fumen/${item.id}`" class="item">
         {{ item.title }}
@@ -10,9 +12,16 @@
 </template>
 <script setup lang="ts">
 import data from '~/data/live'
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
+import { useAuth } from '@vueuse/firebase'
+
+const { $auth } = useNuxtApp()
+const { isAuthenticated, user } = useAuth($auth)
+const signIn = () => signInWithPopup($auth, new GoogleAuthProvider())
 </script>
 <style lang="scss" scoped>
 .item {
+  display: inline-block;
   border: solid 1px white;
   border-radius: 4px;
   padding: 10px;

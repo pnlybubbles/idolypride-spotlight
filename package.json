@@ -12,6 +12,7 @@
     "fmt:prettier": "prettier '**/*.{json,yml}' --write --ignore-path .gitignore"
   },
   "devDependencies": {
+    "@types/eslint": "^8.4.1",
     "@types/prettier": "^2.4.3",
     "@vue/eslint-config-prettier": "^7.0.0",
     "@vue/eslint-config-typescript": "^10.0.0",
@@ -27,6 +28,8 @@
     "vls": "^0.7.6"
   },
   "dependencies": {
+    "@vueuse/firebase": "^7.6.0",
+    "firebase": "^9.6.6",
     "is-non-nullable": "^1.0.2"
   },
   "packageManager": "yarn@3.1.1"
