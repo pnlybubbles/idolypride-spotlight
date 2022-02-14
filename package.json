@@ -28,8 +28,10 @@
     "vls": "^0.7.6"
   },
   "dependencies": {
+    "@urql/vue": "^0.6.1",
     "@vueuse/firebase": "^7.6.0",
     "firebase": "^9.6.6",
+    "graphql": "^16.3.0",
     "is-non-nullable": "^1.0.2"
   },
   "packageManager": "yarn@3.1.1"

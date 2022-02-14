@@ -1,8 +1,9 @@
 <template>
   <div>
     <h1>IDOLY PRIDE SPOTLIGHT</h1>
-    <div v-if="isAuthenticated">{{ user?.displayName }}</div>
+    <div v-if="isAuthenticated">{{ user?.email }}</div>
     <button v-else @click="signIn">Sign In</button>
+    <NuxtLink to="/idol">アイドル一覧</NuxtLink>
     <div>
       <NuxtLink v-for="item in data" :key="item.id" :to="`/fumen/${item.id}`" class="item">
         {{ item.title }}
