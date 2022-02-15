@@ -1,0 +1,6 @@
+query getIdolList {
+  idol {
+    id
+    name
+  }
+}

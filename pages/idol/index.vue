@@ -11,8 +11,8 @@
 </template>
 <script setup lang="ts">
 import { useQuery } from '@urql/vue'
-import { GET_IDOL_LIST } from '~~/api/idol'
-const { data, fetching } = await useQuery({ query: GET_IDOL_LIST })
-const idolList = data.value.idol
+import { GetIdolListDocument } from '~/generated/graphql'
+const { data, fetching } = await useQuery({ query: GetIdolListDocument })
+const idolList = data.value?.idol ?? []
 </script>
 <style lang="scss" scoped></style>
