@@ -13,12 +13,10 @@
 </template>
 <script setup lang="ts">
 import data from '~/data/live'
-import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
-import { useAuth } from '@vueuse/firebase'
+import { useAuth } from '~~/composable/auth0'
 
-const { $auth } = useNuxtApp()
-const { isAuthenticated, user } = useAuth($auth)
-const signIn = () => signInWithPopup($auth, new GoogleAuthProvider())
+const { $auth0 } = useNuxtApp()
+const { isAuthenticated, user, signIn } = useAuth($auth0)
 </script>
 <style lang="scss" scoped>
 .item {
