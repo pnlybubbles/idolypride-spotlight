@@ -14,6 +14,7 @@ export function useAuth(auth0Client: Auth0Client) {
   onMounted(() => {
     void retrieve()
   })
+  const getToken = () => auth0Client.getTokenSilently()
   const signIn = async () => {
     try {
       await auth0Client.loginWithPopup()
@@ -22,8 +23,6 @@ export function useAuth(auth0Client: Auth0Client) {
       console.error(e)
     }
   }
-  const signOut = () => {
-    // TODO
-  }
-  return { isAuthenticated, user, signIn, signOut }
+  const signOut = () => auth0Client.logout()
+  return { isAuthenticated, user, getToken, signIn, signOut }
 }

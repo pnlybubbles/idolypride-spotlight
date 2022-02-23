@@ -1,8 +1,13 @@
 <template>
   <div>
     <h1>IDOLY PRIDE SPOTLIGHT</h1>
-    <div v-if="isAuthenticated">{{ user?.email }}</div>
-    <button v-else @click="signIn">Sign In</button>
+    <div v-if="isAuthenticated">
+      <span>{{ user?.email }}</span>
+      <button @click="signOut">サインアウト</button>
+    </div>
+    <div v-else>
+      <button @click="signIn">サインイン</button>
+    </div>
     <NuxtLink to="/idol">アイドル一覧</NuxtLink>
     <div>
       <NuxtLink v-for="item in data" :key="item.id" :to="`/fumen/${item.id}`" class="item">
@@ -16,7 +21,15 @@ import data from '~/data/live'
 import { useAuth } from '~~/composable/auth0'
 
 const { $auth0 } = useNuxtApp()
-const { isAuthenticated, user, signIn } = useAuth($auth0)
+const { isAuthenticated, user, getToken, signIn, signOut } = useAuth($auth0)
+
+watchEffect(async () => {
+  if (!user.value) {
+    return
+  }
+  const token = await getToken()
+  console.log(token)
+})
 </script>
 <style lang="scss" scoped>
 .item {
