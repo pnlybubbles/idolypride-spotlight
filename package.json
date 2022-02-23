@@ -10,7 +10,7 @@
     "fmt": "run-p 'fmt:*'",
     "fmt:eslint": "cross-env DEBUG=eslint:cli-engine eslint '**/*.{ts,js,vue}' --max-warnings=0 --fix",
     "fmt:prettier": "prettier '**/*.{json,yml}' --write --ignore-path .gitignore",
-    "graphql": "graphql-codegen --config codegen.yml"
+    "graphql": "graphql-codegen --config codegen.config.js"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "2.6.2",
