@@ -2,6 +2,12 @@ query getIdolList {
   idol {
     id
     name
-    updated_at
+  }
+}
+
+mutation createIdol($object: idol_insert_input!) {
+  insert_idol_one(object: $object) {
+    id
+    name
   }
 }
