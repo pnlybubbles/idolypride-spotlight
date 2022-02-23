@@ -12,7 +12,10 @@
 <script setup lang="ts">
 import { useQuery } from '@urql/vue'
 import { GetIdolListDocument } from '~/generated/graphql'
-const { data, fetching } = await useQuery({ query: GetIdolListDocument })
-const idolList = data.value?.idol ?? []
+const { data, fetching, error } = useQuery({ query: GetIdolListDocument })
+if (error.value) {
+  console.error(error.value)
+}
+const idolList = computed(() => data.value?.idol ?? [])
 </script>
 <style lang="scss" scoped></style>

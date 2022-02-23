@@ -2,5 +2,6 @@ query getIdolList {
   idol {
     id
     name
+    updated_at
   }
 }

@@ -20,8 +20,7 @@
 import data from '~/data/live'
 import { useAuth } from '~~/composable/auth0'
 
-const { $auth0 } = useNuxtApp()
-const { isAuthenticated, user, getToken, signIn, signOut } = useAuth($auth0)
+const { isAuthenticated, user, getToken, signIn, signOut } = useAuth()
 
 watchEffect(async () => {
   if (!user.value) {
