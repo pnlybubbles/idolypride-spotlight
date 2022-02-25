@@ -3,6 +3,7 @@
     :model="modelValue"
     class="text-field"
     type="text"
+    :placeholder="placeholder ?? ''"
     :disabled="disabled ?? false"
     @input="$emit('update:modelValue', ($event.target as any).value)"
   />
@@ -11,6 +12,7 @@
 interface Props {
   modelValue: string
   disabled?: boolean
+  placeholder?: string
 }
 interface Emits {
   (e: 'update:modelValue', value: string): void
