@@ -19,14 +19,16 @@ defineProps<Props>()
 defineEmits<Emits>()
 </script>
 <style lang="scss" scoped>
+@import './token.scss';
+
 .text-field {
   border: 0;
-  background-color: rgba(#fff, 0.1);
+  background-color: $surface1;
   padding: 8px;
   border-radius: 4px;
   font-size: 16px;
   line-height: 1em;
-  color: #fff;
+  color: $text1;
   outline: none;
 }
 </style>

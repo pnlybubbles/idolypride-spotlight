@@ -3,7 +3,7 @@ import { BuffType } from '~~/utils/types'
 
 const SCALE_FACTOR = 5
 
-const px = (value: number) => `${value}px`
+export const px = (value: number) => `${value}px`
 
 export const cssBeat = (beat: number) => px(beat * SCALE_FACTOR)
 

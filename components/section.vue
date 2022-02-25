@@ -18,6 +18,8 @@
 }
 
 .label {
+  font-weight: bold;
   font-size: 12px;
+  color: $text2;
 }
 </style>
