@@ -4,3 +4,7 @@ body {
   color: white;
   font-family: 'Avenir Next', Arial, Helvetica, sans-serif;
 }
+
+* {
+  box-sizing: border-box;
+}

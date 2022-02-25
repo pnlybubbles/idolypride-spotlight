@@ -14,11 +14,14 @@
         {{ item.title }}
       </NuxtLink>
     </div>
+    <button @click="present = true">譜面追加</button>
+    <Sheet v-model:present="present">譜面追加</Sheet>
   </div>
 </template>
 <script setup lang="ts">
 import data from '~/data/live'
 import { useAuth } from '~~/composable/auth0'
+import Sheet from '~~/components/sheet.vue'
 
 const { isAuthenticated, user, getToken, signIn, signOut } = useAuth()
 
@@ -29,6 +32,7 @@ watchEffect(async () => {
   const token = await getToken()
   console.log(token)
 })
+const present = ref(false)
 </script>
 <style lang="scss" scoped>
 .item {
