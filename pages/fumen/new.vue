@@ -4,7 +4,7 @@
     <VStack :spacing="16">
       <Section>
         <template #label>タイトル</template>
-        <TextField v-model="name" placeholder="Sunny Peace Harmony"></TextField>
+        <TextField v-model="title" placeholder="Sunny Peace Harmony"></TextField>
       </Section>
       <Section>
         <template #label>ビート数</template>
@@ -31,24 +31,34 @@
         <TextField v-model="spSkill[4]" placeholder=""></TextField>
       </Section>
     </VStack>
-    <!-- <button :disabled="fetching" @click="submit">追加</button> -->
+    <button :disabled="fetching" @click="submit">追加</button>
   </Shell>
 </template>
 <script setup lang="ts">
-// import { useMutation } from '@urql/vue'
-// import { CreateIdolDocument } from '~~/generated/graphql'
+import { useMutation } from '@urql/vue'
+import { CreateFumenDocument } from '~~/generated/graphql'
 
-// const { push } = useRouter()
-const name = ref('')
+const { push } = useRouter()
+const title = ref('')
 const beat = ref('')
 const aSkill = reactive(['', '', '', '', ''] as const)
 const spSkill = reactive(['', '', '', '', ''] as const)
-// const { executeMutation, fetching } = useMutation(CreateIdolDocument)
-// const submit = async () => {
-//   await executeMutation({ object: { name: name.value } })
-//   name.value = ''
-//   push('/idol')
-// }
+const parseSpaceSeparatedInt = (value: string) =>
+  value
+    .split(' ')
+    .filter((v) => v !== '')
+    .map((v) => parseInt(v, 10))
+const aSkillArray = computed(() => aSkill.map(parseSpaceSeparatedInt))
+const spSkillArray = computed(() => spSkill.map(parseSpaceSeparatedInt))
+const { executeMutation, fetching } = useMutation(CreateFumenDocument)
+const submit = async () => {
+  const { error } = await executeMutation({
+    object: { title: title.value, beat: parseInt(beat.value, 10), a: aSkillArray.value, sp: spSkillArray.value },
+  })
+  if (error === undefined) {
+    push('/')
+  }
+}
 </script>
 <style lang="scss" scoped>
 @import '~/components/token.scss';

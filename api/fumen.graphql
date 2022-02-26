@@ -1,0 +1,15 @@
+query getFumentList {
+  fumen {
+    id
+    title
+  }
+}
+
+mutation createFumen($object: fumen_insert_input!) {
+  insert_fumen_one(object: $object) {
+    title
+    beat
+    a
+    sp
+  }
+}
