@@ -32,5 +32,9 @@ defineEmits<Emits>()
   line-height: 1em;
   color: $text1;
   outline: none;
+
+  &::placeholder {
+    color: $text3;
+  }
 }
 </style>
