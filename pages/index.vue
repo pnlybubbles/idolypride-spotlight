@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <h1>IDOLY PRIDE SPOTLIGHT</h1>
+  <Shell>
+    <template #heading>IDOLY PRIDE SPOTLIGHT</template>
     <div v-if="isAuthenticated">
       <span>{{ user?.email }}</span>
       <button @click="signOut">サインアウト</button>
@@ -15,7 +15,7 @@
       </NuxtLink>
     </div>
     <NuxtLink to="/fumen/new">譜面追加</NuxtLink>
-  </div>
+  </Shell>
 </template>
 <script setup lang="ts">
 import data from '~/data/live'

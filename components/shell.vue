@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="shell">
     <h1 class="heading">
       <slot name="heading"></slot>
     </h1>

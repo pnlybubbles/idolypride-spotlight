@@ -1,9 +1,9 @@
 <template>
-  <div>
-    <h1>アイドル追加</h1>
+  <Shell>
+    <template #heading>アイドル追加</template>
     <input v-model="name" type="text" :disabled="fetching" />
     <button :disabled="fetching" @click="submit">追加</button>
-  </div>
+  </Shell>
 </template>
 <script setup lang="ts">
 import { useMutation } from '@urql/vue'
