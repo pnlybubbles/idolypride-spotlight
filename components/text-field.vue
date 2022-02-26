@@ -8,10 +8,11 @@
       :placeholder="placeholder ?? ''"
       :disabled="disabled ?? false"
       @input="$emit('update:modelValue', ($event.target as any).value)"
-      @focus="focusing = true"
-      @blur="focusing = false"
+      @focus="handleFocus"
+      @blur="handleBlur"
     />
-    <div v-if="errorHysteresis" class="assistive error"><slot name="error"></slot></div>
+    <div v-if="requiredError" class="assistive error">この項目は必須です</div>
+    <div v-else-if="errorHysteresis" class="assistive error"><slot name="error"></slot></div>
   </div>
 </template>
 <script setup lang="ts">
@@ -20,13 +21,25 @@ interface Props {
   disabled?: boolean
   placeholder?: string
   error?: boolean
+  required?: boolean
 }
 interface Emits {
   (e: 'update:modelValue', value: string): void
 }
 const props = defineProps<Props>()
 defineEmits<Emits>()
+
 const focusing = ref(false)
+const onceFocused = ref(false)
+const handleFocus = () => {
+  focusing.value = true
+  onceFocused.value = true
+}
+const handleBlur = () => {
+  focusing.value = false
+}
+
+// フォーカス中にエラーになった場合には、アンフォーカスするまでエラーを出さない
 const errorHysteresis = ref(false)
 watchEffect(() => {
   if (focusing.value && props.error) {
@@ -34,6 +47,9 @@ watchEffect(() => {
   }
   errorHysteresis.value = props.error ?? false
 })
+
+// 一度フォーカスして、入力せずに、アンフォーカスした場合にエラーを出す
+const requiredError = computed(() => props.required && onceFocused.value && !focusing.value && props.modelValue === '')
 </script>
 <style lang="scss" scoped>
 @import './token.scss';

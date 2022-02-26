@@ -4,11 +4,11 @@
     <VStack :spacing="16">
       <Section>
         <template #label>タイトル</template>
-        <TextField v-model="title" placeholder="Sunny Peace Harmony"></TextField>
+        <TextField v-model="title" placeholder="Sunny Peace Harmony" required></TextField>
       </Section>
       <Section>
         <template #label>ビート数</template>
-        <TextField v-model="beat" placeholder="167"></TextField>
+        <TextField v-model="beat" placeholder="167" required></TextField>
       </Section>
       <Section>
         <template #label>Aスキル</template>
