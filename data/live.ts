@@ -3,7 +3,7 @@ import { LiveData } from '~/utils/types'
 /**
  * Sunny Peace Harmony
  */
-const sunnyPeaceHarmony: LiveData = {
+export const SUNNY_PEACE_HARMONY: LiveData = {
   id: 'sunny-peace-harmony',
   title: 'SUNNY PEACE HARMONY',
   a: [
@@ -17,4 +17,4 @@ const sunnyPeaceHarmony: LiveData = {
   beat: 167,
 } as const
 
-export default [sunnyPeaceHarmony]
+export default [SUNNY_PEACE_HARMONY]
