@@ -78,6 +78,7 @@ export type Lane = NumberUnion<5>
 export interface LiveData {
   readonly id: string
   readonly title: string
+  readonly unit: string
   readonly a: ArrayN<readonly number[], 5>
   readonly sp: ArrayN<readonly number[], 5>
   readonly beat: number

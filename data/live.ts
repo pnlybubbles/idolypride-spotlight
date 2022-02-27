@@ -6,6 +6,7 @@ import { LiveData } from '~/utils/types'
 export const SUNNY_PEACE_HARMONY: LiveData = {
   id: 'sunny-peace-harmony',
   title: 'SUNNY PEACE HARMONY',
+  unit: 'サニーピース',
   a: [
     [28, 64, 120],
     [24, 128, 167],
