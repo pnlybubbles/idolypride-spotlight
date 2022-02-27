@@ -2,12 +2,14 @@ query getFumentList {
   fumen {
     id
     title
+    unit
   }
 }
 
 mutation createFumen($object: fumen_insert_input!) {
   insert_fumen_one(object: $object) {
     title
+    unit
     beat
     a
     sp

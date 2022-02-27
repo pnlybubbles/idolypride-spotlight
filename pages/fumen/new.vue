@@ -7,6 +7,15 @@
         <TextField v-model="title" placeholder="Sunny Peace Harmony" required></TextField>
       </Section>
       <Section>
+        <template #label>ユニット</template>
+        <TextField v-model="unit" placeholder="サニーピース" :error="!validUnit(unit)" required>
+          <template #error
+            >サニーピース, 月のテンペスト, TRINITYAiLE, LizNoir, MACARON DONUTS, 長瀬麻奈
+            のどれかを入力してください</template
+          >
+        </TextField>
+      </Section>
+      <Section>
         <template #label>ビート数</template>
         <TextField v-model="beat" placeholder="167" :error="!validPositiveInt(beat)" required>
           <template #error>半角数字で入力してください</template>
@@ -57,9 +66,12 @@ import { validSpaceSeparatedPositiveInt, validPositiveInt } from '~~/utils/valid
 
 const router = useRouter()
 const title = ref('')
+const unit = ref('')
 const beat = ref('')
 const aSkill = reactive(['', '', '', '', ''] as const)
 const spSkill = reactive(['', '', '', '', ''] as const)
+const validUnit = (value: string) =>
+  /サニーピース|月のテンペスト|TRINITYAiLE|LizNoir|MACARON DONUTS|長瀬麻奈/.test(value)
 const parseSpaceSeparatedInt = (value: string) =>
   value
     .split(' ')
@@ -72,7 +84,13 @@ const { invalid } = useForm()
 const { executeMutation, fetching } = useMutation(CreateFumenDocument)
 const submit = async () => {
   const { error } = await executeMutation({
-    object: { title: title.value, beat: parseInt(beat.value, 10), a: aSkillArray.value, sp: spSkillArray.value },
+    object: {
+      title: title.value,
+      unit: unit.value,
+      beat: parseInt(beat.value, 10),
+      a: aSkillArray.value,
+      sp: spSkillArray.value,
+    },
   })
   if (error === undefined) {
     void router.push('/')
