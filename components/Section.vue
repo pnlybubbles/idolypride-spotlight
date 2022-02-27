@@ -7,7 +7,7 @@
   </div>
 </template>
 <style lang="scss" scoped>
-@import './token.scss';
+@import '~~/components/partials/token.scss';
 
 .section {
   @include align;

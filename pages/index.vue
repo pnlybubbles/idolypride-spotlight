@@ -40,7 +40,7 @@ if (error.value) {
 const fumenList = computed(() => data.value?.fumen ?? [])
 </script>
 <style lang="scss" scoped>
-@import '~~/components/token.scss';
+@import '~~/components/partials/token.scss';
 
 .list {
   @include align;

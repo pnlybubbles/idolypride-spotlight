@@ -4,7 +4,8 @@
   </div>
 </template>
 <script setup lang="ts">
-import { px } from './helper'
+import { px } from '~~/utils/common'
+
 interface Props {
   spacing: number
 }

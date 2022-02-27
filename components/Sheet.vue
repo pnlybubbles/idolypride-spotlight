@@ -25,7 +25,7 @@ onMounted(() => {
 })
 </script>
 <style lang="scss" scoped>
-@import './token.scss';
+@import '~~/components/partials/token.scss';
 
 .sheet {
   position: fixed;

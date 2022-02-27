@@ -8,7 +8,7 @@ interface Props {
 defineProps<Props>()
 </script>
 <style lang="scss" scoped>
-@import './partials/utils.scss';
+@import '~~/components/partials/utils.scss';
 
 .button-link {
   @include button-like;

@@ -27,8 +27,8 @@ const present = ref(false)
 const { user, signOut } = useAuth()
 </script>
 <style lang="scss" scoped>
-@import './token.scss';
-@import './partials/utils.scss';
+@import '~~/components/partials/token.scss';
+@import '~~/components/partials/utils.scss';
 
 .menu-button {
   @include reset-button;

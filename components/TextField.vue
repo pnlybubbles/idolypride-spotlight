@@ -70,7 +70,7 @@ watchEffect(() => {
 useFormComponent(computed(() => ({ error: requiredError.value || validationError.value })))
 </script>
 <style lang="scss" scoped>
-@import './token.scss';
+@import '~~/components/partials/token.scss';
 
 .text-field {
   display: grid;

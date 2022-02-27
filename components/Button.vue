@@ -15,8 +15,8 @@ defineProps<Props>()
 defineEmits<Emits>()
 </script>
 <style lang="scss" scoped>
-@import './token.scss';
-@import './partials/utils.scss';
+@import '~~/components/partials/token.scss';
+@import '~~/components/partials/utils.scss';
 
 .button {
   @include reset-button;

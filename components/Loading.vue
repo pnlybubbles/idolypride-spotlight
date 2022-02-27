@@ -31,7 +31,7 @@ watchEffect(() => {
 })
 </script>
 <style lang="scss" scoped>
-@import './token.scss';
+@import '~~/components/partials/token.scss';
 
 .overlay {
   position: fixed;
