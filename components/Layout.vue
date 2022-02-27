@@ -4,16 +4,12 @@
       <slot name="heading"></slot>
     </h1>
     <slot></slot>
-    <MenuBar v-if="!disableMenu"></MenuBar>
+    <Menu v-if="isAuthenticated"></Menu>
   </div>
 </template>
 <script setup lang="ts">
-interface Props {
-  disableMenu?: boolean
-}
-withDefaults(defineProps<Props>(), {
-  disableMenu: false,
-})
+import { useAuth } from '~~/composable/auth0'
+const { isAuthenticated } = useAuth()
 </script>
 <style lang="scss" scoped>
 @import './token.scss';
