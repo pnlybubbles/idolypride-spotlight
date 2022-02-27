@@ -61,10 +61,10 @@ const requiredError = computed(() => props.required && onceFocused.value && !foc
 }
 
 .input {
+  @include round-corner;
   border: 0;
   background-color: $surface1;
   padding: 8px;
-  border-radius: 4px;
   font-size: 16px;
   line-height: 1em;
   color: $text1;

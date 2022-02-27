@@ -3,9 +3,14 @@
   padding-right: 24px;
 }
 
+@mixin round-corner {
+  border-radius: 4px;
+}
+
 $text1: #fff;
 $text2: rgba(#fff, 0.8);
 $text3: rgba(#fff, 0.3);
 $error: #da5019;
 $background1: #000;
 $surface1: rgba(#fff, 0.1);
+$primary: #1428ff;

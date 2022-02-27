@@ -9,6 +9,10 @@
 <style lang="scss" scoped>
 @import './token.scss';
 
+.shell {
+  padding-bottom: 40px;
+}
+
 .heading {
   @include align;
 }

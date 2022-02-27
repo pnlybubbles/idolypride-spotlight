@@ -40,8 +40,10 @@
           <template #error>ビート数を半角スペース区切りで入力してください</template>
         </TextField>
       </Section>
+      <Section>
+        <Button :disabled="fetching" @click="submit">追加</Button>
+      </Section>
     </VStack>
-    <button :disabled="fetching" @click="submit">追加</button>
   </Shell>
 </template>
 <script setup lang="ts">
