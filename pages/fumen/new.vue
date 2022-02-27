@@ -8,7 +8,9 @@
       </Section>
       <Section>
         <template #label>ビート数</template>
-        <TextField v-model="beat" placeholder="167" required></TextField>
+        <TextField v-model="beat" placeholder="167" :error="!validPositiveInt(beat)" required>
+          <template #error>半角数字で入力してください</template>
+        </TextField>
       </Section>
       <Section>
         <template #label>Aスキル</template>
@@ -18,7 +20,7 @@
           :key="i"
           v-model="aSkill[i]"
           :placeholder="A_SKILL_PLACEHOLDER[i]"
-          :error="aSkillInvalid[i]"
+          :error="!validSpaceSeparatedPositiveInt(aSkill[i])"
         >
           <template #error>ビート数を半角スペース区切りで入力してください</template>
         </TextField>
@@ -33,7 +35,7 @@
           :key="i"
           v-model="spSkill[i]"
           :placeholder="SP_SKILL_PLACEHOLDER[i]"
-          :error="spSkillInvalid[i]"
+          :error="!validSpaceSeparatedPositiveInt(spSkill[i])"
         >
           <template #error>ビート数を半角スペース区切りで入力してください</template>
         </TextField>
@@ -48,6 +50,7 @@ import { SUNNY_PEACE_HARMONY } from '~~/data/live'
 import { CreateFumenDocument } from '~~/generated/graphql'
 import { mapArrayN } from '~~/utils'
 import { LANES } from '~~/utils/common'
+import { validSpaceSeparatedPositiveInt, validPositiveInt } from '~~/utils/validation'
 
 const { push } = useRouter()
 const title = ref('')
@@ -59,11 +62,8 @@ const parseSpaceSeparatedInt = (value: string) =>
     .split(' ')
     .filter((v) => v !== '')
     .map((v) => parseInt(v, 10))
-const notPositiveInt = (int: number) => !Number.isSafeInteger(int) || int <= 0
 const aSkillArray = computed(() => mapArrayN(aSkill, parseSpaceSeparatedInt))
 const spSkillArray = computed(() => mapArrayN(spSkill, parseSpaceSeparatedInt))
-const aSkillInvalid = computed(() => mapArrayN(aSkillArray.value, (v) => v.some(notPositiveInt)))
-const spSkillInvalid = computed(() => mapArrayN(spSkillArray.value, (v) => v.some(notPositiveInt)))
 const { executeMutation, fetching } = useMutation(CreateFumenDocument)
 const submit = async () => {
   const { error } = await executeMutation({

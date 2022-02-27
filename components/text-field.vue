@@ -3,7 +3,7 @@
     <input
       :model="modelValue"
       class="input"
-      :class="{ error: errorHysteresis }"
+      :class="{ error: showError }"
       type="text"
       :placeholder="placeholder ?? ''"
       :disabled="disabled ?? false"
@@ -12,7 +12,7 @@
       @blur="handleBlur"
     />
     <div v-if="requiredError" class="assistive error">この項目は必須です</div>
-    <div v-else-if="errorHysteresis" class="assistive error"><slot name="error"></slot></div>
+    <div v-else-if="showError" class="assistive error"><slot name="error"></slot></div>
   </div>
 </template>
 <script setup lang="ts">
@@ -40,12 +40,12 @@ const handleBlur = () => {
 }
 
 // フォーカス中にエラーになった場合には、アンフォーカスするまでエラーを出さない
-const errorHysteresis = ref(false)
+const showError = ref(false)
 watchEffect(() => {
   if (focusing.value && props.error) {
     return
   }
-  errorHysteresis.value = props.error ?? false
+  showError.value = props.error ?? false
 })
 
 // 一度フォーカスして、入力せずに、アンフォーカスした場合にエラーを出す
