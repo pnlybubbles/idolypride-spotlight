@@ -4,5 +4,6 @@ module.exports = {
   rules: {
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     'vue/multi-word-component-names': 'off',
+    'vue/component-name-in-template-casing': 'error',
   },
 }
