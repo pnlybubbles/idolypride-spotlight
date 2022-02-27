@@ -4,6 +4,7 @@
       <slot name="heading"></slot>
     </h1>
     <slot></slot>
+    <MenuBar></MenuBar>
   </div>
 </template>
 <style lang="scss" scoped>

@@ -14,28 +14,10 @@ defineEmits<Emits>()
 </script>
 <style lang="scss" scoped>
 @import './token.scss';
+@import './partials/utils.scss';
 
 .button {
-  /* Reset user-agent styles */
-  appearance: none;
-  background: transparent;
-  padding: 0;
-  border-style: none;
-  outline: none;
-  color: inherit;
-  text-rendering: inherit;
-  letter-spacing: inherit;
-  word-spacing: inherit;
-
-  &:focus {
-    outline: none;
-  }
-
-  /* Change the font styles in all browsers. */
-  font: inherit;
-
-  /* Remove the margin in Firefox and Safari. */
-  margin: 0;
+  @include reset-button;
 
   /* Custom styles */
   font-size: 14px;

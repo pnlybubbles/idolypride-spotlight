@@ -3,8 +3,17 @@
   padding-right: 24px;
 }
 
-@mixin round-corner {
-  border-radius: 4px;
+@mixin round-corner($variant: 'S') {
+  $border-radius-map: (
+    'S': 4px,
+    'L': 16px,
+  );
+  border-radius: map-get($border-radius-map, $variant);
+}
+
+@mixin background-blur {
+  backdrop-filter: blur(20px);
+  background-color: $surface1;
 }
 
 $text1: #fff;
