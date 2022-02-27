@@ -41,6 +41,7 @@ const fumenList = computed(() => data.value?.fumen ?? [])
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
+@import '~~/components/partials/utils.scss';
 
 .list {
   @include align;
@@ -51,6 +52,8 @@ const fumenList = computed(() => data.value?.fumen ?? [])
 }
 
 .item {
+  @include clickable;
+
   display: grid;
   background-color: $surface1;
   border-radius: 4px;

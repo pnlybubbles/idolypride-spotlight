@@ -32,8 +32,15 @@
   text-align: center;
 
   @include round-corner;
+  @include clickable;
+}
 
+@mixin clickable {
   &:disabled {
     opacity: 0.32;
+  }
+
+  &:active {
+    opacity: 0.64;
   }
 }

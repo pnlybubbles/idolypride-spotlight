@@ -32,6 +32,7 @@ const { user, signOut } = useAuth()
 
 .menu-button {
   @include reset-button;
+  @include clickable;
 
   display: grid;
   align-items: center;
