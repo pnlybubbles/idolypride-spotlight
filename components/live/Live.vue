@@ -8,17 +8,17 @@
     </div>
     <div v-for="(lane, i) in lanes" :key="i" class="lane">
       <template v-for="item in lane" :key="item.id">
-        <SPSkill v-if="item.type === 'sp'" :beat="item.beat" :buff="item.buff" :fail="item.fail"></SPSkill>
-        <ASkill v-else-if="item.type === 'a'" :beat="item.beat" :buff="item.buff" :fail="item.fail"></ASkill>
-        <PSkill v-else-if="item.type === 'p'" :beat="item.beat" :buff="item.buff"></PSkill>
-        <Buff
+        <LiveSPSkill v-if="item.type === 'sp'" :beat="item.beat" :buff="item.buff" :fail="item.fail"></LiveSPSkill>
+        <LiveASkill v-else-if="item.type === 'a'" :beat="item.beat" :buff="item.buff" :fail="item.fail"></LiveASkill>
+        <LivePSkill v-else-if="item.type === 'p'" :beat="item.beat" :buff="item.buff"></LivePSkill>
+        <LiveBuff
           v-else-if="item.type === 'buff'"
           :beat="item.beat"
           :buff="item.buff"
           :affected="item.affected"
           :span="item.span"
           :shift="item.shift"
-        ></Buff>
+        ></LiveBuff>
       </template>
     </div>
   </div>
