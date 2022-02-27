@@ -1,13 +1,14 @@
 <template>
-  <div v-if="busy">
-    <Spinner></Spinner>
-  </div>
-  <div v-else-if="!isAuthenticated">
-    <button @click="signIn">サインイン</button>
-  </div>
-  <Shell v-else-if="isAuthenticated">
+  <Shell :disable-menu="!isAuthenticated">
     <template #heading>IDOLY PRIDE SPOTLIGHT</template>
-    <div class="list">
+    <div v-if="busy" class="busy-view">
+      <Spinner></Spinner>
+    </div>
+    <div v-else-if="!isAuthenticated" class="signin-view">
+      <NoteText>非公式のファンサイトです。公式とは一切関係ありませんので、迷惑をかけないようお願いします。</NoteText>
+      <Button @click="signIn">サインイン</Button>
+    </div>
+    <div v-else-if="isAuthenticated" class="list">
       <NuxtLink v-for="item in fumenList" :key="item.id" :to="`/fumen/${item.id}`" class="item">
         <div class="title">{{ item.title }}</div>
         <div class="unit">
@@ -41,7 +42,7 @@ if (error.value) {
 const fumenList = computed(() => data.value?.fumen ?? [])
 </script>
 <style lang="scss" scoped>
-@import '../components/token.scss';
+@import '~~/components/token.scss';
 
 .list {
   @include align;
@@ -75,8 +76,14 @@ const fumenList = computed(() => data.value?.fumen ?? [])
   margin-right: 4px;
 }
 
-a {
-  color: white;
-  text-decoration: none;
+.signin-view {
+  @include align;
+  display: grid;
+  gap: 16px;
+}
+
+.busy-view {
+  display: grid;
+  justify-items: center;
 }
 </style>

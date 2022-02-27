@@ -4,9 +4,17 @@
       <slot name="heading"></slot>
     </h1>
     <slot></slot>
-    <MenuBar></MenuBar>
+    <MenuBar v-if="!disableMenu"></MenuBar>
   </div>
 </template>
+<script setup lang="ts">
+interface Props {
+  disableMenu?: boolean
+}
+withDefaults(defineProps<Props>(), {
+  disableMenu: false,
+})
+</script>
 <style lang="scss" scoped>
 @import './token.scss';
 
