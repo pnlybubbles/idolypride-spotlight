@@ -14,7 +14,7 @@
       </Section>
       <Section>
         <template #label>Aスキル</template>
-        <div class="note">一番左のレーンから順に、レーンごとのAスキルの発動ビートをスペース区切りで入力します</div>
+        <NoteText>一番左のレーンから順に、レーンごとのAスキルの発動ビートをスペース区切りで入力します</NoteText>
         <TextField
           v-for="i in LANES"
           :key="i"
@@ -27,9 +27,9 @@
       </Section>
       <Section>
         <template #label>SPスキル</template>
-        <div class="note">
+        <NoteText>
           一番左のレーンから順に、レーンごとのSPスキルの発動ビートを入力します。SPレーンではない場合には入力する必要はありません
-        </div>
+        </NoteText>
         <TextField
           v-for="i in LANES"
           :key="i"
@@ -81,11 +81,4 @@ const submit = async () => {
 const A_SKILL_PLACEHOLDER = mapArrayN(SUNNY_PEACE_HARMONY.a, (v) => v.join(' '))
 const SP_SKILL_PLACEHOLDER = mapArrayN(SUNNY_PEACE_HARMONY.sp, (v) => v.join(' '))
 </script>
-<style lang="scss" scoped>
-@import '~/components/token.scss';
-
-.note {
-  font-size: 12px;
-  color: $text3;
-}
-</style>
+<style lang="scss" scoped></style>

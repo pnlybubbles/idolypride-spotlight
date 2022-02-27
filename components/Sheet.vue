@@ -30,10 +30,10 @@ defineEmits<Emits>()
   position: absolute;
   left: 0;
   bottom: 0;
-  height: 90%;
   width: 100%;
   background-color: #000;
   border-radius: 24px 24px 0 0;
   padding-top: 24px;
+  padding-bottom: 40px;
 }
 </style>

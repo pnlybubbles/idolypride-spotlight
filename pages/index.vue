@@ -7,24 +7,19 @@
   </div>
   <Shell v-else-if="isAuthenticated">
     <template #heading>IDOLY PRIDE SPOTLIGHT</template>
-    <span>{{ user?.email }}</span>
-    <div>
-      <button @click="signOut">サインアウト</button>
-      <NuxtLink to="/idol">アイドル一覧</NuxtLink>
-    </div>
-    <div>
+    <div class="list">
       <NuxtLink v-for="item in data" :key="item.id" :to="`/fumen/${item.id}`" class="item">
         {{ item.title }}
       </NuxtLink>
+      <Link to="/fumen/new">譜面追加</Link>
     </div>
-    <NuxtLink to="/fumen/new">譜面追加</NuxtLink>
   </Shell>
 </template>
 <script setup lang="ts">
 import data from '~/data/live'
 import { useAuth } from '~~/composable/auth0'
 
-const { isAuthenticated, user, busy, getToken, signIn, signOut } = useAuth()
+const { isAuthenticated, user, busy, getToken, signIn } = useAuth()
 
 watchEffect(async () => {
   if (!user.value) {
@@ -35,12 +30,24 @@ watchEffect(async () => {
 })
 </script>
 <style lang="scss" scoped>
-.item {
-  display: inline-block;
-  border: solid 1px white;
-  border-radius: 4px;
-  padding: 10px;
+@import '../components/token.scss';
+
+.list {
+  @include align;
+
+  display: grid;
+  grid: auto-flow / auto;
+  gap: 16px;
 }
+
+.item {
+  display: block;
+  background-color: $surface1;
+  border-radius: 4px;
+  padding: 16px;
+  font-weight: bold;
+}
+
 a {
   color: white;
   text-decoration: none;

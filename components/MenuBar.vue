@@ -1,19 +1,33 @@
 <template>
   <teleport to="body">
     <div class="menu-bar">
-      <NuxtLink class="menu-button" to="/">
+      <NuxtLink class="menu-button" to="/" :class="{ active: active === 'top' }">
         <font-awesome-icon icon="music" />
       </NuxtLink>
-      <NuxtLink class="menu-button" to="/idol">
+      <NuxtLink class="menu-button" to="/idol" :class="{ active: active === 'idol' }">
         <font-awesome-icon icon="user-group" />
       </NuxtLink>
-      <button class="menu-button">
+      <button class="menu-button" @click="present = true">
         <font-awesome-icon icon="gear" />
       </button>
     </div>
+    <Sheet v-model:present="present">
+      <Section>
+        <template #label>ユーザー情報</template>
+        <NoteText>{{ user?.email }}</NoteText>
+        <Button @click="signOut">サインアウト</Button>
+      </Section>
+    </Sheet>
   </teleport>
 </template>
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useAuth } from '~~/composable/auth0'
+
+const route = useRoute()
+const active = route.path === '/' ? 'top' : route.path === '/idol' ? 'idol' : null
+const present = ref(false)
+const { user, signOut } = useAuth()
+</script>
 <style lang="scss" scoped>
 @import './token.scss';
 @import './partials/utils.scss';
@@ -26,6 +40,11 @@
   justify-items: center;
   width: 40px;
   height: 40px;
+  color: $text1;
+
+  &.active {
+    color: $primary;
+  }
 }
 
 .menu-bar {
