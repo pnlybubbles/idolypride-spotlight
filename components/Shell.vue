@@ -10,6 +10,7 @@
 @import './token.scss';
 
 .shell {
+  padding-top: 20px;
   padding-bottom: 40px;
 }
 

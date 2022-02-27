@@ -1,14 +1,17 @@
 <template>
-  <Shell>
+  <div v-if="busy">
+    <Spinner></Spinner>
+  </div>
+  <div v-else-if="!isAuthenticated">
+    <button @click="signIn">サインイン</button>
+  </div>
+  <Shell v-else-if="isAuthenticated">
     <template #heading>IDOLY PRIDE SPOTLIGHT</template>
-    <div v-if="isAuthenticated">
-      <span>{{ user?.email }}</span>
+    <span>{{ user?.email }}</span>
+    <div>
       <button @click="signOut">サインアウト</button>
+      <NuxtLink to="/idol">アイドル一覧</NuxtLink>
     </div>
-    <div v-else>
-      <button @click="signIn">サインイン</button>
-    </div>
-    <NuxtLink to="/idol">アイドル一覧</NuxtLink>
     <div>
       <NuxtLink v-for="item in data" :key="item.id" :to="`/fumen/${item.id}`" class="item">
         {{ item.title }}
@@ -21,7 +24,7 @@
 import data from '~/data/live'
 import { useAuth } from '~~/composable/auth0'
 
-const { isAuthenticated, user, getToken, signIn, signOut } = useAuth()
+const { isAuthenticated, user, busy, getToken, signIn, signOut } = useAuth()
 
 watchEffect(async () => {
   if (!user.value) {

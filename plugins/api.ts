@@ -1,23 +1,25 @@
-import createAuth0Client from '@auth0/auth0-spa-js'
+import createAuth0Client, { Auth0Client } from '@auth0/auth0-spa-js'
 import { authExchange, AuthConfig } from '@urql/exchange-auth'
 import { makeOperation, createClient, dedupExchange, cacheExchange, fetchExchange } from '@urql/vue'
 
-export default defineNuxtPlugin(async (nuxtApp) => {
-  const auth0 = process.client
-    ? await createAuth0Client({
-        domain: 'dev-vc3eyhhs.us.auth0.com',
-        client_id: 'q74cyAZzpoWhhLkMlqmViZ61mNtAWsoB',
-        audience: 'https://hasura.io/learn',
-      })
-    : null
+export default defineNuxtPlugin((nuxtApp) => {
+  const auth0 = ref<Auth0Client | null>(null)
+
+  if (process.client) {
+    void createAuth0Client({
+      domain: 'dev-vc3eyhhs.us.auth0.com',
+      client_id: 'q74cyAZzpoWhhLkMlqmViZ61mNtAWsoB',
+      audience: 'https://hasura.io/learn',
+    }).then((v) => (auth0.value = v))
+  }
 
   const authConfig: AuthConfig<{ token: string }> = {
     getAuth: async () => {
-      if (!auth0) {
+      if (!auth0.value) {
         return null
       }
       try {
-        const token = await auth0.getTokenSilently()
+        const token = await auth0.value.getTokenSilently()
         return { token }
       } catch {
         return null
