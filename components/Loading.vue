@@ -49,7 +49,7 @@ watchEffect(() => {
   display: grid;
   grid: auto auto / auto;
   justify-items: center;
-  gap: 4px;
+  gap: 8px;
 }
 
 .message {

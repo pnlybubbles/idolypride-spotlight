@@ -11,7 +11,9 @@
 <script setup lang="ts">
 import { useQuery } from '@urql/vue'
 import { GetIdolListDocument } from '~/generated/graphql'
-const { data, fetching, error } = useQuery({ query: GetIdolListDocument })
+import { useAuth } from '~~/composable/auth0'
+const { notAuthenticated } = useAuth()
+const { data, fetching, error } = useQuery({ query: GetIdolListDocument, pause: notAuthenticated })
 if (error.value) {
   console.error(error.value)
 }

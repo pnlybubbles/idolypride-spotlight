@@ -7,6 +7,7 @@
 </template>
 <script setup lang="ts">
 import { useQuery } from '@urql/vue'
+import { useAuth } from '~~/composable/auth0'
 import { GetFumenDocument } from '~~/generated/graphql'
 import { ArrayN } from '~~/utils'
 import { LiveData } from '~~/utils/types'
@@ -14,7 +15,8 @@ import { LiveData } from '~~/utils/types'
 const route = useRoute()
 
 const id = route.params.id as string
-const { data, error, fetching } = useQuery({ query: GetFumenDocument, variables: { id: id } })
+const { notAuthenticated } = useAuth()
+const { data, error, fetching } = useQuery({ query: GetFumenDocument, variables: { id: id }, pause: notAuthenticated })
 if (error.value) {
   console.error(error.value)
 }

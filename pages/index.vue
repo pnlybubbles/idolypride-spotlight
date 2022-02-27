@@ -1,14 +1,11 @@
 <template>
   <Layout>
     <template #heading>IDOLY PRIDE SPOTLIGHT</template>
-    <div v-if="busy" class="busy-view">
-      <Spinner></Spinner>
-    </div>
-    <div v-else-if="!isAuthenticated" class="signin-view">
+    <div v-if="!isAuthenticated" class="signin-view">
       <NoteText>非公式のファンサイトです。公式とは一切関係ありませんので、迷惑をかけないようお願いします。</NoteText>
       <Button @click="signIn">サインイン</Button>
     </div>
-    <div v-else-if="isAuthenticated" class="list">
+    <div v-else class="list">
       <NuxtLink v-for="item in fumenList" :key="item.id" :to="`/fumen/${item.id}`" class="item">
         <div class="title">{{ item.title }}</div>
         <div class="unit">
@@ -16,6 +13,7 @@
           <span>{{ item.unit }}</span>
         </div>
       </NuxtLink>
+      <div v-if="fetching" class="loading"><Spinner></Spinner></div>
       <ButtonLink to="/fumen/new">譜面追加</ButtonLink>
     </div>
   </Layout>
@@ -25,7 +23,7 @@ import { useQuery } from '@urql/vue'
 import { useAuth } from '~~/composable/auth0'
 import { GetFumentListDocument } from '~~/generated/graphql'
 
-const { isAuthenticated, user, busy, getToken, signIn } = useAuth()
+const { isAuthenticated, user, getToken, signIn, notAuthenticated } = useAuth()
 
 watchEffect(async () => {
   if (!user.value) {
@@ -35,7 +33,7 @@ watchEffect(async () => {
   console.log(token)
 })
 
-const { data, error } = useQuery({ query: GetFumentListDocument })
+const { data, error, fetching } = useQuery({ query: GetFumentListDocument, pause: notAuthenticated })
 if (error.value) {
   console.error(error.value)
 }
@@ -82,7 +80,7 @@ const fumenList = computed(() => data.value?.fumen ?? [])
   gap: 16px;
 }
 
-.busy-view {
+.loading {
   display: grid;
   justify-items: center;
 }

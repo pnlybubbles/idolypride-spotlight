@@ -57,5 +57,6 @@ export function useAuth() {
     fetching.value = false
   })
   const busy = computed(() => $auth0.value === null || fetching.value)
-  return { isAuthenticated, user, busy, getToken, signIn, signOut }
+  const notAuthenticated = computed(() => !isAuthenticated.value)
+  return { isAuthenticated, user, busy, getToken, signIn, signOut, notAuthenticated }
 }
