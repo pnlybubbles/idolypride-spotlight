@@ -9,13 +9,13 @@
 import { useMutation } from '@urql/vue'
 import { CreateIdolDocument } from '~~/generated/graphql'
 
-const { push } = useRouter()
+const router = useRouter()
 const name = ref('')
 const { executeMutation, fetching } = useMutation(CreateIdolDocument)
 const submit = async () => {
   await executeMutation({ object: { name: name.value } })
   name.value = ''
-  push('/idol')
+  void router.push('/idol')
 }
 </script>
 <style lang="scss" scoped></style>

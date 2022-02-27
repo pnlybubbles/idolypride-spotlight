@@ -68,7 +68,7 @@ const guides = computed<GuideProps[]>(() => {
         ? [...acc, { prevBeat: v.num, interval: v.num - prev.prevBeat }]
         : [...acc, { prevBeat: v.num, interval: null }]
     }, [] as { interval: number | null; prevBeat: number }[])
-    .map(({ interval, ...v }) => (interval ? { ...v, interval } : null))
+    .map(({ interval, ...v }) => (interval != null ? { ...v, interval } : null))
     .filter(isNonNullable)
     .map(({ interval, prevBeat }) => ({
       type: 'interval' as const,
@@ -77,23 +77,23 @@ const guides = computed<GuideProps[]>(() => {
     }))
   return [...lines, ...intervals]
 })
-const tapSP = (item: Item) => {
-  updateGuide(item.beat)
-}
-const tapA = (item: Item) => {
-  updateGuide(item.beat)
-}
-const tapP = (item: Item) => {
-  updateGuide(item.beat)
-}
-const updateGuide = (beat: number) => {
-  const index = beatGuides.value.findIndex((v) => v === beat)
-  if (index !== -1) {
-    beatGuides.value.splice(index, 1)
-  } else {
-    beatGuides.value.push(beat)
-  }
-}
+// const tapSP = (item: Item) => {
+//   updateGuide(item.beat)
+// }
+// const tapA = (item: Item) => {
+//   updateGuide(item.beat)
+// }
+// const tapP = (item: Item) => {
+//   updateGuide(item.beat)
+// }
+// const updateGuide = (beat: number) => {
+//   const index = beatGuides.value.findIndex((v) => v === beat)
+//   if (index !== -1) {
+//     beatGuides.value.splice(index, 1)
+//   } else {
+//     beatGuides.value.push(beat)
+//   }
+// }
 
 const LANES = [0, 1, 2, 3, 4] as const
 const idolIdbyLane = ['reiTakadai', 'reiOsorenai', 'nagisaEmal', 'aoiNureta', 'reiOsorenai'] as const

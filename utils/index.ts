@@ -35,25 +35,20 @@ export type ArrayN<T, N extends number, A extends unknown[] = []> = A extends { 
  */
 type Length<A> = A extends { length: infer N } ? N : never
 
-export function indexed<A extends readonly unknown[]>(array: A): [A[number], NumberUnion<Length<A>>][] {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return array.map((value, index) => [value, index]) as any
+export function indexed<A extends readonly unknown[]>(array: A) {
+  return array.map((value, index) => [value, index]) as [A[number], NumberUnion<Length<A>>][]
 }
 
 export function mapArrayN<A extends readonly unknown[], U>(
   array: A,
   map: (domain: A[number], index: NumberUnion<Length<A>>) => U
-): ArrayN<U, Length<A>> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (array as any).map(map)
+) {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+  return array.map(map as any) as ArrayN<U, Length<A>>
 }
 
-export function mapObject<S extends string | number, T, U>(
-  object: { [key in S]: T },
-  map: (domain: T) => U
-): { [key in S]: U } {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return Object.fromEntries(Object.entries(object).map(([key, value]) => [key, map(value as T)])) as any
+export function mapObject<S extends string | number, T, U>(object: { [key in S]: T }, map: (domain: T) => U) {
+  return Object.fromEntries(Object.entries(object).map(([key, value]) => [key, map(value as T)])) as { [key in S]: U }
 }
 
 export function uid() {

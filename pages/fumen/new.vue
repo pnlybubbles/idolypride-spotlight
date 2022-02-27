@@ -54,7 +54,7 @@ import { mapArrayN } from '~~/utils'
 import { LANES } from '~~/utils/common'
 import { validSpaceSeparatedPositiveInt, validPositiveInt } from '~~/utils/validation'
 
-const { push } = useRouter()
+const router = useRouter()
 const title = ref('')
 const beat = ref('')
 const aSkill = reactive(['', '', '', '', ''] as const)
@@ -72,7 +72,7 @@ const submit = async () => {
     object: { title: title.value, beat: parseInt(beat.value, 10), a: aSkillArray.value, sp: spSkillArray.value },
   })
   if (error === undefined) {
-    push('/')
+    void router.push('/')
   }
 }
 const A_SKILL_PLACEHOLDER = mapArrayN(SUNNY_PEACE_HARMONY.a, (v) => v.join(' '))

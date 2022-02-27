@@ -22,7 +22,7 @@ export function useAuth() {
     if (!$auth0) {
       return
     }
-    $auth0.getTokenSilently()
+    return $auth0.getTokenSilently()
   }
   const signIn = async () => {
     if (!$auth0) {
@@ -35,11 +35,11 @@ export function useAuth() {
       console.error(e)
     }
   }
-  const signOut = () => {
+  const signOut = async () => {
     if (!$auth0) {
       return
     }
-    $auth0.logout()
+    await $auth0.logout()
   }
   return { isAuthenticated, user, getToken, signIn, signOut }
 }
