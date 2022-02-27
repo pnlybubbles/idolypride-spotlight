@@ -11,8 +11,8 @@
       @focus="handleFocus"
       @blur="handleBlur"
     />
-    <div v-if="requiredError" class="assistive error">この項目は必須です</div>
-    <div v-else-if="showError" class="assistive error"><slot name="error"></slot></div>
+    <div v-if="showError === 'required'" class="assistive error">この項目は必須です</div>
+    <div v-else-if="showError === 'validation'" class="assistive error"><slot name="error"></slot></div>
   </div>
 </template>
 <script setup lang="ts">
@@ -26,7 +26,7 @@ interface Props {
 interface Emits {
   (e: 'update:modelValue', value: string): void
 }
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), { disabled: false, placeholder: '', error: false, required: false })
 defineEmits<Emits>()
 
 const focusing = ref(false)
@@ -39,17 +39,28 @@ const handleBlur = () => {
   focusing.value = false
 }
 
-// フォーカス中にエラーになった場合には、アンフォーカスするまでエラーを出さない
-const showError = ref(false)
+// どのエラーを表示するか (入力中や未入力では不完全な状態になっているはずなので、入力が終わるまでエラーを出すのを待つ制御をする)
+const showError = ref<null | 'validation' | 'required'>(null)
+// 必須エラーが発生しているかどうか (未入力では発生しないようにする)
+const requiredError = ref(false)
 watchEffect(() => {
-  if (focusing.value && props.error) {
+  // フォーカスの中以外では入力必須エラーは起きない
+  if (!focusing.value) {
     return
   }
-  showError.value = props.error ?? false
+  requiredError.value = props.required && props.modelValue === ''
 })
-
-// 一度フォーカスして、入力せずに、アンフォーカスした場合にエラーを出す
-const requiredError = computed(() => props.required && onceFocused.value && !focusing.value && props.modelValue === '')
+// 空文字は入力必須エラーで扱うので、バリデーションエラーは起きない
+const validationError = computed(() => props.modelValue !== '' && props.error)
+watchEffect(() => {
+  const error = validationError.value ? 'validation' : requiredError.value ? 'required' : null
+  // 一貫してフォーカス中にエラーが表示されないようにする
+  // エラーを消す処理は即時に行う
+  if (focusing.value && error) {
+    return
+  }
+  showError.value = error
+})
 </script>
 <style lang="scss" scoped>
 @import './token.scss';
