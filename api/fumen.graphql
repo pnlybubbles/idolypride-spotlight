@@ -6,6 +6,16 @@ query getFumentList {
   }
 }
 
+query getFumen($id: uuid!) {
+  fumen_by_pk(id: $id) {
+    a
+    beat
+    sp
+    title
+    unit
+  }
+}
+
 mutation createFumen($object: fumen_insert_input!) {
   insert_fumen_one(object: $object) {
     title
