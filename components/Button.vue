@@ -18,18 +18,6 @@ defineEmits<Emits>()
 
 .button {
   @include reset-button;
-
-  /* Custom styles */
-  font-size: 14px;
-  font-weight: bold;
-  padding: 8px 16px;
-  background-color: $primary;
-  color: $text1;
-
-  @include round-corner;
-
-  &:disabled {
-    opacity: 0.32;
-  }
+  @include button-like;
 }
 </style>
