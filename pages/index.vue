@@ -11,7 +11,7 @@
       <NuxtLink v-for="item in data" :key="item.id" :to="`/fumen/${item.id}`" class="item">
         {{ item.title }}
       </NuxtLink>
-      <Link to="/fumen/new">譜面追加</Link>
+      <ButtonLink to="/fumen/new">譜面追加</ButtonLink>
     </div>
   </Shell>
 </template>

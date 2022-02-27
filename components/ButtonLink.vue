@@ -1,5 +1,5 @@
 <template>
-  <NuxtLink :to="to" class="link"><slot></slot></NuxtLink>
+  <NuxtLink :to="to" class="button-link"><slot></slot></NuxtLink>
 </template>
 <script setup lang="ts">
 interface Props {
@@ -10,7 +10,7 @@ defineProps<Props>()
 <style lang="scss" scoped>
 @import './partials/utils.scss';
 
-.link {
+.button-link {
   @include button-like;
 }
 </style>
