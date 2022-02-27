@@ -1,10 +1,12 @@
 <template>
-  <teleport v-if="present" to="body">
-    <div class="sheet" @click.self="$emit('update:present', false)">
-      <div class="content">
-        <slot></slot>
+  <teleport v-if="ready" to="body">
+    <transition name="slide">
+      <div v-if="present" class="sheet" @click.self="$emit('update:present', false)">
+        <div class="content">
+          <slot></slot>
+        </div>
       </div>
-    </div>
+    </transition>
   </teleport>
 </template>
 <script setup lang="ts">
@@ -16,6 +18,11 @@ interface Emits {
 }
 defineProps<Props>()
 defineEmits<Emits>()
+
+const ready = ref(false)
+onMounted(() => {
+  ready.value = true
+})
 </script>
 <style lang="scss" scoped>
 @import './token.scss';
@@ -28,6 +35,7 @@ defineEmits<Emits>()
   width: 100vw;
   background-color: $shade;
 }
+
 .content {
   position: absolute;
   left: 0;
@@ -37,5 +45,20 @@ defineEmits<Emits>()
   border-radius: 24px 24px 0 0;
   padding-top: 24px;
   padding-bottom: 40px;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: background-color 0.32s;
+  & .content {
+    transition: transform 0.32s;
+  }
+}
+.slide-enter-from,
+.slide-leave-to {
+  background-color: rgba($shade, 0);
+  & .content {
+    transform: translateY(100%);
+  }
 }
 </style>
