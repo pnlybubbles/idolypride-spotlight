@@ -45,5 +45,9 @@ defineEmits<Emits>()
   color: $text1;
 
   @include round-corner;
+
+  &:disabled {
+    opacity: 0.32;
+  }
 }
 </style>

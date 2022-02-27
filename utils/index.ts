@@ -7,6 +7,13 @@ export function unreachable(value?: never): never {
   throw new Error(arguments.length === 0 ? 'unreachable' : `unreachable (${JSON.stringify(value)})`)
 }
 
+export function defined<T>(value: T | null | undefined, error?: string): T {
+  if (value == null) {
+    throw new Error(error ?? '`value` must not be null or undefined.')
+  }
+  return value
+}
+
 /**
  * Create upto specified number of union
  *

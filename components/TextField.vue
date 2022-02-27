@@ -16,6 +16,8 @@
   </div>
 </template>
 <script setup lang="ts">
+import { useFormComponent } from '~~/composable/form'
+
 interface Props {
   modelValue: string
   disabled?: boolean
@@ -41,26 +43,31 @@ const handleBlur = () => {
 
 // どのエラーを表示するか (入力中や未入力では不完全な状態になっているはずなので、入力が終わるまでエラーを出すのを待つ制御をする)
 const showError = ref<null | 'validation' | 'required'>(null)
-// 必須エラーが発生しているかどうか (未入力では発生しないようにする)
-const requiredError = ref(false)
+// 入力必須エラーが発生しているかどうか
+const requiredError = computed(() => props.required && props.modelValue === '')
+// ユーザーのキー入力によってエラーが発生したかどうか
+const requiredErrorOnEditing = ref(false)
 watchEffect(() => {
-  // フォーカスの中以外では入力必須エラーは起きない
-  if (!focusing.value) {
+  // フォーカスの中以外では入力必須エラーは起きないようにする
+  // エラーを消す処理は即時に行う
+  if (!focusing.value && requiredError.value) {
     return
   }
-  requiredError.value = props.required && props.modelValue === ''
+  requiredErrorOnEditing.value = requiredError.value
 })
-// 空文字は入力必須エラーで扱うので、バリデーションエラーは起きない
+// バリデーションが発生しているかどうか (空文字は入力必須エラーで扱うので、バリデーションエラーは起きない)
 const validationError = computed(() => props.modelValue !== '' && props.error)
 watchEffect(() => {
-  const error = validationError.value ? 'validation' : requiredError.value ? 'required' : null
+  const error = validationError.value ? 'validation' : requiredErrorOnEditing.value ? 'required' : null
   // 一貫してフォーカス中にエラーが表示されないようにする
   // エラーを消す処理は即時に行う
-  if (focusing.value && error) {
+  if (focusing.value && showError.value == null && error) {
     return
   }
   showError.value = error
 })
+
+useFormComponent(computed(() => ({ error: requiredError.value || validationError.value })))
 </script>
 <style lang="scss" scoped>
 @import './token.scss';

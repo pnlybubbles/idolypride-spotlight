@@ -41,13 +41,14 @@
         </TextField>
       </Section>
       <Section>
-        <Button :disabled="fetching" @click="submit">追加</Button>
+        <Button :disabled="fetching || invalid" @click="submit">追加</Button>
       </Section>
     </VStack>
   </Shell>
 </template>
 <script setup lang="ts">
 import { useMutation } from '@urql/vue'
+import { useForm } from '~~/composable/form'
 import { SUNNY_PEACE_HARMONY } from '~~/data/live'
 import { CreateFumenDocument } from '~~/generated/graphql'
 import { mapArrayN } from '~~/utils'
@@ -66,6 +67,8 @@ const parseSpaceSeparatedInt = (value: string) =>
     .map((v) => parseInt(v, 10))
 const aSkillArray = computed(() => mapArrayN(aSkill, parseSpaceSeparatedInt))
 const spSkillArray = computed(() => mapArrayN(spSkill, parseSpaceSeparatedInt))
+
+const { invalid } = useForm()
 const { executeMutation, fetching } = useMutation(CreateFumenDocument)
 const submit = async () => {
   const { error } = await executeMutation({
