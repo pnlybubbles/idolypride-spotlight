@@ -46,6 +46,10 @@ export default defineNuxtPlugin((nuxtApp) => {
         },
       })
     },
+    willAuthError: ({ authState }) => {
+      if (!authState) return true
+      return false
+    },
   }
 
   const client = createClient({
