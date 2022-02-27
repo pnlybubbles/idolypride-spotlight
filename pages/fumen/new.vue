@@ -53,6 +53,7 @@
         <Button :disabled="fetching || invalid" @click="submit">追加</Button>
       </Section>
     </VStack>
+    <Loading :busy="fetching">追加しています...</Loading>
   </Shell>
 </template>
 <script setup lang="ts">
