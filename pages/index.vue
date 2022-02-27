@@ -10,7 +10,10 @@
     <div class="list">
       <NuxtLink v-for="item in fumenList" :key="item.id" :to="`/fumen/${item.id}`" class="item">
         <div class="title">{{ item.title }}</div>
-        <div class="unit">{{ item.unit }}</div>
+        <div class="unit">
+          <UnitIcon class="unit-icon" :unit="item.unit"></UnitIcon>
+          <span>{{ item.unit }}</span>
+        </div>
       </NuxtLink>
       <ButtonLink to="/fumen/new">譜面追加</ButtonLink>
     </div>
@@ -49,21 +52,27 @@ const fumenList = computed(() => data.value?.fumen ?? [])
 }
 
 .item {
-  display: block;
+  display: grid;
   background-color: $surface1;
   border-radius: 4px;
   padding: 16px;
+  grid: auto auto / auto;
+  gap: 4px;
 }
 
 .title {
   font-weight: bold;
-  font-size: 16px;
+  font-size: 18px;
   color: $text1;
 }
 
 .unit {
-  font-size: 14px;
+  font-size: 12px;
   color: $text3;
+}
+
+.unit-icon {
+  margin-right: 4px;
 }
 
 a {
