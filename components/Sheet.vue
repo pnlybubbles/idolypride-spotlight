@@ -1,6 +1,6 @@
 <template>
-  <teleport to="body">
-    <div v-if="present" class="sheet" @click.self="$emit('update:present', false)">
+  <teleport v-if="present" to="body">
+    <div class="sheet" @click.self="$emit('update:present', false)">
       <div class="content">
         <slot></slot>
       </div>

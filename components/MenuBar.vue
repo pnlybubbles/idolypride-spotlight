@@ -1,24 +1,22 @@
 <template>
-  <teleport to="body">
-    <div class="menu-bar">
-      <NuxtLink class="menu-button" to="/" :class="{ active: active === 'top' }">
-        <font-awesome-icon icon="music" />
-      </NuxtLink>
-      <NuxtLink class="menu-button" to="/idol" :class="{ active: active === 'idol' }">
-        <font-awesome-icon icon="user-group" />
-      </NuxtLink>
-      <button class="menu-button" @click="present = true">
-        <font-awesome-icon icon="gear" />
-      </button>
-    </div>
-    <Sheet v-model:present="present">
-      <Section>
-        <template #label>ユーザー情報</template>
-        <NoteText>{{ user?.email }}</NoteText>
-        <Button @click="signOut">サインアウト</Button>
-      </Section>
-    </Sheet>
-  </teleport>
+  <div class="menu-bar">
+    <NuxtLink class="menu-button" to="/" :class="{ active: active === 'top' }">
+      <font-awesome-icon icon="music" />
+    </NuxtLink>
+    <NuxtLink class="menu-button" to="/idol" :class="{ active: active === 'idol' }">
+      <font-awesome-icon icon="user-group" />
+    </NuxtLink>
+    <button class="menu-button" @click="present = true">
+      <font-awesome-icon icon="gear" />
+    </button>
+  </div>
+  <Sheet v-model:present="present">
+    <Section>
+      <template #label>ユーザー情報</template>
+      <NoteText>{{ user?.email }}</NoteText>
+      <Button @click="signOut">サインアウト</Button>
+    </Section>
+  </Sheet>
 </template>
 <script setup lang="ts">
 import { useAuth } from '~~/composable/auth0'
