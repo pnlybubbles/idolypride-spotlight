@@ -1,5 +1,5 @@
 <template>
-  <Shell>
+  <Layout>
     <template #heading>譜面を追加する</template>
     <VStack :spacing="16">
       <Section>
@@ -54,7 +54,7 @@
       </Section>
     </VStack>
     <Loading :busy="fetching">追加しています...</Loading>
-  </Shell>
+  </Layout>
 </template>
 <script setup lang="ts">
 import { useMutation } from '@urql/vue'

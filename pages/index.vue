@@ -1,5 +1,5 @@
 <template>
-  <Shell :disable-menu="!isAuthenticated">
+  <Layout>
     <template #heading>IDOLY PRIDE SPOTLIGHT</template>
     <div v-if="busy" class="busy-view">
       <Spinner></Spinner>
@@ -18,7 +18,7 @@
       </NuxtLink>
       <ButtonLink to="/fumen/new">譜面追加</ButtonLink>
     </div>
-  </Shell>
+  </Layout>
 </template>
 <script setup lang="ts">
 import { useQuery } from '@urql/vue'

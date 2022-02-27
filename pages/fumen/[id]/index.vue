@@ -1,9 +1,9 @@
 <template>
-  <Shell>
+  <Layout>
     <template #heading>{{ live?.title ?? 'ライブ' }}</template>
     <Live v-if="live" :live="live"></Live>
     <Loading :busy="fetching">譜面を読み込んでいます...</Loading>
-  </Shell>
+  </Layout>
 </template>
 <script setup lang="ts">
 import { useQuery } from '@urql/vue'

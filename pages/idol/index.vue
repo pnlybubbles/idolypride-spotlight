@@ -1,12 +1,12 @@
 <template>
-  <Shell>
+  <Layout>
     <template #heading>アイドル一覧</template>
     <div v-if="fetching">読込中...</div>
     <ul v-else>
       <li v-for="idol in idolList" :key="idol.id">{{ idol.name }}</li>
     </ul>
     <NuxtLink to="/idol/new">追加</NuxtLink>
-  </Shell>
+  </Layout>
 </template>
 <script setup lang="ts">
 import { useQuery } from '@urql/vue'
