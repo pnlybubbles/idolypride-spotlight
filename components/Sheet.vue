@@ -18,13 +18,15 @@ defineProps<Props>()
 defineEmits<Emits>()
 </script>
 <style lang="scss" scoped>
+@import './token.scss';
+
 .sheet {
   position: fixed;
   top: 0;
   bottom: 0;
   height: 100vh;
   width: 100vw;
-  background-color: rgba(#fff, 0.1);
+  background-color: $shade;
 }
 .content {
   position: absolute;

@@ -1,5 +1,5 @@
 <template>
-  <teleport v-if="busy" to="body">
+  <teleport v-if="ready && busy" to="body">
     <div class="overlay">
       <div class="centering">
         <Spinner></Spinner>
