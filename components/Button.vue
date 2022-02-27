@@ -1,5 +1,7 @@
 <template>
-  <button :disabled="disabled ?? false" class="button" :class="[variant]"><slot></slot></button>
+  <button :disabled="disabled ?? false" class="button" :class="[variant]" @click="$emit('click')">
+    <slot></slot>
+  </button>
 </template>
 <script setup lang="ts">
 interface Props {
