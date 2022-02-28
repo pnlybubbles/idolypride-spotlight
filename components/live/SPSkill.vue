@@ -1,5 +1,7 @@
 <template>
-  <div class="sp" :class="{ fail }"></div>
+  <div class="sp" :class="{ fail }">
+    <div class="beat">{{ beat }}</div>
+  </div>
 </template>
 <script setup lang="ts">
 import { BuffType } from '~~/utils/types'
@@ -18,9 +20,19 @@ const color = computed(() => cssBuff(buff.value))
 </script>
 <style lang="scss" scoped>
 @import './skill.scss';
+@import '~~/components/partials/token.scss';
 
 .sp {
   @include skill(40px, v-bind(color), v-bind(top));
   @include failable;
+}
+
+.beat {
+  top: 50%;
+  right: calc(100% + 6px);
+  transform: translateY(-50%);
+  position: absolute;
+  font-size: 14px;
+  color: $text3;
 }
 </style>
