@@ -14,7 +14,11 @@
           <span>{{ item.unit }}</span>
         </div>
       </NuxtLink>
-      <div v-if="fetching" class="loading"><Spinner></Spinner></div>
+      <div v-if="fetching || fetchingAllow" class="loading"><Spinner></Spinner></div>
+      <div v-else-if="isNotAllowed" class="caveat">
+        <div class="bold">ユーザーが許可されていません。</div>
+        <div>ただいま完全許可制になっております。こちらまでご連絡ください。<HelpLink /></div>
+      </div>
       <ButtonLink to="/fumen/new">譜面追加</ButtonLink>
     </div>
   </Layout>
@@ -22,7 +26,7 @@
 <script setup lang="ts">
 import { useQuery } from '@urql/vue'
 import { useAuth } from '~~/composable/auth0'
-import { GetFumentListDocument } from '~~/generated/graphql'
+import { GetFumentListDocument, GetFumentListQuery, IsUserAllowedDocument } from '~~/generated/graphql'
 
 const { isAuthenticated, user, getToken, signIn, notAuthenticated } = useAuth()
 
@@ -39,6 +43,17 @@ if (error.value) {
   console.error(error.value)
 }
 const fumenList = computed(() => data.value?.fumen ?? [])
+
+const notAllowedCandidate = (value: GetFumentListQuery | undefined) => value !== undefined && value.fumen.length === 0
+const { data: allowData, fetching: fetchingAllow } = useQuery({
+  query: IsUserAllowedDocument,
+  variables: computed(() => ({ id: user.value?.sub ?? '' })),
+  pause: computed(() => notAuthenticated.value || !notAllowedCandidate(data.value)),
+})
+const isNotAllowed = computed(() => {
+  const allow = allowData.value?.user_by_pk?.allow
+  return notAllowedCandidate(data.value) && allow !== undefined && !allow
+})
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
@@ -87,5 +102,21 @@ const fumenList = computed(() => data.value?.fumen ?? [])
 .loading {
   display: grid;
   justify-items: center;
+}
+
+.caveat {
+  @include round-corner;
+  font-size: 14px;
+  background-color: rgba($error, 0.1);
+  border: 1px solid $error;
+  color: $error;
+  padding: 16px;
+  display: grid;
+  grid: auto auto / auto;
+  gap: 4px;
+
+  & .bold {
+    font-weight: bold;
+  }
 }
 </style>

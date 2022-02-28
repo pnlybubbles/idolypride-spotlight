@@ -1,5 +1,5 @@
 <template>
-  <NoteText>なにかありましたらこちらまでお願いします。<HelpLink /></NoteText>
+  <a href="https://twitter.com/sunnypinly" target="_blank" rel="noreferrer">@sunnypinly</a>
 </template>
 <style lang="scss" scoped>
 a {
