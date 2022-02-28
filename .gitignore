@@ -6,6 +6,9 @@ nuxt.d.ts
 .env
 generated
 graphql.schema.json
+.vercel
+# use node16 in local
+.node-version
 
 # yarn
 .pnp.*
