@@ -1,6 +1,6 @@
 <template>
   <div class="section">
-    <div class="label">
+    <div v-if="$slots.label" class="label">
       <slot name="label"></slot>
     </div>
     <slot></slot>

@@ -11,11 +11,19 @@
     </button>
   </div>
   <Sheet v-model:present="present">
-    <Section>
-      <template #label>ユーザー情報</template>
-      <NoteText>{{ user?.email }}</NoteText>
-      <Button @click="signOut">サインアウト</Button>
-    </Section>
+    <VStack :spacing="16">
+      <Section>
+        <template #label>このページについて</template>
+        <HelpText></HelpText>
+      </Section>
+      <Section>
+        <template #label>ユーザー情報</template>
+        <NoteText>{{ user?.email }}</NoteText>
+      </Section>
+      <Section>
+        <Button @click="signOut">サインアウト</Button>
+      </Section>
+    </VStack>
   </Sheet>
 </template>
 <script setup lang="ts">
