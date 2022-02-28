@@ -7,6 +7,7 @@
     "dev": "nuxi dev",
     "build": "nuxi build",
     "start": "node .output/server/index.mjs",
+    "deploy": "vercel",
     "fmt": "run-p 'fmt:*'",
     "fmt:eslint": "cross-env DEBUG=eslint:cli-engine eslint '**/*.{ts,js,vue}' --max-warnings=0 --fix",
     "fmt:prettier": "prettier '**/*.{json,yml}' --write --ignore-path .gitignore",
