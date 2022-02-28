@@ -21,7 +21,7 @@
         <NoteText>{{ user?.email }}</NoteText>
       </Section>
       <Section>
-        <Button @click="signOut">サインアウト</Button>
+        <Button @click="handleSignOut">サインアウト</Button>
       </Section>
     </VStack>
   </Sheet>
@@ -29,10 +29,15 @@
 <script setup lang="ts">
 import { useAuth } from '~~/composable/auth0'
 
+const router = useRouter()
 const route = useRoute()
 const active = route.path === '/' ? 'top' : route.path === '/idol' ? 'idol' : null
 const present = ref(false)
 const { user, signOut } = useAuth()
+const handleSignOut = async () => {
+  await signOut()
+  await router.push('/')
+}
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';

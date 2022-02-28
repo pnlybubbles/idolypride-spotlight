@@ -1,25 +1,35 @@
-import createAuth0Client, { Auth0Client } from '@auth0/auth0-spa-js'
+import createAuth0Client, { Auth0Client, User } from '@auth0/auth0-spa-js'
 import { authExchange, AuthConfig } from '@urql/exchange-auth'
 import { makeOperation, createClient, dedupExchange, cacheExchange, fetchExchange } from '@urql/vue'
 
 export default defineNuxtPlugin((nuxtApp) => {
-  const auth0 = ref<Auth0Client | null>(null)
+  const auth0 = reactive<{
+    client: Auth0Client | undefined
+    user: User | undefined
+    busy: boolean
+  }>({ client: undefined, user: undefined, busy: true })
 
   if (process.client) {
-    void createAuth0Client({
-      domain: 'dev-vc3eyhhs.us.auth0.com',
-      client_id: 'q74cyAZzpoWhhLkMlqmViZ61mNtAWsoB',
-      audience: 'https://hasura.io/learn',
-    }).then((v) => (auth0.value = v))
+    void (async () => {
+      try {
+        auth0.client = await createAuth0Client({
+          domain: 'dev-vc3eyhhs.us.auth0.com',
+          client_id: 'q74cyAZzpoWhhLkMlqmViZ61mNtAWsoB',
+          audience: 'https://hasura.io/learn',
+        })
+        auth0.user = await auth0.client.getUser()
+      } catch {}
+      auth0.busy = false
+    })()
   }
 
   const authConfig: AuthConfig<{ token: string }> = {
     getAuth: async () => {
-      if (!auth0.value) {
+      if (!auth0.client) {
         return null
       }
       try {
-        const token = await auth0.value.getTokenSilently()
+        const token = await auth0.client.getTokenSilently()
         return { token }
       } catch {
         return null

@@ -1,62 +1,36 @@
-import { User } from '@auth0/auth0-spa-js'
-
 export function useAuth() {
   const { $auth0 } = useNuxtApp()
-  const isAuthenticated = ref(false)
-  const user = ref<User | undefined>(undefined)
-  const fetching = ref(false)
-  const retrieve = async () => {
-    if (!$auth0.value) {
-      return
-    }
-    try {
-      user.value = await $auth0.value.getUser()
-      isAuthenticated.value = await $auth0.value.isAuthenticated()
-    } catch (e) {
-      console.error(e)
-    }
-  }
   const getToken = () => {
-    if (!$auth0.value) {
+    if (!$auth0.client) {
       return
     }
-    return $auth0.value.getTokenSilently()
+    return $auth0.client.getTokenSilently()
   }
   const signIn = async () => {
-    if (!$auth0.value) {
+    if (!$auth0.client) {
       return
     }
-    fetching.value = true
     try {
-      await $auth0.value.loginWithPopup()
-      await retrieve()
+      await $auth0.client.loginWithPopup()
+      $auth0.user = await $auth0.client.getUser()
     } catch (e) {
       console.error(e)
     }
-    fetching.value = false
   }
   const signOut = async () => {
-    if (!$auth0.value) {
+    if (!$auth0.client) {
       return
     }
-    fetching.value = true
     try {
-      await $auth0.value.logout()
-      await retrieve()
+      await $auth0.client.logout()
+      $auth0.user = undefined
     } catch (e) {
       console.error(e)
     }
-    fetching.value = false
   }
-  watchEffect(async () => {
-    if (!$auth0.value) {
-      return
-    }
-    fetching.value = true
-    await retrieve()
-    fetching.value = false
-  })
-  const busy = computed(() => $auth0.value === null || fetching.value)
-  const notAuthenticated = computed(() => !isAuthenticated.value)
-  return { isAuthenticated, user, busy, getToken, signIn, signOut, notAuthenticated }
+  const user = computed(() => $auth0.user)
+  const busy = computed(() => $auth0.busy)
+  const isAuthenticated = computed(() => $auth0.user !== undefined)
+  const notAuthenticated = computed(() => $auth0.user === undefined)
+  return { isAuthenticated, notAuthenticated, user, busy, getToken, signIn, signOut }
 }
