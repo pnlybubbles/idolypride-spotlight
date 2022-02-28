@@ -13,8 +13,8 @@ interface Props {
   busy: boolean
 }
 const props = defineProps<Props>()
-const ready = ref(false)
 
+const ready = ref(false)
 onMounted(() => {
   ready.value = true
 })

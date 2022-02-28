@@ -19,7 +19,7 @@
         <template #title>ユーザーが許可されていません</template>
         ただいま完全許可制になっております。こちらまでご連絡ください。<HelpLink />
       </Callout>
-      <ButtonLink to="/fumen/new">譜面追加</ButtonLink>
+      <ButtonLink to="/fumen/new">譜面を追加する</ButtonLink>
     </div>
   </Layout>
 </template>

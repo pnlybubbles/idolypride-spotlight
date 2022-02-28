@@ -16,12 +16,23 @@ interface Props {
 interface Emits {
   (e: 'update:present', value: boolean): void
 }
-defineProps<Props>()
+const props = defineProps<Props>()
 defineEmits<Emits>()
 
 const ready = ref(false)
 onMounted(() => {
   ready.value = true
+})
+
+watchEffect(() => {
+  if (!ready.value) {
+    return
+  }
+  if (props.present) {
+    document.body.style.overflow = 'hidden'
+  } else {
+    document.body.style.overflow = ''
+  }
 })
 </script>
 <style lang="scss" scoped>
@@ -31,8 +42,8 @@ onMounted(() => {
   position: fixed;
   top: 0;
   bottom: 0;
-  height: 100vh;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
   background-color: $shade;
 }
 
