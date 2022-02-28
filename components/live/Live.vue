@@ -145,6 +145,9 @@ const lanes = computed(() =>
           },
         ]
       }, [] as Item[])
+      // TODO: いったん動作確認のためにアイドルの行動は非表示
+      .map((v) => (v.type === 'sp' || v.type === 'a' ? { ...v, buff: 'unknown' as const, fail: false } : v))
+      .filter((v) => v.type === 'sp' || v.type === 'a')
   )
 )
 </script>
