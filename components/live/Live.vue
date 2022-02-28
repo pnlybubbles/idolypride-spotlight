@@ -8,8 +8,20 @@
     </div>
     <div v-for="(lane, i) in lanes" :key="i" class="lane">
       <template v-for="item in lane" :key="item.id">
-        <LiveSPSkill v-if="item.type === 'sp'" :beat="item.beat" :buff="item.buff" :fail="item.fail"></LiveSPSkill>
-        <LiveASkill v-else-if="item.type === 'a'" :beat="item.beat" :buff="item.buff" :fail="item.fail"></LiveASkill>
+        <LiveSPSkill
+          v-if="item.type === 'sp'"
+          :beat="item.beat"
+          :buff="item.buff"
+          :fail="item.fail"
+          @click="tapSP(item)"
+        ></LiveSPSkill>
+        <LiveASkill
+          v-else-if="item.type === 'a'"
+          :beat="item.beat"
+          :buff="item.buff"
+          :fail="item.fail"
+          @click="tapA(item)"
+        ></LiveASkill>
         <LivePSkill v-else-if="item.type === 'p'" :beat="item.beat" :buff="item.buff"></LivePSkill>
         <LiveBuff
           v-else-if="item.type === 'buff'"
@@ -75,23 +87,23 @@ const guides = computed<GuideProps[]>(() => {
     }))
   return [...lines, ...intervals]
 })
-// const tapSP = (item: Item) => {
-//   updateGuide(item.beat)
-// }
-// const tapA = (item: Item) => {
-//   updateGuide(item.beat)
-// }
+const tapSP = (item: Item) => {
+  updateGuide(item.beat)
+}
+const tapA = (item: Item) => {
+  updateGuide(item.beat)
+}
 // const tapP = (item: Item) => {
 //   updateGuide(item.beat)
 // }
-// const updateGuide = (beat: number) => {
-//   const index = beatGuides.value.findIndex((v) => v === beat)
-//   if (index !== -1) {
-//     beatGuides.value.splice(index, 1)
-//   } else {
-//     beatGuides.value.push(beat)
-//   }
-// }
+const updateGuide = (beat: number) => {
+  const index = beatGuides.value.findIndex((v) => v === beat)
+  if (index !== -1) {
+    beatGuides.value.splice(index, 1)
+  } else {
+    beatGuides.value.push(beat)
+  }
+}
 
 const LANES = [0, 1, 2, 3, 4] as const
 const idolIdbyLane = ['reiTakadai', 'reiOsorenai', 'nagisaEmal', 'aoiNureta', 'reiOsorenai'] as const
@@ -153,6 +165,7 @@ const lanes = computed(() =>
 </script>
 <style lang="scss" scoped>
 @import '~/utils/variables.scss';
+@import '~~/components/partials/token.scss';
 
 .sheet {
   height: calc(v-bind(beat) * $scale-factor);
@@ -185,22 +198,24 @@ const lanes = computed(() =>
 
 .handle {
   box-sizing: border-box;
-  padding: 4px;
+  padding: 5px 6px 4px 3px;
   transform: translateY(-50%);
   z-index: 1;
   background-color: black;
-  border: solid 1px rgba(white, 0.2);
+  border: solid 1px $text3;
   border-left: none;
   font-weight: bold;
-  color: rgba(white, 0.2);
+  color: $text3;
   pointer-events: auto;
+  border-radius: 0 50% 50% 0;
+  font-size: 14px;
 }
 
 .interval-annotation {
   z-index: 1;
   padding: 4px;
   transform: translateY(-50%);
-  color: rgba(white, 0.2);
+  color: $text3;
   font-weight: bold;
   font-size: 12px;
   pointer-events: auto;

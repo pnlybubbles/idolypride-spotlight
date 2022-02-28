@@ -1,5 +1,5 @@
 <template>
-  <div class="a" :class="{ fail }">
+  <div class="a" :class="{ fail }" @click="$emit('click')">
     <div class="beat">{{ beat }}</div>
   </div>
 </template>
@@ -14,6 +14,13 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+
+interface Emits {
+  (e: 'click'): void
+}
+
+defineEmits<Emits>()
+
 const { fail, beat, buff } = toRefs(props)
 const top = computed(() => cssBeat(beat.value))
 const color = computed(() => cssBuff(buff.value))
