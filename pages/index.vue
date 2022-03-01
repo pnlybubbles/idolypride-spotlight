@@ -1,8 +1,9 @@
 <template>
   <Layout>
-    <template #heading>IDOLY PRIDE SPOTLIGHT</template>
+    <template #heading>IDOLY PRIDE SPOTLIGHT<span class="badge">alpha</span></template>
     <div v-if="!isAuthenticated" class="signin-view">
       <NoteText>非公式のファンサイトです。公式とは一切関係ありませんので、迷惑をかけないようお願いします。</NoteText>
+      <NoteText>現在は許可制で運営しております。</NoteText>
       <NoteText><HelpText /></NoteText>
       <Button @click="signIn">サインイン</Button>
     </div>
@@ -58,6 +59,17 @@ const isNotAllowed = computed(() => {
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
 @import '~~/components/partials/utils.scss';
+
+.badge {
+  @include round-corner;
+  font-size: $typography-s;
+  font-weight: bold;
+  border: 2px solid $primary;
+  color: $primary;
+  padding: 1px 3px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
 
 .list {
   @include align;
