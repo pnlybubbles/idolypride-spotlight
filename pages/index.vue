@@ -3,7 +3,7 @@
     <template #heading>IDOLY PRIDE SPOTLIGHT</template>
     <div v-if="!isAuthenticated" class="signin-view">
       <NoteText>非公式のファンサイトです。公式とは一切関係ありませんので、迷惑をかけないようお願いします。</NoteText>
-      <HelpText></HelpText>
+      <NoteText><HelpText /></NoteText>
       <Button @click="signIn">サインイン</Button>
     </div>
     <div v-else class="list">

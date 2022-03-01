@@ -14,7 +14,7 @@
     <VStack :spacing="16">
       <Section>
         <template #label>このページについて</template>
-        <HelpText></HelpText>
+        <NoteText><HelpText /></NoteText>
       </Section>
       <Section>
         <template #label>ユーザー情報</template>
