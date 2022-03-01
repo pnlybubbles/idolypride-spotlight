@@ -208,7 +208,7 @@ const lanes = computed(() =>
   color: $text3;
   pointer-events: auto;
   border-radius: 0 50% 50% 0;
-  font-size: 14px;
+  font-size: $typography-m;
 }
 
 .interval-annotation {
@@ -217,7 +217,7 @@ const lanes = computed(() =>
   transform: translateY(-50%);
   color: $text3;
   font-weight: bold;
-  font-size: 12px;
+  font-size: $typography-s;
   pointer-events: auto;
 }
 </style>

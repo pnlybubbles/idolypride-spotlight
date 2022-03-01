@@ -100,7 +100,7 @@ useFormComponent(computed(() => ({ error: requiredError.value || validationError
 
 .assistive {
   padding: 0 8px;
-  font-size: 12px;
+  font-size: $typography-s;
 
   &.error {
     color: $error;

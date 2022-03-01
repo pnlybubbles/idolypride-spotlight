@@ -53,8 +53,8 @@ watchEffect(() => {
 }
 
 .message {
-  font-size: 12px;
+  font-size: $typography-s;
   font-weight: bold;
-  color: $text2;
+  color: $text1;
 }
 </style>

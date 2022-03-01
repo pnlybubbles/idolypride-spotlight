@@ -24,7 +24,7 @@
 }
 
 @mixin button-like {
-  font-size: 14px;
+  font-size: $typography-m;
   font-weight: bold;
   padding: 8px 16px;
   background-color: $primary;

@@ -85,7 +85,7 @@ const isNotAllowed = computed(() => {
 }
 
 .unit {
-  font-size: 12px;
+  font-size: $typography-s;
   color: $text3;
 }
 

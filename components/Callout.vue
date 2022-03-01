@@ -1,7 +1,7 @@
 <template>
   <div class="callout caveat">
     <div class="title"><slot name="title"></slot></div>
-    <div><slot></slot></div>
+    <div class="sub"><slot></slot></div>
   </div>
 </template>
 <style lang="scss" scoped>
@@ -14,7 +14,6 @@
 }
 .callout {
   @include round-corner;
-  font-size: 14px;
   padding: 16px;
   display: grid;
   grid: auto auto / auto;
@@ -23,5 +22,10 @@
 
 .title {
   font-weight: bold;
+  font-size: $typography-m;
+}
+
+.sub {
+  font-size: $typography-s;
 }
 </style>

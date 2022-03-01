@@ -5,7 +5,7 @@
 @import '~~/components/partials/token.scss';
 
 .note-text {
-  font-size: 12px;
+  font-size: $typography-s;
   color: $text3;
 }
 </style>

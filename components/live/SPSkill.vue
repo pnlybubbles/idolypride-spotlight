@@ -39,7 +39,7 @@ const color = computed(() => cssBuff(buff.value))
   right: calc(100% + 6px);
   transform: translateY(-50%);
   position: absolute;
-  font-size: 14px;
+  font-size: $typography-m;
   color: $text3;
 }
 </style>
