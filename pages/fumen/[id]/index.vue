@@ -8,6 +8,7 @@
 <script setup lang="ts">
 import { useQuery } from '@urql/vue'
 import { useAuth } from '~~/composable/auth0'
+import { useRouteGuard } from '~~/composable/route'
 import { GetFumenDocument } from '~~/generated/graphql'
 import { ArrayN } from '~~/utils'
 import { LiveData } from '~~/utils/types'
@@ -35,5 +36,7 @@ const live = computed(() => {
   }
   return formatted
 })
+
+useRouteGuard()
 </script>
 <style lang="scss" scoped></style>

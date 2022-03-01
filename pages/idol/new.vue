@@ -7,6 +7,7 @@
 </template>
 <script setup lang="ts">
 import { useMutation } from '@urql/vue'
+import { useRouteGuard } from '~~/composable/route'
 import { CreateIdolDocument } from '~~/generated/graphql'
 
 const router = useRouter()
@@ -17,5 +18,7 @@ const submit = async () => {
   name.value = ''
   void router.push('/idol')
 }
+
+useRouteGuard()
 </script>
 <style lang="scss" scoped></style>

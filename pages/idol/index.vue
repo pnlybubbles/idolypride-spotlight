@@ -18,12 +18,15 @@
 import { useQuery } from '@urql/vue'
 import { GetIdolListDocument } from '~/generated/graphql'
 import { useAuth } from '~~/composable/auth0'
+import { useRouteGuard } from '~~/composable/route'
 const { notAuthenticated } = useAuth()
 const { data, fetching, error } = useQuery({ query: GetIdolListDocument, pause: notAuthenticated })
 if (error.value) {
   console.error(error.value)
 }
 const idolList = computed(() => data.value?.idol ?? [])
+
+useRouteGuard()
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
