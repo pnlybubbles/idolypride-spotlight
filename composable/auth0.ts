@@ -28,8 +28,10 @@ export function useAuth() {
       console.error(e)
     }
   }
+  const ready = ref(false)
+  onMounted(() => (ready.value = true))
+  const busy = computed(() => !ready.value || $auth0.busy)
   const user = computed(() => $auth0.user)
-  const busy = computed(() => $auth0.busy)
   const isAuthenticated = computed(() => $auth0.user !== undefined)
   const notAuthenticated = computed(() => $auth0.user === undefined)
   return { isAuthenticated, notAuthenticated, user, busy, getToken, signIn, signOut }
