@@ -1,5 +1,5 @@
 <template>
-  <NuxtLink :to="to" class="button-link"><slot></slot></NuxtLink>
+  <NuxtLink :to="to" class="button-link" @touchend="null"><slot></slot></NuxtLink>
 </template>
 <script setup lang="ts">
 interface Props {

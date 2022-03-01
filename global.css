@@ -17,6 +17,10 @@ a {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
+body {
+  -webkit-touch-callout: none;
+}
+
 .page-enter-active,
 .page-leave-active {
   transition: opacity 0.2s;

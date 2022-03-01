@@ -1,12 +1,12 @@
 <template>
   <div class="menu-bar">
-    <NuxtLink class="menu-button" to="/" :class="{ active: active === 'top' }">
+    <NuxtLink class="menu-button" to="/" :class="{ active: active === 'top' }" @touchend="null">
       <font-awesome-icon icon="music" />
     </NuxtLink>
-    <NuxtLink class="menu-button" to="/idol" :class="{ active: active === 'idol' }">
+    <NuxtLink class="menu-button" to="/idol" :class="{ active: active === 'idol' }" @touchend="null">
       <font-awesome-icon icon="user-group" />
     </NuxtLink>
-    <button class="menu-button" @click="present = true">
+    <button class="menu-button" @click="present = true" @touchend="null">
       <font-awesome-icon icon="gear" />
     </button>
   </div>

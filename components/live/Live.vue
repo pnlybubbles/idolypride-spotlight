@@ -171,6 +171,7 @@ const lanes = computed(() =>
   height: calc(v-bind(beat) * $scale-factor);
   display: grid;
   grid: auto / 20px repeat(5, auto);
+  user-select: none;
 }
 
 .lane + .lane {

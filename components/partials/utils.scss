@@ -36,11 +36,13 @@
 }
 
 @mixin clickable {
-  &:disabled {
-    opacity: 0.32;
-  }
+  user-select: none;
 
   &:active {
     opacity: 0.64;
+  }
+
+  &:disabled {
+    opacity: 0.32;
   }
 }

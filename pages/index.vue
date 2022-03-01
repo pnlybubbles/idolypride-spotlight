@@ -8,7 +8,7 @@
       <Button @click="signIn">サインイン</Button>
     </div>
     <div v-else class="list">
-      <NuxtLink v-for="item in fumenList" :key="item.id" :to="`/fumen/${item.id}`" class="item">
+      <NuxtLink v-for="item in fumenList" :key="item.id" :to="`/fumen/${item.id}`" class="item" @touchend="null">
         <div class="title">{{ item.title }}</div>
         <div class="unit">
           <UnitIcon class="unit-icon" :unit="item.unit"></UnitIcon>
