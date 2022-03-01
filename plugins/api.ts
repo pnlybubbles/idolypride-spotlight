@@ -16,6 +16,7 @@ export default defineNuxtPlugin((nuxtApp) => {
           domain: 'dev-vc3eyhhs.us.auth0.com',
           client_id: 'q74cyAZzpoWhhLkMlqmViZ61mNtAWsoB',
           audience: 'https://hasura.io/learn',
+          cacheLocation: 'localstorage',
         })
         auth0.user = await auth0.client.getUser()
       } catch {}
