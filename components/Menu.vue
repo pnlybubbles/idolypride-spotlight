@@ -53,9 +53,10 @@ const handleSignOut = async () => {
   width: 40px;
   height: 40px;
   color: $text1;
+  border-radius: 12px;
 
   &.active {
-    color: $primary;
+    background-color: $surface1;
   }
 }
 
@@ -67,7 +68,7 @@ const handleSignOut = async () => {
   border: solid 1px $surface1;
   display: grid;
   grid: auto / auto-flow;
-  padding: 0 8px;
+  padding: 4px 4px;
 
   @include background-blur;
   @include round-corner('L');
