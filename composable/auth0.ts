@@ -31,8 +31,8 @@ export function useAuth() {
   const ready = ref(false)
   onMounted(() => (ready.value = true))
   const busy = computed(() => !ready.value || $auth0.busy)
-  const user = computed(() => $auth0.user)
-  const isAuthenticated = computed(() => $auth0.user !== undefined)
-  const notAuthenticated = computed(() => $auth0.user === undefined)
+  const user = computed(() => (ready.value ? $auth0.user : undefined))
+  const isAuthenticated = computed(() => user.value !== undefined)
+  const notAuthenticated = computed(() => !isAuthenticated.value)
   return { isAuthenticated, notAuthenticated, user, busy, getToken, signIn, signOut }
 }
