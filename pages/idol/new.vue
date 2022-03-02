@@ -9,6 +9,7 @@
 import { useMutation } from '@urql/vue'
 import { useRouteGuard } from '~~/composable/route'
 import { CreateIdolDocument } from '~~/generated/graphql'
+import { DEFAULT_META } from '~~/utils/meta'
 
 const router = useRouter()
 const name = ref('')
@@ -20,5 +21,6 @@ const submit = async () => {
 }
 
 useRouteGuard()
+useMeta(DEFAULT_META)
 </script>
 <style lang="scss" scoped></style>

@@ -64,6 +64,7 @@ import { SUNNY_PEACE_HARMONY } from '~~/data/live'
 import { CreateFumenDocument } from '~~/generated/graphql'
 import { mapArrayN } from '~~/utils'
 import { LANES } from '~~/utils/common'
+import { DEFAULT_META } from '~~/utils/meta'
 import { validSpaceSeparatedPositiveInt, validPositiveInt } from '~~/utils/validation'
 
 const router = useRouter()
@@ -102,5 +103,6 @@ const A_SKILL_PLACEHOLDER = mapArrayN(SUNNY_PEACE_HARMONY.a, (v) => v.join(' '))
 const SP_SKILL_PLACEHOLDER = mapArrayN(SUNNY_PEACE_HARMONY.sp, (v) => v.join(' '))
 
 useRouteGuard()
+useMeta(DEFAULT_META)
 </script>
 <style lang="scss" scoped></style>

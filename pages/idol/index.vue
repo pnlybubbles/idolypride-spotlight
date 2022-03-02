@@ -19,6 +19,7 @@ import { useQuery } from '@urql/vue'
 import { GetIdolListDocument } from '~/generated/graphql'
 import { useAuth } from '~~/composable/auth0'
 import { useRouteGuard } from '~~/composable/route'
+import { DEFAULT_META } from '~~/utils/meta'
 const { notAuthenticated } = useAuth()
 const { data, fetching, error } = useQuery({ query: GetIdolListDocument, pause: notAuthenticated })
 if (error.value) {
@@ -27,6 +28,7 @@ if (error.value) {
 const idolList = computed(() => data.value?.idol ?? [])
 
 useRouteGuard()
+useMeta(DEFAULT_META)
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';

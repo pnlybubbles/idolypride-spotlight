@@ -11,6 +11,7 @@ import { useAuth } from '~~/composable/auth0'
 import { useRouteGuard } from '~~/composable/route'
 import { GetFumenDocument } from '~~/generated/graphql'
 import { ArrayN } from '~~/utils'
+import { DEFAULT_META } from '~~/utils/meta'
 import { LiveData } from '~~/utils/types'
 
 const route = useRoute()
@@ -38,5 +39,6 @@ const live = computed(() => {
 })
 
 useRouteGuard()
+useMeta(DEFAULT_META)
 </script>
 <style lang="scss" scoped></style>

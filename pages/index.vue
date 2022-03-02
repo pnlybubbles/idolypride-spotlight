@@ -28,6 +28,7 @@
 import { useQuery } from '@urql/vue'
 import { useAuth } from '~~/composable/auth0'
 import { GetFumentListDocument, GetFumentListQuery, IsUserAllowedDocument } from '~~/generated/graphql'
+import { DEFAULT_META } from '~~/utils/meta'
 
 const { isAuthenticated, user, getToken, signIn, notAuthenticated } = useAuth()
 
@@ -55,6 +56,7 @@ const isNotAllowed = computed(() => {
   const allow = allowData.value?.user_by_pk?.allow
   return notAllowedCandidate(data.value) && allow !== undefined && !allow
 })
+useMeta(DEFAULT_META)
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
