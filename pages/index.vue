@@ -1,6 +1,6 @@
 <template>
   <Layout>
-    <template #heading>IDOLY PRIDE SPOTLIGHT<span class="badge">alpha</span></template>
+    <template #heading>{{ TITLE }}<span class="badge">alpha</span></template>
     <div v-if="!isAuthenticated" class="signin-view">
       <NoteText>非公式のファンサイトです。公式とは一切関係ありませんので、迷惑をかけないようお願いします。</NoteText>
       <NoteText>現在は許可制で運営しております。</NoteText>
@@ -28,7 +28,7 @@
 import { useQuery } from '@urql/vue'
 import { useAuth } from '~~/composable/auth0'
 import { GetFumentListDocument, GetFumentListQuery, IsUserAllowedDocument } from '~~/generated/graphql'
-import { DEFAULT_META } from '~~/utils/meta'
+import { DEFAULT_META, TITLE } from '~~/utils/meta'
 
 const { isAuthenticated, user, getToken, signIn, notAuthenticated } = useAuth()
 

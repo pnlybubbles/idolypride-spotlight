@@ -12,7 +12,10 @@
   </div>
   <Sheet v-model:present="present">
     <VStack :spacing="16">
-      <img src="/logo.png" alt="logo" class="logo" />
+      <div class="heading">
+        <img src="/logo.png" alt="logo" class="logo" />
+        <div class="logo-label">{{ TITLE }}</div>
+      </div>
       <Section>
         <template #label>このページについて</template>
         <NoteText><HelpText /></NoteText>
@@ -29,6 +32,7 @@
 </template>
 <script setup lang="ts">
 import { useAuth } from '~~/composable/auth0'
+import { TITLE } from '~~/utils/meta'
 
 const router = useRouter()
 const route = useRoute()
@@ -76,10 +80,22 @@ const handleSignOut = async () => {
   @include round-corner('L');
 }
 
+.heading {
+  display: grid;
+  grid: auto auto / auto;
+  justify-items: center;
+  padding-bottom: 8px;
+}
+
 .logo {
   display: block;
   width: 40px;
   height: 40px;
   justify-self: center;
+}
+
+.logo-label {
+  font-size: $typography-s;
+  font-weight: bold;
 }
 </style>

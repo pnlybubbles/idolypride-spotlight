@@ -1,4 +1,4 @@
-const TITLE = 'IDOLY PRIDE SPOTLIGHT'
+export const TITLE = 'IDOLY PRIDE SPOTLIGHT'
 const DESCRIPTION = 'アイドルのスキルを見たり譜面を見たりするマネージャーのためのアプリ'
 const BASE_URL = 'https://idolypride-spotlight.vercel.app'
 const IMAGE_URL = `${BASE_URL}/logo.png`
