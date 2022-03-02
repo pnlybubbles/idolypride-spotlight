@@ -10,7 +10,7 @@
       <ul v-else>
         <li v-for="idol in idolList" :key="idol.id">{{ idol.name }}</li>
       </ul>
-      <NuxtLink to="/idol/new">追加</NuxtLink>
+      <ButtonLink to="/idol/new">アイドルを追加する</ButtonLink>
     </div>
   </Layout>
 </template>
@@ -35,5 +35,9 @@ useMeta(DEFAULT_META)
 
 .aligned {
   @include align;
+
+  display: grid;
+  grid: auto-flow / auto;
+  gap: 16px;
 }
 </style>

@@ -1,7 +1,7 @@
 import { mapArrayN, mapObject } from '~~/utils'
 import { IdolData } from '~/utils/types'
 
-const reiTakadai: IdolData = {
+export const REI_ICHINOSE: IdolData = {
   name: '一ノ瀬怜',
   sub: '高台をかける薫風',
   role: 'buffer',
@@ -190,7 +190,7 @@ const aoiNureta: IdolData = {
 
 const characters = {
   reiOsorenai,
-  reiTakadai,
+  reiTakadai: REI_ICHINOSE,
   nagisaEmal,
   aoiNureta,
 }
