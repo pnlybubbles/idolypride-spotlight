@@ -69,6 +69,7 @@ const handleSignOut = async () => {
   display: grid;
   grid: auto / auto-flow;
   padding: 4px 4px;
+  gap: 4px;
 
   @include background-blur;
   @include round-corner('L');
