@@ -1,11 +1,11 @@
 <template>
   <AssistiveText :show="showError">
-    <div class="listbox" @click="handleOpen">
+    <button class="listbox" @click="handleOpen">
       <div class="current" :class="{ placeholder: modelValue === null }">
         {{ modelValue ?? placeholder ?? '選択してください' }}
       </div>
       <font-awesome-icon icon="angle-down" class="icon"></font-awesome-icon>
-    </div>
+    </button>
     <Sheet v-model:present="present">
       <ul class="options">
         <li v-for="item in options" :key="item" class="item">
@@ -80,6 +80,7 @@ useFormComponent(computed(() => ({ error: requiredError.value })))
 @import '~~/components/partials/utils.scss';
 
 .listbox {
+  @include reset-button;
   @include clickable;
   @include round-corner;
   background-color: $surface1;
@@ -89,6 +90,7 @@ useFormComponent(computed(() => ({ error: requiredError.value })))
   color: $text1;
   outline: none;
   border: solid 1px transparent;
+  text-align: start;
 
   display: grid;
   grid: auto / 1fr auto;
