@@ -74,7 +74,7 @@ const beat = ref('')
 const aSkill = reactive(['', '', '', '', ''] as const)
 const spSkill = reactive(['', '', '', '', ''] as const)
 const validUnit = (value: string) =>
-  /^(サニーピース|月のテンペスト|TRINITYAiLE|LizNoir|MACARON DONUTS|長瀬麻奈)$/.test(value)
+  /^(サニーピース|月のテンペスト|TRINITYAiLE|LizNoir|MACARON DONUTS|長瀬麻奈|星見プロダクション)$/.test(value)
 const parseSpaceSeparatedInt = (value: string) =>
   value
     .split(' ')
