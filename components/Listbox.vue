@@ -1,6 +1,6 @@
 <template>
   <AssistiveText :show="showError">
-    <button class="listbox" @click="handleOpen">
+    <button class="listbox" :class="{ error: showError !== null }" @click="handleOpen">
       <div class="current" :class="{ placeholder: modelValue === null }">
         {{ modelValue ?? placeholder ?? '選択してください' }}
       </div>
@@ -96,6 +96,10 @@ useFormComponent(computed(() => ({ error: requiredError.value })))
   grid: auto / 1fr auto;
   gap: 12px;
   align-items: center;
+
+  &.error {
+    border-color: $error;
+  }
 }
 
 .icon {
