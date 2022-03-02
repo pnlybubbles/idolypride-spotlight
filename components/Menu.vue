@@ -12,6 +12,7 @@
   </div>
   <Sheet v-model:present="present">
     <VStack :spacing="16">
+      <img src="/logo.png" alt="logo" class="logo" />
       <Section>
         <template #label>このページについて</template>
         <NoteText><HelpText /></NoteText>
@@ -73,5 +74,12 @@ const handleSignOut = async () => {
 
   @include background-blur;
   @include round-corner('L');
+}
+
+.logo {
+  display: block;
+  width: 40px;
+  height: 40px;
+  justify-self: center;
 }
 </style>

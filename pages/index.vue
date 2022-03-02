@@ -66,8 +66,8 @@ useMeta(DEFAULT_META)
   @include round-corner;
   font-size: $typography-s;
   font-weight: bold;
-  border: 2px solid $primary;
-  color: $primary;
+  border: 2px solid $text3;
+  color: $text3;
   padding: 1px 3px;
   margin-left: 8px;
   vertical-align: middle;
