@@ -82,9 +82,11 @@ useFormComponent(computed(() => ({ error: requiredError.value || validationError
   @include round-corner;
   border: 0;
   background-color: $surface1;
-  padding: 8px;
+  padding: 0 8px;
+  height: 40px;
   font-size: 16px;
-  line-height: 1em;
+  font-family: inherit;
+  line-height: 40px;
   color: $text1;
   outline: none;
   border: solid 1px transparent;
