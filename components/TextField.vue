@@ -1,5 +1,5 @@
 <template>
-  <div class="text-field">
+  <AssistiveText :show="showError">
     <input
       :model="modelValue"
       class="input"
@@ -11,9 +11,7 @@
       @focus="handleFocus"
       @blur="handleBlur"
     />
-    <div v-if="showError === 'required'" class="assistive error">この項目は必須です</div>
-    <div v-else-if="showError === 'validation'" class="assistive error"><slot name="error"></slot></div>
-  </div>
+  </AssistiveText>
 </template>
 <script setup lang="ts">
 import { useFormComponent } from '~~/composable/form'
@@ -97,15 +95,6 @@ useFormComponent(computed(() => ({ error: requiredError.value || validationError
 
   &.error {
     border-color: $error;
-  }
-}
-
-.assistive {
-  padding: 0 8px;
-  font-size: $typography-s;
-
-  &.error {
-    color: $error;
   }
 }
 </style>
