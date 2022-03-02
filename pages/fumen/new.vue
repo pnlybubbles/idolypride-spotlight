@@ -8,12 +8,7 @@
       </Section>
       <Section>
         <template #label>ユニット</template>
-        <TextField v-model="unit" :placeholder="SUNNY_PEACE_HARMONY.unit" :error="!validUnit(unit)" required>
-          <template #error
-            >サニーピース, 月のテンペスト, TRINITYAiLE, LizNoir, MACARON DONUTS, 長瀬麻奈
-            のどれかを入力してください</template
-          >
-        </TextField>
+        <Listbox v-model="unit" :options="unitOptions" required></Listbox>
       </Section>
       <Section>
         <template #label>ビート数</template>
@@ -69,12 +64,20 @@ import { validSpaceSeparatedPositiveInt, validPositiveInt } from '~~/utils/valid
 
 const router = useRouter()
 const title = ref('')
-const unit = ref('')
+const unit = ref(null)
 const beat = ref('')
 const aSkill = reactive(['', '', '', '', ''] as const)
 const spSkill = reactive(['', '', '', '', ''] as const)
-const validUnit = (value: string) =>
-  /^(サニーピース|月のテンペスト|TRINITYAiLE|LizNoir|MACARON DONUTS|長瀬麻奈|星見プロダクション)$/.test(value)
+const unitOptions = [
+  'サニーピース',
+  '月のテンペスト',
+  'TRINITYAiLE',
+  'LizNoir',
+  'MACARON DONUTS',
+  '長瀬麻奈',
+  '川咲さくら',
+  '兵藤雫×天動瑠依',
+]
 const parseSpaceSeparatedInt = (value: string) =>
   value
     .split(' ')

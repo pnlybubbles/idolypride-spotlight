@@ -21,7 +21,7 @@ defineProps<Props>()
 }
 
 .assistive {
-  padding: 0 8px;
+  padding: 0 12px;
   font-size: $typography-s;
 
   &.error {
