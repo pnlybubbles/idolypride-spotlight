@@ -61,6 +61,28 @@
               <Check v-model="skill[i].once">ライブ中1回</Check>
             </div>
           </Section>
+          <Section>
+            <template #label>効果</template>
+            <div v-for="(ability, j) in skill[i].ability" :key="j" class="ability">
+              <Section :gutter="8">
+                <template #label>種別</template>
+                <Listbox v-model="ability.type" :options="abilityTypeOptions"></Listbox>
+              </Section>
+              <Section :gutter="8">
+                <template #label>バフ</template>
+                <Listbox v-model="ability.target" placeholder="対象" :options="buffTargetOptions"></Listbox>
+                <Listbox v-model="ability.buff" placeholder="バフの種類" :options="buffTypeOptions"></Listbox>
+                <HStack :spacing="4">
+                  <TextField v-model="ability.amount" placeholder="段階"></TextField>
+                  <TextField v-model="ability.span" placeholder="持続ビート数"></TextField>
+                </HStack>
+              </Section>
+            </div>
+            <button class="new-ability" @click="handleAddAbility(i)" @touchend="null">
+              <font-awesome-icon icon="circle-plus"></font-awesome-icon>
+              <div>効果を追加する</div>
+            </button>
+          </Section>
         </VStack>
       </div>
       <Section>
@@ -75,7 +97,7 @@ import { useRouteGuard } from '~~/composable/route'
 import { CreateIdolDocument } from '~~/generated/graphql'
 import { DEFAULT_META } from '~~/utils/meta'
 import Listbox from '~~/components/Listbox.vue'
-import { IdolRole, IdolType, SkillType } from '~~/utils/types'
+import { AbilityType, BuffTarget, BuffType, IdolRole, IdolType, SkillType } from '~~/utils/types'
 
 const router = useRouter()
 const name = ref(null)
@@ -115,17 +137,32 @@ const roleOptions: { id: IdolRole; label: string }[] = [
 const SKILLS = [0, 1, 2] as const
 const SKILLS_NAME_PLACEHOLDER = ['太陽の光と共に', '大好きなあのキャラ', '人生の倍返し'] as const
 const SKILLS_CT_PLACEHOLDER = ['', '30', ''] as const
+
+interface AbilityInput {
+  type: AbilityType
+  buff: BuffType | null
+  target: BuffTarget | null
+  amount: string
+  span: string
+}
 interface SkillInput {
   label: string
   type: SkillType
   ct: string
   once: boolean
+  ability: AbilityInput[]
 }
+
 const skill = reactive([
-  { label: '', type: 'sp', ct: '', once: false },
-  { label: '', type: 'a', ct: '', once: false },
-  { label: '', type: 'p', ct: '', once: true },
+  { label: '', type: 'sp', ct: '', once: false, ability: [] },
+  { label: '', type: 'a', ct: '', once: false, ability: [] },
+  { label: '', type: 'p', ct: '', once: true, ability: [] },
 ] as [SkillInput, SkillInput, SkillInput])
+
+const handleAddAbility = (index: typeof SKILLS[number]) => {
+  skill[index].ability.push({ type: 'buff', buff: null, target: null, amount: '', span: '' })
+}
+
 const skillTypeOptions1: { id: SkillType; label: string }[] = [
   { id: 'sp', label: 'SPスキル' },
   { id: 'a', label: 'Aスキル' },
@@ -136,6 +173,36 @@ const skillTypeOptions23: { id: SkillType; label: string }[] = [
 ]
 const SKILL_LEVEL_MAX = [6, 5, 4] as const
 const skillLevelToggle = reactive([1, 1, 1] as [number, number, number])
+const abilityTypeOptions: { id: AbilityType; label: string }[] = [
+  { id: 'buff', label: 'バフ' },
+  { id: 'score', label: 'スコア獲得' },
+]
+const buffTypeOptions: { id: BuffType; label: string }[] = [
+  { id: 'vocal', label: 'ボーカル上昇' },
+  { id: 'dance', label: 'ダンス上昇' },
+  { id: 'visual', label: 'ビジュアル上昇' },
+  { id: 'score', label: 'スコア上昇' },
+  { id: 'a-score', label: 'Aスキルスコア上昇' },
+  { id: 'sp-score', label: 'SPスキルスコア上昇' },
+  { id: 'beat-score', label: 'ビートスコア上昇' },
+  { id: 'buff-amount', label: '強化効果増強' },
+  { id: 'buff-span', label: '強化効果延長' },
+  { id: 'cmb-continuous', label: 'コンボ継続' },
+  { id: 'cmb-score', label: 'コンボスコア上昇' },
+  { id: 'critical-rate', label: 'クリティカル率上昇' },
+  { id: 'critical-score', label: 'クリティカル係数上昇' },
+  { id: 'ct-reduction', label: 'CT減少' },
+  { id: 'stamina-exhaust', label: 'スタミナ消費増加' },
+  { id: 'stamina-recovery', label: 'スタミナ回復' },
+  { id: 'stamina-saving', label: 'スタミナ消費低下' },
+  { id: 'steruss', label: 'ステルス' },
+  { id: 'unknown', label: '不明' },
+]
+const buffTargetOptions: { id: BuffTarget; label: string }[] = [
+  { id: 'self', label: '自身' },
+  { id: 'all', label: '全員' },
+  { id: 'center', label: 'センター' },
+]
 
 const { executeMutation, fetching } = useMutation(CreateIdolDocument)
 const submit = async () => {
@@ -204,5 +271,28 @@ useMeta(DEFAULT_META)
   display: grid;
   grid: auto / 1fr auto;
   gap: 8px;
+}
+
+.ability {
+  @include round-corner;
+  border: solid 1px $surface1;
+  padding: 8px 0;
+  display: grid;
+  grid: auto-flow / auto;
+  gap: 16px;
+}
+
+.new-ability {
+  @include reset-button;
+  @include round-corner;
+  border: solid 1px $surface1;
+  font-size: $typography-s;
+  color: $text3;
+  display: grid;
+  grid: auto / auto auto;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 0;
 }
 </style>

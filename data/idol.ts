@@ -32,7 +32,7 @@ export const REI_ICHINOSE: IdolData = {
         {
           type: 'buff',
           target: 'self',
-          buff: 'critical',
+          buff: 'critical-rate',
           amount: 2,
           span: 30,
         },
@@ -151,7 +151,7 @@ const aoiNureta: IdolData = {
         {
           type: 'buff',
           target: '2-scorer',
-          buff: 'critical',
+          buff: 'critical-rate',
           condition: null,
           amount: 4,
           span: 72,

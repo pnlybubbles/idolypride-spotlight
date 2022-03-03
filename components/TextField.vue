@@ -87,6 +87,7 @@ useFormComponent(computed(() => ({ error: requiredError.value || validationError
   color: $text1;
   outline: none;
   border: solid 1px transparent;
+  min-width: 0;
 
   &::placeholder {
     color: $text3;

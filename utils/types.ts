@@ -4,7 +4,7 @@ export type BuffType =
   | 'vocal'
   | 'dance'
   | 'visual'
-  | 'critical'
+  | 'critical-rate'
   | 'critical-score'
   | 'ct-reduction'
   | 'score'
@@ -37,7 +37,7 @@ export type BuffCondition = {
   amount: number
 } | null
 
-type Ability = {
+type BuffAbility = {
   type: 'buff'
   buff: BuffType
   condition: BuffCondition
@@ -45,6 +45,15 @@ type Ability = {
   amount: number
   span: number
 }
+
+type ScoreAbility = {
+  type: 'score'
+  amount: number
+}
+
+type Ability = BuffAbility | ScoreAbility
+
+export type AbilityType = Ability['type']
 
 type PassiveAbility = {
   type: 'buff'

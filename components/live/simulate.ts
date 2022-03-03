@@ -120,7 +120,7 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
       const aResult = aState
         .map(({ lane, skill }) => ({
           type: 'a' as const,
-          buff: skill?.ability[0]?.buff ?? 'unknown',
+          buff: skill?.ability.map((v) => (v.type === 'buff' ? v : null)).filter(isNonNullable)[0]?.buff ?? 'unknown',
           lane,
           fail: skill === null,
         }))
@@ -189,7 +189,7 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
       const spResult = spState
         .map(({ lane, skill }) => ({
           type: 'sp' as const,
-          buff: skill?.ability[0]?.buff ?? 'unknown',
+          buff: skill?.ability.map((v) => (v.type === 'buff' ? v : null)).filter(isNonNullable)[0]?.buff ?? 'unknown',
           lane,
           fail: skill === null,
         }))
