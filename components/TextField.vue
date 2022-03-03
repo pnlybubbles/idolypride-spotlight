@@ -97,8 +97,9 @@ useFormComponent(computed(() => ({ error: requiredError.value || validationError
   }
 
   &:disabled {
-    background: repeating-linear-gradient(-45deg, $surface1, $surface1 2px, transparent 2px, transparent 6px);
+    background: repeating-linear-gradient(-45deg, $surface1, $surface1 5px, transparent 5px, transparent 6px);
     border: solid 1px $surface1;
+    opacity: 0.64;
   }
 }
 </style>

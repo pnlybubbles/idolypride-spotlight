@@ -30,12 +30,15 @@
           </Section>
           <Section>
             <template #label>CT</template>
-            <TextField
-              v-model="skill[i].ct"
-              :placeholder="SKILLS_CT_PLACEHOLDER[i]"
-              :disabled="skill[i].type === 'sp'"
-              required
-            ></TextField>
+            <div class="ct">
+              <TextField
+                v-model="skill[i].ct"
+                :placeholder="SKILLS_CT_PLACEHOLDER[i]"
+                :disabled="skill[i].type === 'sp' || skill[i].once"
+                required
+              ></TextField>
+              <Check v-model="skill[i].once">ライブ中1回</Check>
+            </div>
           </Section>
         </VStack>
       </div>
@@ -92,9 +95,9 @@ const SKILLS = [0, 1, 2] as const
 const SKILLS_NAME_PLACEHOLDER = ['太陽の光と共に', '大好きなあのキャラ', '人生の倍返し'] as const
 const SKILLS_CT_PLACEHOLDER = ['', '30', ''] as const
 const skill = reactive([
-  { label: '', type: 'sp', ct: '' },
-  { label: '', type: 'a', ct: '' },
-  { label: '', type: 'p', ct: '' },
+  { label: '', type: 'sp', ct: '', once: false },
+  { label: '', type: 'a', ct: '', once: false },
+  { label: '', type: 'p', ct: '', once: true },
 ] as const)
 const skillTypeOptions: { id: SkillType; label: string }[] = [
   { id: 'sp', label: 'SPスキル' },
@@ -122,5 +125,11 @@ useMeta(DEFAULT_META)
   font-weight: bold;
   margin-top: 16px;
   margin-bottom: 16px;
+}
+
+.ct {
+  display: grid;
+  grid: auto / 1fr auto;
+  gap: 8px;
 }
 </style>
