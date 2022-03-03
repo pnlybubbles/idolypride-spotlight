@@ -51,6 +51,8 @@ watchEffect(() => {
   position: absolute;
   left: 0;
   bottom: 0;
+  max-height: 90%;
+  overflow-y: auto;
   width: 100%;
   background-color: #000;
   border-radius: 24px 24px 0 0;
