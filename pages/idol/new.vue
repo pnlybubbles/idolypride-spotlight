@@ -73,8 +73,16 @@
                 <Listbox v-model="ability.target" placeholder="対象" :options="buffTargetOptions"></Listbox>
                 <Listbox v-model="ability.buff" placeholder="バフの種類" :options="buffTypeOptions"></Listbox>
                 <HStack :spacing="4">
-                  <TextField v-model="ability.amount" placeholder="段階"></TextField>
-                  <TextField v-model="ability.span" placeholder="持続ビート数"></TextField>
+                  <TextField
+                    v-model="ability.amount"
+                    :placeholder="deriveUnitByBuffType(ability.buff)"
+                    :disabled="deriveDisabledAmount(ability.buff)"
+                  ></TextField>
+                  <TextField
+                    v-model="ability.span"
+                    placeholder="持続ビート数"
+                    :disabled="deriveDisabledSpan(ability.buff)"
+                  ></TextField>
                 </HStack>
               </Section>
             </div>
@@ -198,6 +206,25 @@ const buffTypeOptions: { id: BuffType; label: string }[] = [
   { id: 'steruss', label: 'ステルス' },
   { id: 'unknown', label: '不明' },
 ]
+
+const deriveUnitByBuffType = (type: BuffType | null): string => {
+  switch (type) {
+    case 'buff-span':
+      return 'ビート延長数'
+    case 'ct-reduction':
+      return 'CT減少数'
+    case 'stamina-recovery':
+      return 'スタミナ回復量'
+    case 'unknown':
+      return ''
+    default:
+      return '段階'
+  }
+}
+const deriveDisabledAmount = (type: BuffType | null): boolean => type === 'cmb-continuous'
+const deriveDisabledSpan = (type: BuffType | null): boolean =>
+  type === 'buff-span' || type === 'buff-amount' || type === 'ct-reduction'
+
 const buffTargetOptions: { id: BuffTarget; label: string }[] = [
   { id: 'self', label: '自身' },
   { id: 'all', label: '全員' },
