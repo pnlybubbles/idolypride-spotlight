@@ -42,19 +42,23 @@
           </Section>
           <Section>
             <template #label>スキルタイプ</template>
-            <Listbox v-model="skill[i].type" :options="skillTypeOptions" required></Listbox>
+            <Listbox
+              v-model="skill[i].type"
+              :options="i === 0 ? skillTypeOptions1 : skillTypeOptions23"
+              required
+            ></Listbox>
           </Section>
-          <Section>
+          <Section v-if="skill[i].type !== 'sp'">
             <template #label>CT</template>
             <div class="ct">
               <TextField
-                :model-value="skill[i].type === 'sp' || skill[i].once ? 'なし' : skill[i].ct"
+                :model-value="skill[i].once ? 'なし' : skill[i].ct"
                 :placeholder="SKILLS_CT_PLACEHOLDER[i]"
-                :disabled="skill[i].type === 'sp' || skill[i].once"
+                :disabled="skill[i].once"
                 required
                 @update:model-value="skill[i].ct = $event"
               ></TextField>
-              <Check v-model="skill[i].once" :disabled="skill[i].type === 'sp'">ライブ中1回</Check>
+              <Check v-model="skill[i].once">ライブ中1回</Check>
             </div>
           </Section>
         </VStack>
@@ -122,8 +126,11 @@ const skill = reactive([
   { label: '', type: 'a', ct: '', once: false },
   { label: '', type: 'p', ct: '', once: true },
 ] as [SkillInput, SkillInput, SkillInput])
-const skillTypeOptions: { id: SkillType; label: string }[] = [
+const skillTypeOptions1: { id: SkillType; label: string }[] = [
   { id: 'sp', label: 'SPスキル' },
+  { id: 'a', label: 'Aスキル' },
+]
+const skillTypeOptions23: { id: SkillType; label: string }[] = [
   { id: 'a', label: 'Aスキル' },
   { id: 'p', label: 'Pスキル' },
 ]
