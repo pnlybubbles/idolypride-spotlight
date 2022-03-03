@@ -2,16 +2,20 @@
   <AssistiveText :show="showError">
     <button class="listbox" :class="{ error: showError !== null }" @click="handleOpen">
       <div class="current" :class="{ placeholder: modelValue === null }">
-        {{ modelValue ?? placeholder ?? '選択してください' }}
+        {{ selectedLabel ?? placeholder ?? '選択してください' }}
       </div>
       <font-awesome-icon icon="angle-down" class="icon"></font-awesome-icon>
     </button>
     <Sheet v-model:present="present">
       <ul class="options">
-        <li v-for="item in options" :key="item" class="item">
-          <button class="button" @click="handleClick(item)" @touchend="null">
-            <font-awesome-icon class="check" icon="check" :class="{ checked: item === modelValue }"></font-awesome-icon>
-            <div>{{ item }}</div>
+        <li v-for="item in options" :key="item.id" class="item">
+          <button class="button" @click="handleClick(item.id)" @touchend="null">
+            <font-awesome-icon
+              class="check"
+              icon="check"
+              :class="{ checked: item.id === modelValue }"
+            ></font-awesome-icon>
+            <div>{{ item.label }}</div>
           </button>
         </li>
       </ul>
@@ -21,9 +25,14 @@
 <script setup lang="ts">
 import { useFormComponent } from '~~/composable/form'
 
+interface Option {
+  id: string
+  label: string
+}
+
 interface Props {
   modelValue: string | null
-  options: string[]
+  options: Option[]
   disabled?: boolean
   // eslint-disable-next-line vue/require-default-prop
   placeholder?: string
@@ -35,6 +44,8 @@ interface Emits {
 }
 const props = withDefaults(defineProps<Props>(), { disabled: false, error: false, required: false })
 const emit = defineEmits<Emits>()
+
+const selectedLabel = computed(() => props.options.find((v) => v.id === props.modelValue)?.label)
 
 const present = ref(false)
 const oncePresent = ref(false)

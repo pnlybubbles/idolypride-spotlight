@@ -45,6 +45,8 @@ type SkillTrigger =
       amount: 50
     }
 
+export type SkillType = SkillData['type']
+
 export type SkillData = {
   label: string
 } & (
@@ -65,11 +67,14 @@ export type SkillData = {
     }
 )
 
+export type IdolRole = 'scorer' | 'buffer' | 'supporter'
+export type IdolType = 'vocal' | 'dance' | 'visual'
+
 export interface IdolData {
   name: string
   sub: string
-  role: 'scorer' | 'buffer' | 'supporter'
-  type: 'vocal' | 'dance' | 'visual'
+  role: IdolRole
+  type: IdolType
   skills: ArrayN<SkillData, 3>
 }
 
