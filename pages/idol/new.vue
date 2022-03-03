@@ -11,8 +11,11 @@
         <TextField v-model="title" placeholder="夢の共演" required></TextField>
       </Section>
       <Section>
-        <Listbox v-model="type" :options="typeOptions" required></Listbox>
-        <Listbox v-model="role" :options="roleOptions" required></Listbox>
+        <template #label>属性</template>
+        <HStack :spacing="8">
+          <Listbox v-model="type" :options="typeOptions" required></Listbox>
+          <Listbox v-model="role" :options="roleOptions" required></Listbox>
+        </HStack>
       </Section>
       <div v-for="i in SKILLS" :key="i">
         <div class="sub-heading">スキル{{ i + 1 }}</div>
