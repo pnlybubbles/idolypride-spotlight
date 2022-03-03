@@ -14,11 +14,10 @@
 
   display: grid;
   grid: auto-flow / auto;
-  gap: 8px;
+  gap: 4px;
 }
 
 .label {
-  font-weight: bold;
   font-size: $typography-s;
   color: $text1;
 }
