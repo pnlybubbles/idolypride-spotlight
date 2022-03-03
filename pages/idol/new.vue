@@ -32,12 +32,13 @@
             <template #label>CT</template>
             <div class="ct">
               <TextField
-                v-model="skill[i].ct"
+                :model-value="skill[i].type === 'sp' || skill[i].once ? 'なし' : skill[i].ct"
                 :placeholder="SKILLS_CT_PLACEHOLDER[i]"
                 :disabled="skill[i].type === 'sp' || skill[i].once"
                 required
+                @update:model-value="skill[i].ct = $event"
               ></TextField>
-              <Check v-model="skill[i].once">ライブ中1回</Check>
+              <Check v-model="skill[i].once" :disabled="skill[i].type === 'sp'">ライブ中1回</Check>
             </div>
           </Section>
         </VStack>
@@ -94,11 +95,17 @@ const roleOptions: { id: IdolRole; label: string }[] = [
 const SKILLS = [0, 1, 2] as const
 const SKILLS_NAME_PLACEHOLDER = ['太陽の光と共に', '大好きなあのキャラ', '人生の倍返し'] as const
 const SKILLS_CT_PLACEHOLDER = ['', '30', ''] as const
+interface SkillInput {
+  label: string
+  type: SkillType
+  ct: string
+  once: boolean
+}
 const skill = reactive([
   { label: '', type: 'sp', ct: '', once: false },
   { label: '', type: 'a', ct: '', once: false },
   { label: '', type: 'p', ct: '', once: true },
-] as const)
+] as [SkillInput, SkillInput, SkillInput])
 const skillTypeOptions: { id: SkillType; label: string }[] = [
   { id: 'sp', label: 'SPスキル' },
   { id: 'a', label: 'Aスキル' },

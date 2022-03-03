@@ -1,8 +1,9 @@
 <template>
-  <div class="check" :class="{ checked: modelValue }">
+  <div class="check" :class="{ checked: modelValue }" :aria-disabled="disabled">
     <input
       type="checkbox"
       :checked="modelValue"
+      :disabled="disabled"
       @input="$emit('update:modelValue', ($event.target as any).checked)"
       @touchend="null"
     />
@@ -15,8 +16,9 @@
 <script setup lang="ts">
 interface Props {
   modelValue: boolean
+  disabled?: boolean
 }
-defineProps<Props>()
+withDefaults(defineProps<Props>(), { disabled: false })
 interface Emits {
   (e: 'update:modelValue', value: boolean): void
 }
@@ -41,6 +43,12 @@ defineEmits<Emits>()
   align-items: center;
   grid: auto / auto auto;
   gap: 8px;
+
+  &[aria-disabled='true'] {
+    background: repeating-linear-gradient(-45deg, $surface1, $surface1 4px, transparent 4px, transparent 6px);
+    border: solid 1px $surface1;
+    opacity: 0.64;
+  }
 }
 
 input {
