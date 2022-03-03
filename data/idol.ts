@@ -15,6 +15,7 @@ export const REI_ICHINOSE: IdolData = {
           type: 'buff',
           target: 'all',
           buff: 'dance',
+          condition: null,
           amount: 4,
           span: 15,
         },
@@ -48,7 +49,7 @@ export const REI_ICHINOSE: IdolData = {
         {
           type: 'buff',
           target: 'self',
-          buff: 'ct',
+          buff: 'ct-reduction',
           amount: 11,
           span: 0,
         },
@@ -77,6 +78,7 @@ const reiOsorenai: IdolData = {
           type: 'buff',
           target: 'self',
           buff: 'visual',
+          condition: null,
           amount: 8,
           span: 45,
         },
@@ -106,6 +108,7 @@ const nagisaEmal: IdolData = {
           type: 'buff',
           target: 'self',
           buff: 'score',
+          condition: null,
           amount: 11,
           span: 64,
         },
@@ -125,6 +128,7 @@ const nagisaEmal: IdolData = {
           type: 'buff',
           target: 'self',
           buff: 'critical-score',
+          condition: null,
           amount: 4,
           span: 43,
         },
@@ -146,8 +150,9 @@ const aoiNureta: IdolData = {
       ability: [
         {
           type: 'buff',
-          target: '2-scorers',
+          target: '2-scorer',
           buff: 'critical',
+          condition: null,
           amount: 4,
           span: 72,
         },
@@ -160,8 +165,9 @@ const aoiNureta: IdolData = {
       ability: [
         {
           type: 'buff',
-          target: '2-scorers',
+          target: '2-scorer',
           buff: 'buff-span',
+          condition: null,
           amount: 6,
           span: 0,
         },

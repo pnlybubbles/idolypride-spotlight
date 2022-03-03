@@ -6,23 +6,41 @@ export type BuffType =
   | 'visual'
   | 'critical'
   | 'critical-score'
-  | 'ct'
+  | 'ct-reduction'
   | 'score'
   | 'beat-score'
   | 'a-score'
   | 'sp-score'
-  | 'stamina'
+  | 'cmb-score'
+  | 'stamina-recovery'
+  | 'stamina-saving'
+  | 'stamina-exhaust'
   | 'buff-span'
   | 'buff-amount'
+  | 'steruss'
+  | 'cmb-continuous'
   | 'unknown'
 
-export type BuffTarget = 'all' | 'self' | '1-scorer' | '2-scorers'
+type BuffTargetRoles = `${'high-' | 'neighbor-' | ''}${'vocal' | 'dance' | 'visual'}`
+
+export type BuffTarget =
+  | 'all'
+  | 'self'
+  | 'center'
+  | 'opponent-center'
+  | `${1 | 2 | 3}-${'scorer' | 'lowstamina' | BuffTargetRoles}`
 
 export type PassiveBuffTarget = BuffTarget | 'triggered'
+
+export type BuffCondition = {
+  type: 'stamina-greater-than' | 'combo'
+  amount: number
+} | null
 
 type Ability = {
   type: 'buff'
   buff: BuffType
+  condition: BuffCondition
   target: BuffTarget
   amount: number
   span: number

@@ -377,7 +377,7 @@ function deriveBuffLanes(target: BuffTarget, selfLane: Lane, idol: ArrayN<Idol, 
         .sort(comparebyCenter)
       return [candidate[0]].filter(isNonNullable)
     }
-    case '2-scorers': {
+    case '2-scorer': {
       const candidate = indexed(idol)
         .filter(([v]) => v.role === 'scorer')
         .map(second)
@@ -385,7 +385,9 @@ function deriveBuffLanes(target: BuffTarget, selfLane: Lane, idol: ArrayN<Idol, 
       return [candidate[0], candidate[1]].filter(isNonNullable)
     }
     default:
-      unreachable(target)
+      return []
+    // TODO
+    // unreachable(target)
   }
 }
 
