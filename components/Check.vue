@@ -80,7 +80,7 @@ input {
 }
 
 .icon {
-  color: #000;
+  color: $background1;
   opacity: 0;
 }
 

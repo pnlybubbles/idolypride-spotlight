@@ -18,7 +18,23 @@
         </HStack>
       </Section>
       <div v-for="i in SKILLS" :key="i">
-        <div class="sub-heading">スキル{{ i + 1 }}</div>
+        <div class="sub-heading">
+          <div>スキル{{ i + 1 }}</div>
+          <div></div>
+          <div class="level-label">Level</div>
+          <div class="level-toggle">
+            <button
+              v-for="level in SKILL_LEVEL_MAX[i]"
+              :key="level"
+              class="level-toggle-item"
+              :class="{ active: level === skillLevelToggle[i] }"
+              @click="skillLevelToggle[i] = level"
+              @touchend="null"
+            >
+              {{ level }}
+            </button>
+          </div>
+        </div>
         <VStack :spacing="16">
           <Section>
             <template #label>スキル名</template>
@@ -111,6 +127,8 @@ const skillTypeOptions: { id: SkillType; label: string }[] = [
   { id: 'a', label: 'Aスキル' },
   { id: 'p', label: 'Pスキル' },
 ]
+const SKILL_LEVEL_MAX = [6, 5, 4] as const
+const skillLevelToggle = reactive([1, 1, 1] as [number, number, number])
 
 const { executeMutation, fetching } = useMutation(CreateIdolDocument)
 const submit = async () => {
@@ -124,6 +142,7 @@ useMeta(DEFAULT_META)
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
+@import '~~/components/partials/utils.scss';
 
 .sub-heading {
   @include align;
@@ -132,6 +151,46 @@ useMeta(DEFAULT_META)
   font-weight: bold;
   margin-top: 16px;
   margin-bottom: 16px;
+  display: grid;
+  grid: auto / auto 1fr auto auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.level-label {
+  font-size: $typography-s;
+  font-weight: normal;
+  color: $text3;
+}
+
+.level-toggle {
+  display: grid;
+  grid: auto / auto-flow min-content;
+  gap: 4px;
+}
+
+.level-toggle-item {
+  @include round-corner;
+  @include clickable;
+  @include reset-button;
+
+  font-size: $typography-m;
+  font-weight: normal;
+  font-family: Arial;
+  color: $text3;
+  height: 28px;
+  width: 28px;
+  display: grid;
+  justify-items: center;
+  align-items: center;
+  border: solid 1px $text3;
+
+  &.active {
+    color: $background1;
+    background-color: $text1;
+    border-color: $text1;
+  }
 }
 
 .ct {
