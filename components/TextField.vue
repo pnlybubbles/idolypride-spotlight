@@ -42,7 +42,7 @@ const handleBlur = () => {
 // どのエラーを表示するか (入力中や未入力では不完全な状態になっているはずなので、入力が終わるまでエラーを出すのを待つ制御をする)
 const showError = ref<null | 'validation' | 'required'>(null)
 // 入力必須エラーが発生しているかどうか
-const requiredError = computed(() => props.required && props.modelValue === '')
+const requiredError = computed(() => !props.disabled && props.required && props.modelValue === '')
 // ユーザーのキー入力によってエラーが発生したかどうか
 const requiredErrorOnEditing = ref(false)
 watchEffect(() => {
@@ -54,7 +54,7 @@ watchEffect(() => {
   requiredErrorOnEditing.value = requiredError.value
 })
 // バリデーションが発生しているかどうか (空文字は入力必須エラーで扱うので、バリデーションエラーは起きない)
-const validationError = computed(() => props.modelValue !== '' && props.error)
+const validationError = computed(() => !props.disabled && props.modelValue !== '' && props.error)
 watchEffect(() => {
   const error = validationError.value ? 'validation' : requiredErrorOnEditing.value ? 'required' : null
   // 一貫してフォーカス中にエラーが表示されないようにする

@@ -14,6 +14,6 @@ defineProps<Props>()
 <style lang="scss" scoped>
 .h-stack {
   display: grid;
-  grid: auto / auto-flow;
+  grid: auto / auto-flow 1fr;
 }
 </style>

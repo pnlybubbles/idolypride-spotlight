@@ -41,7 +41,8 @@ defineEmits<Emits>()
   z-index: 0;
   display: grid;
   align-items: center;
-  grid: auto / auto auto;
+  justify-content: center;
+  grid: auto / min-content auto;
   gap: 8px;
 
   &[aria-disabled='true'] {

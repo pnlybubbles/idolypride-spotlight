@@ -50,7 +50,7 @@
           </Section>
           <Section v-if="skill[i].type !== 'sp'">
             <template #label>CT</template>
-            <div class="ct">
+            <HStack :spacing="8">
               <TextField
                 :model-value="skill[i].once ? 'なし' : skill[i].ct"
                 :placeholder="SKILLS_CT_PLACEHOLDER[i]"
@@ -59,7 +59,7 @@
                 @update:model-value="skill[i].ct = $event"
               ></TextField>
               <Check v-model="skill[i].once">ライブ中1回</Check>
-            </div>
+            </HStack>
           </Section>
           <Section>
             <template #label>効果</template>
@@ -70,18 +70,20 @@
               </Section>
               <Section :gutter="8">
                 <template #label>バフ</template>
-                <Listbox v-model="ability.target" placeholder="対象" :options="buffTargetOptions"></Listbox>
-                <Listbox v-model="ability.buff" placeholder="バフの種類" :options="buffTypeOptions"></Listbox>
+                <Listbox v-model="ability.target" placeholder="対象" :options="buffTargetOptions" required></Listbox>
+                <Listbox v-model="ability.buff" placeholder="バフの種類" :options="buffTypeOptions" required></Listbox>
                 <HStack :spacing="4">
                   <TextField
                     v-model="ability.amount"
                     :placeholder="deriveUnitByBuffType(ability.buff)"
                     :disabled="deriveDisabledAmount(ability.buff)"
+                    required
                   ></TextField>
                   <TextField
                     v-model="ability.span"
                     placeholder="持続ビート数"
                     :disabled="deriveDisabledSpan(ability.buff)"
+                    required
                   ></TextField>
                 </HStack>
               </Section>
@@ -292,12 +294,6 @@ useMeta(DEFAULT_META)
     background-color: $text1;
     border-color: $text1;
   }
-}
-
-.ct {
-  display: grid;
-  grid: auto / 1fr auto;
-  gap: 8px;
 }
 
 .ability {
