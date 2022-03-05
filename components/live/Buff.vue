@@ -2,7 +2,7 @@
   <div class="buff" :class="{ affected }"></div>
 </template>
 <script setup lang="ts">
-import { BuffType } from '~~/utils/types'
+import { AbilityType } from '~~/utils/types'
 import { cssBeat, cssBuff } from './helper'
 
 interface Props {
@@ -13,7 +13,7 @@ interface Props {
   /**
    * バフの種類
    */
-  buff: BuffType
+  buff: AbilityType
   /**
    * バフの持続ビート数
    */

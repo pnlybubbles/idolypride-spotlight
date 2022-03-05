@@ -38,7 +38,7 @@
         <VStack :spacing="16">
           <Section>
             <template #label>スキル名</template>
-            <TextField v-model="skill[i].label" :placeholder="SKILLS_NAME_PLACEHOLDER[i]" required></TextField>
+            <TextField v-model="skill[i].name" :placeholder="SKILLS_NAME_PLACEHOLDER[i]" required></TextField>
           </Section>
           <Section>
             <template #label>スキルタイプ</template>
@@ -66,34 +66,34 @@
             <div v-for="(ability, j) in skill[i].ability" :key="j" class="ability">
               <Section :gutter="8">
                 <template #label>種別</template>
-                <Listbox v-model="ability.type" :options="abilityTypeOptions"></Listbox>
+                <Listbox v-model="ability.div" :options="abilityTypeOptions"></Listbox>
               </Section>
-              <Section v-if="ability.type === 'buff' || ability.type === 'action-buff'" :gutter="8">
+              <Section v-if="ability.div === 'buff' || ability.div === 'action-buff'" :gutter="8">
                 <template #label>詳細</template>
                 <Listbox v-model="ability.target" placeholder="対象" :options="buffTargetOptions" required></Listbox>
                 <Listbox
-                  v-model="ability.buff"
+                  v-model="ability.type"
                   placeholder="バフの種類"
-                  :options="ability.type === 'buff' ? buffTypeOptions : actionBuffTypeOptions"
+                  :options="ability.div === 'buff' ? buffTypeOptions : actionBuffTypeOptions"
                   required
                 ></Listbox>
                 <HStack :spacing="4">
                   <TextField
                     v-model="ability.amount"
-                    :placeholder="deriveUnitByBuffType(ability.buff)"
-                    :disabled="deriveDisabledAmount(ability.buff)"
+                    :placeholder="deriveUnitByBuffType(ability.type)"
+                    :disabled="deriveDisabledAmount(ability.type)"
                     required
                   ></TextField>
                   <TextField
-                    v-if="ability.type === 'buff'"
+                    v-if="ability.div === 'buff'"
                     v-model="ability.span"
                     placeholder="持続ビート数"
                     required
                   ></TextField>
                 </HStack>
-                <Listbox v-model="ability.buffCondition" :options="buffConditionOptions" required></Listbox>
+                <Listbox v-model="ability.condition" :options="buffConditionOptions" required></Listbox>
               </Section>
-              <Section v-else-if="ability.type === 'score'" :gutter="8">
+              <Section v-else-if="ability.div === 'score'" :gutter="8">
                 <template #label>スコア</template>
                 <TextField v-model="ability.amount" placeholder="1000" required></TextField>
               </Section>
@@ -118,14 +118,14 @@ import { CreateIdolDocument } from '~~/generated/graphql'
 import { DEFAULT_META } from '~~/utils/meta'
 import Listbox from '~~/components/Listbox.vue'
 import {
-  AbilityType,
-  ActionBuffType,
-  BuffConditionType,
+  AbilityDiv,
+  ActionAbilityType,
+  AbilityConditionType,
   BuffTarget,
-  BuffType,
   IdolRole,
   IdolType,
   SkillType,
+  BuffAbilityType,
 } from '~~/utils/types'
 
 const router = useRouter()
@@ -168,15 +168,15 @@ const SKILLS_NAME_PLACEHOLDER = ['太陽の光と共に', '大好きなあのキ
 const SKILLS_CT_PLACEHOLDER = ['', '30', ''] as const
 
 interface AbilityInput {
-  type: AbilityType
-  buff: BuffType | ActionBuffType | null
-  buffCondition: BuffType | 'none'
+  div: AbilityDiv
+  type: BuffAbilityType | ActionAbilityType | null
+  condition: AbilityConditionType | 'none'
   target: BuffTarget | null
   amount: string
   span: string
 }
 interface SkillInput {
-  label: string
+  name: string
   type: SkillType
   ct: string
   once: boolean
@@ -184,13 +184,13 @@ interface SkillInput {
 }
 
 const skill = reactive([
-  { label: '', type: 'sp', ct: '', once: false, ability: [] },
-  { label: '', type: 'a', ct: '', once: false, ability: [] },
-  { label: '', type: 'p', ct: '', once: true, ability: [] },
+  { name: '', type: 'sp', ct: '', once: false, ability: [] },
+  { name: '', type: 'a', ct: '', once: false, ability: [] },
+  { name: '', type: 'p', ct: '', once: true, ability: [] },
 ] as [SkillInput, SkillInput, SkillInput])
 
 const handleAddAbility = (index: typeof SKILLS[number]) => {
-  skill[index].ability.push({ type: 'buff', buff: null, buffCondition: 'none', target: null, amount: '', span: '' })
+  skill[index].ability.push({ div: 'buff', type: null, condition: 'none', target: null, amount: '', span: '' })
 }
 
 const skillTypeOptions1: { id: SkillType; label: string }[] = [
@@ -203,12 +203,12 @@ const skillTypeOptions23: { id: SkillType; label: string }[] = [
 ]
 const SKILL_LEVEL_MAX = [6, 5, 4] as const
 const skillLevelToggle = reactive([1, 1, 1] as [number, number, number])
-const abilityTypeOptions: { id: AbilityType; label: string }[] = [
+const abilityTypeOptions: { id: AbilityDiv; label: string }[] = [
   { id: 'buff', label: '持続効果' },
   { id: 'action-buff', label: '即時効果' },
   { id: 'score', label: 'スコア獲得' },
 ]
-const buffTypeOptions: { id: BuffType; label: string }[] = [
+const buffTypeOptions: { id: BuffAbilityType; label: string }[] = [
   { id: 'vocal', label: 'ボーカル上昇' },
   { id: 'dance', label: 'ダンス上昇' },
   { id: 'visual', label: 'ビジュアル上昇' },
@@ -225,13 +225,13 @@ const buffTypeOptions: { id: BuffType; label: string }[] = [
   { id: 'stamina-saving', label: 'スタミナ消費低下' },
   { id: 'steruss', label: 'ステルス' },
 ]
-const actionBuffTypeOptions: { id: ActionBuffType; label: string }[] = [
+const actionBuffTypeOptions: { id: ActionAbilityType; label: string }[] = [
   { id: 'buff-span', label: '強化効果延長' },
   { id: 'ct-reduction', label: 'CT減少' },
   { id: 'stamina-recovery', label: 'スタミナ回復' },
 ]
 
-const deriveUnitByBuffType = (type: BuffType | ActionBuffType | null): string => {
+const deriveUnitByBuffType = (type: BuffAbilityType | ActionAbilityType | null): string => {
   switch (type) {
     case 'buff-span':
       return 'ビート延長数'
@@ -243,14 +243,14 @@ const deriveUnitByBuffType = (type: BuffType | ActionBuffType | null): string =>
       return '段階'
   }
 }
-const deriveDisabledAmount = (type: BuffType | ActionBuffType | null): boolean => type === 'cmb-continuous'
+const deriveDisabledAmount = (type: BuffAbilityType | ActionAbilityType | null): boolean => type === 'cmb-continuous'
 
 const buffTargetOptions: { id: BuffTarget; label: string }[] = [
   { id: 'self', label: '自身' },
   { id: 'all', label: '全員' },
   { id: 'center', label: 'センター' },
 ]
-const buffConditionOptions: { id: BuffConditionType | 'none'; label: string }[] = [
+const buffConditionOptions: { id: AbilityConditionType | 'none'; label: string }[] = [
   { id: 'none', label: '発動条件なし' },
   { id: 'combo', label: 'Xコンボ以上のとき' },
   { id: 'stamina-greater-than', label: 'スタミナがX%以上のとき' },

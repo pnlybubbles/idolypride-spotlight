@@ -40,7 +40,7 @@ import idolData from '~~/data/idol'
 import { isType, simulate } from './simulate'
 import { mapArrayN } from '~~/utils'
 import isNonNullable from 'is-non-nullable'
-import { BuffType, LiveData } from '~~/utils/types'
+import { AbilityType, LiveData } from '~~/utils/types'
 
 interface Props {
   live: LiveData
@@ -114,7 +114,7 @@ const simulated = computed(() => simulate(props.live, idols))
 type Item = {
   id: string
   beat: number
-  buff: BuffType
+  buff: AbilityType
 } & (
   | {
       type: 'sp' | 'a'

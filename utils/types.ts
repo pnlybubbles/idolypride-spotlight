@@ -1,6 +1,6 @@
 import { ArrayN, NumberUnion } from '~~/utils'
 
-export type BuffType =
+export type BuffAbilityType =
   | 'vocal'
   | 'dance'
   | 'visual'
@@ -18,7 +18,7 @@ export type BuffType =
   | 'cmb-continuous'
   | 'unknown'
 
-export type ActionBuffType = 'buff-span' | 'ct-reduction' | 'stamina-recovery'
+export type ActionAbilityType = 'buff-span' | 'ct-reduction' | 'stamina-recovery'
 
 type BuffTargetRoles = `${'high-' | 'neighbor-' | ''}${'vocal' | 'dance' | 'visual'}`
 
@@ -31,37 +31,39 @@ export type BuffTarget =
 
 export type PassiveBuffTarget = BuffTarget | 'triggered'
 
-export type BuffConditionType = 'stamina-greater-than' | 'combo'
-export type BuffCondition = {
-  type: BuffConditionType
+export type AbilityConditionType = 'stamina-greater-than' | 'combo'
+export type AbilityCondition = {
+  type: AbilityConditionType
   amount: number
 } | null
 
 type BuffAbility = {
-  type: 'buff'
-  buff: BuffType
-  condition: BuffCondition
+  div: 'buff'
+  type: BuffAbilityType
+  condition: AbilityCondition
   target: BuffTarget
   amount: number
   span: number
 }
 
 type ScoreAbility = {
-  type: 'score'
+  div: 'score'
   amount: number
 }
 
 type ActionBuffAbility = {
-  type: 'action-buff'
-  buff: ActionBuffType
-  condition: BuffCondition
+  div: 'action-buff'
+  type: ActionAbilityType
+  condition: AbilityCondition
   target: BuffTarget
   amount: number
 }
 
 type Ability = BuffAbility | ScoreAbility | ActionBuffAbility
 
-export type AbilityType = Ability['type']
+export type AbilityType = BuffAbilityType | ActionAbilityType
+
+export type AbilityDiv = Ability['div']
 
 type PassiveAbility =
   | (Omit<BuffAbility, 'target'> & {
@@ -84,7 +86,7 @@ type SkillTrigger =
 export type SkillType = SkillData['type']
 
 export type SkillData = {
-  label: string
+  name: string
 } & (
   | {
       type: 'sp'
@@ -108,7 +110,7 @@ export type IdolType = 'vocal' | 'dance' | 'visual'
 
 export interface IdolData {
   name: string
-  sub: string
+  title: string
   role: IdolRole
   type: IdolType
   skills: ArrayN<SkillData, 3>

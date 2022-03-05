@@ -1,5 +1,8 @@
-import { BuffType } from './types'
+import { AbilityType } from './types'
 
+/**
+ * https://whimsical.com/vibrant-theme-MNdDBtXkbZpnwzrEip5MbG
+ */
 export const colors = [
   '#0088ff',
   '#4736ff',
@@ -17,7 +20,7 @@ export const colors = [
 const normal = '#cccccc'
 
 type Theme = {
-  buff: { [key in BuffType]: string }
+  buff: { [key in AbilityType]: string }
 }
 
 export const theme: Theme = {
@@ -25,16 +28,21 @@ export const theme: Theme = {
     vocal: colors[8],
     dance: colors[0],
     visual: colors[9],
-    critical: colors[10],
+    'critical-rate': colors[10],
     'critical-score': colors[6],
     'a-score': colors[1],
     'sp-score': colors[3],
     'beat-score': colors[4],
     score: colors[5],
-    stamina: colors[2],
-    ct: normal,
+    'stamina-recovery': colors[2],
+    'stamina-saving': colors[2],
+    'stamina-exhaust': colors[7],
+    'ct-reduction': normal,
     'buff-amount': normal,
     'buff-span': normal,
+    'cmb-continuous': normal,
+    'cmb-score': normal,
+    steruss: normal,
     unknown: normal,
   },
 }

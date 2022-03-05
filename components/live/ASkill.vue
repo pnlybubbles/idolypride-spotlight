@@ -4,13 +4,13 @@
   </div>
 </template>
 <script setup lang="ts">
-import { BuffType } from '~~/utils/types'
+import { AbilityType } from '~~/utils/types'
 import { cssBeat, cssBuff } from './helper'
 
 interface Props {
   fail: boolean
   beat: number
-  buff: BuffType
+  buff: AbilityType
 }
 
 const props = defineProps<Props>()

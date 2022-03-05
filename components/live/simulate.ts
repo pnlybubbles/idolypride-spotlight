@@ -1,5 +1,5 @@
 import { Idol, Skill } from '~/data/idol'
-import { BuffTarget, BuffType, Lane, LiveData } from '~/utils/types'
+import { BuffTarget, AbilityType, Lane, LiveData } from '~/utils/types'
 import isNonNullable from 'is-non-nullable'
 import { ArrayN, indexed, uid, unreachable } from '~~/utils'
 
@@ -7,7 +7,7 @@ type Result = ({
   id: string
   beat: number
   // 色付けに使うバフID
-  buff: BuffType
+  buff: AbilityType
 } & (
   | {
       type: 'p'
@@ -120,7 +120,7 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
       const aResult = aState
         .map(({ lane, skill }) => ({
           type: 'a' as const,
-          buff: skill?.ability.map((v) => (v.type === 'buff' ? v : null)).filter(isNonNullable)[0]?.buff ?? 'unknown',
+          buff: skill?.ability.map((v) => (v.div === 'buff' ? v : null)).filter(isNonNullable)[0]?.type ?? 'unknown',
           lane,
           fail: skill === null,
         }))
@@ -140,12 +140,12 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
             return []
           }
           return skill.ability
-            .filter(isType('buff'))
+            .filter(isDiv('buff'))
             .flatMap((ability) => {
               const lanes = deriveBuffLanes(ability.target, lane, idols)
               return lanes.map((lane) => ({
                 type: 'buff' as const,
-                buff: ability.buff,
+                buff: ability.type,
                 lane,
                 span: clampSpan(ability.span, live.beat),
               }))
@@ -189,7 +189,7 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
       const spResult = spState
         .map(({ lane, skill }) => ({
           type: 'sp' as const,
-          buff: skill?.ability.map((v) => (v.type === 'buff' ? v : null)).filter(isNonNullable)[0]?.buff ?? 'unknown',
+          buff: skill?.ability.map((v) => (v.div === 'buff' ? v : null)).filter(isNonNullable)[0]?.type ?? 'unknown',
           lane,
           fail: skill === null,
         }))
@@ -209,12 +209,12 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
             return []
           }
           return skill.ability
-            .filter(isType('buff'))
+            .filter(isDiv('buff'))
             .flatMap((ability) => {
               const lanes = deriveBuffLanes(ability.target, lane, idols)
               return lanes.map((lane) => ({
                 type: 'buff' as const,
-                buff: ability.buff,
+                buff: ability.type,
                 lane,
                 span: clampSpan(ability.span, live.beat),
               }))
@@ -282,7 +282,7 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
       const pResult = pState
         .map(({ lane, skill }) => ({
           type: 'p' as const,
-          buff: skill.ability.map((v) => (v.type === 'buff' ? v : null)).filter(isNonNullable)[0]?.buff ?? 'unknown',
+          buff: skill.ability.map((v) => (v.div === 'buff' ? v : null)).filter(isNonNullable)[0]?.type ?? 'unknown',
           lane,
         }))
         .map(appendBeat)
@@ -297,7 +297,7 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
       const pBuffResult = pState
         .flatMap(({ lane, skill, triggeredLane }) => {
           return skill.ability
-            .filter(isType('buff'))
+            .filter(isDiv('buff'))
             .flatMap((ability) => {
               const lanes =
                 ability.target === 'triggered'
@@ -307,7 +307,7 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
                   : deriveBuffLanes(ability.target, lane, idols)
               return lanes.map((lane) => ({
                 type: 'buff' as const,
-                buff: ability.buff,
+                buff: ability.type,
                 lane,
                 span: clampSpan(ability.span, live.beat),
               }))
@@ -395,6 +395,11 @@ export const isType =
   <Type extends string>(type: Type) =>
   <Value extends { type: string }>(value: Value): value is Extract<Value, { type: Type }> =>
     value.type === type
+
+export const isDiv =
+  <Div extends string>(div: Div) =>
+  <Value extends { div: string }>(value: Value): value is Extract<Value, { div: Div }> =>
+    value.div === div
 
 const appendType =
   <S extends string>(type: S) =>
