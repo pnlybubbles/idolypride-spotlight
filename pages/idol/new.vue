@@ -27,8 +27,8 @@
               v-for="level in SKILL_LEVEL_MAX[i]"
               :key="level"
               class="level-toggle-item"
-              :class="{ active: level === skillLevelToggle[i] }"
-              @click="skillLevelToggle[i] = level"
+              :class="{ active: level === skill[i].level }"
+              @click="skill[i].level = level"
               @touchend="null"
             >
               {{ level }}
@@ -129,7 +129,7 @@ import {
 } from '~~/utils/types'
 
 const router = useRouter()
-const name = ref(null)
+const name = ref('')
 const nameOptions = [
   '長瀬琴乃',
   '伊吹渚',
@@ -177,6 +177,7 @@ interface AbilityInput {
 }
 interface SkillInput {
   name: string
+  level: number
   type: SkillType
   ct: string
   once: boolean
@@ -184,9 +185,9 @@ interface SkillInput {
 }
 
 const skill = reactive([
-  { name: '', type: 'sp', ct: '', once: false, ability: [] },
-  { name: '', type: 'a', ct: '', once: false, ability: [] },
-  { name: '', type: 'p', ct: '', once: true, ability: [] },
+  { name: '', level: 1, type: 'sp', ct: '', once: false, ability: [] },
+  { name: '', level: 1, type: 'a', ct: '', once: false, ability: [] },
+  { name: '', level: 1, type: 'p', ct: '', once: true, ability: [] },
 ] as [SkillInput, SkillInput, SkillInput])
 
 const handleAddAbility = (index: typeof SKILLS[number]) => {
@@ -202,7 +203,6 @@ const skillTypeOptions23: { id: SkillType; label: string }[] = [
   { id: 'p', label: 'Pスキル' },
 ]
 const SKILL_LEVEL_MAX = [6, 5, 4] as const
-const skillLevelToggle = reactive([1, 1, 1] as [number, number, number])
 const abilityTypeOptions: { id: AbilityDiv; label: string }[] = [
   { id: 'buff', label: '持続効果' },
   { id: 'action-buff', label: '即時効果' },
@@ -258,8 +258,32 @@ const buffConditionOptions: { id: AbilityConditionType | 'none'; label: string }
 
 const { executeMutation, fetching } = useMutation(CreateIdolDocument)
 const submit = async () => {
-  await executeMutation({ object: { name: name.value } })
-  name.value = null
+  await executeMutation({
+    object: {
+      name: name.value,
+      title: title.value,
+      type: type.value,
+      role: role.value,
+      skills: {
+        data: skill.map((v) => ({
+          name: v.name,
+          level: v.level,
+          type: v.type,
+          ct: parseInt(v.ct, 10),
+          abilities: {
+            data: v.ability.map((w) => ({
+              type: w.type,
+              target: w.target,
+              amount: parseInt(w.amount, 10),
+              span: parseInt(w.span, 10),
+              condition: w.condition,
+            })),
+          },
+        })),
+      },
+    },
+  })
+
   void router.push('/idol')
 }
 

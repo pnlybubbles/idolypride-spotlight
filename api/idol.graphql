@@ -2,6 +2,22 @@ query getIdolList {
   idol {
     id
     name
+    title
+    type
+    role
+    skills {
+      name
+      type
+      level
+      ct
+      abilities {
+        type
+        target
+        amount
+        span
+        condition
+      }
+    }
   }
 }
 
@@ -9,5 +25,21 @@ mutation createIdol($object: idol_insert_input!) {
   insert_idol_one(object: $object) {
     id
     name
+    title
+    type
+    role
+    skills {
+      name
+      type
+      level
+      ct
+      abilities {
+        type
+        target
+        amount
+        span
+        condition
+      }
+    }
   }
 }
