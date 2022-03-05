@@ -282,7 +282,7 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
       const pResult = pState
         .map(({ lane, skill }) => ({
           type: 'p' as const,
-          buff: skill.ability[0]?.buff ?? 'unknown',
+          buff: skill.ability.map((v) => (v.type === 'buff' ? v : null)).filter(isNonNullable)[0]?.buff ?? 'unknown',
           lane,
         }))
         .map(appendBeat)

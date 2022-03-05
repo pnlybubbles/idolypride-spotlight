@@ -6,20 +6,19 @@ export type BuffType =
   | 'visual'
   | 'critical-rate'
   | 'critical-score'
-  | 'ct-reduction'
   | 'score'
   | 'beat-score'
   | 'a-score'
   | 'sp-score'
   | 'cmb-score'
-  | 'stamina-recovery'
   | 'stamina-saving'
   | 'stamina-exhaust'
-  | 'buff-span'
   | 'buff-amount'
   | 'steruss'
   | 'cmb-continuous'
   | 'unknown'
+
+export type ActionBuffType = 'buff-span' | 'ct-reduction' | 'stamina-recovery'
 
 type BuffTargetRoles = `${'high-' | 'neighbor-' | ''}${'vocal' | 'dance' | 'visual'}`
 
@@ -51,17 +50,26 @@ type ScoreAbility = {
   amount: number
 }
 
-type Ability = BuffAbility | ScoreAbility
+type ActionBuffAbility = {
+  type: 'action-buff'
+  buff: ActionBuffType
+  condition: BuffCondition
+  target: BuffTarget
+  amount: number
+}
+
+type Ability = BuffAbility | ScoreAbility | ActionBuffAbility
 
 export type AbilityType = Ability['type']
 
-type PassiveAbility = {
-  type: 'buff'
-  buff: BuffType
-  target: PassiveBuffTarget
-  amount: number
-  span: number
-}
+type PassiveAbility =
+  | (Omit<BuffAbility, 'target'> & {
+      target: PassiveBuffTarget
+    })
+  | ScoreAbility
+  | (Omit<ActionBuffAbility, 'target'> & {
+      target: PassiveBuffTarget
+    })
 
 type SkillTrigger =
   | {

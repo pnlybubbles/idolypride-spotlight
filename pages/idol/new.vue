@@ -68,10 +68,15 @@
                 <template #label>種別</template>
                 <Listbox v-model="ability.type" :options="abilityTypeOptions"></Listbox>
               </Section>
-              <Section :gutter="8">
-                <template #label>バフ</template>
+              <Section v-if="ability.type === 'buff' || ability.type === 'action-buff'" :gutter="8">
+                <template #label>詳細</template>
                 <Listbox v-model="ability.target" placeholder="対象" :options="buffTargetOptions" required></Listbox>
-                <Listbox v-model="ability.buff" placeholder="バフの種類" :options="buffTypeOptions" required></Listbox>
+                <Listbox
+                  v-model="ability.buff"
+                  placeholder="バフの種類"
+                  :options="ability.type === 'buff' ? buffTypeOptions : actionBuffTypeOptions"
+                  required
+                ></Listbox>
                 <HStack :spacing="4">
                   <TextField
                     v-model="ability.amount"
@@ -80,12 +85,16 @@
                     required
                   ></TextField>
                   <TextField
+                    v-if="ability.type === 'buff'"
                     v-model="ability.span"
                     placeholder="持続ビート数"
-                    :disabled="deriveDisabledSpan(ability.buff)"
                     required
                   ></TextField>
                 </HStack>
+              </Section>
+              <Section v-else-if="ability.type === 'score'" :gutter="8">
+                <template #label>スコア</template>
+                <TextField v-model="ability.amount" placeholder="1000" required></TextField>
               </Section>
             </div>
             <button class="new-ability" @click="handleAddAbility(i)" @touchend="null">
@@ -107,7 +116,7 @@ import { useRouteGuard } from '~~/composable/route'
 import { CreateIdolDocument } from '~~/generated/graphql'
 import { DEFAULT_META } from '~~/utils/meta'
 import Listbox from '~~/components/Listbox.vue'
-import { AbilityType, BuffTarget, BuffType, IdolRole, IdolType, SkillType } from '~~/utils/types'
+import { AbilityType, ActionBuffType, BuffTarget, BuffType, IdolRole, IdolType, SkillType } from '~~/utils/types'
 
 const router = useRouter()
 const name = ref(null)
@@ -150,7 +159,7 @@ const SKILLS_CT_PLACEHOLDER = ['', '30', ''] as const
 
 interface AbilityInput {
   type: AbilityType
-  buff: BuffType | null
+  buff: BuffType | ActionBuffType | null
   target: BuffTarget | null
   amount: string
   span: string
@@ -184,7 +193,8 @@ const skillTypeOptions23: { id: SkillType; label: string }[] = [
 const SKILL_LEVEL_MAX = [6, 5, 4] as const
 const skillLevelToggle = reactive([1, 1, 1] as [number, number, number])
 const abilityTypeOptions: { id: AbilityType; label: string }[] = [
-  { id: 'buff', label: 'バフ' },
+  { id: 'buff', label: '持続効果' },
+  { id: 'action-buff', label: '即時効果' },
   { id: 'score', label: 'スコア獲得' },
 ]
 const buffTypeOptions: { id: BuffType; label: string }[] = [
@@ -196,20 +206,21 @@ const buffTypeOptions: { id: BuffType; label: string }[] = [
   { id: 'sp-score', label: 'SPスキルスコア上昇' },
   { id: 'beat-score', label: 'ビートスコア上昇' },
   { id: 'buff-amount', label: '強化効果増強' },
-  { id: 'buff-span', label: '強化効果延長' },
   { id: 'cmb-continuous', label: 'コンボ継続' },
   { id: 'cmb-score', label: 'コンボスコア上昇' },
   { id: 'critical-rate', label: 'クリティカル率上昇' },
   { id: 'critical-score', label: 'クリティカル係数上昇' },
-  { id: 'ct-reduction', label: 'CT減少' },
   { id: 'stamina-exhaust', label: 'スタミナ消費増加' },
-  { id: 'stamina-recovery', label: 'スタミナ回復' },
   { id: 'stamina-saving', label: 'スタミナ消費低下' },
   { id: 'steruss', label: 'ステルス' },
-  { id: 'unknown', label: '不明' },
+]
+const actionBuffTypeOptions: { id: ActionBuffType; label: string }[] = [
+  { id: 'buff-span', label: '強化効果延長' },
+  { id: 'ct-reduction', label: 'CT減少' },
+  { id: 'stamina-recovery', label: 'スタミナ回復' },
 ]
 
-const deriveUnitByBuffType = (type: BuffType | null): string => {
+const deriveUnitByBuffType = (type: BuffType | ActionBuffType | null): string => {
   switch (type) {
     case 'buff-span':
       return 'ビート延長数'
@@ -217,15 +228,11 @@ const deriveUnitByBuffType = (type: BuffType | null): string => {
       return 'CT減少数'
     case 'stamina-recovery':
       return 'スタミナ回復量'
-    case 'unknown':
-      return ''
     default:
       return '段階'
   }
 }
-const deriveDisabledAmount = (type: BuffType | null): boolean => type === 'cmb-continuous'
-const deriveDisabledSpan = (type: BuffType | null): boolean =>
-  type === 'buff-span' || type === 'buff-amount' || type === 'ct-reduction'
+const deriveDisabledAmount = (type: BuffType | ActionBuffType | null): boolean => type === 'cmb-continuous'
 
 const buffTargetOptions: { id: BuffTarget; label: string }[] = [
   { id: 'self', label: '自身' },
