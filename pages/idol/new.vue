@@ -70,7 +70,16 @@
               </Section>
               <Section v-if="ability.div === 'buff' || ability.div === 'action-buff'" :gutter="8">
                 <template #label>詳細</template>
-                <Listbox v-model="ability.target" placeholder="対象" :options="buffTargetOptions" required></Listbox>
+                <div class="ability-target">
+                  <Listbox v-model="ability.target" placeholder="対象" :options="buffTargetOptions" required></Listbox>
+                  <Listbox
+                    v-if="ability.target && isBuffTargetSuffixRequired(ability.target)"
+                    v-model="ability.targetSuffix"
+                    placeholder="人数"
+                    :options="buffTargetSuffixOptions"
+                    required
+                  ></Listbox>
+                </div>
                 <Listbox
                   v-model="ability.type"
                   placeholder="バフの種類"
@@ -126,7 +135,11 @@ import {
   IdolType,
   SkillType,
   BuffAbilityType,
+  BuffTargetNoSuffix,
+  BuffTargetWithSuffix,
+  BuffTargetCount,
 } from '~~/utils/types'
+import { unreachable } from '~~/utils'
 
 const router = useRouter()
 const name = ref('')
@@ -171,7 +184,8 @@ interface AbilityInput {
   div: AbilityDiv
   type: BuffAbilityType | ActionAbilityType | null
   condition: AbilityConditionType | 'none'
-  target: BuffTarget | null
+  target: BuffTargetNoSuffix | BuffTargetWithSuffix | null
+  targetSuffix: BuffTargetCount
   amount: string
   span: string
 }
@@ -191,7 +205,15 @@ const skill = reactive([
 ] as [SkillInput, SkillInput, SkillInput])
 
 const handleAddAbility = (index: typeof SKILLS[number]) => {
-  skill[index].ability.push({ div: 'buff', type: null, condition: 'none', target: null, amount: '', span: '' })
+  skill[index].ability.push({
+    div: 'buff',
+    type: null,
+    condition: 'none',
+    target: null,
+    targetSuffix: '1',
+    amount: '',
+    span: '',
+  })
 }
 
 const skillTypeOptions1: { id: SkillType; label: string }[] = [
@@ -245,10 +267,21 @@ const deriveUnitByBuffType = (type: BuffAbilityType | ActionAbilityType | null):
 }
 const deriveDisabledAmount = (type: BuffAbilityType | ActionAbilityType | null): boolean => type === 'cmb-continuous'
 
-const buffTargetOptions: { id: BuffTarget; label: string }[] = [
+const buffTargetOptions: { id: BuffTargetNoSuffix | BuffTargetWithSuffix; label: string }[] = [
   { id: 'self', label: '自身' },
   { id: 'all', label: '全員' },
   { id: 'center', label: 'センター' },
+  { id: 'neighbor', label: '隣接' },
+  { id: 'scorer', label: 'スコアラーX人' },
+  { id: 'high-vocal', label: 'ボーカルが高いX人' },
+  { id: 'high-dance', label: 'ダンスが高いX人' },
+  { id: 'high-visual', label: 'ビジュアルが高いX人' },
+  { id: 'opponent-center', label: '相手のセンター [バトルのみ]' },
+]
+const buffTargetSuffixOptions: { id: BuffTargetCount; label: string }[] = [
+  { id: '1', label: '1人' },
+  { id: '2', label: '2人' },
+  { id: '3', label: '3人' },
 ]
 const buffConditionOptions: { id: AbilityConditionType | 'none'; label: string }[] = [
   { id: 'none', label: '発動条件なし' },
@@ -266,17 +299,14 @@ const submit = async () => {
       role: role.value,
       skills: {
         data: skill.map((v) => ({
-          name: v.name,
-          level: v.level,
-          type: v.type,
+          ...v,
           ct: parseInt(v.ct, 10),
           abilities: {
             data: v.ability.map((w) => ({
-              type: w.type,
-              target: w.target,
+              ...w,
+              target: formatTarget(w.target, w.targetSuffix),
               amount: parseInt(w.amount, 10),
               span: parseInt(w.span, 10),
-              condition: w.condition,
             })),
           },
         })),
@@ -286,6 +316,24 @@ const submit = async () => {
 
   void router.push('/idol')
 }
+
+const isBuffTargetSuffixRequired = (t: BuffTargetNoSuffix | BuffTargetWithSuffix): t is BuffTargetWithSuffix =>
+  t === 'all' || t === 'self' || t === 'center' || t === 'neighbor' || t === 'opponent-center'
+    ? false
+    : t === 'high-vocal' ||
+      t === 'high-dance' ||
+      t === 'high-visual' ||
+      t === 'vocal' ||
+      t === 'dance' ||
+      t === 'visual' ||
+      t === 'scorer' ||
+      t === 'lowstamina'
+    ? true
+    : unreachable(t)
+const formatTarget = (
+  target: BuffTargetNoSuffix | BuffTargetWithSuffix | null,
+  suffix: BuffTargetCount
+): BuffTarget | null => (target ? (isBuffTargetSuffixRequired(target) ? `${target}-${suffix}` : target) : null)
 
 useRouteGuard()
 useMeta(DEFAULT_META)
@@ -350,6 +398,14 @@ useMeta(DEFAULT_META)
   display: grid;
   grid: auto-flow / auto;
   gap: 16px;
+}
+
+.ability-target {
+  display: grid;
+  grid: auto / 1fr;
+  grid-auto-flow: column;
+  grid-auto-columns: auto;
+  gap: 4px;
 }
 
 .new-ability {

@@ -17,18 +17,13 @@ export type BuffAbilityType =
   | 'steruss'
   | 'cmb-continuous'
   | 'unknown'
-
 export type ActionAbilityType = 'buff-span' | 'ct-reduction' | 'stamina-recovery'
+export type AbilityType = BuffAbilityType | ActionAbilityType
 
-type BuffTargetRoles = `${'high-' | 'neighbor-' | ''}${'vocal' | 'dance' | 'visual'}`
-
-export type BuffTarget =
-  | 'all'
-  | 'self'
-  | 'center'
-  | 'opponent-center'
-  | `${1 | 2 | 3}-${'scorer' | 'lowstamina' | BuffTargetRoles}`
-
+export type BuffTargetNoSuffix = 'all' | 'self' | 'center' | 'opponent-center' | `neighbor`
+export type BuffTargetWithSuffix = 'scorer' | 'lowstamina' | `${'high-' | ''}${IdolType}`
+export type BuffTargetCount = '1' | '2' | '3'
+export type BuffTarget = BuffTargetNoSuffix | `${BuffTargetWithSuffix}-${BuffTargetCount}`
 export type PassiveBuffTarget = BuffTarget | 'triggered'
 
 export type AbilityConditionType = 'stamina-greater-than' | 'combo'
@@ -60,8 +55,6 @@ type ActionBuffAbility = {
 }
 
 type Ability = BuffAbility | ScoreAbility | ActionBuffAbility
-
-export type AbilityType = BuffAbilityType | ActionAbilityType
 
 export type AbilityDiv = Ability['div']
 
