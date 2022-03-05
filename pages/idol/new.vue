@@ -130,7 +130,6 @@ import {
   AbilityDiv,
   ActionAbilityType,
   AbilityConditionType,
-  BuffTarget,
   IdolRole,
   IdolType,
   SkillType,
@@ -138,6 +137,8 @@ import {
   BuffTargetNoSuffix,
   BuffTargetWithSuffix,
   BuffTargetCount,
+  BuffTarget,
+  AbilityType,
 } from '~~/utils/types'
 import { unreachable } from '~~/utils'
 
@@ -300,14 +301,9 @@ const submit = async () => {
       skills: {
         data: skill.map((v) => ({
           ...v,
-          ct: parseInt(v.ct, 10),
+          ct: formatCT(v.ct, v.once, v.type),
           abilities: {
-            data: v.ability.map((w) => ({
-              ...w,
-              target: formatTarget(w.target, w.targetSuffix),
-              amount: parseInt(w.amount, 10),
-              span: parseInt(w.span, 10),
-            })),
+            data: v.ability.map(formatAbility),
           },
         })),
       },
@@ -330,10 +326,37 @@ const isBuffTargetSuffixRequired = (t: BuffTargetNoSuffix | BuffTargetWithSuffix
       t === 'lowstamina'
     ? true
     : unreachable(t)
-const formatTarget = (
-  target: BuffTargetNoSuffix | BuffTargetWithSuffix | null,
-  suffix: BuffTargetCount
-): BuffTarget | null => (target ? (isBuffTargetSuffixRequired(target) ? `${target}-${suffix}` : target) : null)
+const formatCT = (ct: string, once: boolean, type: SkillType): number | null =>
+  type === 'sp' ? null : once ? 0 : parseInt(ct, 10)
+const formatAbility = (
+  v: AbilityInput
+): {
+  type: AbilityType | 'score'
+  target: BuffTarget | null
+  amount: number
+  condition: AbilityConditionType | null
+  span: number | null
+} => {
+  const amount = parseInt(v.amount, 10)
+  if (v.div === 'score') {
+    return { type: 'score', amount, target: null, condition: null, span: null }
+  }
+  const type = v.type ?? 'unknown'
+  const target = v.target
+    ? isBuffTargetSuffixRequired(v.target)
+      ? (`${v.target}-${v.targetSuffix}` as const)
+      : v.target
+    : null
+  const condition = v.condition === 'none' ? null : v.condition
+  if (v.div === 'action-buff') {
+    return { type, target, amount, condition, span: null }
+  }
+  const span = parseInt(v.span, 10)
+  if (v.div === 'buff') {
+    return { type, target, amount, condition, span }
+  }
+  return unreachable(v.div)
+}
 
 useRouteGuard()
 useMeta(DEFAULT_META)
