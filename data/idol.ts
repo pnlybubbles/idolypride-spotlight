@@ -151,7 +151,7 @@ const aoiNureta: IdolData = {
       ability: [
         {
           div: 'buff',
-          target: '2-scorer',
+          target: 'scorer-2',
           type: 'critical-rate',
           condition: null,
           amount: 4,
@@ -166,7 +166,7 @@ const aoiNureta: IdolData = {
       ability: [
         {
           div: 'action-buff',
-          target: '2-scorer',
+          target: 'scorer-2',
           type: 'buff-span',
           condition: null,
           amount: 6,

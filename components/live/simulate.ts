@@ -370,14 +370,14 @@ function deriveBuffLanes(target: BuffTarget, selfLane: Lane, idol: ArrayN<Idol, 
       return [0, 1, 2, 3, 4]
     case 'self':
       return [selfLane]
-    case '1-scorer': {
+    case 'scorer-1': {
       const candidate = indexed(idol)
         .filter(([v]) => v.role === 'scorer')
         .map(second)
         .sort(comparebyCenter)
       return [candidate[0]].filter(isNonNullable)
     }
-    case '2-scorer': {
+    case 'scorer-2': {
       const candidate = indexed(idol)
         .filter(([v]) => v.role === 'scorer')
         .map(second)
