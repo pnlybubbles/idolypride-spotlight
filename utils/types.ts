@@ -31,8 +31,9 @@ export type BuffTarget =
 
 export type PassiveBuffTarget = BuffTarget | 'triggered'
 
+export type BuffConditionType = 'stamina-greater-than' | 'combo'
 export type BuffCondition = {
-  type: 'stamina-greater-than' | 'combo'
+  type: BuffConditionType
   amount: number
 } | null
 

@@ -91,6 +91,7 @@
                     required
                   ></TextField>
                 </HStack>
+                <Listbox v-model="ability.buffCondition" :options="buffConditionOptions" required></Listbox>
               </Section>
               <Section v-else-if="ability.type === 'score'" :gutter="8">
                 <template #label>スコア</template>
@@ -116,7 +117,16 @@ import { useRouteGuard } from '~~/composable/route'
 import { CreateIdolDocument } from '~~/generated/graphql'
 import { DEFAULT_META } from '~~/utils/meta'
 import Listbox from '~~/components/Listbox.vue'
-import { AbilityType, ActionBuffType, BuffTarget, BuffType, IdolRole, IdolType, SkillType } from '~~/utils/types'
+import {
+  AbilityType,
+  ActionBuffType,
+  BuffConditionType,
+  BuffTarget,
+  BuffType,
+  IdolRole,
+  IdolType,
+  SkillType,
+} from '~~/utils/types'
 
 const router = useRouter()
 const name = ref(null)
@@ -160,6 +170,7 @@ const SKILLS_CT_PLACEHOLDER = ['', '30', ''] as const
 interface AbilityInput {
   type: AbilityType
   buff: BuffType | ActionBuffType | null
+  buffCondition: BuffType | 'none'
   target: BuffTarget | null
   amount: string
   span: string
@@ -179,7 +190,7 @@ const skill = reactive([
 ] as [SkillInput, SkillInput, SkillInput])
 
 const handleAddAbility = (index: typeof SKILLS[number]) => {
-  skill[index].ability.push({ type: 'buff', buff: null, target: null, amount: '', span: '' })
+  skill[index].ability.push({ type: 'buff', buff: null, buffCondition: 'none', target: null, amount: '', span: '' })
 }
 
 const skillTypeOptions1: { id: SkillType; label: string }[] = [
@@ -238,6 +249,11 @@ const buffTargetOptions: { id: BuffTarget; label: string }[] = [
   { id: 'self', label: '自身' },
   { id: 'all', label: '全員' },
   { id: 'center', label: 'センター' },
+]
+const buffConditionOptions: { id: BuffConditionType | 'none'; label: string }[] = [
+  { id: 'none', label: '発動条件なし' },
+  { id: 'combo', label: 'Xコンボ以上のとき' },
+  { id: 'stamina-greater-than', label: 'スタミナがX%以上のとき' },
 ]
 
 const { executeMutation, fetching } = useMutation(CreateIdolDocument)
