@@ -13,6 +13,9 @@ module.exports = {
   generates: {
     'generated/graphql.ts': {
       plugins: ['typescript', 'typescript-operations', 'typed-document-node'],
+      config: {
+        enumsAsTypes: true,
+      },
     },
     './graphql.schema.json': {
       plugins: ['introspection'],
