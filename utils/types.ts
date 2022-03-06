@@ -27,18 +27,16 @@ export type BuffTargetCount = '1' | '2' | '3'
 export type BuffTarget = BuffTargetNoSuffix | `${BuffTargetWithSuffix}-${BuffTargetCount}`
 export type PassiveBuffTarget = BuffTarget | 'triggered'
 
-export type AbilityConditionType =
-  | 'critical'
-  | 'stamina-greater-than'
-  | 'combo'
-  | 'anyone-eye-catch'
-  | 'anyone-tension-up'
-  | `${IdolType}-up`
-  | `anyone-${IdolType}-up`
-export type AbilityCondition = {
-  type: AbilityConditionType
-  amount: number
-} | null
+export type AbilityConditionType = Exclude<AbilityCondition, null>['type']
+export type AbilityCondition =
+  | {
+      type: 'stamina-greater-than' | 'combo'
+      amount: number
+    }
+  | {
+      type: 'critical' | 'anyone-eye-catch' | 'anyone-tension-up' | `${IdolType}-up` | `anyone-${IdolType}-up`
+    }
+  | null
 
 type BuffAbility = {
   div: 'buff'
@@ -63,9 +61,9 @@ type ActionBuffAbility = {
   amount: number
 }
 
-type Ability = BuffAbility | ScoreAbility | ActionBuffAbility
+export type AbilityData = BuffAbility | ScoreAbility | ActionBuffAbility
 
-export type AbilityDiv = Ability['div']
+export type AbilityDiv = AbilityData['div']
 
 type PassiveAbility =
   | (Omit<BuffAbility, 'target'> & {
@@ -76,13 +74,13 @@ type PassiveAbility =
       target: PassiveBuffTarget
     })
 
-type SkillTrigger =
+export type SkillTrigger =
   | {
       type: 'idle' | 'critical' | 'sp' | 'a'
     }
   | {
       type: 'combo'
-      amount: 50
+      amount: number
     }
 
 export type SkillTriggerType = SkillTrigger['type']
@@ -94,11 +92,11 @@ export type SkillData = {
 } & (
   | {
       type: 'sp'
-      ability: Ability[]
+      ability: AbilityData[]
     }
   | {
       type: 'a'
-      ability: Ability[]
+      ability: AbilityData[]
       ct: number
     }
   | {
@@ -113,6 +111,7 @@ export type IdolRole = 'scorer' | 'buffer' | 'supporter'
 export type IdolType = 'vocal' | 'dance' | 'visual'
 
 export interface IdolData {
+  id: string
   name: string
   title: string
   role: IdolRole

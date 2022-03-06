@@ -53,7 +53,7 @@
             <div class="left-main">
               <Listbox v-model="skill[i].trigger" :options="skillTriggerOptions" required></Listbox>
               <TextField
-                v-if="isSkillTriggerValueRequired(skill[i].trigger)"
+                v-if="isSkillTriggerTypeWithValue(skill[i].trigger)"
                 v-model="skill[i].triggerValue"
                 type="number"
                 placeholder="X"
@@ -123,7 +123,7 @@
                 <div class="left-main">
                   <Listbox v-model="ability.condition" :options="conditionOptions" required></Listbox>
                   <TextField
-                    v-if="isConditionValueRequired(ability.condition)"
+                    v-if="isAbilityConditionWithValue(ability.condition)"
                     v-model="ability.conditionValue"
                     placeholder="X"
                     type="number"
@@ -171,6 +171,8 @@ import {
 } from '~~/utils/types'
 import { unreachable } from '~~/utils'
 import { useForm } from '~~/composable/form'
+import { SKILLS } from '~~/utils/common'
+import { isAbilityConditionWithValue, isSkillTriggerTypeWithValue } from '~~/utils/formatter'
 
 const router = useRouter()
 const name = ref('')
@@ -207,7 +209,6 @@ const roleOptions: { id: IdolRole; label: string }[] = [
   { id: 'buffer', label: 'バッファー' },
   { id: 'supporter', label: 'サポーター' },
 ]
-const SKILLS = [0, 1, 2] as const
 const SKILLS_NAME_PLACEHOLDER = ['太陽の光と共に', '大好きなあのキャラ', '人生の倍返し'] as const
 const SKILLS_CT_PLACEHOLDER = ['', '30', ''] as const
 
@@ -361,23 +362,6 @@ const conditionOptions: { id: AbilityConditionType | 'none'; label: string }[] =
   { id: 'anyone-tension-up', label: '誰かがテンションUP時' },
   { id: 'critical', label: 'クリティカル発動時' },
 ]
-const isConditionValueRequired = (c: AbilityConditionType | 'none') =>
-  c === 'combo' || c === 'stamina-greater-than'
-    ? true
-    : c === 'none' ||
-      c === 'vocal-up' ||
-      c === 'dance-up' ||
-      c === 'visual-up' ||
-      c === 'anyone-vocal-up' ||
-      c === 'anyone-dance-up' ||
-      c === 'anyone-visual-up' ||
-      c === 'anyone-eye-catch' ||
-      c === 'anyone-tension-up' ||
-      c === 'critical'
-    ? false
-    : unreachable(c)
-const isSkillTriggerValueRequired = (v: SkillTriggerType) =>
-  v === 'combo' ? true : v === 'idle' || v === 'sp' || v === 'a' || v === 'critical' ? false : unreachable(v)
 
 const { invalid } = useForm()
 const { executeMutation, fetching } = useMutation(CreateIdolDocument)
@@ -403,8 +387,8 @@ const formatSkill = (skill: SkillInput): Skill_Insert_Input => {
     type: skill.type,
     level: skill.level,
     trigger: skill.type === 'p' ? skill.trigger : null,
-    triggerValue:
-      skill.type === 'p' && isSkillTriggerValueRequired(skill.trigger) ? parseInt(skill.triggerValue) : null,
+    trigger_value:
+      skill.type === 'p' && isSkillTriggerTypeWithValue(skill.trigger) ? parseInt(skill.triggerValue) : null,
     ct: skill.type === 'sp' ? null : skill.once ? 0 : parseInt(skill.ct, 10),
     abilities: {
       data: skill.ability.map(formatAbility),
@@ -413,7 +397,7 @@ const formatSkill = (skill: SkillInput): Skill_Insert_Input => {
 }
 
 const formatAbility = (v: AbilityInput): Ability_Insert_Input => {
-  const amount = parseInt(v.amount, 10)
+  const amount = deriveDisabledAmount(v.type) ? 0 : parseInt(v.amount, 10)
   if (v.div === 'score') {
     return { type: 'score', amount, target: null, condition: null, condition_value: null, span: null }
   }
@@ -424,7 +408,7 @@ const formatAbility = (v: AbilityInput): Ability_Insert_Input => {
       : v.target
     : null
   const condition = v.condition === 'none' ? null : v.condition
-  const conditionValue = isConditionValueRequired(v.condition) ? parseInt(v.conditionValue, 10) : null
+  const conditionValue = isAbilityConditionWithValue(v.condition) ? parseInt(v.conditionValue, 10) : null
   if (v.div === 'action-buff') {
     return { type, target, amount, condition, condition_value: conditionValue, span: null }
   }
