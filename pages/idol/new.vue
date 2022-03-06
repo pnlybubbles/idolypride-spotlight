@@ -64,6 +64,9 @@
           <Section>
             <template #label>効果</template>
             <div v-for="(ability, j) in skill[i].ability" :key="j" class="ability">
+              <button class="remove-ability" @click="handleRemoveAbility(i, j)" @touchend="null">
+                <font-awesome-icon icon="circle-minus"></font-awesome-icon>
+              </button>
               <Section :gutter="8">
                 <template #label>種別</template>
                 <Listbox v-model="ability.div" :options="abilityTypeOptions"></Listbox>
@@ -225,6 +228,13 @@ const handleAddAbility = (index: typeof SKILLS[number]) => {
     amount: '',
     span: '',
   })
+}
+
+const handleRemoveAbility = (index: typeof SKILLS[number], abilityIndex: number) => {
+  if (!confirm(`効果を削除します。よろしいですか？`)) {
+    return
+  }
+  skill[index].ability.splice(abilityIndex, 1)
 }
 
 const skillTypeOptions1: { id: SkillType; label: string }[] = [
@@ -459,6 +469,28 @@ useMeta(DEFAULT_META)
   display: grid;
   grid: auto-flow / auto;
   gap: 16px;
+  position: relative;
+}
+
+.remove-ability {
+  @include reset-button;
+  @include clickable;
+  display: grid;
+  width: 24px;
+  height: 24px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  /* transform: translate(50%, -50%); */
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  font-size: $typography-s;
+  color: $text3;
+
+  & svg {
+    background-color: $background1;
+  }
 }
 
 .left-main {
