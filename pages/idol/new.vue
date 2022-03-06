@@ -70,6 +70,7 @@
                 :disabled="skill[i].once"
                 type="number"
                 required
+                :preset="[30, 40, 50, 60]"
                 @update:model-value="skill[i].ct = $event"
               ></TextField>
               <Check v-model="skill[i].once">ライブ中1回</Check>

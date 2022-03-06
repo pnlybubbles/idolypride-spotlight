@@ -1,6 +1,7 @@
 <template>
-  <AssistiveText :show="showError">
+  <AssistiveText :show="showError" class="text-field">
     <input
+      ref="inputRef"
       :value="modelValue"
       class="input"
       :class="{ error: showError }"
@@ -12,6 +13,11 @@
       @focus="handleFocus"
       @blur="handleBlur"
     />
+    <div v-if="preset.length !== 0 && focusing" ref="presetRef" class="preset">
+      <button v-for="item in preset" :key="item" class="preset-item" @click="handleFillPreset(item)" @touchend="null">
+        {{ item }}
+      </button>
+    </div>
     <template #error>
       <slot v-if="$slots.error" name="error"></slot>
       <template v-else-if="type === 'number'">半角数字で入力してください</template>
@@ -33,6 +39,7 @@ interface Props {
    * `<template #error>` を指定することで無効化できる。
    */
   type?: 'text' | 'number'
+  preset?: (string | number)[]
 }
 interface Emits {
   (e: 'update:modelValue', value: string): void
@@ -43,20 +50,36 @@ const props = withDefaults(defineProps<Props>(), {
   error: false,
   required: false,
   type: 'text',
+  preset: () => [],
 })
-defineEmits<Emits>()
+const emit = defineEmits<Emits>()
 
 const slots = useSlots()
 const isCustomErrorDefined = slots.error != undefined
 
 const focusing = ref(false)
 const onceFocused = ref(false)
+const presetRef = ref<HTMLDivElement | null>(null)
 const handleFocus = () => {
   focusing.value = true
   onceFocused.value = true
 }
-const handleBlur = () => {
+const handleBlur = (event: FocusEvent) => {
+  if (presetRef.value == null) {
+    return
+  }
+  // プリセットのボタンのクリックによって発生したイベントであれば取り消し
+  if (presetRef.value.contains(event.relatedTarget as Node | null)) {
+    if (event.currentTarget != null) {
+      ;(event.currentTarget as HTMLInputElement).focus()
+    }
+    return
+  }
   focusing.value = false
+}
+
+const handleFillPreset = (input: string | number) => {
+  emit('update:modelValue', input.toString())
 }
 
 // どのエラーを表示するか (入力中や未入力では不完全な状態になっているはずなので、入力が終わるまでエラーを出すのを待つ制御をする)
@@ -82,9 +105,6 @@ const validationError = computed(
     (isCustomErrorDefined ? props.error : props.type === 'number' ? !validPositiveInt(props.modelValue) : false)
 )
 watchEffect(() => {
-  console.log(validationError.value, props.error, validPositiveInt(props.modelValue))
-})
-watchEffect(() => {
   const error = validationError.value ? 'validation' : requiredErrorOnEditing.value ? 'required' : null
   // 一貫してフォーカス中にエラーが表示されないようにする
   // エラーを消す処理は即時に行う
@@ -98,11 +118,10 @@ useFormComponent(computed(() => ({ error: requiredError.value || validationError
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
+@import '~~/components/partials/utils.scss';
 
 .text-field {
-  display: grid;
-  grid: auto-flow / auto;
-  gap: 2px;
+  position: relative;
 }
 
 .input {
@@ -133,6 +152,43 @@ useFormComponent(computed(() => ({ error: requiredError.value || validationError
     background: repeating-linear-gradient(-45deg, $surface1, $surface1 4px, transparent 4px, transparent 6px);
     border: solid 1px $surface1;
     opacity: 0.64;
+  }
+}
+
+.preset {
+  @include round-corner;
+  @include background-blur;
+  position: absolute;
+  left: 12px;
+  top: 34px;
+  background-color: $surface2;
+  color: $text4;
+  height: 32px;
+  display: grid;
+  grid: auto / auto-flow;
+  align-items: stretch;
+  padding: 0 4px;
+  gap: 1px;
+}
+
+.preset-item {
+  @include clickable;
+  @include reset-button;
+  font-size: $typography-s;
+  padding: 0 8px;
+  position: relative;
+
+  & + & {
+    &::before {
+      content: '';
+      display: block;
+      position: absolute;
+      left: -1px;
+      top: 50%;
+      height: 60%;
+      transform: translateY(-50%);
+      border-left: solid 1px $surface2-stroke;
+    }
   }
 }
 </style>
