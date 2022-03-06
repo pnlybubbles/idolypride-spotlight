@@ -138,9 +138,10 @@
         </VStack>
       </div>
       <Section>
-        <Button :disabled="fetching" @click="submit">追加</Button>
+        <Button :disabled="fetching || invalid" @click="submit">追加</Button>
       </Section>
     </VStack>
+    <Loading :busy="fetching">追加しています...</Loading>
   </Layout>
 </template>
 <script setup lang="ts">
@@ -163,6 +164,7 @@ import {
   SkillTriggerType,
 } from '~~/utils/types'
 import { unreachable } from '~~/utils'
+import { useForm } from '~~/composable/form'
 
 const router = useRouter()
 const name = ref('')
@@ -371,6 +373,7 @@ const isConditionValueRequired = (c: AbilityConditionType | 'none') =>
 const isSkillTriggerValueRequired = (v: SkillTriggerType) =>
   v === 'combo' ? true : v === 'idle' || v === 'sp' || v === 'a' || v === 'critical' ? false : unreachable(v)
 
+const { invalid } = useForm()
 const { executeMutation, fetching } = useMutation(CreateIdolDocument)
 const submit = async () => {
   await executeMutation({
