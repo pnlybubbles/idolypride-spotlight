@@ -25,13 +25,13 @@ type Theme = {
 
 export const theme: Theme = {
   buff: {
-    vocal: colors[8],
+    vocal: colors[3],
     dance: colors[0],
     visual: colors[9],
     'critical-rate': colors[10],
     'critical-score': colors[6],
     'a-score': colors[1],
-    'sp-score': colors[3],
+    'sp-score': colors[8],
     'beat-score': colors[4],
     score: colors[5],
     'stamina-recovery': colors[2],
@@ -42,6 +42,8 @@ export const theme: Theme = {
     'buff-span': normal,
     'cmb-continuous': normal,
     'cmb-score': normal,
+    'shift-before-sp': normal,
+    tension: normal,
     steruss: normal,
     unknown: normal,
   },

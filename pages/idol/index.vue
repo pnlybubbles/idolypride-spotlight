@@ -10,8 +10,13 @@
       <ul v-else class="list">
         <li v-for="idol in idolList" :key="idol.id" class="item">
           <div class="heading">
-            <div class="title">{{ idol.title }}</div>
-            <div class="name">{{ idol.name }}</div>
+            <div class="type" :class="idol.type">
+              <RoleIcon :role="idol.role" class="role"></RoleIcon>
+            </div>
+            <div>
+              <span class="title">{{ idol.title }}</span>
+              <span class="name">{{ idol.name }}</span>
+            </div>
           </div>
           <div class="status"></div>
         </li>
@@ -70,19 +75,47 @@ useMeta(DEFAULT_META)
 
 .heading {
   display: grid;
-  grid: auto / auto auto;
+  grid: auto / auto-flow;
   justify-content: start;
-  align-items: flex-end;
+  align-items: center;
   gap: 8px;
 }
 
 .title {
   font-size: $typography-l;
+  font-weight: bold;
   color: $text1;
+  margin-right: 8px;
 }
 
 .name {
   font-size: $typography-s;
   color: $text3;
+}
+
+.role {
+  font-size: 12px;
+  color: $text1;
+}
+
+.type {
+  @include round-corner;
+  height: 20px;
+  width: 20px;
+  display: grid;
+  align-items: center;
+  justify-items: center;
+
+  &.vocal {
+    background-color: $vocal;
+  }
+
+  &.dance {
+    background-color: $dance;
+  }
+
+  &.visual {
+    background-color: $visual;
+  }
 }
 </style>
