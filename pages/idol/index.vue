@@ -18,7 +18,14 @@
               <span class="name">{{ idol.name }}</span>
             </div>
           </div>
-          <div class="status"></div>
+          <div class="status">
+            <div class="skill-overview">
+              <div v-for="skill in idol.skills" :key="skill.id">
+                <span class="skill-type">{{ skill.type.toUpperCase() }}</span
+                ><span v-if="skill.type !== 'sp'" class="skill-ct">{{ skill.ct }}</span>
+              </div>
+            </div>
+          </div>
         </li>
       </ul>
       <ButtonLink to="/idol/new">アイドルを追加する</ButtonLink>
@@ -65,12 +72,13 @@ useMeta(DEFAULT_META)
   margin: 0;
   display: grid;
   grid: auto-flow / auto;
-  gap: 8px;
+  gap: 16px;
 }
 
 .item {
   display: grid;
   grid: auto auto / auto;
+  gap: 8px;
 }
 
 .heading {
@@ -117,5 +125,32 @@ useMeta(DEFAULT_META)
   &.visual {
     background-color: $visual;
   }
+}
+
+.status {
+  display: grid;
+  grid: auto / auto-flow;
+  justify-content: start;
+}
+
+.skill-overview {
+  @include round-corner;
+  display: grid;
+  grid: auto / auto-flow;
+  gap: 4px;
+  justify-content: start;
+  padding: 4px 8px;
+  border: solid 1px $surface1;
+}
+
+.skill-type {
+  font-size: $typography-s;
+  color: $text1;
+}
+
+.skill-ct {
+  font-size: $typography-s;
+  color: $text3;
+  margin-left: 2px;
 }
 </style>
