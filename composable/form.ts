@@ -10,6 +10,9 @@ export const useFormComponent = (state: Ref<{ error: boolean }>) => {
   }
   const uid = useUID()
   context.set(uid, state)
+  onUnmounted(() => {
+    context.delete(uid)
+  })
 }
 
 export const useForm = () => {
