@@ -12,9 +12,7 @@
       </Section>
       <Section>
         <template #label>ビート数</template>
-        <TextField v-model="beat" placeholder="167" :error="!validPositiveInt(beat)" required>
-          <template #error>半角数字で入力してください</template>
-        </TextField>
+        <TextField v-model="beat" placeholder="167" type="number" required></TextField>
       </Section>
       <Section>
         <template #label>Aスキル</template>
@@ -60,7 +58,7 @@ import { CreateFumenDocument } from '~~/generated/graphql'
 import { mapArrayN } from '~~/utils'
 import { LANES } from '~~/utils/common'
 import { DEFAULT_META } from '~~/utils/meta'
-import { validSpaceSeparatedPositiveInt, validPositiveInt } from '~~/utils/validation'
+import { validSpaceSeparatedPositiveInt } from '~~/utils/validation'
 
 const router = useRouter()
 const title = ref('')

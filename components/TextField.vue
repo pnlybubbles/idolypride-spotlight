@@ -7,14 +7,20 @@
       type="text"
       :placeholder="placeholder ?? ''"
       :disabled="disabled ?? false"
+      :inputmode="type === 'number' ? 'numeric' : 'text'"
       @input="$emit('update:modelValue', ($event.target as any).value)"
       @focus="handleFocus"
       @blur="handleBlur"
     />
+    <template #error>
+      <slot v-if="$slots.error" name="error"></slot>
+      <template v-else-if="type === 'number'">半角数字で入力してください</template>
+    </template>
   </AssistiveText>
 </template>
 <script setup lang="ts">
 import { useFormComponent } from '~~/composable/form'
+import { validPositiveInt } from '~~/utils/validation'
 
 interface Props {
   modelValue: string
@@ -22,12 +28,26 @@ interface Props {
   placeholder?: string
   error?: boolean
   required?: boolean
+  /**
+   * numberを選ぶとデフォルトで正の整数のみ許可するバリデーションが入る。
+   * `<template #error>` を指定することで無効化できる。
+   */
+  type?: 'text' | 'number'
 }
 interface Emits {
   (e: 'update:modelValue', value: string): void
 }
-const props = withDefaults(defineProps<Props>(), { disabled: false, placeholder: '', error: false, required: false })
+const props = withDefaults(defineProps<Props>(), {
+  disabled: false,
+  placeholder: '',
+  error: false,
+  required: false,
+  type: 'text',
+})
 defineEmits<Emits>()
+
+const slots = useSlots()
+const isCustomErrorDefined = slots.error != undefined
 
 const focusing = ref(false)
 const onceFocused = ref(false)
@@ -54,7 +74,16 @@ watchEffect(() => {
   requiredErrorOnEditing.value = requiredError.value
 })
 // バリデーションが発生しているかどうか (空文字は入力必須エラーで扱うので、バリデーションエラーは起きない)
-const validationError = computed(() => !props.disabled && props.modelValue !== '' && props.error)
+const validationError = computed(
+  () =>
+    !props.disabled &&
+    props.modelValue !== '' &&
+    // ユーザーからエラーが指定されていない場合かつ、プリセットが利用できる場合は使う
+    (isCustomErrorDefined ? props.error : props.type === 'number' ? !validPositiveInt(props.modelValue) : false)
+)
+watchEffect(() => {
+  console.log(validationError.value, props.error, validPositiveInt(props.modelValue))
+})
 watchEffect(() => {
   const error = validationError.value ? 'validation' : requiredErrorOnEditing.value ? 'required' : null
   // 一貫してフォーカス中にエラーが表示されないようにする

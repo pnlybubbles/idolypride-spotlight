@@ -55,6 +55,7 @@
               <TextField
                 v-if="isSkillTriggerValueRequired(skill[i].trigger)"
                 v-model="skill[i].triggerValue"
+                type="number"
                 placeholder="X"
                 required
               ></TextField>
@@ -67,6 +68,7 @@
                 :model-value="skill[i].once ? 'なし' : skill[i].ct"
                 :placeholder="SKILLS_CT_PLACEHOLDER[i]"
                 :disabled="skill[i].once"
+                type="number"
                 required
                 @update:model-value="skill[i].ct = $event"
               ></TextField>
@@ -106,12 +108,14 @@
                     v-model="ability.amount"
                     :placeholder="deriveUnitByBuffType(ability.type)"
                     :disabled="deriveDisabledAmount(ability.type)"
+                    type="number"
                     required
                   ></TextField>
                   <TextField
                     v-if="ability.div === 'buff'"
                     v-model="ability.span"
                     placeholder="持続ビート数"
+                    type="number"
                     required
                   ></TextField>
                 </HStack>
@@ -121,13 +125,14 @@
                     v-if="isConditionValueRequired(ability.condition)"
                     v-model="ability.conditionValue"
                     placeholder="X"
+                    type="number"
                     required
                   ></TextField>
                 </div>
               </Section>
               <Section v-else-if="ability.div === 'score'" :gutter="8">
                 <template #label>スコア</template>
-                <TextField v-model="ability.amount" placeholder="1000" required></TextField>
+                <TextField v-model="ability.amount" placeholder="1000" type="number" required></TextField>
               </Section>
             </div>
             <button class="new-ability" @click="handleAddAbility(i)" @touchend="null">
