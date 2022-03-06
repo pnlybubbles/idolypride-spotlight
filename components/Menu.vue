@@ -16,17 +16,17 @@
         <img src="/logo.png" alt="logo" class="logo" />
         <div class="logo-label">{{ TITLE }}</div>
       </div>
-      <Section>
-        <template #label>このページについて</template>
+      <div class="section">
+        <div class="section-hedding">このページについて</div>
         <NoteText><HelpText /></NoteText>
-      </Section>
-      <Section>
-        <template #label>ユーザー情報</template>
+      </div>
+      <div class="section">
+        <div class="section-hedding">ユーザー情報</div>
         <NoteText>{{ user?.email }}</NoteText>
-      </Section>
-      <Section>
+      </div>
+      <div class="section">
         <Button @click="handleSignOut">サインアウト</Button>
-      </Section>
+      </div>
     </VStack>
   </Sheet>
 </template>
@@ -96,6 +96,19 @@ const handleSignOut = async () => {
 
 .logo-label {
   font-size: $typography-s;
+  font-weight: bold;
+}
+
+.section {
+  @include align;
+  display: grid;
+  grid: auto-flow / auto;
+  gap: 4px;
+}
+
+.section-hedding {
+  font-size: $typography-s;
+  color: $text1;
   font-weight: bold;
 }
 </style>
