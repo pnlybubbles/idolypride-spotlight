@@ -48,6 +48,18 @@
               required
             ></Listbox>
           </Section>
+          <Section v-if="skill[i].type === 'p'">
+            <template #label>トリガ</template>
+            <div class="left-main">
+              <Listbox v-model="skill[i].trigger" :options="skillTriggerOptions" required></Listbox>
+              <TextField
+                v-if="isSkillTriggerValueRequired(skill[i].trigger)"
+                v-model="skill[i].triggerValue"
+                placeholder="X"
+                required
+              ></TextField>
+            </div>
+          </Section>
           <Section v-if="skill[i].type !== 'sp'">
             <template #label>CT</template>
             <HStack :spacing="8">
@@ -134,7 +146,7 @@
 <script setup lang="ts">
 import { useMutation } from '@urql/vue'
 import { useRouteGuard } from '~~/composable/route'
-import { CreateIdolDocument } from '~~/generated/graphql'
+import { Ability_Insert_Input, CreateIdolDocument, Skill_Insert_Input } from '~~/generated/graphql'
 import { DEFAULT_META } from '~~/utils/meta'
 import Listbox from '~~/components/Listbox.vue'
 import {
@@ -148,8 +160,7 @@ import {
   BuffTargetNoSuffix,
   BuffTargetWithSuffix,
   BuffTargetCount,
-  BuffTarget,
-  AbilityType,
+  SkillTriggerType,
 } from '~~/utils/types'
 import { unreachable } from '~~/utils'
 
@@ -206,15 +217,17 @@ interface SkillInput {
   name: string
   level: number
   type: SkillType
+  trigger: SkillTriggerType
+  triggerValue: ''
   ct: string
   once: boolean
   ability: AbilityInput[]
 }
 
 const skill = reactive([
-  { name: '', level: 1, type: 'sp', ct: '', once: false, ability: [] },
-  { name: '', level: 1, type: 'a', ct: '', once: false, ability: [] },
-  { name: '', level: 1, type: 'p', ct: '', once: true, ability: [] },
+  { name: '', level: 1, type: 'sp', trigger: 'idle', triggerValue: '', ct: '', once: false, ability: [] },
+  { name: '', level: 1, type: 'a', trigger: 'idle', triggerValue: '', ct: '', once: false, ability: [] },
+  { name: '', level: 1, type: 'p', trigger: 'idle', triggerValue: '', ct: '', once: true, ability: [] },
 ] as [SkillInput, SkillInput, SkillInput])
 
 const handleAddAbility = (index: typeof SKILLS[number]) => {
@@ -244,6 +257,13 @@ const skillTypeOptions1: { id: SkillType; label: string }[] = [
 const skillTypeOptions23: { id: SkillType; label: string }[] = [
   { id: 'a', label: 'Aスキル' },
   { id: 'p', label: 'Pスキル' },
+]
+const skillTriggerOptions: { id: SkillTriggerType; label: string }[] = [
+  { id: 'idle', label: '無条件' },
+  { id: 'sp', label: 'SPスキル発動前' },
+  { id: 'a', label: 'Aスキル発動前' },
+  { id: 'critical', label: 'クリティカル発動時' },
+  { id: 'combo', label: 'Xコンボ以上時' },
 ]
 const SKILL_LEVEL_MAX = [6, 5, 4] as const
 const abilityTypeOptions: { id: AbilityDiv; label: string }[] = [
@@ -348,6 +368,8 @@ const isConditionValueRequired = (c: AbilityConditionType | 'none') =>
       c === 'critical'
     ? false
     : unreachable(c)
+const isSkillTriggerValueRequired = (v: SkillTriggerType) =>
+  v === 'combo' ? true : v === 'idle' || v === 'sp' || v === 'a' || v === 'critical' ? false : unreachable(v)
 
 const { executeMutation, fetching } = useMutation(CreateIdolDocument)
 const submit = async () => {
@@ -358,13 +380,7 @@ const submit = async () => {
       type: type.value,
       role: role.value,
       skills: {
-        data: skill.map((v) => ({
-          ...v,
-          ct: formatCT(v.ct, v.once, v.type),
-          abilities: {
-            data: v.ability.map(formatAbility),
-          },
-        })),
+        data: skill.map(formatSkill),
       },
     },
   })
@@ -372,18 +388,22 @@ const submit = async () => {
   void router.push('/idol')
 }
 
-const formatCT = (ct: string, once: boolean, type: SkillType): number | null =>
-  type === 'sp' ? null : once ? 0 : parseInt(ct, 10)
-const formatAbility = (
-  v: AbilityInput
-): {
-  type: AbilityType | 'score'
-  target: BuffTarget | null
-  amount: number
-  condition: AbilityConditionType | null
-  condition_value: number | null
-  span: number | null
-} => {
+const formatSkill = (skill: SkillInput): Skill_Insert_Input => {
+  return {
+    name: skill.name,
+    type: skill.type,
+    level: skill.level,
+    trigger: skill.type === 'p' ? skill.trigger : null,
+    triggerValue:
+      skill.type === 'p' && isSkillTriggerValueRequired(skill.trigger) ? parseInt(skill.triggerValue) : null,
+    ct: skill.type === 'sp' ? null : skill.once ? 0 : parseInt(skill.ct, 10),
+    abilities: {
+      data: skill.ability.map(formatAbility),
+    },
+  }
+}
+
+const formatAbility = (v: AbilityInput): Ability_Insert_Input => {
   const amount = parseInt(v.amount, 10)
   if (v.div === 'score') {
     return { type: 'score', amount, target: null, condition: null, condition_value: null, span: null }

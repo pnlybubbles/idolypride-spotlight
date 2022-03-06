@@ -85,6 +85,8 @@ type SkillTrigger =
       amount: 50
     }
 
+export type SkillTriggerType = SkillTrigger['type']
+
 export type SkillType = SkillData['type']
 
 export type SkillData = {

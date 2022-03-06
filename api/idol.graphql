@@ -32,6 +32,8 @@ mutation createIdol($object: idol_insert_input!) {
       name
       type
       level
+      trigger
+      triggerValue
       ct
       abilities {
         type
