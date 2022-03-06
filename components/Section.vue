@@ -3,7 +3,9 @@
     <div v-if="$slots.label" class="label">
       <slot name="label"></slot>
     </div>
-    <slot></slot>
+    <div class="stack">
+      <slot></slot>
+    </div>
   </div>
 </template>
 <script setup lang="ts">
@@ -26,5 +28,11 @@ defineProps<Props>()
 .label {
   font-size: $typography-s;
   color: $text1;
+}
+
+.stack {
+  display: grid;
+  grid: auto-flow / auto;
+  gap: 8px;
 }
 </style>

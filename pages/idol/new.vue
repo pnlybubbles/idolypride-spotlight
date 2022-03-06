@@ -89,7 +89,7 @@
                   :options="ability.div === 'buff' ? buffTypeOptions : actionBuffTypeOptions"
                   required
                 ></Listbox>
-                <HStack :spacing="4">
+                <HStack :spacing="8">
                   <TextField
                     v-model="ability.amount"
                     :placeholder="deriveUnitByBuffType(ability.type)"
@@ -498,7 +498,7 @@ useMeta(DEFAULT_META)
   grid: auto / 1fr;
   grid-auto-flow: column;
   grid-auto-columns: 80px;
-  gap: 4px;
+  gap: 8px;
 }
 
 .new-ability {
