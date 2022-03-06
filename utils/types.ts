@@ -16,8 +16,9 @@ export type BuffAbilityType =
   | 'buff-amount'
   | 'steruss'
   | 'cmb-continuous'
+  | 'tension'
   | 'unknown'
-export type ActionAbilityType = 'buff-span' | 'ct-reduction' | 'stamina-recovery'
+export type ActionAbilityType = 'buff-span' | 'ct-reduction' | 'stamina-recovery' | 'shift-before-sp'
 export type AbilityType = BuffAbilityType | ActionAbilityType
 
 export type BuffTargetNoSuffix = 'all' | 'self' | 'center' | 'opponent-center' | `neighbor`
@@ -26,7 +27,14 @@ export type BuffTargetCount = '1' | '2' | '3'
 export type BuffTarget = BuffTargetNoSuffix | `${BuffTargetWithSuffix}-${BuffTargetCount}`
 export type PassiveBuffTarget = BuffTarget | 'triggered'
 
-export type AbilityConditionType = 'stamina-greater-than' | 'combo'
+export type AbilityConditionType =
+  | 'critical'
+  | 'stamina-greater-than'
+  | 'combo'
+  | 'anyone-eye-catch'
+  | 'anyone-tension-up'
+  | `${IdolType}-up`
+  | `anyone-${IdolType}-up`
 export type AbilityCondition = {
   type: AbilityConditionType
   amount: number
@@ -44,6 +52,7 @@ type BuffAbility = {
 type ScoreAbility = {
   div: 'score'
   amount: number
+  condition: AbilityCondition
 }
 
 type ActionBuffAbility = {

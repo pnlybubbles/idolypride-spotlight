@@ -70,7 +70,7 @@
               </Section>
               <Section v-if="ability.div === 'buff' || ability.div === 'action-buff'" :gutter="8">
                 <template #label>詳細</template>
-                <div class="ability-target">
+                <div class="left-main">
                   <Listbox v-model="ability.target" placeholder="対象" :options="buffTargetOptions" required></Listbox>
                   <Listbox
                     v-if="ability.target && isBuffTargetSuffixRequired(ability.target)"
@@ -100,7 +100,15 @@
                     required
                   ></TextField>
                 </HStack>
-                <Listbox v-model="ability.condition" :options="buffConditionOptions" required></Listbox>
+                <div class="left-main">
+                  <Listbox v-model="ability.condition" :options="conditionOptions" required></Listbox>
+                  <TextField
+                    v-if="isConditionValueRequired(ability.condition)"
+                    v-model="ability.conditionValue"
+                    placeholder="X"
+                    required
+                  ></TextField>
+                </div>
               </Section>
               <Section v-else-if="ability.div === 'score'" :gutter="8">
                 <template #label>スコア</template>
@@ -185,6 +193,7 @@ interface AbilityInput {
   div: AbilityDiv
   type: BuffAbilityType | ActionAbilityType | null
   condition: AbilityConditionType | 'none'
+  conditionValue: string
   target: BuffTargetNoSuffix | BuffTargetWithSuffix | null
   targetSuffix: BuffTargetCount
   amount: string
@@ -210,6 +219,7 @@ const handleAddAbility = (index: typeof SKILLS[number]) => {
     div: 'buff',
     type: null,
     condition: 'none',
+    conditionValue: '',
     target: null,
     targetSuffix: '1',
     amount: '',
@@ -247,11 +257,13 @@ const buffTypeOptions: { id: BuffAbilityType; label: string }[] = [
   { id: 'stamina-exhaust', label: 'スタミナ消費増加' },
   { id: 'stamina-saving', label: 'スタミナ消費低下' },
   { id: 'steruss', label: 'ステルス' },
+  { id: 'tension', label: 'テンションUP' },
 ]
 const actionBuffTypeOptions: { id: ActionAbilityType; label: string }[] = [
   { id: 'buff-span', label: '強化効果延長' },
   { id: 'ct-reduction', label: 'CT減少' },
   { id: 'stamina-recovery', label: 'スタミナ回復' },
+  { id: 'shift-before-sp', label: '強化効果をSPスキル前に移動' },
 ]
 
 const deriveUnitByBuffType = (type: BuffAbilityType | ActionAbilityType | null): string => {
@@ -284,11 +296,48 @@ const buffTargetSuffixOptions: { id: BuffTargetCount; label: string }[] = [
   { id: '2', label: '2人' },
   { id: '3', label: '3人' },
 ]
-const buffConditionOptions: { id: AbilityConditionType | 'none'; label: string }[] = [
+const isBuffTargetSuffixRequired = (t: BuffTargetNoSuffix | BuffTargetWithSuffix): t is BuffTargetWithSuffix =>
+  t === 'high-vocal' ||
+  t === 'high-dance' ||
+  t === 'high-visual' ||
+  t === 'vocal' ||
+  t === 'dance' ||
+  t === 'visual' ||
+  t === 'scorer' ||
+  t === 'lowstamina'
+    ? true
+    : t === 'all' || t === 'self' || t === 'center' || t === 'neighbor' || t === 'opponent-center'
+    ? false
+    : unreachable(t)
+const conditionOptions: { id: AbilityConditionType | 'none'; label: string }[] = [
   { id: 'none', label: '発動条件なし' },
-  { id: 'combo', label: 'Xコンボ以上のとき' },
-  { id: 'stamina-greater-than', label: 'スタミナがX%以上のとき' },
+  { id: 'combo', label: 'Xコンボ以上時' },
+  { id: 'stamina-greater-than', label: 'スタミナX%以上時' },
+  { id: 'vocal-up', label: 'ボーカルアップ時' },
+  { id: 'dance-up', label: 'ダンスアップ時' },
+  { id: 'visual-up', label: 'ビジュアルアップ時' },
+  { id: 'anyone-vocal-up', label: '誰かがボーカルアップ時' },
+  { id: 'anyone-dance-up', label: '誰かがダンスアップ時' },
+  { id: 'anyone-visual-up', label: '誰かがビジュアルアップ時' },
+  { id: 'anyone-eye-catch', label: '誰かが集目時' },
+  { id: 'anyone-tension-up', label: '誰かがテンションUP時' },
+  { id: 'critical', label: 'クリティカル発動時' },
 ]
+const isConditionValueRequired = (c: AbilityConditionType | 'none') =>
+  c === 'combo' || c === 'stamina-greater-than'
+    ? true
+    : c === 'none' ||
+      c === 'vocal-up' ||
+      c === 'dance-up' ||
+      c === 'visual-up' ||
+      c === 'anyone-vocal-up' ||
+      c === 'anyone-dance-up' ||
+      c === 'anyone-visual-up' ||
+      c === 'anyone-eye-catch' ||
+      c === 'anyone-tension-up' ||
+      c === 'critical'
+    ? false
+    : unreachable(c)
 
 const { executeMutation, fetching } = useMutation(CreateIdolDocument)
 const submit = async () => {
@@ -313,19 +362,6 @@ const submit = async () => {
   void router.push('/idol')
 }
 
-const isBuffTargetSuffixRequired = (t: BuffTargetNoSuffix | BuffTargetWithSuffix): t is BuffTargetWithSuffix =>
-  t === 'all' || t === 'self' || t === 'center' || t === 'neighbor' || t === 'opponent-center'
-    ? false
-    : t === 'high-vocal' ||
-      t === 'high-dance' ||
-      t === 'high-visual' ||
-      t === 'vocal' ||
-      t === 'dance' ||
-      t === 'visual' ||
-      t === 'scorer' ||
-      t === 'lowstamina'
-    ? true
-    : unreachable(t)
 const formatCT = (ct: string, once: boolean, type: SkillType): number | null =>
   type === 'sp' ? null : once ? 0 : parseInt(ct, 10)
 const formatAbility = (
@@ -335,11 +371,12 @@ const formatAbility = (
   target: BuffTarget | null
   amount: number
   condition: AbilityConditionType | null
+  condition_value: number | null
   span: number | null
 } => {
   const amount = parseInt(v.amount, 10)
   if (v.div === 'score') {
-    return { type: 'score', amount, target: null, condition: null, span: null }
+    return { type: 'score', amount, target: null, condition: null, condition_value: null, span: null }
   }
   const type = v.type ?? 'unknown'
   const target = v.target
@@ -348,12 +385,13 @@ const formatAbility = (
       : v.target
     : null
   const condition = v.condition === 'none' ? null : v.condition
+  const conditionValue = isConditionValueRequired(v.condition) ? parseInt(v.conditionValue, 10) : null
   if (v.div === 'action-buff') {
-    return { type, target, amount, condition, span: null }
+    return { type, target, amount, condition, condition_value: conditionValue, span: null }
   }
   const span = parseInt(v.span, 10)
   if (v.div === 'buff') {
-    return { type, target, amount, condition, span }
+    return { type, target, amount, condition, condition_value: conditionValue, span }
   }
   return unreachable(v.div)
 }
@@ -423,11 +461,11 @@ useMeta(DEFAULT_META)
   gap: 16px;
 }
 
-.ability-target {
+.left-main {
   display: grid;
   grid: auto / 1fr;
   grid-auto-flow: column;
-  grid-auto-columns: auto;
+  grid-auto-columns: 80px;
   gap: 4px;
 }
 

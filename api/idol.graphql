@@ -39,6 +39,7 @@ mutation createIdol($object: idol_insert_input!) {
         amount
         span
         condition
+        condition_value
       }
     }
   }
