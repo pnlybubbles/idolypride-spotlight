@@ -40,6 +40,7 @@ export type AbilityCondition =
 
 type BuffAbility = {
   div: 'buff'
+  id: string
   type: BuffAbilityType
   condition: AbilityCondition
   target: BuffTarget
@@ -49,12 +50,14 @@ type BuffAbility = {
 
 type ScoreAbility = {
   div: 'score'
+  id: string
   amount: number
   condition: AbilityCondition
 }
 
 type ActionBuffAbility = {
   div: 'action-buff'
+  id: string
   type: ActionAbilityType
   condition: AbilityCondition
   target: BuffTarget
@@ -88,6 +91,7 @@ export type SkillTriggerType = SkillTrigger['type']
 export type SkillType = SkillData['type']
 
 export type SkillData = {
+  id: string
   name: string
 } & (
   | {

@@ -6,6 +6,7 @@ query getIdolList {
     type
     role
     skills {
+      id
       name
       type
       level
@@ -13,6 +14,7 @@ query getIdolList {
       trigger_value
       ct
       abilities {
+        id
         type
         target
         amount
@@ -32,6 +34,7 @@ mutation createIdol($object: idol_insert_input!) {
     type
     role
     skills {
+      id
       name
       type
       level
@@ -39,6 +42,7 @@ mutation createIdol($object: idol_insert_input!) {
       trigger_value
       ct
       abilities {
+        id
         type
         target
         amount
