@@ -318,6 +318,7 @@ const buffTypeOptions: { id: BuffAbilityType; label: string }[] = [
   { id: 'stamina-saving', label: 'スタミナ消費低下' },
   { id: 'steruss', label: 'ステルス' },
   { id: 'tension', label: 'テンションUP' },
+  { id: 'eye-catch', label: '集目効果' },
 ]
 const actionBuffTypeOptions: { id: ActionAbilityType; label: string }[] = [
   { id: 'buff-span', label: '強化効果延長' },

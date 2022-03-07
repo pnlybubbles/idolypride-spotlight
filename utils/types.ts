@@ -17,6 +17,7 @@ export type BuffAbilityType =
   | 'steruss'
   | 'cmb-continuous'
   | 'tension'
+  | 'eye-catch'
   | 'unknown'
 export type ActionAbilityType = 'buff-span' | 'ct-reduction' | 'stamina-recovery' | 'shift-before-sp'
 export type AbilityType = BuffAbilityType | ActionAbilityType
