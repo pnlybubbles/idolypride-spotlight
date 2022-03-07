@@ -125,20 +125,21 @@
                     required
                   ></TextField>
                 </HStack>
-                <HStack v-if="availableNoSpan(skill[i].trigger)" :spacing="8">
-                  <TextField
-                    v-if="ability.div === 'buff'"
-                    v-model="ability.span"
-                    placeholder="持続ビート数"
-                    type="number"
-                    :disabled="ability.noSpan"
-                    required
-                  ></TextField>
-                  <Check v-model="ability.noSpan">トリガビート</Check>
-                </HStack>
-                <NoteText v-if="availableNoSpan(skill[i].trigger)"
-                  >トリガビートを選択すると、Pスキルの発動起因となったA/SPスキルにのみ影響する効果になります</NoteText
-                >
+                <template v-if="ability.div === 'buff' && availableNoSpan(skill[i].trigger)">
+                  <HStack :spacing="8">
+                    <TextField
+                      v-model="ability.span"
+                      placeholder="持続ビート数"
+                      type="number"
+                      :disabled="ability.noSpan"
+                      required
+                    ></TextField>
+                    <Check v-model="ability.noSpan">トリガビート</Check>
+                  </HStack>
+                  <NoteText v-if="availableNoSpan(skill[i].trigger)"
+                    >トリガビートを選択すると、Pスキルの発動起因となったA/SPスキルにのみ影響する効果になります</NoteText
+                  >
+                </template>
                 <div class="left-main">
                   <Listbox v-model="ability.condition" :options="conditionOptions" required></Listbox>
                   <TextField
