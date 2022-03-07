@@ -459,7 +459,6 @@ useMeta(DEFAULT_META)
 
   font-size: $typography-m;
   font-weight: normal;
-  font-family: Arial;
   color: $text3;
   height: 28px;
   width: 28px;
