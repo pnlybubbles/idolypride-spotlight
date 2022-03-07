@@ -24,6 +24,7 @@ const deserializeSkill = ({ type, ...rest }: TmpSkill): SkillData => {
   return {
     id: rest.id as string,
     name: rest.name,
+    level: rest.level,
     ...(type === 'sp'
       ? {
           type,

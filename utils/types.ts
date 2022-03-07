@@ -96,6 +96,7 @@ export type SkillType = SkillData['type']
 export type SkillData = {
   id: string
   name: string
+  level: number
 } & (
   | {
       type: 'sp'

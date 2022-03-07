@@ -60,6 +60,9 @@
                     </div>
                   </template>
                 </div>
+                <div class="ability">
+                  <div>lv.{{ skill.level }}</div>
+                </div>
               </div>
             </div>
           </div>
@@ -242,6 +245,7 @@ useMeta(DEFAULT_META)
       top: 50%;
       width: 2px;
       height: 2px;
+      border-radius: 50%;
       transform: translate(-50%, -50%);
       background-color: $text3;
     }
