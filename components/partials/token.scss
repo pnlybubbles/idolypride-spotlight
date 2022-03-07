@@ -3,11 +3,12 @@
   padding-right: 24px;
 }
 
+$border-radius-map: (
+  'S': 8px,
+  'L': 16px,
+  'MAX': 9999999px,
+);
 @mixin round-corner($variant: 'S') {
-  $border-radius-map: (
-    'S': 4px,
-    'L': 16px,
-  );
   border-radius: map-get($border-radius-map, $variant);
 }
 
@@ -16,13 +17,17 @@
   background-color: $surface1;
 }
 
+@mixin bloom($color, $alpha: 0.3) {
+  box-shadow: 0 6px 16px rgba($color, $alpha);
+}
+
 $text1: #fff;
 $text2: rgba(#fff, 0.7);
 $text3: rgba(#fff, 0.4);
 $text4: rgba(#000, 0.6);
 $error: #da5019;
-$background1: #000;
-$surface1: rgba(#fff, 0.1);
+$background1: #0a0a0a;
+$surface1: rgba(#fff, 0.07);
 $surface2: rgba(#fff, 0.9);
 $surface2-stroke: rgba(#000, 0.1);
 $primary: #1428ff;

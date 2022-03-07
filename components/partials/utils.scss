@@ -26,12 +26,16 @@
 @mixin button-like {
   font-size: $typography-m;
   font-weight: bold;
-  padding: 8px 16px;
+  padding: 0 16px;
+  height: 40px;
+  display: grid;
+  align-items: center;
   background-color: $primary;
   color: $text1;
   text-align: center;
 
-  @include round-corner;
+  @include bloom($primary);
+  @include round-corner('MAX');
   @include clickable;
 }
 

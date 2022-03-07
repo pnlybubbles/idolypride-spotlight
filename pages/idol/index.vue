@@ -116,14 +116,17 @@ useMeta(DEFAULT_META)
 
   &.vocal {
     background-color: $vocal;
+    @include bloom($vocal);
   }
 
   &.dance {
     background-color: $dance;
+    @include bloom($dance);
   }
 
   &.visual {
     background-color: $visual;
+    @include bloom($visual);
   }
 }
 

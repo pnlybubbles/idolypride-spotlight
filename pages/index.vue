@@ -82,11 +82,11 @@ useMeta(DEFAULT_META)
 }
 
 .item {
+  @include round-corner('L');
   @include clickable;
 
   display: grid;
   background-color: $surface1;
-  border-radius: 4px;
   padding: 16px;
   grid: auto auto / auto;
   gap: 4px;

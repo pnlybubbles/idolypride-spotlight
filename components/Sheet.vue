@@ -48,6 +48,8 @@ watchEffect(() => {
 }
 
 .content {
+  @include bloom(black);
+
   position: absolute;
   left: 0;
   bottom: 0;

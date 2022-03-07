@@ -48,6 +48,7 @@ const handleSignOut = async () => {
 @import '~~/components/partials/token.scss';
 @import '~~/components/partials/utils.scss';
 
+$gap: 4px;
 .menu-button {
   @include reset-button;
   @include clickable;
@@ -58,7 +59,7 @@ const handleSignOut = async () => {
   width: 40px;
   height: 40px;
   color: $text1;
-  border-radius: 12px;
+  border-radius: map-get($border-radius-map, 'L') - $gap / 2;
 
   &.active {
     background-color: $surface1;
@@ -73,11 +74,12 @@ const handleSignOut = async () => {
   border: solid 1px $surface1;
   display: grid;
   grid: auto / auto-flow;
-  padding: 4px 4px;
-  gap: 4px;
+  padding: $gap $gap;
+  gap: $gap;
 
   @include background-blur;
   @include round-corner('L');
+  @include bloom(black);
 }
 
 .heading {

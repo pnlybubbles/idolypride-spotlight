@@ -525,6 +525,6 @@ useMeta(DEFAULT_META)
   gap: 4px;
   align-items: center;
   justify-content: center;
-  padding: 12px 0;
+  height: 40px;
 }
 </style>
