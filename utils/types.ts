@@ -25,7 +25,9 @@ export type BuffTargetNoSuffix = 'all' | 'self' | 'center' | 'opponent-center' |
 export type BuffTargetWithSuffix = 'scorer' | 'lowstamina' | `${'high-' | ''}${IdolType}`
 export type BuffTargetCount = '1' | '2' | '3'
 export type BuffTarget = BuffTargetNoSuffix | `${BuffTargetWithSuffix}-${BuffTargetCount}`
-export type PassiveBuffTarget = BuffTarget | 'triggered'
+type BuffTargetPassiveOnly = 'triggered'
+export type PassiveBuffTarget = BuffTarget | BuffTargetPassiveOnly
+export type BuffTargetWithoutSuffix = BuffTargetNoSuffix | BuffTargetWithSuffix | BuffTargetPassiveOnly
 
 export type AbilityConditionType = Exclude<AbilityCondition, null>['type']
 export type AbilityCondition =

@@ -89,7 +89,12 @@
               <Section v-if="ability.div === 'buff' || ability.div === 'action-buff'" :gutter="8">
                 <template #label>詳細</template>
                 <div class="left-main">
-                  <Listbox v-model="ability.target" placeholder="対象" :options="buffTargetOptions" required></Listbox>
+                  <Listbox
+                    v-model="ability.target"
+                    placeholder="対象"
+                    :options="skill[i]?.type === 'p' ? buffTargetOptionsPassive : buffTargetOptions"
+                    required
+                  ></Listbox>
                   <Listbox
                     v-if="ability.target && isBuffTargetSuffixRequired(ability.target)"
                     v-model="ability.targetSuffix"
@@ -164,10 +169,10 @@ import {
   IdolType,
   SkillType,
   BuffAbilityType,
-  BuffTargetNoSuffix,
   BuffTargetWithSuffix,
   BuffTargetCount,
   SkillTriggerType,
+  BuffTargetWithoutSuffix,
 } from '~~/utils/types'
 import { unreachable } from '~~/utils'
 import { useForm } from '~~/composable/form'
@@ -217,7 +222,7 @@ interface AbilityInput {
   type: BuffAbilityType | ActionAbilityType | null
   condition: AbilityConditionType | 'none'
   conditionValue: string
-  target: BuffTargetNoSuffix | BuffTargetWithSuffix | null
+  target: BuffTargetWithoutSuffix | null
   targetSuffix: BuffTargetCount
   amount: string
   span: string
@@ -319,7 +324,7 @@ const deriveUnitByBuffType = (type: BuffAbilityType | ActionAbilityType | null):
 }
 const deriveDisabledAmount = (type: BuffAbilityType | ActionAbilityType | null): boolean => type === 'cmb-continuous'
 
-const buffTargetOptions: { id: BuffTargetNoSuffix | BuffTargetWithSuffix; label: string }[] = [
+const buffTargetOptions: { id: BuffTargetWithoutSuffix; label: string }[] = [
   { id: 'self', label: '自身' },
   { id: 'all', label: '全員' },
   { id: 'center', label: 'センター' },
@@ -330,12 +335,16 @@ const buffTargetOptions: { id: BuffTargetNoSuffix | BuffTargetWithSuffix; label:
   { id: 'high-visual', label: 'ビジュアルが高いX人' },
   { id: 'opponent-center', label: '相手のセンター [バトルのみ]' },
 ]
+const buffTargetOptionsPassive: { id: BuffTargetWithoutSuffix; label: string }[] = [
+  { id: 'triggered', label: 'トリガ対象 [Pスキルのみ]' },
+  ...buffTargetOptions,
+]
 const buffTargetSuffixOptions: { id: BuffTargetCount; label: string }[] = [
   { id: '1', label: '1人' },
   { id: '2', label: '2人' },
   { id: '3', label: '3人' },
 ]
-const isBuffTargetSuffixRequired = (t: BuffTargetNoSuffix | BuffTargetWithSuffix): t is BuffTargetWithSuffix =>
+const isBuffTargetSuffixRequired = (t: BuffTargetWithoutSuffix): t is BuffTargetWithSuffix =>
   t === 'high-vocal' ||
   t === 'high-dance' ||
   t === 'high-visual' ||
@@ -345,7 +354,7 @@ const isBuffTargetSuffixRequired = (t: BuffTargetNoSuffix | BuffTargetWithSuffix
   t === 'scorer' ||
   t === 'lowstamina'
     ? true
-    : t === 'all' || t === 'self' || t === 'center' || t === 'neighbor' || t === 'opponent-center'
+    : t === 'all' || t === 'self' || t === 'center' || t === 'neighbor' || t === 'opponent-center' || t === 'triggered'
     ? false
     : unreachable(t)
 const conditionOptions: { id: AbilityConditionType | 'none'; label: string }[] = [
