@@ -59,7 +59,7 @@ $gap: 4px;
   width: 40px;
   height: 40px;
   color: $text1;
-  border-radius: map-get($border-radius-map, 'L') - $gap / 2;
+  border-radius: map-get($border-radius-map, 'L') - calc($gap / 2);
 
   &.active {
     background-color: $surface1;

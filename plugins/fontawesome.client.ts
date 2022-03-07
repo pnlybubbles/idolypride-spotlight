@@ -14,6 +14,7 @@ import {
   faDiamond,
   faForward,
   faHeart,
+  faFlag,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
@@ -31,7 +32,8 @@ library.add(
   faCircleMinus,
   faDiamond,
   faForward,
-  faHeart
+  faHeart,
+  faFlag
 )
 
 export default defineNuxtPlugin((nuxtApp) => {
