@@ -118,13 +118,27 @@
                     required
                   ></TextField>
                   <TextField
-                    v-if="ability.div === 'buff'"
+                    v-if="ability.div === 'buff' && !availableNoSpan(skill[i].trigger)"
                     v-model="ability.span"
                     placeholder="持続ビート数"
                     type="number"
                     required
                   ></TextField>
                 </HStack>
+                <HStack v-if="availableNoSpan(skill[i].trigger)" :spacing="8">
+                  <TextField
+                    v-if="ability.div === 'buff'"
+                    v-model="ability.span"
+                    placeholder="持続ビート数"
+                    type="number"
+                    :disabled="ability.noSpan"
+                    required
+                  ></TextField>
+                  <Check v-model="ability.noSpan">トリガビート</Check>
+                </HStack>
+                <NoteText v-if="availableNoSpan(skill[i].trigger)"
+                  >トリガビートを選択すると、Pスキルの発動起因となったA/SPスキルにのみ影響する効果になります</NoteText
+                >
                 <div class="left-main">
                   <Listbox v-model="ability.condition" :options="conditionOptions" required></Listbox>
                   <TextField
@@ -226,6 +240,7 @@ interface AbilityInput {
   targetSuffix: BuffTargetCount
   amount: string
   span: string
+  noSpan: boolean
 }
 interface SkillInput {
   name: string
@@ -254,6 +269,7 @@ const handleAddAbility = (index: typeof SKILLS[number]) => {
     targetSuffix: '1',
     amount: '',
     span: '',
+    noSpan: false,
   })
 }
 
@@ -371,6 +387,7 @@ const conditionOptions: { id: AbilityConditionType | 'none'; label: string }[] =
   { id: 'anyone-tension-up', label: '誰かがテンションUP時' },
   { id: 'critical', label: 'クリティカル発動時' },
 ]
+const availableNoSpan = (t: SkillTriggerType) => t === 'sp' || t === 'a'
 
 const { invalid } = useForm()
 const { executeMutation, fetching } = useMutation(CreateIdolDocument)
@@ -421,7 +438,8 @@ const formatAbility = (v: AbilityInput): Ability_Insert_Input => {
   if (v.div === 'action-buff') {
     return { type, target, amount, condition, condition_value: conditionValue, span: null }
   }
-  const span = parseInt(v.span, 10)
+  // SP発動前などのケースで[持続ビート数]が書いてない場合、1ビートとして扱う
+  const span = v.noSpan ? 1 : parseInt(v.span, 10)
   if (v.div === 'buff') {
     return { type, target, amount, condition, condition_value: conditionValue, span }
   }

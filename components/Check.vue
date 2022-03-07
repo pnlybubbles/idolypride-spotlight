@@ -32,7 +32,7 @@ defineEmits<Emits>()
   @include clickable;
   @include round-corner;
   background-color: $surface1;
-  padding: 0 16px 0 12px;
+  padding: 0 16px 0 4px;
   height: 40px;
   font-size: 16px;
   color: $text1;
