@@ -36,14 +36,15 @@
   </div>
 </template>
 <script setup lang="ts">
-import idolData from '~~/data/idol'
 import { isType, simulate } from './simulate'
-import { mapArrayN } from '~~/utils'
+import { ArrayN } from '~~/utils'
 import isNonNullable from 'is-non-nullable'
-import { AbilityType, LiveData } from '~~/utils/types'
+import { AbilityType, IdolData, LiveData } from '~~/utils/types'
+import { LANES } from '~~/utils/common'
 
 interface Props {
   live: LiveData
+  idols: ArrayN<IdolData | null, 5>
 }
 
 const props = defineProps<Props>()
@@ -105,11 +106,7 @@ const updateGuide = (beat: number) => {
   }
 }
 
-const LANES = [0, 1, 2, 3, 4] as const
-const idolIdbyLane = ['reiTakadai', 'reiOsorenai', 'nagisaEmal', 'aoiNureta', 'reiOsorenai'] as const
-const idols = mapArrayN(idolIdbyLane, (id) => idolData[id])
-
-const simulated = computed(() => simulate(props.live, idols))
+const simulated = computed(() => simulate(props.live, props.idols))
 
 type Item = {
   id: string
@@ -157,9 +154,6 @@ const lanes = computed(() =>
           },
         ]
       }, [] as Item[])
-      // TODO: いったん動作確認のためにアイドルの行動は非表示
-      .map((v) => (v.type === 'sp' || v.type === 'a' ? { ...v, buff: 'unknown' as const, fail: false } : v))
-      .filter((v) => v.type === 'sp' || v.type === 'a')
   )
 )
 </script>

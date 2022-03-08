@@ -1,5 +1,4 @@
-import { Idol, Skill } from '~/data/idol'
-import { BuffTarget, AbilityType, Lane, LiveData } from '~/utils/types'
+import { BuffTarget, AbilityType, Lane, LiveData, SkillData, IdolData } from '~/utils/types'
 import isNonNullable from 'is-non-nullable'
 import { ArrayN, indexed, uid, unreachable } from '~~/utils'
 
@@ -33,19 +32,19 @@ type State = ({
 } & (
   | {
       type: 'sp'
-      skill: Extract<Skill, { type: 'sp' }> | null // 発動したスキル, nullのときは失敗
+      skill: Extract<SkillData, { type: 'sp' }> | null // 発動したスキル, nullのときは失敗
     }
   | {
       type: 'a'
-      skill: Extract<Skill, { type: 'a' }> | null // 発動したスキル, nullのときは失敗
+      skill: Extract<SkillData, { type: 'a' }> | null // 発動したスキル, nullのときは失敗
     }
   | {
       type: 'p'
-      skill: Extract<Skill, { type: 'p' }> // 発動したスキル
+      skill: Extract<SkillData, { type: 'p' }> // 発動したスキル
     }
 ))[]
 
-export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
+export function simulate(live: LiveData, idols: ArrayN<IdolData | null, 5>) {
   const BEATS = new Array(live.beat).fill(0).map((_, i) => i + 1)
   return BEATS.reduce(
     ({ result, state }, currentBeat) => {
@@ -102,11 +101,11 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
             .filter(isType('a'))
             .map((v) => v.skill)
           // 発動可能なAスキルを絞り込む
-          const canTriggerSkills = idols[lane].skills
+          const canTriggerSkills = idols[lane]?.skills
             .filter(isType('a'))
             // CT中に含まれていない保持スキルを絞り込む
             .filter((skill) => !ctSkills.map((v) => v.index).includes(skill.index))
-          return { lane, skill: canTriggerSkills[0] ?? null }
+          return { lane, skill: canTriggerSkills?.[0] ?? null }
         })
         .filter(isNonNullable)
         .map(appendBeat)
@@ -171,7 +170,7 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
             return null
           }
           // アイドルがSPを持っているかどうかをチェック
-          const skill = idols[lane].skills.find(isType('sp'))
+          const skill = idols[lane]?.skills.find(isType('sp'))
           if (skill === undefined) {
             return { lane, skill: null }
           }
@@ -239,9 +238,9 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
             .filter((v) => v.lane === lane)
             .map((v) => v.skill)
             .filter(isType('p'))
-          const canTriggerSkills = idol.skills
-            .filter(isType('p'))
-            .filter((skill) => !ctSkills.map((v) => v.index).includes(skill.index))
+          const canTriggerSkills =
+            idol?.skills.filter(isType('p')).filter((skill) => !ctSkills.map((v) => v.index).includes(skill.index)) ??
+            []
           return canTriggerSkills
             .map((skill) => {
               switch (skill.trigger.type) {
@@ -368,7 +367,7 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
   )
 }
 
-function deriveBuffLanes(target: BuffTarget, selfLane: Lane, idol: ArrayN<Idol, 5>): Lane[] {
+function deriveBuffLanes(target: BuffTarget, selfLane: Lane, idol: ArrayN<IdolData | null, 5>): Lane[] {
   switch (target) {
     case 'all':
       return [0, 1, 2, 3, 4]
@@ -376,14 +375,14 @@ function deriveBuffLanes(target: BuffTarget, selfLane: Lane, idol: ArrayN<Idol, 
       return [selfLane]
     case 'scorer-1': {
       const candidate = indexed(idol)
-        .filter(([v]) => v.role === 'scorer')
+        .filter(([v]) => v?.role === 'scorer')
         .map(second)
         .sort(comparebyCenter)
       return [candidate[0]].filter(isNonNullable)
     }
     case 'scorer-2': {
       const candidate = indexed(idol)
-        .filter(([v]) => v.role === 'scorer')
+        .filter(([v]) => v?.role === 'scorer')
         .map(second)
         .sort(comparebyCenter)
       return [candidate[0], candidate[1]].filter(isNonNullable)

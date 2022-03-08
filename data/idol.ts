@@ -1,4 +1,3 @@
-import { mapArrayN, mapObject } from '~~/utils'
 import { IdolData } from '~/utils/types'
 
 export const REI_ICHINOSE: IdolData = {
@@ -12,6 +11,8 @@ export const REI_ICHINOSE: IdolData = {
       id: 's1',
       name: '優勝への決意',
       type: 'a',
+      index: 0,
+      level: 1,
       ability: [
         {
           id: 'a1',
@@ -29,6 +30,8 @@ export const REI_ICHINOSE: IdolData = {
       id: 's2',
       name: '踊る理由',
       type: 'p',
+      index: 1,
+      level: 1,
       trigger: {
         type: 'idle',
       },
@@ -49,6 +52,8 @@ export const REI_ICHINOSE: IdolData = {
       id: 's3',
       name: '精一杯の恩返し',
       type: 'p',
+      index: 2,
+      level: 1,
       trigger: {
         type: 'critical',
       },
@@ -78,12 +83,16 @@ const reiOsorenai: IdolData = {
       id: 's4',
       name: 'ウソみたいに、体が軽い',
       type: 'sp',
+      index: 0,
+      level: 1,
       ability: [],
     },
     {
       id: 's5',
       name: '負けず嫌いのダンス',
       type: 'a',
+      index: 1,
+      level: 1,
       ability: [
         {
           id: 'a4',
@@ -101,6 +110,8 @@ const reiOsorenai: IdolData = {
       id: 's6',
       name: 'スランプ脱却',
       type: 'a',
+      index: 2,
+      level: 1,
       ability: [],
       ct: 50,
     },
@@ -118,6 +129,8 @@ const nagisaEmal: IdolData = {
       id: 's7',
       name: 'ここであのスマイル！',
       type: 'sp',
+      index: 0,
+      level: 1,
       ability: [
         {
           id: 'a5',
@@ -134,6 +147,8 @@ const nagisaEmal: IdolData = {
       id: 's8',
       name: '彼女が見ている景色',
       type: 'a',
+      index: 1,
+      level: 1,
       ability: [],
       ct: 50,
     },
@@ -141,6 +156,8 @@ const nagisaEmal: IdolData = {
       id: 's9',
       name: '私も輝けたら',
       type: 'a',
+      index: 2,
+      level: 1,
       ability: [
         {
           id: 'a6',
@@ -168,6 +185,8 @@ const aoiNureta: IdolData = {
       id: 's10',
       name: '熱狂の余韻',
       type: 'a',
+      index: 0,
+      level: 1,
       ability: [
         {
           id: 'a8',
@@ -185,6 +204,8 @@ const aoiNureta: IdolData = {
       id: 's11',
       name: 'ステージの華',
       type: 'a',
+      index: 1,
+      level: 1,
       ability: [
         {
           id: 'a9',
@@ -201,6 +222,8 @@ const aoiNureta: IdolData = {
       id: 's12',
       name: '安堵の笑顔',
       type: 'p',
+      index: 2,
+      level: 1,
       trigger: {
         type: 'sp',
       },
@@ -227,13 +250,4 @@ const characters = {
   aoiNureta,
 }
 
-const charactersWithIndex = mapObject(characters, (v) => ({
-  ...v,
-  skills: mapArrayN(v.skills, (w, index) => ({ ...w, index })),
-}))
-
-export type IdolId = keyof typeof charactersWithIndex
-export type Idol = typeof charactersWithIndex[IdolId]
-export type Skill = Idol['skills'][number]
-
-export default charactersWithIndex
+export default characters

@@ -4,10 +4,10 @@
     <div class="idol">
       <div></div>
       <template v-for="i in LANES" :key="i">
-        <IdolSelect v-model="selectedIdol[i]"></IdolSelect>
+        <IdolSelect v-model="selectedIdols[i]"></IdolSelect>
       </template>
     </div>
-    <Live v-if="live" :live="live"></Live>
+    <Live v-if="live" :live="live" :idols="selectedIdols"></Live>
     <Loading :busy="fetching">譜面を読み込んでいます...</Loading>
   </Layout>
 </template>
@@ -44,7 +44,8 @@ const live = computed(() => {
   }
   return formatted
 })
-const selectedIdol = reactive<ArrayN<IdolData | null, 5>>([null, null, null, null, null])
+
+const selectedIdols = reactive<ArrayN<IdolData | null, 5>>([null, null, null, null, null])
 
 useRouteGuard()
 useMeta(DEFAULT_META)

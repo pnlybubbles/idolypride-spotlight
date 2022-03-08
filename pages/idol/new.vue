@@ -418,10 +418,11 @@ const submit = async () => {
   void router.push('/idol')
 }
 
-const formatSkill = (skill: SkillInput): Skill_Insert_Input => {
+const formatSkill = (skill: SkillInput, index: number): Required<Skill_Insert_Input> => {
   return {
     name: skill.name,
     type: skill.type,
+    index: index,
     level: skill.level,
     trigger: skill.type === 'p' ? skill.trigger : null,
     trigger_value:
@@ -433,7 +434,7 @@ const formatSkill = (skill: SkillInput): Skill_Insert_Input => {
   }
 }
 
-const formatAbility = (v: AbilityInput): Ability_Insert_Input => {
+const formatAbility = (v: AbilityInput): Required<Ability_Insert_Input> => {
   const amount = deriveDisabledAmount(v.type) ? 0 : parseInt(v.amount, 10)
   if (v.div === 'score') {
     return { type: 'get-score', amount, target: null, condition: null, condition_value: null, span: null }
