@@ -135,7 +135,8 @@ const lanes = computed(() =>
       .sort((a, b) => a.beat - b.beat)
       .reduce((acc, c) => {
         if (c.type !== 'buff') {
-          return [...acc, c]
+          // アイドルが未選択の場合はシミュレート結果のスキル失敗を打ち消す
+          return [...acc, props.idols[lane] == null ? { ...c, fail: false } : c]
         }
         const occupiedShift = acc
           .filter(isType('buff'))
