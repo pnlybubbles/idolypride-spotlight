@@ -1,3 +1,4 @@
+import { onBeforeRouteLeave } from 'vue-router'
 import { InjectionKey } from 'vue'
 import { defined } from '~~/utils'
 
@@ -13,4 +14,17 @@ export const provideUID = () => {
 export const useUID = () => {
   const generateUID = defined(inject(UIDContext), '`provideUID` is not mounted')
   return generateUID()
+}
+
+export function useBeforeUnload(callback: () => boolean) {
+  const skipUnloadFlag = { current: false }
+  onBeforeRouteLeave((_to, _from, next) => {
+    if (skipUnloadFlag.current || callback()) {
+      next()
+    }
+    skipUnloadFlag.current = false
+  })
+  return () => {
+    skipUnloadFlag.current = true
+  }
 }

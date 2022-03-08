@@ -193,6 +193,7 @@ import { unreachable } from '~~/utils'
 import { useForm } from '~~/composable/form'
 import { SKILLS } from '~~/utils/common'
 import { isAbilityConditionWithValue, isSkillTriggerTypeWithValue } from '~~/utils/formatter'
+import { useBeforeUnload } from '~~/composable/atom'
 
 const router = useRouter()
 const name = ref('')
@@ -415,6 +416,7 @@ const submit = async () => {
     },
   })
 
+  skipUnloadConfirm()
   void router.push('/idol')
 }
 
@@ -457,6 +459,8 @@ const formatAbility = (v: AbilityInput): Required<Ability_Insert_Input> => {
   }
   return unreachable(v.div)
 }
+
+const skipUnloadConfirm = useBeforeUnload(() => confirm('ページを離れる場合は編集内容が破棄されます。よろしいですか？'))
 
 useRouteGuard()
 useMeta(DEFAULT_META)
