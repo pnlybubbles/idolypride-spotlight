@@ -294,7 +294,13 @@ const skillTriggerOptions: { id: SkillTriggerType; label: string }[] = [
   { id: 'sp', label: 'SPスキル発動前' },
   { id: 'a', label: 'Aスキル発動前' },
   { id: 'critical', label: 'クリティカル発動時' },
+  { id: 'beat', label: 'ビート時' },
   { id: 'combo', label: 'Xコンボ以上時' },
+  { id: 'score-up', label: 'スコアアップ時' },
+  { id: 'a-score-up', label: 'Aスキルスコアアップ時' },
+  { id: 'sp-score-up', label: 'SPスキルスコアアップ時' },
+  { id: 'beat-score-up', label: 'ビートスコアアップ時' },
+  { id: 'cmb-score-up', label: 'コンボスコアアップ時' },
 ]
 const SKILL_LEVEL_MAX = [6, 5, 4] as const
 const abilityTypeOptions: { id: AbilityDiv; label: string }[] = [
@@ -387,6 +393,9 @@ const conditionOptions: { id: AbilityConditionType | 'none'; label: string }[] =
   { id: 'anyone-visual-up', label: '誰かがビジュアルアップ時' },
   { id: 'anyone-eye-catch', label: '誰かが集目時' },
   { id: 'anyone-tension-up', label: '誰かがテンションUP時' },
+  { id: 'in-vocal-lane', label: '自信がボーカルレーンの時' },
+  { id: 'in-dance-lane', label: '自信がダンスレーンの時' },
+  { id: 'in-visual-lane', label: '自信がビジュアルレーンの時' },
   { id: 'critical', label: 'クリティカル発動時' },
 ]
 const availableNoSpan = (t: SkillTriggerType) => t === 'sp' || t === 'a'

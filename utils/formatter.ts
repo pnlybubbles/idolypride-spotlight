@@ -113,9 +113,23 @@ const deserializeAbility = ({ type, ...rest }: TmpAbility): AbilityData => {
 export const isSkillTriggerTypeWithValue = (type: string): type is Extract<SkillTrigger, { amount: unknown }>['type'] =>
   ['combo'].includes(type)
 
+type SkillTriggerTypeWithouValue = Exclude<SkillTrigger, { amount: unknown }>['type']
+const SkillTriggerTypeWithouValueList: SkillTriggerTypeWithouValue[] = [
+  'idle',
+  'critical',
+  'beat',
+  'sp',
+  'a',
+  'score-up',
+  'a-score-up',
+  'sp-score-up',
+  'beat-score-up',
+  'cmb-score-up',
+]
 export const isSkillTriggerTypeWithoutValue = (
   type: string
-): type is Exclude<SkillTrigger, { amount: unknown }>['type'] => ['idle', 'critical', 'sp', 'a'].includes(type)
+): type is Exclude<SkillTrigger, { amount: unknown }>['type'] =>
+  SkillTriggerTypeWithouValueList.includes(type as SkillTriggerTypeWithouValue)
 
 export const isAbilityConditionWithValue = (
   type: string
@@ -134,6 +148,9 @@ export const isAbilityConditionWithoutValue = (
     'anyone-vocal-up',
     'anyone-dance-up',
     'anyone-visual-up',
+    'in-vocal-lane',
+    'in-dance-lane',
+    'in-visual-lane',
   ].includes(type)
 
 export const isBuffAbilityType = (type: string): type is BuffAbilityType =>

@@ -37,7 +37,13 @@ export type AbilityCondition =
       amount: number
     }
   | {
-      type: 'critical' | 'anyone-eye-catch' | 'anyone-tension-up' | `${IdolType}-up` | `anyone-${IdolType}-up`
+      type:
+        | 'critical'
+        | 'anyone-eye-catch'
+        | 'anyone-tension-up'
+        | `${IdolType}-up`
+        | `anyone-${IdolType}-up`
+        | `in-${IdolType}-lane`
     }
   | null
 
@@ -80,9 +86,11 @@ type PassiveAbility =
       target: PassiveBuffTarget
     })
 
+type SkillTriggerScoreUp = `${'score' | 'beat-score' | 'a-score' | 'sp-score' | 'cmb-score'}-up`
+
 export type SkillTrigger =
   | {
-      type: 'idle' | 'critical' | 'sp' | 'a'
+      type: 'idle' | 'critical' | 'sp' | 'a' | 'beat' | SkillTriggerScoreUp
     }
   | {
       type: 'combo'
