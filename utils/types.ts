@@ -1,5 +1,6 @@
 import { ArrayN, NumberUnion } from '~~/utils'
 
+// type
 export type BuffAbilityType =
   | 'vocal'
   | 'dance'
@@ -22,6 +23,7 @@ export type BuffAbilityType =
 export type ActionAbilityType = 'buff-span' | 'ct-reduction' | 'stamina-recovery' | 'shift-before-sp'
 export type AbilityType = BuffAbilityType | ActionAbilityType
 
+// target
 export type BuffTargetNoSuffix = 'all' | 'self' | 'center' | 'opponent-center' | `neighbor`
 export type BuffTargetWithSuffix = 'scorer' | 'lowstamina' | `${'high-' | ''}${IdolType}`
 export type BuffTargetCount = '1' | '2' | '3'
@@ -30,6 +32,7 @@ type BuffTargetPassiveOnly = 'triggered'
 export type PassiveBuffTarget = BuffTarget | BuffTargetPassiveOnly
 export type BuffTargetWithoutSuffix = BuffTargetNoSuffix | BuffTargetWithSuffix | BuffTargetPassiveOnly
 
+// condition
 export type AbilityConditionType = Exclude<AbilityCondition, null>['type']
 export type AbilityCondition =
   | {
@@ -47,6 +50,7 @@ export type AbilityCondition =
     }
   | null
 
+// ability
 type BuffAbility = {
   div: 'buff'
   id: string
@@ -86,8 +90,8 @@ type PassiveAbility =
       target: PassiveBuffTarget
     })
 
+// trigger
 type SkillTriggerScoreUp = `${'score' | 'beat-score' | 'a-score' | 'sp-score' | 'cmb-score'}-up`
-
 export type SkillTrigger =
   | {
       type: 'idle' | 'critical' | 'sp' | 'a' | 'beat' | SkillTriggerScoreUp
@@ -96,11 +100,10 @@ export type SkillTrigger =
       type: 'combo'
       amount: number
     }
-
 export type SkillTriggerType = SkillTrigger['type']
 
+// skill
 export type SkillType = SkillData['type']
-
 export type SkillData = {
   id: string
   name: string
@@ -123,6 +126,7 @@ export type SkillData = {
     }
 )
 
+// idol
 export type IdolRole = 'scorer' | 'buffer' | 'supporter'
 export type IdolType = 'vocal' | 'dance' | 'visual'
 
@@ -135,6 +139,7 @@ export interface IdolData {
   skills: ArrayN<SkillData, 3>
 }
 
+// live
 export type Lane = NumberUnion<5>
 
 export interface LiveData {
