@@ -5,9 +5,10 @@ query getIdolList {
     title
     type
     role
-    skills {
+    skills(order_by: { index: asc }) {
       id
       name
+      index
       type
       level
       trigger
@@ -33,9 +34,10 @@ mutation createIdol($object: idol_insert_input!) {
     title
     type
     role
-    skills {
+    skills(order_by: { index: asc }) {
       id
       name
+      index
       type
       level
       trigger

@@ -77,11 +77,11 @@ type ActionBuffAbility = {
   amount: number
 }
 
-export type AbilityData = BuffAbility | ScoreAbility | ActionBuffAbility
-
 export type AbilityDiv = AbilityData['div']
 
-type PassiveAbility =
+export type AbilityData = BuffAbility | ScoreAbility | ActionBuffAbility
+
+export type PassiveAbilityData =
   | (Omit<BuffAbility, 'target'> & {
       target: PassiveBuffTarget
     })
@@ -107,6 +107,7 @@ export type SkillType = SkillData['type']
 export type SkillData = {
   id: string
   name: string
+  index: number
   level: number
 } & (
   | {
@@ -120,7 +121,7 @@ export type SkillData = {
     }
   | {
       type: 'p'
-      ability: PassiveAbility[]
+      ability: PassiveAbilityData[]
       ct: number
       trigger: SkillTrigger
     }

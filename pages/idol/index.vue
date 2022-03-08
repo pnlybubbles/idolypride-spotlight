@@ -33,7 +33,7 @@
                   <font-awesome-icon icon="flag"></font-awesome-icon>
                   <div>{{ skill.trigger.type }}</div>
                 </div>
-                <div v-for="ability in skill.ability" :key="ability.id" class="ability">
+                <div v-for="ability in sortAbility(skill.ability)" :key="ability.id" class="ability">
                   <template v-if="ability.div === 'score'">
                     <RoleIcon role="scorer"></RoleIcon>
                     <div>{{ ability.amount }}%</div>
@@ -81,12 +81,22 @@ import { useAuth } from '~~/composable/auth0'
 import { useRouteGuard } from '~~/composable/route'
 import { deserializeIdol } from '~~/utils/formatter'
 import { DEFAULT_META } from '~~/utils/meta'
+import { AbilityData, AbilityDiv, PassiveAbilityData } from '~~/utils/types'
 const { notAuthenticated } = useAuth()
 const { data, fetching, error } = useQuery({ query: GetIdolListDocument, pause: notAuthenticated })
 if (error.value) {
   console.error(error.value)
 }
 const idolList = computed(() => (data.value ? deserializeIdol(data.value) : []))
+
+const ABILITY_ORDERING: { [key in AbilityDiv]: number } = {
+  score: 0,
+  buff: 1,
+  'action-buff': 2,
+}
+
+const sortAbility = (ability: AbilityData[] | PassiveAbilityData[]) =>
+  [...ability].sort((a, b) => ABILITY_ORDERING[a.div] - ABILITY_ORDERING[b.div])
 
 useRouteGuard()
 useMeta(DEFAULT_META)
