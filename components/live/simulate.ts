@@ -259,8 +259,12 @@ export function simulate(live: LiveData, idols: ArrayN<Idol, 5>) {
                   return aLane === undefined ? null : { triggeredLane: aLane, skill }
                 }
                 case 'critical':
-                  // TODO
-                  return null
+                case 'beat':
+                case 'a-score-up':
+                case 'sp-score-up':
+                case 'cmb-score-up':
+                case 'score-up':
+                case 'beat-score-up':
                 case 'combo':
                   // TODO
                   return null
