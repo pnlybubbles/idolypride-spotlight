@@ -21,6 +21,12 @@ $border-radius-map: (
   box-shadow: 0 6px 16px rgba($color, $alpha);
 }
 
+@mixin lane-grid {
+  display: grid;
+  grid: auto / 20px repeat(5, 1fr);
+  justify-content: stretch;
+}
+
 $text1: #fff;
 $text2: rgba(#fff, 0.7);
 $text3: rgba(#fff, 0.4);

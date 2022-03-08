@@ -168,9 +168,8 @@ const lanes = computed(() =>
 @import '~~/components/partials/token.scss';
 
 .sheet {
+  @include lane-grid;
   height: calc(v-bind(beat) * $scale-factor);
-  display: grid;
-  grid: auto / 20px repeat(5, auto);
   user-select: none;
 }
 
