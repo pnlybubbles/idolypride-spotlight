@@ -1,6 +1,12 @@
 <template>
   <Layout>
     <template #heading>{{ live?.title ?? 'ライブ' }}</template>
+    <div class="idol">
+      <div></div>
+      <template v-for="i in LANES" :key="i">
+        <IdolSelect v-model="selectedIdol[i]"></IdolSelect>
+      </template>
+    </div>
     <Live v-if="live" :live="live"></Live>
     <Loading :busy="fetching">譜面を読み込んでいます...</Loading>
   </Layout>
@@ -11,8 +17,9 @@ import { useAuth } from '~~/composable/auth0'
 import { useRouteGuard } from '~~/composable/route'
 import { GetFumenDocument } from '~~/generated/graphql'
 import { ArrayN } from '~~/utils'
+import { LANES } from '~~/utils/common'
 import { DEFAULT_META } from '~~/utils/meta'
-import { LiveData } from '~~/utils/types'
+import { IdolData, LiveData } from '~~/utils/types'
 
 const route = useRoute()
 
@@ -37,8 +44,14 @@ const live = computed(() => {
   }
   return formatted
 })
+const selectedIdol = reactive<ArrayN<IdolData | null, 5>>([null, null, null, null, null])
 
 useRouteGuard()
 useMeta(DEFAULT_META)
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+@import '~~/components/partials/token.scss';
+.idol {
+  @include lane-grid;
+}
+</style>

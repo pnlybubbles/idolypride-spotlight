@@ -87,7 +87,6 @@ if (error.value) {
   console.error(error.value)
 }
 const idolList = computed(() => (data.value ? deserializeIdol(data.value) : []))
-console.log(idolList.value)
 
 useRouteGuard()
 useMeta(DEFAULT_META)
