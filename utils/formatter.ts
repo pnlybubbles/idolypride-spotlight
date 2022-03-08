@@ -81,7 +81,7 @@ const deserializeAbility = ({ type, ...rest }: TmpAbility): AbilityData => {
           }
         : unreachable()
       : null
-  return type === 'score'
+  return type === 'get-score'
     ? {
         div: 'score',
         id,

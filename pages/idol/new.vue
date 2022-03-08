@@ -436,7 +436,7 @@ const formatSkill = (skill: SkillInput): Skill_Insert_Input => {
 const formatAbility = (v: AbilityInput): Ability_Insert_Input => {
   const amount = deriveDisabledAmount(v.type) ? 0 : parseInt(v.amount, 10)
   if (v.div === 'score') {
-    return { type: 'score', amount, target: null, condition: null, condition_value: null, span: null }
+    return { type: 'get-score', amount, target: null, condition: null, condition_value: null, span: null }
   }
   const type = v.type ?? 'unknown'
   const target = v.target
