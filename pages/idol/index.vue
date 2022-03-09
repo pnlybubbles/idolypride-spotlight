@@ -223,6 +223,10 @@ useMeta(DEFAULT_META)
   display: grid;
   grid: auto-flow / auto;
   gap: 8px;
+  overflow-x: auto;
+  width: 100%;
+  padding-bottom: 10px;
+  margin-bottom: -10px;
 }
 
 .skill-item {
@@ -231,8 +235,6 @@ useMeta(DEFAULT_META)
   grid: auto / auto-flow;
   justify-content: start;
   gap: 16px;
-  overflow-x: scroll;
-  width: 100%;
 }
 
 .ability {
