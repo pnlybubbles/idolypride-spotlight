@@ -379,7 +379,13 @@ const isBuffTargetSuffixRequired = (t: BuffTargetWithoutSuffix): t is BuffTarget
   t === 'scorer' ||
   t === 'lowstamina'
     ? true
-    : t === 'all' || t === 'self' || t === 'center' || t === 'neighbor' || t === 'opponent-center' || t === 'triggered'
+    : t === 'all' ||
+      t === 'self' ||
+      t === 'center' ||
+      t === 'neighbor' ||
+      t === 'opponent-center' ||
+      t === 'triggered' ||
+      t === 'unknown'
     ? false
     : unreachable(t)
 const conditionOptions: { id: AbilityConditionType | 'none'; label: string }[] = [

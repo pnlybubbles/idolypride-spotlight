@@ -35,13 +35,13 @@ const deserializeSkill = ({ type, ...rest }: TmpSkill): SkillData => {
       ? {
           type,
           ability,
-          ct: defined(rest.ct),
+          ct: rest.ct ?? 0,
         }
       : type === 'p'
       ? {
           type,
           ability,
-          ct: defined(rest.ct),
+          ct: rest.ct ?? 0,
           trigger: deserializeTrigger(rest.trigger, rest.trigger_value),
         }
       : unreachable(type)),
@@ -56,12 +56,12 @@ const deserializeTrigger = (
   if (isSkillTriggerTypeWithValue(type)) {
     return {
       type,
-      amount: defined(triggerValue),
+      amount: triggerValue ?? 0,
     }
   } else if (isSkillTriggerTypeWithoutValue(type)) {
     return { type }
   } else {
-    return unreachable()
+    return { type: 'unknown' }
   }
 }
 
@@ -69,18 +69,18 @@ type TmpAbility = TmpSkill['abilities'][number]
 const deserializeAbility = ({ type, ...rest }: TmpAbility): AbilityData => {
   const id = rest.id as string
   const amount = defined(rest.amount)
-  const condition =
+  const condition: AbilityCondition =
     rest.condition != null
       ? isAbilityConditionWithValue(rest.condition)
         ? {
             type: rest.condition,
-            amount: defined(rest.condition_value),
+            amount: rest.condition_value ?? 0,
           }
         : isAbilityConditionWithoutValue(rest.condition)
         ? {
             type: rest.condition,
           }
-        : unreachable()
+        : { type: 'unknown' }
       : null
   return type === 'get-score'
     ? {
@@ -95,9 +95,9 @@ const deserializeAbility = ({ type, ...rest }: TmpAbility): AbilityData => {
         id,
         type,
         condition,
-        target: defined(rest.target) as BuffTarget,
+        target: (rest.target ?? 'unknown') as BuffTarget,
         amount,
-        span: defined(rest.span),
+        span: rest.span ?? 0,
       }
     : isActionAbilityType(type)
     ? {
@@ -105,75 +105,105 @@ const deserializeAbility = ({ type, ...rest }: TmpAbility): AbilityData => {
         id,
         type,
         condition,
-        target: defined(rest.target) as BuffTarget,
+        target: (rest.target ?? 'unknown') as BuffTarget,
         amount,
       }
-    : unreachable(type as never)
+    : // 存在しない場合はbuffのunknownにフォールバック
+      {
+        div: 'buff',
+        id,
+        type: 'unknown',
+        condition,
+        target: (rest.target ?? 'unknown') as BuffTarget,
+        amount,
+        span: rest.span ?? 0,
+      }
 }
 
-export const isSkillTriggerTypeWithValue = (type: string): type is Extract<SkillTrigger, { amount: unknown }>['type'] =>
-  ['combo'].includes(type)
+// 値ありのスキルのトリガ
+type SkillTriggerTypeWithValue = Extract<SkillTrigger, { amount: unknown }>['type']
+const SKILL_TRIGGER_TYPE_WITH_VALUE_LIST: Record<SkillTriggerTypeWithValue, true> = {
+  combo: true,
+}
+export const isSkillTriggerTypeWithoutValue = (type: string): type is SkillTriggerTypeWithoutValue =>
+  SKILL_TRIGGER_TYPE_WITHOUT_VALUE[type as SkillTriggerTypeWithoutValue]
 
-type SkillTriggerTypeWithouValue = Exclude<SkillTrigger, { amount: unknown }>['type']
-const SkillTriggerTypeWithouValueList: SkillTriggerTypeWithouValue[] = [
-  'idle',
-  'critical',
-  'beat',
-  'sp',
-  'a',
-  'score-up',
-  'a-score-up',
-  'sp-score-up',
-  'beat-score-up',
-  'cmb-score-up',
-]
-export const isSkillTriggerTypeWithoutValue = (
-  type: string
-): type is Exclude<SkillTrigger, { amount: unknown }>['type'] =>
-  SkillTriggerTypeWithouValueList.includes(type as SkillTriggerTypeWithouValue)
+// 値なしのスキルのトリガ
+type SkillTriggerTypeWithoutValue = Exclude<SkillTrigger, { amount: unknown }>['type']
+const SKILL_TRIGGER_TYPE_WITHOUT_VALUE: Record<SkillTriggerTypeWithoutValue, true> = {
+  idle: true,
+  critical: true,
+  beat: true,
+  sp: true,
+  a: true,
+  'score-up': true,
+  'a-score-up': true,
+  'sp-score-up': true,
+  'beat-score-up': true,
+  'cmb-score-up': true,
+  unknown: true,
+}
+export const isSkillTriggerTypeWithValue = (type: string): type is SkillTriggerTypeWithValue =>
+  SKILL_TRIGGER_TYPE_WITH_VALUE_LIST[type as SkillTriggerTypeWithValue]
 
-export const isAbilityConditionWithValue = (
-  type: string
-): type is Extract<AbilityCondition, { amount: unknown }>['type'] => ['stamina-greater-than', 'combo'].includes(type)
+// 値ありの効果条件
+type AbilityConditionWithValue = Extract<AbilityCondition, { amount: unknown }>['type']
+const ABILITY_CONDITION_WITH_VALUE: Record<AbilityConditionWithValue, true> = {
+  'stamina-greater-than': true,
+  combo: true,
+}
+export const isAbilityConditionWithValue = (type: string): type is AbilityConditionWithValue =>
+  ABILITY_CONDITION_WITH_VALUE[type as AbilityConditionWithValue]
 
-export const isAbilityConditionWithoutValue = (
-  type: string
-): type is Exclude<AbilityCondition, { amount: unknown } | null>['type'] =>
-  [
-    'critical',
-    'anyone-eye-catch',
-    'anyone-tension-up',
-    'vocal-up',
-    'dance-up',
-    'visual-up',
-    'anyone-vocal-up',
-    'anyone-dance-up',
-    'anyone-visual-up',
-    'in-vocal-lane',
-    'in-dance-lane',
-    'in-visual-lane',
-  ].includes(type)
+// 値なしの効果条件
+type AbilityConditionWithoutValue = Exclude<AbilityCondition, { amount: unknown } | null>['type']
+const ABILITY_CONDITION_WITHOUT_VALUE: Record<AbilityConditionWithoutValue, true> = {
+  critical: true,
+  'anyone-eye-catch': true,
+  'anyone-tension-up': true,
+  'vocal-up': true,
+  'dance-up': true,
+  'visual-up': true,
+  'anyone-vocal-up': true,
+  'anyone-dance-up': true,
+  'anyone-visual-up': true,
+  'in-vocal-lane': true,
+  'in-dance-lane': true,
+  'in-visual-lane': true,
+  unknown: true,
+}
+export const isAbilityConditionWithoutValue = (type: string): type is AbilityConditionWithoutValue =>
+  ABILITY_CONDITION_WITHOUT_VALUE[type as AbilityConditionWithoutValue]
 
-export const isBuffAbilityType = (type: string): type is BuffAbilityType =>
-  [
-    'vocal',
-    'dance',
-    'visual',
-    'critical-rate',
-    'critical-score',
-    'score',
-    'beat-score',
-    'a-score',
-    'sp-score',
-    'cmb-score',
-    'stamina-saving',
-    'stamina-exhaust',
-    'buff-amount',
-    'steruss',
-    'cmb-continuous',
-    'tension',
-    'unknown',
-  ].includes(type)
+// 持続効果
+const BUFF_ABILITY_TYPE: Record<BuffAbilityType, true> = {
+  vocal: true,
+  dance: true,
+  visual: true,
+  'critical-rate': true,
+  'critical-score': true,
+  score: true,
+  'beat-score': true,
+  'a-score': true,
+  'sp-score': true,
+  'cmb-score': true,
+  'stamina-saving': true,
+  'stamina-exhaust': true,
+  'buff-amount': true,
+  steruss: true,
+  'cmb-continuous': true,
+  tension: true,
+  'eye-catch': true,
+  unknown: true,
+}
+export const isBuffAbilityType = (type: string): type is BuffAbilityType => BUFF_ABILITY_TYPE[type as BuffAbilityType]
 
+// 即時効果
+const ACTION_ABILITY_TYPE: Record<ActionAbilityType, true> = {
+  'buff-span': true,
+  'ct-reduction': true,
+  'stamina-recovery': true,
+  'shift-before-sp': true,
+}
 export const isActionAbilityType = (type: string): type is ActionAbilityType =>
-  ['buff-span', 'ct-reduction', 'stamina-recovery', 'shift-before-sp'].includes(type)
+  ACTION_ABILITY_TYPE[type as ActionAbilityType]

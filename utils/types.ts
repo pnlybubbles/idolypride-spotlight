@@ -24,7 +24,7 @@ export type ActionAbilityType = 'buff-span' | 'ct-reduction' | 'stamina-recovery
 export type AbilityType = BuffAbilityType | ActionAbilityType
 
 // target
-export type BuffTargetNoSuffix = 'all' | 'self' | 'center' | 'opponent-center' | `neighbor`
+export type BuffTargetNoSuffix = 'all' | 'self' | 'center' | 'opponent-center' | `neighbor` | 'unknown'
 export type BuffTargetWithSuffix = 'scorer' | 'lowstamina' | `${'high-' | ''}${IdolType}`
 export type BuffTargetCount = '1' | '2' | '3'
 export type BuffTarget = BuffTargetNoSuffix | `${BuffTargetWithSuffix}-${BuffTargetCount}`
@@ -41,6 +41,7 @@ export type AbilityCondition =
     }
   | {
       type:
+        | 'unknown'
         | 'critical'
         | 'anyone-eye-catch'
         | 'anyone-tension-up'
@@ -94,7 +95,7 @@ export type PassiveAbilityData =
 type SkillTriggerScoreUp = `${'score' | 'beat-score' | 'a-score' | 'sp-score' | 'cmb-score'}-up`
 export type SkillTrigger =
   | {
-      type: 'idle' | 'critical' | 'sp' | 'a' | 'beat' | SkillTriggerScoreUp
+      type: 'unknown' | 'idle' | 'critical' | 'sp' | 'a' | 'beat' | SkillTriggerScoreUp
     }
   | {
       type: 'combo'
