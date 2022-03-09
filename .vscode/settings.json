@@ -9,5 +9,9 @@
   "editor.codeActionsOnSave": {
     "source.fixAll": true
   },
-  "eslint.validate": ["typescript", "vue"]
+  "eslint.validate": ["typescript", "vue"],
+  "search.exclude": {
+    "**/node_modules": true,
+    ".yarn": true
+  }
 }
