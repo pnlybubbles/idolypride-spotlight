@@ -2,12 +2,6 @@
   <Layout>
     <template #heading>アイドル</template>
     <div class="main">
-      <div class="warn">
-        <Callout>
-          <template #title>工事中</template>
-          アイドルとスキルを一覧してソートしたりフィルタしたりできるページになる予定。
-        </Callout>
-      </div>
       <div v-if="fetching" class="loading"><Spinner></Spinner></div>
       <ul v-else class="list">
         <li v-for="idol in idolList" :key="idol.id" class="item">
@@ -108,10 +102,6 @@ useMeta(DEFAULT_META)
   display: grid;
   grid: auto-flow / auto;
   gap: 16px;
-}
-
-.warn {
-  @include align;
 }
 
 .loading {
