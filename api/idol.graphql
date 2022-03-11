@@ -5,6 +5,7 @@ query getIdolList {
     title
     type
     role
+    user_id
     skills(order_by: { index: asc }) {
       id
       name
@@ -14,6 +15,7 @@ query getIdolList {
       trigger
       trigger_value
       ct
+      user_id
       abilities {
         id
         type
@@ -22,6 +24,41 @@ query getIdolList {
         span
         condition
         condition_value
+        user_id
+      }
+    }
+  }
+}
+
+query getIdol($id: uuid!) {
+  idol_by_pk(id: $id) {
+    name
+    id
+    role
+    title
+    type
+    user_id
+    skills {
+      ct
+      id
+      index
+      level
+      name
+      trigger
+      trigger_value
+      type
+      updated_at
+      user_id
+      abilities {
+        amount
+        condition
+        condition_value
+        id
+        skill_id
+        span
+        target
+        type
+        user_id
       }
     }
   }
