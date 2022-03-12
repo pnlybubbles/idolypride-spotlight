@@ -36,7 +36,7 @@ export type BuffTargetWithoutSuffix = BuffTargetNoSuffix | BuffTargetWithSuffix 
 export type AbilityConditionType = Exclude<AbilityCondition, null>['type']
 export type AbilityCondition =
   | {
-      type: 'stamina-greater-than' | 'combo'
+      type: 'stamina-greater-than' | 'stamina-less-than' | 'combo'
       amount: number
     }
   | {
@@ -98,7 +98,7 @@ export type SkillTrigger =
       type: 'unknown' | 'idle' | 'critical' | 'sp' | 'a' | 'beat' | SkillTriggerScoreUp
     }
   | {
-      type: 'combo'
+      type: 'combo' | 'stamina-less-than'
       amount: number
     }
 export type SkillTriggerType = SkillTrigger['type']
