@@ -123,6 +123,7 @@ const deserializeAbility = ({ type, ...rest }: TmpAbility): AbilityData => {
 // 値ありのスキルのトリガ
 type SkillTriggerTypeWithValue = Extract<SkillTrigger, { amount: unknown }>['type']
 const SKILL_TRIGGER_TYPE_WITH_VALUE_LIST: Record<SkillTriggerTypeWithValue, true> = {
+  'stamina-less-than': true,
   combo: true,
 }
 export const isSkillTriggerTypeWithoutValue = (type: string): type is SkillTriggerTypeWithoutValue =>
@@ -149,6 +150,7 @@ export const isSkillTriggerTypeWithValue = (type: string): type is SkillTriggerT
 // 値ありの効果条件
 type AbilityConditionWithValue = Extract<AbilityCondition, { amount: unknown }>['type']
 const ABILITY_CONDITION_WITH_VALUE: Record<AbilityConditionWithValue, true> = {
+  'stamina-less-than': true,
   'stamina-greater-than': true,
   combo: true,
 }
