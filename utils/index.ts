@@ -14,6 +14,15 @@ export function defined<T>(value: T | null | undefined, error?: string): T {
   return value
 }
 
+export function strictParseInt(value: string, error?: string): number {
+  const int = parseInt(value, 10)
+  if (isFinite(int)) {
+    return int
+  } else {
+    throw new Error(error ?? `"${value}" must be numerical string.`)
+  }
+}
+
 /**
  * Create upto specified number of union
  *

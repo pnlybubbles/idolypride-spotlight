@@ -1,4 +1,4 @@
-import { GetIdolListQuery } from '~~/generated/graphql'
+import { Ability_Insert_Input, GetIdolListQuery, Idol_Insert_Input, Skill_Insert_Input } from '~~/generated/graphql'
 import { defined, mapArrayN, unreachable } from '.'
 import { SKILLS } from './common'
 import {
@@ -8,9 +8,12 @@ import {
   BuffAbilityType,
   BuffTarget,
   IdolData,
+  PassiveAbilityData,
   SkillData,
   SkillTrigger,
 } from './types'
+
+// Deserialize
 
 export const deserializeIdol = (data: GetIdolListQuery): IdolData[] =>
   data.idol.map((v) => ({
@@ -24,7 +27,7 @@ const deserializeSkill = ({ type, ...rest }: TmpSkill): SkillData => {
   return {
     id: rest.id as string,
     name: rest.name,
-    index: rest.index,
+    index: rest.index as 0 | 1 | 2,
     level: rest.level,
     ...(type === 'sp'
       ? {
@@ -120,14 +123,48 @@ const deserializeAbility = ({ type, ...rest }: TmpAbility): AbilityData => {
       }
 }
 
+// Serialize
+
+export const serializeIdol = (v: IdolData): Required<Idol_Insert_Input> => ({
+  name: v.name,
+  title: v.title,
+  type: v.type,
+  role: v.role,
+  skills: {
+    data: v.skills.map(serializeSkill),
+  },
+})
+
+const serializeSkill = (v: SkillData): Required<Skill_Insert_Input> => ({
+  index: v.index,
+  name: v.name,
+  type: v.type,
+  level: v.level,
+  trigger: v.type === 'p' ? v.trigger.type : null,
+  trigger_value: v.type === 'p' && 'amount' in v.trigger ? v.trigger.amount : null,
+  ct: v.type !== 'sp' ? v.ct : null,
+  abilities: {
+    data: v.ability.map(serializeAbility),
+  },
+})
+
+const serializeAbility = (v: PassiveAbilityData): Required<Ability_Insert_Input> => ({
+  amount: v.amount,
+  type: v.div === 'score' ? 'get-score' : v.type,
+  span: v.div === 'buff' ? v.span : null,
+  target: v.div !== 'score' ? v.target : null,
+  condition: v.condition?.type ?? null,
+  condition_value: v.condition && 'amount' in v.condition ? v.condition.amount : null,
+})
+
 // 値ありのスキルのトリガ
 type SkillTriggerTypeWithValue = Extract<SkillTrigger, { amount: unknown }>['type']
 const SKILL_TRIGGER_TYPE_WITH_VALUE_LIST: Record<SkillTriggerTypeWithValue, true> = {
   'stamina-less-than': true,
   combo: true,
 }
-export const isSkillTriggerTypeWithoutValue = (type: string): type is SkillTriggerTypeWithoutValue =>
-  SKILL_TRIGGER_TYPE_WITHOUT_VALUE[type as SkillTriggerTypeWithoutValue]
+export const isSkillTriggerTypeWithValue = (type: string): type is SkillTriggerTypeWithValue =>
+  SKILL_TRIGGER_TYPE_WITH_VALUE_LIST[type as SkillTriggerTypeWithValue]
 
 // 値なしのスキルのトリガ
 type SkillTriggerTypeWithoutValue = Exclude<SkillTrigger, { amount: unknown }>['type']
@@ -144,8 +181,8 @@ const SKILL_TRIGGER_TYPE_WITHOUT_VALUE: Record<SkillTriggerTypeWithoutValue, tru
   'cmb-score-up': true,
   unknown: true,
 }
-export const isSkillTriggerTypeWithValue = (type: string): type is SkillTriggerTypeWithValue =>
-  SKILL_TRIGGER_TYPE_WITH_VALUE_LIST[type as SkillTriggerTypeWithValue]
+export const isSkillTriggerTypeWithoutValue = (type: string): type is SkillTriggerTypeWithoutValue =>
+  SKILL_TRIGGER_TYPE_WITHOUT_VALUE[type as SkillTriggerTypeWithoutValue]
 
 // 値ありの効果条件
 type AbilityConditionWithValue = Extract<AbilityCondition, { amount: unknown }>['type']

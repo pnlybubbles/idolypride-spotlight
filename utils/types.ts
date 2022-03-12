@@ -1,4 +1,5 @@
 import { ArrayN, NumberUnion } from '~~/utils'
+import { SKILLS } from './common'
 
 // type
 export type BuffAbilityType =
@@ -105,10 +106,11 @@ export type SkillTriggerType = SkillTrigger['type']
 
 // skill
 export type SkillType = SkillData['type']
+export type SkillIndex = typeof SKILLS[number]
 export type SkillData = {
   id: string
   name: string
-  index: number
+  index: SkillIndex
   level: number
 } & (
   | {
