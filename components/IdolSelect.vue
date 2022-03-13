@@ -19,7 +19,7 @@
 import { useQuery } from '@urql/vue'
 import { useAuth } from '~~/composable/auth0'
 import { GetIdolListDocument } from '~~/generated/graphql'
-import { deserializeIdol } from '~~/utils/formatter'
+import { deserializeIdolList } from '~~/utils/formatter'
 import { IdolData } from '~~/utils/types'
 
 interface Props {
@@ -36,7 +36,7 @@ const { data, fetching, error } = useQuery({ query: GetIdolListDocument, pause: 
 if (error.value) {
   console.error(error.value)
 }
-const idolList = computed(() => (data.value ? deserializeIdol(data.value) : []))
+const idolList = computed(() => (data.value ? deserializeIdolList(data.value) : []))
 
 const present = ref(false)
 
