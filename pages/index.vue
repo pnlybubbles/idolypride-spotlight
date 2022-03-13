@@ -27,6 +27,7 @@
 <script setup lang="ts">
 import { useQuery } from '@urql/vue'
 import { useAuth } from '~~/composable/auth0'
+import { useError } from '~~/composable/error'
 import { GetFumentListDocument, GetFumentListQuery, IsUserAllowedDocument } from '~~/generated/graphql'
 import { DEFAULT_META, TITLE } from '~~/utils/meta'
 
@@ -41,21 +42,28 @@ watchEffect(async () => {
 })
 
 const { data, error, fetching } = useQuery({ query: GetFumentListDocument, pause: notAuthenticated })
-if (error.value) {
-  console.error(error.value)
-}
+useError(error)
+
 const fumenList = computed(() => data.value?.fumen ?? [])
 
 const notAllowedCandidate = (value: GetFumentListQuery | undefined) => value !== undefined && value.fumen.length === 0
-const { data: allowData, fetching: fetchingAllow } = useQuery({
+
+const {
+  data: allowData,
+  fetching: fetchingAllow,
+  error: errorAllow,
+} = useQuery({
   query: IsUserAllowedDocument,
   variables: computed(() => ({ id: user.value?.sub ?? '' })),
   pause: computed(() => notAuthenticated.value || !notAllowedCandidate(data.value)),
 })
+useError(errorAllow)
+
 const isNotAllowed = computed(() => {
   const allow = allowData.value?.user_by_pk?.allow
   return notAllowedCandidate(data.value) && allow !== undefined && !allow
 })
+
 useMeta(DEFAULT_META)
 </script>
 <style lang="scss" scoped>

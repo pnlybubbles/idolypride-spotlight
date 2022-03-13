@@ -23,9 +23,13 @@ const { executeMutation, fetching, error } = useMutation(CreateIdolDocument)
 useError(error)
 
 const submit = async (data: IdolData) => {
-  await executeMutation({
+  const { error } = await executeMutation({
     object: serializeIdol(data),
   })
+
+  if (error) {
+    return
+  }
 
   skipUnloadConfirm()
   void router.push('/idol')

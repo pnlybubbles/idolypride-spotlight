@@ -51,6 +51,7 @@
 </template>
 <script setup lang="ts">
 import { useMutation } from '@urql/vue'
+import { useError } from '~~/composable/error'
 import { useForm } from '~~/composable/form'
 import { useRouteGuard } from '~~/composable/route'
 import { SUNNY_PEACE_HARMONY } from '~~/data/live'
@@ -85,7 +86,8 @@ const aSkillArray = computed(() => mapArrayN(aSkill, parseSpaceSeparatedInt))
 const spSkillArray = computed(() => mapArrayN(spSkill, parseSpaceSeparatedInt))
 
 const { invalid } = useForm()
-const { executeMutation, fetching } = useMutation(CreateFumenDocument)
+const { executeMutation, fetching, error } = useMutation(CreateFumenDocument)
+useError(error)
 const submit = async () => {
   const { error } = await executeMutation({
     object: {
@@ -96,9 +98,10 @@ const submit = async () => {
       sp: spSkillArray.value,
     },
   })
-  if (error === undefined) {
-    void router.push('/')
+  if (error) {
+    return
   }
+  void router.push('/')
 }
 const A_SKILL_PLACEHOLDER = mapArrayN(SUNNY_PEACE_HARMONY.a, (v) => v.join(' '))
 const SP_SKILL_PLACEHOLDER = mapArrayN(SUNNY_PEACE_HARMONY.sp, (v) => v.join(' '))

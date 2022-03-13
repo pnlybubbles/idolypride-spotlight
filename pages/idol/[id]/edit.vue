@@ -10,6 +10,7 @@
 import { useMutation, useQuery } from '@urql/vue'
 import { useBeforeUnload } from '~~/composable/atom'
 import { useAuth } from '~~/composable/auth0'
+import { useError } from '~~/composable/error'
 import { useForm } from '~~/composable/form'
 import { useRouteGuard } from '~~/composable/route'
 import { GetIdolDocument, UpdateIdolDocument } from '~~/generated/graphql'
@@ -25,19 +26,23 @@ const { notAuthenticated } = useAuth()
 
 const ready = ref(false)
 
-const { data, fetching, error } = useQuery({
+const {
+  data,
+  fetching,
+  error: getError,
+} = useQuery({
   query: GetIdolDocument,
   variables: { id: idolId },
   pause: computed(() => notAuthenticated.value || ready.value),
 })
-if (error.value) {
-  console.error(error.value)
-}
+useError(getError)
 
 const idol = computed(() => (data.value ? deserializeIdol(data.value) : null))
 
 const { invalid } = useForm()
-const { executeMutation, fetching: updating } = useMutation(UpdateIdolDocument)
+const { executeMutation, fetching: updating, error: updateError } = useMutation(UpdateIdolDocument)
+useError(updateError)
+
 const submit = async (data: IdolData) => {
   const oldAbilityIds = idol.value?.skills.flatMap((v) => v.ability.map((w) => w.id)) ?? []
   const newAbilityIds = data.skills.flatMap((v) => v.ability.map((w) => w.id))
@@ -45,10 +50,14 @@ const submit = async (data: IdolData) => {
 
   ready.value = true
 
-  await executeMutation({
+  const { error } = await executeMutation({
     object: serializeIdol(data, true),
     delete_ability_ids: deletedAbilityIds,
   })
+
+  if (error) {
+    return
+  }
 
   skipUnloadConfirm()
   void router.push('/idol')
