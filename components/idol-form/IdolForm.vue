@@ -183,12 +183,12 @@ import {
 } from '~~/utils/types'
 import { isAbilityConditionWithValue, isSkillTriggerTypeWithValue } from '~~/utils/formatter'
 import {
-  DEFAULT_IDOL_INPUT,
+  defaultIdolInput,
   formatIdol,
   IdolInput,
   isBuffTargetSuffixRequired,
   deriveDisabledAmount,
-  DEFAULT_ABILITY_INPUT,
+  defaultAbilityInput,
   deformatIdol,
   SkillInput,
   AbilityInput,
@@ -204,10 +204,10 @@ interface Emits {
 }
 const emit = defineEmits<Emits>()
 
-const idol = reactive<IdolInput>(props.idol ? deformatIdol(props.idol) : DEFAULT_IDOL_INPUT)
+const idol = reactive<IdolInput>(props.idol ? deformatIdol(props.idol) : defaultIdolInput())
 
 const handleAddAbility = (skill: SkillInput) => {
-  idol.skills.find((v) => v.id === skill.id)?.ability.push(DEFAULT_ABILITY_INPUT)
+  idol.skills.find((v) => v.id === skill.id)?.ability.push(defaultAbilityInput())
 }
 
 const handleRemoveAbility = (skill: SkillInput, ability: AbilityInput) => {

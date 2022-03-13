@@ -63,7 +63,7 @@ export interface IdolInput {
   skills: [SkillInput, SkillInput, SkillInput]
 }
 
-export const DEFAULT_IDOL_INPUT: IdolInput = {
+export const defaultIdolInput = (): IdolInput => ({
   id: '',
   name: '',
   title: '',
@@ -107,9 +107,9 @@ export const DEFAULT_IDOL_INPUT: IdolInput = {
       ability: [],
     },
   ],
-}
+})
 
-export const DEFAULT_ABILITY_INPUT: AbilityInput = {
+export const defaultAbilityInput = (): AbilityInput => ({
   id: '',
   div: 'buff',
   type: null,
@@ -120,7 +120,7 @@ export const DEFAULT_ABILITY_INPUT: AbilityInput = {
   amount: '',
   span: '',
   noSpan: false,
-}
+})
 
 export const formatIdol = (v: IdolInput): IdolData => {
   return {
@@ -232,31 +232,31 @@ export const deformatIdol = (v: IdolData): IdolInput => ({
 
 const deformatSkill = (w: SkillData, i: SkillIndex): SkillInput => ({
   ...w,
-  ct: 'ct' in w ? w.ct.toString() : DEFAULT_IDOL_INPUT.skills[i].ct,
-  once: 'ct' in w ? w.ct === 0 : DEFAULT_IDOL_INPUT.skills[i].once,
-  trigger: 'trigger' in w ? w.trigger.type : DEFAULT_IDOL_INPUT.skills[i].trigger,
+  ct: 'ct' in w ? w.ct.toString() : defaultIdolInput().skills[i].ct,
+  once: 'ct' in w ? w.ct === 0 : defaultIdolInput().skills[i].once,
+  trigger: 'trigger' in w ? w.trigger.type : defaultIdolInput().skills[i].trigger,
   triggerValue:
-    'trigger' in w && 'amount' in w.trigger ? w.trigger.amount.toString() : DEFAULT_IDOL_INPUT.skills[i].triggerValue,
+    'trigger' in w && 'amount' in w.trigger ? w.trigger.amount.toString() : defaultIdolInput().skills[i].triggerValue,
   ability: w.ability.map(deformatAbility),
 })
 
 const deformatAbility = (v: AbilityData | PassiveAbilityData): AbilityInput => {
-  const noSpan = 'span' in v ? v.span === 1 : DEFAULT_ABILITY_INPUT.noSpan
+  const noSpan = 'span' in v ? v.span === 1 : defaultAbilityInput().noSpan
   return {
     id: v.id,
     div: v.div,
     amount: v.amount.toString(),
-    span: 'span' in v && !noSpan ? v.span.toString() : DEFAULT_ABILITY_INPUT.span,
-    type: 'type' in v ? v.type : DEFAULT_ABILITY_INPUT.type,
-    condition: v.condition?.type ?? DEFAULT_ABILITY_INPUT.condition,
+    span: 'span' in v && !noSpan ? v.span.toString() : defaultAbilityInput().span,
+    type: 'type' in v ? v.type : defaultAbilityInput().type,
+    condition: v.condition?.type ?? defaultAbilityInput().condition,
     conditionValue:
-      v.condition && 'amount' in v.condition ? v.condition.amount.toString() : DEFAULT_ABILITY_INPUT.conditionValue,
+      v.condition && 'amount' in v.condition ? v.condition.amount.toString() : defaultAbilityInput().conditionValue,
     noSpan,
     ...('target' in v
       ? extractBuffTarget(v.target)
       : {
-          target: DEFAULT_ABILITY_INPUT.target,
-          targetSuffix: DEFAULT_ABILITY_INPUT.targetSuffix,
+          target: defaultAbilityInput().target,
+          targetSuffix: defaultAbilityInput().targetSuffix,
         }),
   }
 }
