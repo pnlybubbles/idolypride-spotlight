@@ -1,5 +1,5 @@
 <template>
-  <div class="a" :class="{ fail }" @click="$emit('click')">
+  <div class="a" :class="{ fail }" @click="$emit('click')" @touchend="null">
     <div class="beat">{{ beat }}</div>
   </div>
 </template>

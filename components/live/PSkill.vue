@@ -1,5 +1,5 @@
 <template>
-  <div class="p"></div>
+  <div class="p" @click="$emit('click')" @touchend="null"></div>
 </template>
 <script setup lang="ts">
 import { AbilityType } from '~~/utils/types'
@@ -11,6 +11,13 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+
+interface Emits {
+  (e: 'click'): void
+}
+
+defineEmits<Emits>()
+
 const { beat, buff } = toRefs(props)
 const top = computed(() => cssBeat(beat.value))
 const color = computed(() => cssBuff(buff.value))

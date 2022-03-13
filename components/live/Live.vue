@@ -22,7 +22,7 @@
           :fail="item.fail"
           @click="tapA(item)"
         ></LiveASkill>
-        <LivePSkill v-else-if="item.type === 'p'" :beat="item.beat" :buff="item.buff"></LivePSkill>
+        <LivePSkill v-else-if="item.type === 'p'" :beat="item.beat" :buff="item.buff" @click="tapP(item)"></LivePSkill>
         <LiveBuff
           v-else-if="item.type === 'buff'"
           :beat="item.beat"
@@ -94,9 +94,9 @@ const tapSP = (item: Item) => {
 const tapA = (item: Item) => {
   updateGuide(item.beat)
 }
-// const tapP = (item: Item) => {
-//   updateGuide(item.beat)
-// }
+const tapP = (item: Item) => {
+  updateGuide(item.beat)
+}
 const updateGuide = (beat: number) => {
   const index = beatGuides.value.findIndex((v) => v === beat)
   if (index !== -1) {
