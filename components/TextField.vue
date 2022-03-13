@@ -137,7 +137,7 @@ useFormComponent(computed(() => ({ error: requiredError.value || validationError
   border: solid 1px transparent;
   min-width: 0;
 
-  // remove horizontal margin on safari
+  /* remove horizontal margin on safari */
   margin: 0;
 
   &::placeholder {
