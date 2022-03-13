@@ -11,6 +11,7 @@
     "fmt": "run-p 'fmt:*'",
     "fmt:eslint": "cross-env DEBUG=eslint:cli-engine eslint '**/*.{ts,js,vue}' --max-warnings=0 --fix",
     "fmt:prettier": "prettier '**/*.{json,yml}' --write --ignore-path .gitignore",
+    "typecheck": "vue-tsc --noEmit",
     "graphql": "graphql-codegen --config codegen.config.js"
   },
   "devDependencies": {
@@ -34,7 +35,8 @@
     "sass": "^1.49.7",
     "typescript": "^4.5.5",
     "vercel": "^24.0.0",
-    "vls": "^0.7.6"
+    "vls": "^0.7.6",
+    "vue-tsc": "^0.33.0-patch.1"
   },
   "dependencies": {
     "@auth0/auth0-spa-js": "^1.20.0",
