@@ -15,9 +15,12 @@
       </div>
     </div>
     <Sheet v-model:present="present">
-      <div class="align">
-        <ButtonLink :to="`/idol/${currentIdolId}/edit`">アイドルを編集する</ButtonLink>
-      </div>
+      <Section>
+        <ButtonLink :to="`/idol/${currentIdolId}/edit`" :disabled="!isOwned(currentIdolId)"
+          >アイドルを編集する</ButtonLink
+        >
+        <NoteText v-if="!isOwned(currentIdolId)">自分の追加したアイドルのみ編集できます</NoteText>
+      </Section>
     </Sheet>
   </Layout>
 </template>
@@ -30,9 +33,10 @@ import { useRouteGuard } from '~~/composable/route'
 import { deserializeIdolList } from '~~/utils/formatter'
 import { DEFAULT_META } from '~~/utils/meta'
 
-const { notAuthenticated } = useAuth()
+const { notAuthenticated, user } = useAuth()
 const { data, fetching, error } = useQuery({ query: GetIdolListDocument, pause: notAuthenticated })
 useError(error)
+
 const idolList = computed(() => (data.value ? deserializeIdolList(data.value) : []))
 
 const present = ref(false)
@@ -41,6 +45,11 @@ const currentIdolId = ref('')
 const handleClick = (idolId: string) => {
   currentIdolId.value = idolId
   present.value = true
+}
+
+const isOwned = (idolId: string) => {
+  const idolOwner = idolList.value.find((v) => v.id === idolId)?.userId
+  return idolOwner != null && user.value?.sub != null && idolOwner == user.value.sub
 }
 
 useRouteGuard()
@@ -76,10 +85,6 @@ useMeta(DEFAULT_META)
 }
 
 .add-button {
-  @include align;
-}
-
-.align {
   @include align;
 }
 </style>

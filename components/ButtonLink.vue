@@ -1,11 +1,12 @@
 <template>
-  <NuxtLink :to="to" class="button-link" @touchend="null"><slot></slot></NuxtLink>
+  <NuxtLink :to="to" class="button-link" :aria-disabled="disabled" @touchend="null"><slot></slot></NuxtLink>
 </template>
 <script setup lang="ts">
 interface Props {
   to: string
+  disabled?: boolean
 }
-defineProps<Props>()
+withDefaults(defineProps<Props>(), { disabled: false })
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/utils.scss';

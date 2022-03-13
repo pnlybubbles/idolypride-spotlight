@@ -26,6 +26,7 @@ import { v4 as uuid } from 'uuid'
 export const deserializeIdolList = (data: GetIdolListQuery): IdolData[] =>
   data.idol.map((v) => ({
     ...v,
+    userId: v.user_id,
     skills: mapArrayN(SKILLS, (i) => deserializeSkill(defined(v.skills[i]))),
   }))
 
@@ -33,6 +34,7 @@ export const deserializeIdol = (data: GetIdolQuery): IdolData | null =>
   data.idol_by_pk
     ? {
         ...data.idol_by_pk,
+        userId: data.idol_by_pk.user_id,
         skills: sortSkills(mapArrayN(SKILLS, (i) => deserializeSkill(defined(data.idol_by_pk?.skills[i])))),
       }
     : null

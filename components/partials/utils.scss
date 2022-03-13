@@ -46,7 +46,9 @@
     opacity: 0.64;
   }
 
-  &:disabled {
+  &:disabled,
+  &[aria-disabled='true'] {
     opacity: 0.32;
+    pointer-events: none;
   }
 }
