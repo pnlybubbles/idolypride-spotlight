@@ -77,7 +77,7 @@
         <Section>
           <template #label>効果</template>
           <div v-for="(ability, j) in skill.ability" :key="j" class="ability">
-            <button class="remove-ability" @click="handleRemoveAbility(skill, ability)" @touchend="null">
+            <button class="remove-ability" @click="handleRemoveAbility(skill, j)" @touchend="null">
               <font-awesome-icon icon="circle-minus"></font-awesome-icon>
             </button>
             <Section :gutter="8">
@@ -191,7 +191,6 @@ import {
   defaultAbilityInput,
   deformatIdol,
   SkillInput,
-  AbilityInput,
 } from './helper'
 
 interface Props {
@@ -207,15 +206,14 @@ const emit = defineEmits<Emits>()
 const idol = reactive<IdolInput>(props.idol ? deformatIdol(props.idol) : defaultIdolInput())
 
 const handleAddAbility = (skill: SkillInput) => {
-  idol.skills.find((v) => v.id === skill.id)?.ability.push(defaultAbilityInput())
+  idol.skills.find((v) => v.index === skill.index)?.ability.push(defaultAbilityInput())
 }
 
-const handleRemoveAbility = (skill: SkillInput, ability: AbilityInput) => {
+const handleRemoveAbility = (skill: SkillInput, abilityIndex: number) => {
   if (!confirm(`効果を削除します。よろしいですか？`)) {
     return
   }
-  const index = skill.ability.findIndex((v) => v.id === ability.id)
-  idol.skills.find((v) => v.id === skill.id)?.ability.splice(index, 1)
+  idol.skills.find((v) => v.index === skill.index)?.ability.splice(abilityIndex, 1)
 }
 
 const handleSubmit = () => {
