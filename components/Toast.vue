@@ -7,9 +7,9 @@
         <div class="title">{{ title }}</div>
         <div v-if="message" class="message">{{ message }}</div>
       </div>
-      <div class="dismiss" @click="handleDismiss" @touchend="null">
+      <button class="dismiss" @click="handleDismiss" @touchend="null">
         <font-awesome-icon icon="circle-xmark"></font-awesome-icon>
-      </div>
+      </button>
     </div>
   </transition>
 </template>
@@ -38,6 +38,7 @@ const handleDismiss = () => {
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
+@import '~~/components/partials/utils.scss';
 
 .toast {
   @include round-corner('L');
@@ -61,6 +62,9 @@ const handleDismiss = () => {
 }
 
 .dismiss {
+  @include clickable;
+  @include reset-button;
+
   position: absolute;
   top: 4px;
   right: 4px;
