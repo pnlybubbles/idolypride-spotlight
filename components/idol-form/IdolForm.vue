@@ -206,7 +206,13 @@ const emit = defineEmits<Emits>()
 const idol = reactive<IdolInput>(props.idol ? deformatIdol(props.idol) : defaultIdolInput())
 
 const handleAddAbility = (skill: SkillInput) => {
-  idol.skills.find((v) => v.index === skill.index)?.ability.push(defaultAbilityInput())
+  const currentSkill = idol.skills.find((v) => v.index === skill.index)
+  if (!currentSkill) {
+    return
+  }
+  currentSkill.ability.push(
+    defaultAbilityInput(currentSkill.type !== 'p' && currentSkill.ability.length === 0 ? 'score' : 'buff')
+  )
 }
 
 const handleRemoveAbility = (skill: SkillInput, abilityIndex: number) => {
