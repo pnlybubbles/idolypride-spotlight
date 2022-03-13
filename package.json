@@ -21,6 +21,7 @@
     "@graphql-codegen/typescript-operations": "^2.3.1",
     "@types/eslint": "^8.4.1",
     "@types/prettier": "^2.4.4",
+    "@types/uuid": "^8.3.4",
     "@vue/eslint-config-prettier": "^7.0.0",
     "@vue/eslint-config-typescript": "^10.0.0",
     "cross-env": "^7.0.3",
@@ -44,7 +45,8 @@
     "@urql/exchange-auth": "^0.1.7",
     "@urql/vue": "^0.6.1",
     "graphql": "^16.3.0",
-    "is-non-nullable": "^1.0.2"
+    "is-non-nullable": "^1.0.2",
+    "uuid": "^8.3.2"
   },
   "packageManager": "yarn@3.1.1"
 }

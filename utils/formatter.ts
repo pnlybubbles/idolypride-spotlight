@@ -18,6 +18,7 @@ import {
   SkillData,
   SkillTrigger,
 } from './types'
+import { v4 as uuid } from 'uuid'
 
 // Deserialize
 
@@ -152,7 +153,7 @@ type RequiredSerialized<T> = {
 }
 
 export const serializeIdol = (v: IdolData, upsert = false): RequiredSerialized<Idol_Insert_Input> => ({
-  id: upsert ? v.id : null,
+  id: upsert && v.id !== '' ? v.id : uuid(),
   name: v.name,
   title: v.title,
   type: v.type,
@@ -171,7 +172,7 @@ export const serializeIdol = (v: IdolData, upsert = false): RequiredSerialized<I
 })
 
 const serializeSkill = (v: SkillData, upsert: boolean): RequiredSerialized<Skill_Insert_Input> => ({
-  id: upsert ? v.id : null,
+  id: upsert && v.id !== '' ? v.id : uuid(),
   index: v.index,
   name: v.name,
   type: v.type,
@@ -193,7 +194,7 @@ const serializeSkill = (v: SkillData, upsert: boolean): RequiredSerialized<Skill
 })
 
 const serializeAbility = (v: PassiveAbilityData, upsert: boolean): RequiredSerialized<Ability_Insert_Input> => ({
-  id: upsert ? v.id : null,
+  id: upsert && v.id !== '' ? v.id : uuid(),
   amount: v.amount,
   type: v.div === 'score' ? 'get-score' : v.type,
   span: v.div === 'buff' ? v.span : null,
