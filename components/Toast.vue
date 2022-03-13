@@ -1,47 +1,43 @@
 <template>
-  <teleport v-if="ready && toast.length > 0" to="body">
-    <div class="toast-zone">
-      <div v-for="item in toast" :key="item.id" class="toast" :class="[item.variant]">
-        <font-awesome-icon v-if="item.variant === 'error'" icon="circle-exclamation" class="icon"></font-awesome-icon>
-        <font-awesome-icon v-if="item.variant === 'info'" icon="circle-check" class="icon"></font-awesome-icon>
-        <div class="container">
-          <div class="title">{{ item.title }}</div>
-          <div v-if="item.message" class="message">{{ item.message }}</div>
-        </div>
-        <div class="dismiss" @click="handleDismiss(item.id)" @touchend="null">
-          <font-awesome-icon icon="circle-xmark"></font-awesome-icon>
-        </div>
+  <transition name="fade">
+    <div v-if="show" class="toast" :class="[variant]">
+      <font-awesome-icon v-if="variant === 'error'" icon="circle-exclamation" class="icon"></font-awesome-icon>
+      <font-awesome-icon v-if="variant === 'info'" icon="circle-check" class="icon"></font-awesome-icon>
+      <div class="container">
+        <div class="title">{{ title }}</div>
+        <div v-if="message" class="message">{{ message }}</div>
+      </div>
+      <div class="dismiss" @click="handleDismiss" @touchend="null">
+        <font-awesome-icon icon="circle-xmark"></font-awesome-icon>
       </div>
     </div>
-  </teleport>
+  </transition>
 </template>
 <script setup lang="ts">
-import { useToastDescriptor } from '~~/composable/toast'
+import { ToastVariant } from '~~/composable/toast'
 
-const toast = useToastDescriptor()
+interface Props {
+  title: string
+  message: string | undefined
+  variant: ToastVariant
+  show: boolean | null
+}
+defineProps<Props>()
+interface Emits {
+  (e: 'update:show', value: Props['show']): void
+}
+const emit = defineEmits<Emits>()
 
-const ready = ref(false)
 onMounted(() => {
-  ready.value = true
+  emit('update:show', true)
 })
 
-const handleDismiss = (id: number) => {
-  const index = toast.findIndex((v) => v.id === id)
-  toast.splice(index, 1)
+const handleDismiss = () => {
+  emit('update:show', false)
 }
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
-
-.toast-zone {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  padding: 16px;
-  display: grid;
-  gap: 8px;
-}
 
 .toast {
   @include round-corner('L');
@@ -103,5 +99,17 @@ const handleDismiss = (id: number) => {
 .message {
   font-size: $typography-s;
   color: $text3;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.32s;
+}
+.fade-enter-from {
+  opacity: 0;
+  transform: translateY(-160px);
+}
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

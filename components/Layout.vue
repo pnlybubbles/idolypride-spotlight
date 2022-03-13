@@ -6,7 +6,7 @@
     <slot v-if="!busy"></slot>
     <Menu v-if="isAuthenticated"></Menu>
     <Loading :busy="busy">認証情報を読み込んでいます...</Loading>
-    <Toast></Toast>
+    <ToastManager></ToastManager>
   </div>
 </template>
 <script setup lang="ts">
