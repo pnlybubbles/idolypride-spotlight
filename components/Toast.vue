@@ -90,6 +90,11 @@ const handleDismiss = (id: number) => {
   color: $info;
 }
 
+.container {
+  display: grid;
+  gap: 4px;
+}
+
 .title {
   font-size: $typography-m;
   font-weight: bold;

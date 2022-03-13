@@ -14,11 +14,14 @@ import { useForm } from '~~/composable/form'
 import { serializeIdol } from '~~/utils/formatter'
 import { useBeforeUnload } from '~~/composable/atom'
 import { IdolData } from '~~/utils/types'
+import { useError } from '~~/composable/error'
 
 const router = useRouter()
 
 const { invalid } = useForm()
-const { executeMutation, fetching } = useMutation(CreateIdolDocument)
+const { executeMutation, fetching, error } = useMutation(CreateIdolDocument)
+useError(error)
+
 const submit = async (data: IdolData) => {
   await executeMutation({
     object: serializeIdol(data),
