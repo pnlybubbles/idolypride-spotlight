@@ -32,32 +32,30 @@ query getIdolList {
 
 query getIdol($id: uuid!) {
   idol_by_pk(id: $id) {
-    name
     id
-    role
+    name
     title
     type
+    role
     user_id
     skills {
-      ct
       id
-      index
-      level
       name
+      index
+      type
+      level
       trigger
       trigger_value
-      type
-      updated_at
+      ct
       user_id
       abilities {
+        id
+        type
+        target
         amount
+        span
         condition
         condition_value
-        id
-        skill_id
-        span
-        target
-        type
         user_id
       }
     }
@@ -66,6 +64,38 @@ query getIdol($id: uuid!) {
 
 mutation createIdol($object: idol_insert_input!) {
   insert_idol_one(object: $object) {
+    id
+    name
+    title
+    type
+    role
+    skills(order_by: { index: asc }) {
+      id
+      name
+      index
+      type
+      level
+      trigger
+      trigger_value
+      ct
+      abilities {
+        id
+        type
+        target
+        amount
+        span
+        condition
+        condition_value
+      }
+    }
+  }
+}
+
+mutation updateIdol($object: idol_insert_input!, $delete_ability_ids: [uuid!]!) {
+  delete_ability(where: { id: { _in: $delete_ability_ids } }) {
+    affected_rows
+  }
+  insert_idol_one(object: $object, on_conflict: { constraint: idol_pkey, update_columns: [name, title, type, role] }) {
     id
     name
     title

@@ -1,4 +1,10 @@
-import { Ability_Insert_Input, GetIdolListQuery, Idol_Insert_Input, Skill_Insert_Input } from '~~/generated/graphql'
+import {
+  Ability_Insert_Input,
+  GetIdolListQuery,
+  GetIdolQuery,
+  Idol_Insert_Input,
+  Skill_Insert_Input,
+} from '~~/generated/graphql'
 import { defined, mapArrayN, unreachable } from '.'
 import { SKILLS } from './common'
 import {
@@ -15,11 +21,19 @@ import {
 
 // Deserialize
 
-export const deserializeIdol = (data: GetIdolListQuery): IdolData[] =>
+export const deserializeIdolList = (data: GetIdolListQuery): IdolData[] =>
   data.idol.map((v) => ({
     ...v,
     skills: mapArrayN(SKILLS, (i) => deserializeSkill(defined(v.skills[i]))),
   }))
+
+export const deserializeIdol = (data: GetIdolQuery): IdolData | null =>
+  data.idol_by_pk
+    ? {
+        ...data.idol_by_pk,
+        skills: mapArrayN(SKILLS, (i) => deserializeSkill(defined(data.idol_by_pk?.skills[i]))),
+      }
+    : null
 
 type TmpSkill = GetIdolListQuery['idol'][number]['skills'][number]
 const deserializeSkill = ({ type, ...rest }: TmpSkill): SkillData => {
@@ -125,17 +139,39 @@ const deserializeAbility = ({ type, ...rest }: TmpAbility): AbilityData => {
 
 // Serialize
 
-export const serializeIdol = (v: IdolData): Required<Idol_Insert_Input> => ({
+type RequiredSerialized<T> = {
+  [K in keyof T]-?: NonNullable<T[K]> extends {
+    data: unknown[]
+    on_conflict?: unknown
+  }
+    ? {
+        data: RequiredSerialized<NonNullable<T[K]>['data'][number]>[]
+        on_conflict?: NonNullable<NonNullable<T[K]>['on_conflict']>
+      }
+    : T[K]
+}
+
+export const serializeIdol = (v: IdolData, upsert = false): RequiredSerialized<Idol_Insert_Input> => ({
+  id: upsert ? v.id : null,
   name: v.name,
   title: v.title,
   type: v.type,
   role: v.role,
   skills: {
-    data: v.skills.map(serializeSkill),
+    data: v.skills.map((w) => serializeSkill(w, upsert)),
+    ...(upsert
+      ? {
+          on_conflict: {
+            constraint: 'skill_pkey',
+            update_columns: ['index', 'name', 'type', 'level', 'trigger', 'trigger_value', 'ct'],
+          },
+        }
+      : null),
   },
 })
 
-const serializeSkill = (v: SkillData): Required<Skill_Insert_Input> => ({
+const serializeSkill = (v: SkillData, upsert: boolean): RequiredSerialized<Skill_Insert_Input> => ({
+  id: upsert ? v.id : null,
   index: v.index,
   name: v.name,
   type: v.type,
@@ -144,11 +180,20 @@ const serializeSkill = (v: SkillData): Required<Skill_Insert_Input> => ({
   trigger_value: v.type === 'p' && 'amount' in v.trigger ? v.trigger.amount : null,
   ct: v.type !== 'sp' ? v.ct : null,
   abilities: {
-    data: v.ability.map(serializeAbility),
+    data: v.ability.map((w) => serializeAbility(w, upsert)),
+    ...(upsert
+      ? {
+          on_conflict: {
+            constraint: 'ability_pkey',
+            update_columns: ['amount', 'type', 'span', 'type', 'condition', 'condition_value'],
+          },
+        }
+      : null),
   },
 })
 
-const serializeAbility = (v: PassiveAbilityData): Required<Ability_Insert_Input> => ({
+const serializeAbility = (v: PassiveAbilityData, upsert: boolean): RequiredSerialized<Ability_Insert_Input> => ({
+  id: upsert ? v.id : null,
   amount: v.amount,
   type: v.div === 'score' ? 'get-score' : v.type,
   span: v.div === 'buff' ? v.span : null,

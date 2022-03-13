@@ -183,33 +183,30 @@ import {
   IdolData,
 } from '~~/utils/types'
 import { isAbilityConditionWithValue, isSkillTriggerTypeWithValue } from '~~/utils/formatter'
-import { DEFAULT_IDOL_INPUT, formatIdol, IdolInput, isBuffTargetSuffixRequired, deriveDisabledAmount } from './helper'
+import {
+  DEFAULT_IDOL_INPUT,
+  formatIdol,
+  IdolInput,
+  isBuffTargetSuffixRequired,
+  deriveDisabledAmount,
+  DEFAULT_ABILITY_INPUT,
+  deformatIdol,
+} from './helper'
 
 interface Props {
   idol?: IdolData
   disabled: boolean
 }
-defineProps<Props>()
+const props = defineProps<Props>()
 interface Emits {
   (e: 'submit', value: IdolData): void
 }
 const emit = defineEmits<Emits>()
 
-const idol = reactive<IdolInput>(DEFAULT_IDOL_INPUT)
+const idol = reactive<IdolInput>(props.idol ? deformatIdol(props.idol) : DEFAULT_IDOL_INPUT)
 
 const handleAddAbility = (index: SkillIndex) => {
-  idol.skills[index].ability.push({
-    id: '',
-    div: 'buff',
-    type: null,
-    condition: 'none',
-    conditionValue: '',
-    target: null,
-    targetSuffix: '1',
-    amount: '',
-    span: '',
-    noSpan: false,
-  })
+  idol.skills[index].ability.push(DEFAULT_ABILITY_INPUT)
 }
 
 const handleRemoveAbility = (index: SkillIndex, abilityIndex: number) => {

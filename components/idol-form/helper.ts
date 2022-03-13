@@ -17,6 +17,7 @@ import {
   PassiveAbilityData,
   SkillTrigger,
   BuffTargetWithSuffix,
+  PassiveBuffTarget,
 } from '~~/utils/types'
 import { defined, mapArrayN, strictParseInt, unreachable } from '~~/utils'
 import {
@@ -106,6 +107,19 @@ export const DEFAULT_IDOL_INPUT: IdolInput = {
       ability: [],
     },
   ],
+}
+
+export const DEFAULT_ABILITY_INPUT: AbilityInput = {
+  id: '',
+  div: 'buff',
+  type: null,
+  condition: 'none',
+  conditionValue: '',
+  target: null,
+  targetSuffix: '1',
+  amount: '',
+  span: '',
+  noSpan: false,
 }
 
 export const formatIdol = (v: IdolInput): IdolData => {
@@ -209,6 +223,54 @@ export const formatPassiveAbility = (v: AbilityInput): PassiveAbilityData => {
     return { div: 'buff', id, type, target, amount, condition, span }
   }
   return unreachable(v.div)
+}
+
+export const deformatIdol = (v: IdolData): IdolInput => ({
+  ...v,
+  skills: [...mapArrayN(v.skills, deformatSkill)],
+})
+
+const deformatSkill = (w: SkillData, i: SkillIndex): SkillInput => ({
+  ...w,
+  ct: 'ct' in w ? w.ct.toString() : DEFAULT_IDOL_INPUT.skills[i].ct,
+  once: 'ct' in w ? w.ct === 0 : DEFAULT_IDOL_INPUT.skills[i].once,
+  trigger: 'trigger' in w ? w.trigger.type : DEFAULT_IDOL_INPUT.skills[i].trigger,
+  triggerValue:
+    'trigger' in w && 'amount' in w.trigger ? w.trigger.amount.toString() : DEFAULT_IDOL_INPUT.skills[i].triggerValue,
+  ability: w.ability.map(deformatAbility),
+})
+
+const deformatAbility = (v: AbilityData | PassiveAbilityData): AbilityInput => {
+  const noSpan = 'span' in v ? v.span === 1 : DEFAULT_ABILITY_INPUT.noSpan
+  return {
+    id: v.id,
+    div: v.div,
+    amount: v.amount.toString(),
+    span: 'span' in v && !noSpan ? v.span.toString() : DEFAULT_ABILITY_INPUT.span,
+    type: 'type' in v ? v.type : DEFAULT_ABILITY_INPUT.type,
+    condition: v.condition?.type ?? DEFAULT_ABILITY_INPUT.condition,
+    conditionValue:
+      v.condition && 'amount' in v.condition ? v.condition.amount.toString() : DEFAULT_ABILITY_INPUT.conditionValue,
+    noSpan,
+    ...('target' in v
+      ? extractBuffTarget(v.target)
+      : {
+          target: DEFAULT_ABILITY_INPUT.target,
+          targetSuffix: DEFAULT_ABILITY_INPUT.targetSuffix,
+        }),
+  }
+}
+
+export const extractBuffTarget = (
+  t: PassiveBuffTarget
+): { target: BuffTargetWithoutSuffix; targetSuffix: BuffTargetCount } => {
+  const matched = t.match(/^(?<target>.+)\-(?<suffix>1|2|3)$/)?.groups
+  const target = matched?.target as BuffTargetWithoutSuffix | undefined
+  const suffix = matched?.suffix as BuffTargetCount | undefined
+  return {
+    target: target ?? 'unknown',
+    targetSuffix: suffix ?? '1',
+  }
 }
 
 export const isBuffTargetSuffixRequired = (t: BuffTargetWithoutSuffix): t is BuffTargetWithSuffix =>
