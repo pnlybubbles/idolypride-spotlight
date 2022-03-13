@@ -165,7 +165,7 @@
       </VStack>
     </div>
     <Section>
-      <Button :disabled="disabled" @click="handleSubmit">追加</Button>
+      <Button :disabled="disabled" @click="handleSubmit">{{ submitLabel }}</Button>
     </Section>
   </VStack>
 </template>
@@ -200,6 +200,7 @@ import {
 interface Props {
   idol?: IdolData
   disabled: boolean
+  submitLabel: string
 }
 const props = defineProps<Props>()
 interface Emits {

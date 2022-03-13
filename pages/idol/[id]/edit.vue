@@ -1,7 +1,7 @@
 <template>
   <Layout>
     <template #heading>アイドルを編集する</template>
-    <IdolForm v-if="idol" :disabled="invalid || updating" :idol="idol" @submit="submit"></IdolForm>
+    <IdolForm v-if="idol" :disabled="invalid || updating" :idol="idol" submit-label="保存" @submit="submit"></IdolForm>
     <Loading :busy="fetching">アイドルを読み込んでいます...</Loading>
     <Loading :busy="updating">アイドルを更新しています...</Loading>
   </Layout>

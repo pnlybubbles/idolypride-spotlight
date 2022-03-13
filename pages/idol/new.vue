@@ -1,7 +1,7 @@
 <template>
   <Layout>
     <template #heading>アイドルを追加する</template>
-    <IdolForm :disabled="invalid || fetching" @submit="submit"></IdolForm>
+    <IdolForm :disabled="invalid || fetching" submit-label="追加" @submit="submit"></IdolForm>
     <Loading :busy="fetching">追加しています...</Loading>
   </Layout>
 </template>
