@@ -47,7 +47,7 @@ interface SkillInput {
   level: number
   type: SkillType
   trigger: SkillTriggerType
-  triggerValue: ''
+  triggerValue: string
   ct: string
   once: boolean
   ability: AbilityInput[]
