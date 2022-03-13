@@ -125,6 +125,7 @@ export const defaultAbilityInput = (div: 'score' | 'buff' = 'buff'): AbilityInpu
 export const formatIdol = (v: IdolInput): IdolData => {
   return {
     ...v,
+    userId: null,
     skills: mapArrayN(v.skills, formatSkill),
   }
 }

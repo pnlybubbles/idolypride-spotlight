@@ -45,6 +45,7 @@ export const theme: Theme = {
     'shift-before-sp': normal,
     tension: normal,
     steruss: normal,
+    'eye-catch': normal,
     unknown: normal,
   },
 }

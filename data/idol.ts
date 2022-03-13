@@ -2,6 +2,7 @@ import { IdolData } from '~/utils/types'
 
 export const REI_ICHINOSE: IdolData = {
   id: '1',
+  userId: null,
   name: '一ノ瀬怜',
   title: '高台をかける薫風',
   role: 'buffer',
@@ -74,6 +75,7 @@ export const REI_ICHINOSE: IdolData = {
 
 const reiOsorenai: IdolData = {
   id: '2',
+  userId: null,
   name: '一ノ瀬怜',
   title: '失敗なんて恐れない',
   role: 'scorer',
@@ -120,6 +122,7 @@ const reiOsorenai: IdolData = {
 
 const nagisaEmal: IdolData = {
   id: '3',
+  userId: null,
   name: '伊吹渚',
   title: 'この瞬間の主役',
   role: 'scorer',
@@ -176,6 +179,7 @@ const nagisaEmal: IdolData = {
 
 const aoiNureta: IdolData = {
   id: '4',
+  userId: null,
   name: '井川葵',
   title: '濡れた髪は何を語る',
   role: 'buffer',

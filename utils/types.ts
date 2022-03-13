@@ -136,7 +136,7 @@ export type IdolType = 'vocal' | 'dance' | 'visual'
 
 export interface IdolData {
   id: string
-  userId: string
+  userId: string | null
   name: string
   title: string
   role: IdolRole
