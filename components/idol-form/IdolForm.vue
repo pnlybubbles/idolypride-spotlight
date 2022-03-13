@@ -77,7 +77,7 @@
         <Section>
           <template #label>効果</template>
           <div v-for="(ability, j) in skill.ability" :key="j" class="ability">
-            <button class="remove-ability" @click="handleRemoveAbility(skill.index, j)" @touchend="null">
+            <button class="remove-ability" @click="handleRemoveAbility(skill, ability)" @touchend="null">
               <font-awesome-icon icon="circle-minus"></font-awesome-icon>
             </button>
             <Section :gutter="8">
@@ -154,7 +154,7 @@
               <TextField v-model="ability.amount" placeholder="1000" type="number" required></TextField>
             </Section>
           </div>
-          <button class="new-ability" @click="handleAddAbility(skill.index)" @touchend="null">
+          <button class="new-ability" @click="handleAddAbility(skill)" @touchend="null">
             <font-awesome-icon icon="circle-plus"></font-awesome-icon>
             <div>効果を追加する</div>
           </button>
@@ -179,7 +179,6 @@ import {
   BuffTargetCount,
   SkillTriggerType,
   BuffTargetWithoutSuffix,
-  SkillIndex,
   IdolData,
 } from '~~/utils/types'
 import { isAbilityConditionWithValue, isSkillTriggerTypeWithValue } from '~~/utils/formatter'
@@ -191,6 +190,8 @@ import {
   deriveDisabledAmount,
   DEFAULT_ABILITY_INPUT,
   deformatIdol,
+  SkillInput,
+  AbilityInput,
 } from './helper'
 
 interface Props {
@@ -205,15 +206,16 @@ const emit = defineEmits<Emits>()
 
 const idol = reactive<IdolInput>(props.idol ? deformatIdol(props.idol) : DEFAULT_IDOL_INPUT)
 
-const handleAddAbility = (index: SkillIndex) => {
-  idol.skills[index].ability.push(DEFAULT_ABILITY_INPUT)
+const handleAddAbility = (skill: SkillInput) => {
+  idol.skills.find((v) => v.id === skill.id)?.ability.push(DEFAULT_ABILITY_INPUT)
 }
 
-const handleRemoveAbility = (index: SkillIndex, abilityIndex: number) => {
+const handleRemoveAbility = (skill: SkillInput, ability: AbilityInput) => {
   if (!confirm(`効果を削除します。よろしいですか？`)) {
     return
   }
-  idol.skills[index].ability.splice(abilityIndex, 1)
+  const index = skill.ability.findIndex((v) => v.id === ability.id)
+  idol.skills.find((v) => v.id === skill.id)?.ability.splice(index, 1)
 }
 
 const handleSubmit = () => {

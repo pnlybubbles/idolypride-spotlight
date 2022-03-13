@@ -28,7 +28,7 @@ import {
   isSkillTriggerTypeWithValue,
 } from '~~/utils/formatter'
 
-interface AbilityInput {
+export interface AbilityInput {
   id: string
   div: AbilityDiv
   type: BuffAbilityType | ActionAbilityType | null
@@ -41,7 +41,7 @@ interface AbilityInput {
   noSpan: boolean
 }
 
-interface SkillInput {
+export interface SkillInput {
   id: string
   index: SkillIndex
   name: string
