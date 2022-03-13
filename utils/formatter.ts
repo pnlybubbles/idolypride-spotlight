@@ -10,6 +10,7 @@ import { SKILLS } from './common'
 import {
   AbilityCondition,
   AbilityData,
+  AbilityDiv,
   ActionAbilityType,
   BuffAbilityType,
   BuffTarget,
@@ -32,13 +33,13 @@ export const deserializeIdol = (data: GetIdolQuery): IdolData | null =>
   data.idol_by_pk
     ? {
         ...data.idol_by_pk,
-        skills: mapArrayN(SKILLS, (i) => deserializeSkill(defined(data.idol_by_pk?.skills[i]))),
+        skills: sortSkills(mapArrayN(SKILLS, (i) => deserializeSkill(defined(data.idol_by_pk?.skills[i])))),
       }
     : null
 
 type TmpSkill = GetIdolListQuery['idol'][number]['skills'][number]
 const deserializeSkill = ({ type, ...rest }: TmpSkill): SkillData => {
-  const ability = rest.abilities.map(deserializeAbility)
+  const ability = sortAblities(rest.abilities.map(deserializeAbility))
   return {
     id: rest.id as string,
     name: rest.name,
@@ -292,3 +293,16 @@ const ACTION_ABILITY_TYPE: Record<ActionAbilityType, true> = {
 }
 export const isActionAbilityType = (type: string): type is ActionAbilityType =>
   ACTION_ABILITY_TYPE[type as ActionAbilityType]
+
+// ソート
+export const sortSkills = (skills: readonly [SkillData, SkillData, SkillData]) =>
+  [...skills].sort((a, b) => a.index - b.index) as [SkillData, SkillData, SkillData]
+
+const ABILITY_ORDERING: { [key in AbilityDiv]: number } = {
+  score: 0,
+  buff: 1,
+  'action-buff': 2,
+}
+
+const sortAblities = <T extends { div: AbilityDiv }>(abilities: T[]) =>
+  [...abilities].sort((a, b) => ABILITY_ORDERING[a.div] - ABILITY_ORDERING[b.div])

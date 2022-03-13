@@ -38,7 +38,7 @@ query getIdol($id: uuid!) {
     type
     role
     user_id
-    skills {
+    skills(order_by: { index: asc }) {
       id
       name
       index
