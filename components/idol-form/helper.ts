@@ -150,7 +150,7 @@ const formatSkill = (v: SkillInput): SkillData => {
     return {
       type: 'p',
       trigger,
-      ability: v.ability.map(formatPassiveAbility),
+      ability: v.ability.map((w) => formatPassiveAbility(w, trigger)),
       ct: v.once ? 0 : strictParseInt(v.ct),
       ...common,
     }
@@ -186,7 +186,7 @@ const formatAbility = (v: AbilityInput): AbilityData => {
   return ability
 }
 
-export const formatPassiveAbility = (v: AbilityInput): PassiveAbilityData => {
+export const formatPassiveAbility = (v: AbilityInput, trigger?: SkillTrigger): PassiveAbilityData => {
   const id = v.id
   const amount = deriveDisabledAmount(v.type) ? 0 : parseInt(v.amount, 10)
   const condition: AbilityCondition =
@@ -205,9 +205,12 @@ export const formatPassiveAbility = (v: AbilityInput): PassiveAbilityData => {
   }
   const type = defined(v.type, 'type must not be null with action-buff')
   const targetWithoutSuffix = defined(v.target, 'target must not be null with action-buff')
-  const target = isBuffTargetSuffixRequired(targetWithoutSuffix)
-    ? (`${targetWithoutSuffix}-${v.targetSuffix}` as const)
-    : targetWithoutSuffix
+  const target =
+    trigger && availableNoSpan(trigger.type)
+      ? 'triggered'
+      : isBuffTargetSuffixRequired(targetWithoutSuffix)
+      ? (`${targetWithoutSuffix}-${v.targetSuffix}` as const)
+      : targetWithoutSuffix
   if (v.div === 'action-buff') {
     if (!isActionAbilityType(type)) {
       throw new Error(`div is "action-buff", type "${type}" is invalid`)
@@ -297,3 +300,5 @@ export const isBuffTargetSuffixRequired = (t: BuffTargetWithoutSuffix): t is Buf
 
 export const deriveDisabledAmount = (type: BuffAbilityType | ActionAbilityType | null): boolean =>
   type === 'cmb-continuous'
+
+export const availableNoSpan = (t: SkillTriggerType) => t === 'sp' || t === 'a'

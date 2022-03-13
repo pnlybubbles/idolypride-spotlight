@@ -88,10 +88,12 @@
               <template #label>詳細</template>
               <div class="left-main">
                 <Listbox
-                  v-model="ability.target"
+                  :model-value="availableNoSpan(skill.trigger) ? 'triggered' : ability.target"
+                  :disabled="availableNoSpan(skill.trigger)"
                   placeholder="対象"
                   :options="skill?.type === 'p' ? buffTargetOptionsPassive : buffTargetOptions"
                   required
+                  @update:model-value="ability.target = $event as any"
                 ></Listbox>
                 <Listbox
                   v-if="ability.target && isBuffTargetSuffixRequired(ability.target)"
@@ -126,11 +128,12 @@
               <template v-if="ability.div === 'buff' && availableNoSpan(skill.trigger)">
                 <HStack :spacing="8">
                   <TextField
-                    v-model="ability.span"
+                    :model-value="ability.noSpan ? '1' : ability.span"
                     placeholder="持続ビート数"
                     type="number"
                     :disabled="ability.noSpan"
                     required
+                    @update:model-value="ability.span = $event"
                   ></TextField>
                   <Check v-model="ability.noSpan">トリガビート</Check>
                 </HStack>
@@ -191,6 +194,7 @@ import {
   defaultAbilityInput,
   deformatIdol,
   SkillInput,
+  availableNoSpan,
 } from './helper'
 
 interface Props {
@@ -363,8 +367,6 @@ const deriveUnitByBuffType = (type: BuffAbilityType | ActionAbilityType | null):
       return '段階'
   }
 }
-
-const availableNoSpan = (t: SkillTriggerType) => t === 'sp' || t === 'a'
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
