@@ -1,6 +1,6 @@
 <template>
   <AssistiveText :show="showError">
-    <button class="listbox" :class="{ error: showError !== null }" @click="handleOpen">
+    <button class="listbox" :class="{ error: showError !== null }" :disabled="disabled" @click="handleOpen">
       <div class="current" :class="{ placeholder: modelValue === null }">
         {{ selectedLabel ?? placeholder ?? '選択してください' }}
       </div>
@@ -110,6 +110,12 @@ useFormComponent(computed(() => ({ error: requiredError.value })))
 
   &.error {
     border-color: $error;
+  }
+
+  &:disabled {
+    background: repeating-linear-gradient(-45deg, $surface1, $surface1 4px, transparent 4px, transparent 6px);
+    border: solid 1px $surface1;
+    opacity: 0.64;
   }
 }
 
