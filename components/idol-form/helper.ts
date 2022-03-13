@@ -137,7 +137,7 @@ const formatSkill = (v: SkillInput): SkillData => {
       type: 'p',
       trigger,
       ability: v.ability.map(formatPassiveAbility),
-      ct: strictParseInt(v.ct),
+      ct: v.once ? 0 : strictParseInt(v.ct),
       ...common,
     }
   }
@@ -146,7 +146,7 @@ const formatSkill = (v: SkillInput): SkillData => {
     return {
       type: 'a',
       ability,
-      ct: strictParseInt(v.ct),
+      ct: v.once ? 0 : strictParseInt(v.ct),
       ...common,
     }
   }
