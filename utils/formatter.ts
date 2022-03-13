@@ -282,6 +282,7 @@ const BUFF_ABILITY_TYPE: Record<BuffAbilityType, true> = {
   'cmb-continuous': true,
   tension: true,
   'eye-catch': true,
+  'skill-success': true,
   unknown: true,
 }
 export const isBuffAbilityType = (type: string): type is BuffAbilityType => BUFF_ABILITY_TYPE[type as BuffAbilityType]

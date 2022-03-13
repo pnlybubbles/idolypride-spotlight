@@ -20,6 +20,7 @@ export type BuffAbilityType =
   | 'cmb-continuous'
   | 'tension'
   | 'eye-catch'
+  | 'skill-success'
   | 'unknown'
 export type ActionAbilityType = 'buff-span' | 'ct-reduction' | 'stamina-recovery' | 'shift-before-sp'
 export type AbilityType = BuffAbilityType | ActionAbilityType

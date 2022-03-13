@@ -46,6 +46,7 @@ export const theme: Theme = {
     tension: normal,
     steruss: normal,
     'eye-catch': normal,
+    'skill-success': normal,
     unknown: normal,
   },
 }

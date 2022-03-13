@@ -305,6 +305,7 @@ const buffTypeOptions: { id: BuffAbilityType; label: string }[] = [
   { id: 'steruss', label: 'ステルス' },
   { id: 'tension', label: 'テンションUP' },
   { id: 'eye-catch', label: '集目効果' },
+  { id: 'skill-success', label: 'スキル成功率上昇' },
 ]
 const actionBuffTypeOptions: { id: ActionAbilityType; label: string }[] = [
   { id: 'buff-span', label: '強化効果延長' },
