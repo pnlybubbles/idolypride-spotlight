@@ -271,6 +271,12 @@ export const extractBuffTarget = (
   t: PassiveBuffTarget
 ): { target: BuffTargetWithoutSuffix; targetSuffix: BuffTargetCount } => {
   const matched = t.match(/^(?<target>.+)\-(?<suffix>1|2|3)$/)?.groups
+  if (matched === undefined) {
+    return {
+      target: t as BuffTargetWithoutSuffix,
+      targetSuffix: '1',
+    }
+  }
   const target = matched?.target as BuffTargetWithoutSuffix | undefined
   const suffix = matched?.suffix as BuffTargetCount | undefined
   return {
