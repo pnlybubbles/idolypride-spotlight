@@ -1,6 +1,6 @@
 <template>
   <div class="idol-item">
-    <div class="heading">
+    <button class="heading" @click="$emit('click')" @touchend="null">
       <div class="type" :class="idol.type">
         <RoleIcon :role="idol.role" class="role"></RoleIcon>
       </div>
@@ -8,7 +8,7 @@
         <span class="title">{{ idol.title }}</span>
         <span class="name">{{ idol.name }}</span>
       </div>
-    </div>
+    </button>
     <div class="status">
       <div class="skill-overview">
         <div v-for="skill in idol.skills" :key="skill.id" class="skill-tag">
@@ -62,6 +62,10 @@ interface Props {
   idol: IdolData
 }
 defineProps<Props>()
+interface Emits {
+  (e: 'click'): void
+}
+defineEmits<Emits>()
 
 const ABILITY_ORDERING: { [key in AbilityDiv]: number } = {
   score: 0,
@@ -74,6 +78,7 @@ const sortAbility = (ability: AbilityData[] | PassiveAbilityData[]) =>
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
+@import '~~/components/partials/utils.scss';
 
 .idol-item {
   display: grid;
@@ -82,6 +87,8 @@ const sortAbility = (ability: AbilityData[] | PassiveAbilityData[]) =>
 }
 
 .heading {
+  @include reset-button;
+  @include clickable;
   @include align;
   display: grid;
   grid: auto / auto-flow;

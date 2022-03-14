@@ -5,9 +5,7 @@
       <div v-if="fetching" class="loading"><Spinner></Spinner></div>
       <ul v-else class="list">
         <li v-for="idol in idolList" :key="idol.id">
-          <button class="item-button" @click="handleClick(idol.id)" @touchend="null">
-            <IdolItem :idol="idol"></IdolItem>
-          </button>
+          <IdolItem :idol="idol" @click="handleClick(idol.id)"></IdolItem>
         </li>
       </ul>
       <div class="add-button">
@@ -77,11 +75,6 @@ useMeta(DEFAULT_META)
   display: grid;
   grid: auto-flow / auto;
   gap: 16px;
-}
-
-.item-button {
-  @include clickable;
-  @include reset-button;
 }
 
 .add-button {
