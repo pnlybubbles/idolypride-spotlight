@@ -347,9 +347,9 @@ const conditionOptions: { id: AbilityConditionType | 'none'; label: string }[] =
   { id: 'anyone-visual-up', label: '誰かがビジュアルアップ時' },
   { id: 'anyone-eye-catch', label: '誰かが集目時' },
   { id: 'anyone-tension-up', label: '誰かがテンションUP時' },
-  { id: 'in-vocal-lane', label: '自信がボーカルレーンの時' },
-  { id: 'in-dance-lane', label: '自信がダンスレーンの時' },
-  { id: 'in-visual-lane', label: '自信がビジュアルレーンの時' },
+  { id: 'in-vocal-lane', label: '自身がボーカルレーンの時' },
+  { id: 'in-dance-lane', label: '自身がダンスレーンの時' },
+  { id: 'in-visual-lane', label: '自身がビジュアルレーンの時' },
   { id: 'critical', label: 'クリティカル発動時' },
 ]
 
