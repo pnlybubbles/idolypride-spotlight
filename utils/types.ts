@@ -46,7 +46,7 @@ export type AbilityCondition =
         | 'unknown'
         | 'critical'
         | 'anyone-eye-catch'
-        | 'anyone-tension-up'
+        | 'tension-up'
         | `${IdolType}-up`
         | `anyone-${IdolType}-up`
         | `in-${IdolType}-lane`
@@ -97,7 +97,7 @@ export type PassiveAbilityData =
 type SkillTriggerScoreUp = `${'score' | 'beat-score' | 'a-score' | 'sp-score' | 'cmb-score'}-up`
 export type SkillTrigger =
   | {
-      type: 'unknown' | 'idle' | 'critical' | 'sp' | 'a' | 'beat' | SkillTriggerScoreUp
+      type: 'unknown' | 'idle' | 'critical' | 'sp' | 'a' | 'beat' | 'anyone-tension-up' | SkillTriggerScoreUp
     }
   | {
       type: 'combo' | 'stamina-less-than'

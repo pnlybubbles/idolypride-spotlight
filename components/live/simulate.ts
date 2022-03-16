@@ -266,6 +266,7 @@ export function simulate(live: LiveData, idols: ArrayN<IdolData | null, 5>) {
                 case 'beat-score-up':
                 case 'combo':
                 case 'stamina-less-than':
+                case 'anyone-tension-up':
                 case 'unknown':
                   // TODO
                   return null

@@ -228,6 +228,7 @@ const SKILL_TRIGGER_TYPE_WITHOUT_VALUE: Record<SkillTriggerTypeWithoutValue, tru
   'sp-score-up': true,
   'beat-score-up': true,
   'cmb-score-up': true,
+  'anyone-tension-up': true,
   unknown: true,
 }
 export const isSkillTriggerTypeWithoutValue = (type: string): type is SkillTriggerTypeWithoutValue =>
@@ -248,7 +249,7 @@ type AbilityConditionWithoutValue = Exclude<AbilityCondition, { amount: unknown 
 const ABILITY_CONDITION_WITHOUT_VALUE: Record<AbilityConditionWithoutValue, true> = {
   critical: true,
   'anyone-eye-catch': true,
-  'anyone-tension-up': true,
+  'tension-up': true,
   'vocal-up': true,
   'dance-up': true,
   'visual-up': true,
