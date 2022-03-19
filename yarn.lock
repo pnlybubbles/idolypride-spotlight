@@ -1785,6 +1785,100 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sentry/browser@npm:6.18.2":
+  version: 6.18.2
+  resolution: "@sentry/browser@npm:6.18.2"
+  dependencies:
+    "@sentry/core": 6.18.2
+    "@sentry/types": 6.18.2
+    "@sentry/utils": 6.18.2
+    tslib: ^1.9.3
+  checksum: 7aa55cb291af7eb89cb385062481b984eb0401bd8efe6b05e28fbf9e16582da584d284c616bdda4765c24ad488391bfb0e7515072df923075bd5f4531daece1e
+  languageName: node
+  linkType: hard
+
+"@sentry/core@npm:6.18.2":
+  version: 6.18.2
+  resolution: "@sentry/core@npm:6.18.2"
+  dependencies:
+    "@sentry/hub": 6.18.2
+    "@sentry/minimal": 6.18.2
+    "@sentry/types": 6.18.2
+    "@sentry/utils": 6.18.2
+    tslib: ^1.9.3
+  checksum: d9d739f866609af5a5e0890e1966b6769c4df73a32cce6048662166f5b307ade92e0b29c9b091371e20d4e7c99a7ad122d37b9aa74928989dbda98af104d097e
+  languageName: node
+  linkType: hard
+
+"@sentry/hub@npm:6.18.2":
+  version: 6.18.2
+  resolution: "@sentry/hub@npm:6.18.2"
+  dependencies:
+    "@sentry/types": 6.18.2
+    "@sentry/utils": 6.18.2
+    tslib: ^1.9.3
+  checksum: 60bbffbf0039d5ec6f80a1d30b57144b0973abd571f04c1a99b9addd12ae455088da7c36967785698c9b034716150e673c1423cdbeec8c3ca6d1af4e8e78b5ff
+  languageName: node
+  linkType: hard
+
+"@sentry/minimal@npm:6.18.2":
+  version: 6.18.2
+  resolution: "@sentry/minimal@npm:6.18.2"
+  dependencies:
+    "@sentry/hub": 6.18.2
+    "@sentry/types": 6.18.2
+    tslib: ^1.9.3
+  checksum: 1191bef110a0139a2a6e1f9677a2ba5aa81197354fa51f332b8f640a7cd0079937ecc8b9d1cb4d9720d3ff63c1f3f63e41871321cb09901c166225adfde8d5f9
+  languageName: node
+  linkType: hard
+
+"@sentry/tracing@npm:^6.18.2":
+  version: 6.18.2
+  resolution: "@sentry/tracing@npm:6.18.2"
+  dependencies:
+    "@sentry/hub": 6.18.2
+    "@sentry/minimal": 6.18.2
+    "@sentry/types": 6.18.2
+    "@sentry/utils": 6.18.2
+    tslib: ^1.9.3
+  checksum: fe923e68d466de36344298634d81a1bb4acc0ab3e8b8baee12f41beb2a07ff477b428393d12c1db386c65fff182dd05d7a57d9ab6a15fc8c0b95f9195f4878cc
+  languageName: node
+  linkType: hard
+
+"@sentry/types@npm:6.18.2":
+  version: 6.18.2
+  resolution: "@sentry/types@npm:6.18.2"
+  checksum: 495600418adb30bb98bddbd4674845b27e70be181892d61aa95db44f2c5d631646aacae0cd562fdceaad362cc6a17819fcff91ea8031ae34cd06e57ebe6b305e
+  languageName: node
+  linkType: hard
+
+"@sentry/utils@npm:6.18.2":
+  version: 6.18.2
+  resolution: "@sentry/utils@npm:6.18.2"
+  dependencies:
+    "@sentry/types": 6.18.2
+    tslib: ^1.9.3
+  checksum: 01c4f75a691bcbe471fe3784379c46b3d055772a91bb8afdd16d83fce6e411390ff39bc8b481d9f4ac6f80a3a21689d0eb300058c7242930af6aadf9cd6debe6
+  languageName: node
+  linkType: hard
+
+"@sentry/vue@npm:^6.18.2":
+  version: 6.18.2
+  resolution: "@sentry/vue@npm:6.18.2"
+  dependencies:
+    "@sentry/browser": 6.18.2
+    "@sentry/core": 6.18.2
+    "@sentry/minimal": 6.18.2
+    "@sentry/types": 6.18.2
+    "@sentry/utils": 6.18.2
+    tslib: ^1.9.3
+  peerDependencies:
+    vue: 2.x || 3.x
+    vue-router: 3.x || 4.x
+  checksum: 4203f69c3044df2f031ada882f16e48188ef863fd75223ce6d16b9f066f2aa7642b586c75e05555a8aa226eec25535fe31e1f0c83f470909903287aa778ce9c2
+  languageName: node
+  linkType: hard
+
 "@sindresorhus/is@npm:^0.14.0":
   version: 0.14.0
   resolution: "@sindresorhus/is@npm:0.14.0"
@@ -10341,6 +10435,8 @@ __metadata:
     "@graphql-codegen/typed-document-node": ^2.2.4
     "@graphql-codegen/typescript": 2.4.4
     "@graphql-codegen/typescript-operations": ^2.3.1
+    "@sentry/tracing": ^6.18.2
+    "@sentry/vue": ^6.18.2
     "@types/eslint": ^8.4.1
     "@types/prettier": ^2.4.4
     "@types/uuid": ^8.3.4
@@ -11482,7 +11578,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^1.13.0, tslib@npm:^1.8.1, tslib@npm:^1.9.0":
+"tslib@npm:^1.13.0, tslib@npm:^1.8.1, tslib@npm:^1.9.0, tslib@npm:^1.9.3":
   version: 1.14.1
   resolution: "tslib@npm:1.14.1"
   checksum: dbe628ef87f66691d5d2959b3e41b9ca0045c3ee3c7c7b906cc1e328b39f199bb1ad9e671c39025bd56122ac57dfbf7385a94843b1cc07c60a4db74795829acd
