@@ -1,12 +1,14 @@
 import { Ref } from 'vue'
-import { useEnqueueToast } from './toast'
+import { useToast } from './toast'
 
-export const useError = (error: Ref<Error | undefined>, title = 'エラーが発生しました') => {
-  const enqueueToast = useEnqueueToast()
+export const DEFAULT_ERROR_MESSAGE = 'エラーが発生しました'
+
+export const useError = (error: Ref<Error | undefined>, title = DEFAULT_ERROR_MESSAGE) => {
+  const toast = useToast()
 
   watchEffect(() => {
     if (error.value) {
-      enqueueToast({
+      toast({
         variant: 'error',
         title,
         message: error.value.message,

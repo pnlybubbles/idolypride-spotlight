@@ -11,8 +11,16 @@
 </template>
 <script setup lang="ts">
 import { useAuth } from '~~/composable/auth0'
+import { DEFAULT_ERROR_MESSAGE } from '~~/composable/error'
+import { useToast } from '~~/composable/toast'
 
 const { busy, isAuthenticated } = useAuth()
+
+const toast = useToast()
+
+onErrorCaptured((error) => {
+  toast({ variant: 'error', title: DEFAULT_ERROR_MESSAGE, message: error.message })
+})
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';

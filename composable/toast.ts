@@ -25,7 +25,7 @@ export const useToastDescriptor = () => {
   return context.descriptor
 }
 
-export const useEnqueueToast = () => {
+export const useToast = () => {
   const context = defined(inject(ToastContext), '`provideToast` is not mounted')
   const enqueueToast = (descriptor: ToastDescriptor) => {
     context.descriptor.push({ ...descriptor, id: context.count, show: null })
