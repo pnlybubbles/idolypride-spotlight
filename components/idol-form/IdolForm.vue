@@ -298,6 +298,7 @@ const actionBuffTypeOptions: Option<ActionAbilityType> = [
   { id: 'buff-span', label: '強化効果延長' },
   { id: 'ct-reduction', label: 'CT減少' },
   { id: 'stamina-recovery', label: 'スタミナ回復' },
+  { id: 'debuff-recovery', label: '低下効果回復' },
   { id: 'shift-before-sp', label: '強化効果をSPスキル前に移動' },
 ]
 const buffTargetOptions: Option<BuffTargetWithoutSuffix> = [

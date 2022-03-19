@@ -262,6 +262,7 @@ const ACTION_ABILITY_TYPE: Record<ActionAbilityType, true> = {
   'buff-span': true,
   'ct-reduction': true,
   'stamina-recovery': true,
+  'debuff-recovery': true,
   'shift-before-sp': true,
 }
 export const isActionAbilityType = (type: string): type is ActionAbilityType =>
