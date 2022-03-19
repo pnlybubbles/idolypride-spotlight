@@ -13,5 +13,6 @@
   "search.exclude": {
     "**/node_modules": true,
     ".yarn": true
-  }
+  },
+  "typescript.tsdk": "node_modules/typescript/lib"
 }
