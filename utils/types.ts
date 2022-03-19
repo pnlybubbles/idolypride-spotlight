@@ -52,6 +52,7 @@ export type AbilityCondition =
         | `in-${IdolType}-lane`
         | `${IfAnyone}eye-catch`
         | `${IfAnyone}tension-up`
+        | `${IfAnyone}critical-up`
         | `${'score' | 'a-score' | 'sp-score' | 'cmb-score' | 'beat-score'}-up`
         | 'unknown'
     }

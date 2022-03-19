@@ -212,7 +212,8 @@ export const ABILITY_CONDITION_WITHOUT_VALUE: Record<AbilityConditionWithoutValu
   'dance-up': '自身がダンスアップ時',
   'visual-up': '自身がビジュアルアップ時',
   'eye-catch': '自身が集目状態の時',
-  'tension-up': '自身がテンションアップ時',
+  'tension-up': '自身がテンションアップ状態の時',
+  'critical-up': '自身がクリティカル率アップ状態の時',
   'score-up': '自身がスコアアップ時',
   'a-score-up': '自身がAスキルスコアアップ時',
   'sp-score-up': '自身がSPスキルスコアアップ時',
@@ -226,6 +227,7 @@ export const ABILITY_CONDITION_WITHOUT_VALUE: Record<AbilityConditionWithoutValu
   'anyone-visual-up': '誰かがビジュアルアップ時',
   'anyone-eye-catch': '誰かが集目状態の時',
   'anyone-tension-up': '誰かがテンションアップ状態の時',
+  'anyone-critical-up': '誰かがクリティカル率アップ状態の時',
   unknown: '不明',
 }
 export const isAbilityConditionWithoutValue = (type: string): type is AbilityConditionWithoutValue =>
