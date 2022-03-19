@@ -98,7 +98,7 @@ const TYPE_TO_LABEL: Record<FilterType, string | null> = {
   role: null,
 }
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
 @import '~~/components/partials/utils.scss';
 

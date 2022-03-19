@@ -6,16 +6,18 @@
     </div>
     <div v-else class="not-selected">未選択</div>
   </button>
-  <Sheet v-model:present="present" fixed>
-    <div class="filter">
-      <IdolFilter v-model="filter"></IdolFilter>
+  <Sheet v-model:present="present" fixed no-top-padding>
+    <div class="container">
+      <div class="sticky">
+        <IdolFilter v-model="filter"></IdolFilter>
+      </div>
+      <ul class="options">
+        <li v-if="fetching" class="loading"><Spinner></Spinner></li>
+        <li v-for="item in filteredIdolList" :key="item.id">
+          <IdolItem :idol="item" variant="mini" @click="handleClick(item)"></IdolItem>
+        </li>
+      </ul>
     </div>
-    <ul class="options">
-      <li v-if="fetching" class="loading"><Spinner></Spinner></li>
-      <li v-for="item in filteredIdolList" :key="item.id">
-        <IdolItem :idol="item" variant="mini" @click="handleClick(item)"></IdolItem>
-      </li>
-    </ul>
   </Sheet>
 </template>
 <script setup lang="ts">
@@ -95,26 +97,17 @@ const filter = ref<Filter[]>([])
   padding: 0;
 }
 
-.filter {
-  padding: 0 0 8px;
+.sticky {
+  @include bloom(black);
+  position: sticky;
+  padding: 24px 0 16px;
+  top: 0;
+  background-color: $background1;
+  z-index: 1;
 }
 
-.button {
-  @include reset-button;
-  @include align;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  width: 100%;
-  text-align: start;
-  user-select: none;
-  display: grid;
-  grid: auto / auto 1fr;
-  align-items: center;
-  gap: 12px;
-
-  &:active {
-    background-color: $surface1;
-  }
+.container {
+  position: relative;
 }
 
 .loading {

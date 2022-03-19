@@ -2,7 +2,10 @@
   <teleport v-if="ready" to="body">
     <transition name="slide">
       <div v-if="present" class="sheet" @click.self="$emit('update:present', false)">
-        <div class="content" :style="fixed ? { height: '90%' } : {}">
+        <div
+          class="content"
+          :style="{ ...(fixed ? { height: '90%' } : {}), ...(noTopPadding ? { 'padding-top': 0 } : {}) }"
+        >
           <slot></slot>
         </div>
       </div>
@@ -13,6 +16,7 @@
 interface Props {
   present: boolean
   fixed?: boolean
+  noTopPadding?: boolean
 }
 interface Emits {
   (e: 'update:present', value: boolean): void
@@ -57,7 +61,7 @@ watchEffect(() => {
   max-height: 90%;
   overflow-y: auto;
   width: 100%;
-  background-color: #000;
+  background-color: $background1;
   border-radius: 24px 24px 0 0;
   padding-top: 24px;
   padding-bottom: 40px;
