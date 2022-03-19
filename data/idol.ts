@@ -20,7 +20,9 @@ export const REI_ICHINOSE: IdolData = {
           div: 'buff',
           target: 'all',
           type: 'dance',
-          condition: null,
+          condition: {
+            type: 'none',
+          },
           amount: 4,
           span: 15,
         },
@@ -33,16 +35,15 @@ export const REI_ICHINOSE: IdolData = {
       type: 'p',
       index: 1,
       level: 1,
-      trigger: {
-        type: 'idle',
-      },
       ability: [
         {
           div: 'buff',
           id: 'a2',
           target: 'self',
           type: 'critical-rate',
-          condition: null,
+          condition: {
+            type: 'none',
+          },
           amount: 2,
           span: 30,
         },
@@ -55,16 +56,15 @@ export const REI_ICHINOSE: IdolData = {
       type: 'p',
       index: 2,
       level: 1,
-      trigger: {
-        type: 'critical',
-      },
       ability: [
         {
           div: 'action-buff',
           id: 'a3',
           target: 'self',
           type: 'ct-reduction',
-          condition: null,
+          condition: {
+            type: 'none',
+          },
           amount: 11,
         },
       ],
@@ -101,7 +101,9 @@ const reiOsorenai: IdolData = {
           div: 'buff',
           target: 'self',
           type: 'visual',
-          condition: null,
+          condition: {
+            type: 'none',
+          },
           amount: 8,
           span: 45,
         },
@@ -140,7 +142,9 @@ const nagisaEmal: IdolData = {
           div: 'buff',
           target: 'self',
           type: 'score',
-          condition: null,
+          condition: {
+            type: 'none',
+          },
           amount: 11,
           span: 64,
         },
@@ -167,7 +171,9 @@ const nagisaEmal: IdolData = {
           div: 'buff',
           target: 'self',
           type: 'critical-score',
-          condition: null,
+          condition: {
+            type: 'none',
+          },
           amount: 4,
           span: 43,
         },
@@ -197,7 +203,9 @@ const aoiNureta: IdolData = {
           div: 'buff',
           target: 'scorer-2',
           type: 'critical-rate',
-          condition: null,
+          condition: {
+            type: 'none',
+          },
           amount: 4,
           span: 72,
         },
@@ -216,7 +224,9 @@ const aoiNureta: IdolData = {
           div: 'action-buff',
           target: 'scorer-2',
           type: 'buff-span',
-          condition: null,
+          condition: {
+            type: 'none',
+          },
           amount: 6,
         },
       ],
@@ -228,16 +238,15 @@ const aoiNureta: IdolData = {
       type: 'p',
       index: 2,
       level: 1,
-      trigger: {
-        type: 'sp',
-      },
       ability: [
         {
           id: 'a10',
           div: 'buff',
           target: 'triggered',
           type: 'dance',
-          condition: null,
+          condition: {
+            type: 'none',
+          },
           amount: 8,
           span: 27,
         },

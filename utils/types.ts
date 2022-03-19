@@ -38,20 +38,25 @@ export type BuffTargetWithoutSuffix = BuffTargetNoSuffix | BuffTargetWithSuffix 
 export type AbilityConditionType = Exclude<AbilityCondition, null>['type']
 export type AbilityCondition =
   | {
-      type: 'stamina-greater-than' | 'stamina-less-than' | 'combo'
+      type: 'stamina-greater-than' | `${IfAnyone}stamina-less-than` | 'combo'
       amount: number
     }
   | {
       type:
-        | 'unknown'
+        | 'none'
+        | 'sp'
+        | 'a'
         | 'critical'
-        | 'anyone-eye-catch'
-        | 'tension-up'
-        | `${IdolType}-up`
-        | `anyone-${IdolType}-up`
+        | 'beat'
+        | `${IfAnyone}${IdolType}-up`
         | `in-${IdolType}-lane`
+        | `${IfAnyone}eye-catch`
+        | `${IfAnyone}tension-up`
+        | `${'score' | 'a-score' | 'sp-score' | 'cmb-score' | 'beat-score'}-up`
+        | 'unknown'
     }
-  | null
+
+type IfAnyone = 'anyone-' | ''
 
 // ability
 type BuffAbility = {
@@ -93,18 +98,6 @@ export type PassiveAbilityData =
       target: PassiveBuffTarget
     })
 
-// trigger
-type SkillTriggerScoreUp = `${'score' | 'beat-score' | 'a-score' | 'sp-score' | 'cmb-score'}-up`
-export type SkillTrigger =
-  | {
-      type: 'unknown' | 'idle' | 'critical' | 'sp' | 'a' | 'beat' | 'anyone-tension-up' | SkillTriggerScoreUp
-    }
-  | {
-      type: 'combo' | 'stamina-less-than'
-      amount: number
-    }
-export type SkillTriggerType = SkillTrigger['type']
-
 // skill
 export type SkillType = SkillData['type']
 export type SkillIndex = typeof SKILLS[number]
@@ -127,7 +120,6 @@ export type SkillData = {
       type: 'p'
       ability: PassiveAbilityData[]
       ct: number
-      trigger: SkillTrigger
     }
 )
 

@@ -46,19 +46,6 @@
             required
           ></Listbox>
         </Section>
-        <Section v-if="skill.type === 'p'">
-          <template #label>トリガ</template>
-          <div class="left-main">
-            <Listbox v-model="skill.trigger" :options="skillTriggerOptions" required></Listbox>
-            <TextField
-              v-if="isSkillTriggerTypeWithValue(skill.trigger)"
-              v-model="skill.triggerValue"
-              type="number"
-              placeholder="X"
-              required
-            ></TextField>
-          </div>
-        </Section>
         <Section v-if="skill.type !== 'sp'">
           <template #label>CT</template>
           <HStack :spacing="8">
@@ -88,8 +75,8 @@
               <template #label>詳細</template>
               <div class="left-main">
                 <Listbox
-                  :model-value="availableNoSpan(skill.trigger) ? 'triggered' : ability.target"
-                  :disabled="availableNoSpan(skill.trigger)"
+                  :model-value="availableNoSpan(ability.condition) ? 'triggered' : ability.target"
+                  :disabled="availableNoSpan(ability.condition)"
                   placeholder="対象"
                   :options="skill?.type === 'p' ? buffTargetOptionsPassive : buffTargetOptions"
                   required
@@ -118,14 +105,14 @@
                   required
                 ></TextField>
                 <TextField
-                  v-if="ability.div === 'buff' && !availableNoSpan(skill.trigger)"
+                  v-if="ability.div === 'buff' && !availableNoSpan(ability.condition)"
                   v-model="ability.span"
                   placeholder="持続ビート数"
                   type="number"
                   required
                 ></TextField>
               </HStack>
-              <template v-if="ability.div === 'buff' && availableNoSpan(skill.trigger)">
+              <template v-if="ability.div === 'buff' && availableNoSpan(ability.condition)">
                 <HStack :spacing="8">
                   <TextField
                     :model-value="ability.noSpan ? '1' : ability.span"
@@ -137,7 +124,7 @@
                   ></TextField>
                   <Check v-model="ability.noSpan">トリガビート</Check>
                 </HStack>
-                <NoteText v-if="availableNoSpan(skill.trigger)"
+                <NoteText v-if="availableNoSpan(ability.condition)"
                   >トリガビートを選択すると、Pスキルの発動起因となったA/SPスキルにのみ影響する効果になります</NoteText
                 >
               </template>
@@ -180,11 +167,14 @@ import {
   SkillType,
   BuffAbilityType,
   BuffTargetCount,
-  SkillTriggerType,
   BuffTargetWithoutSuffix,
   IdolData,
 } from '~~/utils/types'
-import { isAbilityConditionWithValue, isSkillTriggerTypeWithValue } from '~~/utils/formatter'
+import {
+  ABILITY_CONDITION_WITHOUT_VALUE,
+  ABILITY_CONDITION_WITH_VALUE,
+  isAbilityConditionWithValue,
+} from '~~/utils/formatter'
 import {
   defaultIdolInput,
   formatIdol,
@@ -231,7 +221,11 @@ const handleSubmit = () => {
   emit('submit', formatIdol(idol))
 }
 
-const nameOptions = [
+type Option<T> = { id: T; label: string }[]
+const objToOption = <K extends string>(obj: Record<K, string>): Option<K> =>
+  Object.entries(obj).map(([id, label]) => ({ id, label })) as Option<K>
+
+const nameOptions: Option<string> = [
   '長瀬琴乃',
   '伊吹渚',
   '白石沙季',
@@ -251,45 +245,30 @@ const nameOptions = [
   '赤崎こころ',
   '長瀬麻奈',
 ].map((id) => ({ id, label: id }))
-const typeOptions: { id: IdolType; label: string }[] = [
+const typeOptions: Option<IdolType> = [
   { id: 'vocal', label: 'ボーカル' },
   { id: 'dance', label: 'ダンス' },
   { id: 'visual', label: 'ビジュアル' },
 ]
-const roleOptions: { id: IdolRole; label: string }[] = [
+const roleOptions: Option<IdolRole> = [
   { id: 'scorer', label: 'スコアラー' },
   { id: 'buffer', label: 'バッファー' },
   { id: 'supporter', label: 'サポーター' },
 ]
-const skillTypeOptions1: { id: SkillType; label: string }[] = [
+const skillTypeOptions1: Option<SkillType> = [
   { id: 'sp', label: 'SPスキル' },
   { id: 'a', label: 'Aスキル' },
 ]
-const skillTypeOptions23: { id: SkillType; label: string }[] = [
+const skillTypeOptions23: Option<SkillType> = [
   { id: 'a', label: 'Aスキル' },
   { id: 'p', label: 'Pスキル' },
 ]
-const skillTriggerOptions: { id: SkillTriggerType; label: string }[] = [
-  { id: 'idle', label: '無条件' },
-  { id: 'sp', label: '誰かがSPスキル発動前' },
-  { id: 'a', label: '誰かがAスキル発動前' },
-  { id: 'critical', label: 'クリティカル発動時' },
-  { id: 'beat', label: 'ビート時' },
-  { id: 'combo', label: 'Xコンボ以上時' },
-  { id: 'score-up', label: 'スコアアップ時' },
-  { id: 'a-score-up', label: 'Aスキルスコアアップ時' },
-  { id: 'sp-score-up', label: 'SPスキルスコアアップ時' },
-  { id: 'beat-score-up', label: 'ビートスコアアップ時' },
-  { id: 'cmb-score-up', label: 'コンボスコアアップ時' },
-  { id: 'stamina-less-than', label: '誰かのスタミナがX%以下の時' },
-  { id: 'anyone-tension-up', label: '誰かがテンションアップ状態の時' },
-]
-const abilityTypeOptions: { id: AbilityDiv; label: string }[] = [
+const abilityTypeOptions: Option<AbilityDiv> = [
   { id: 'buff', label: '持続効果' },
   { id: 'action-buff', label: '即時効果' },
   { id: 'score', label: 'スコア獲得' },
 ]
-const buffTypeOptions: { id: BuffAbilityType; label: string }[] = [
+const buffTypeOptions: Option<BuffAbilityType> = [
   { id: 'vocal', label: 'ボーカル上昇' },
   { id: 'dance', label: 'ダンス上昇' },
   { id: 'visual', label: 'ビジュアル上昇' },
@@ -309,13 +288,13 @@ const buffTypeOptions: { id: BuffAbilityType; label: string }[] = [
   { id: 'eye-catch', label: '集目効果' },
   { id: 'skill-success', label: 'スキル成功率上昇' },
 ]
-const actionBuffTypeOptions: { id: ActionAbilityType; label: string }[] = [
+const actionBuffTypeOptions: Option<ActionAbilityType> = [
   { id: 'buff-span', label: '強化効果延長' },
   { id: 'ct-reduction', label: 'CT減少' },
   { id: 'stamina-recovery', label: 'スタミナ回復' },
   { id: 'shift-before-sp', label: '強化効果をSPスキル前に移動' },
 ]
-const buffTargetOptions: { id: BuffTargetWithoutSuffix; label: string }[] = [
+const buffTargetOptions: Option<BuffTargetWithoutSuffix> = [
   { id: 'self', label: '自身' },
   { id: 'all', label: '全員' },
   { id: 'center', label: 'センター' },
@@ -326,32 +305,18 @@ const buffTargetOptions: { id: BuffTargetWithoutSuffix; label: string }[] = [
   { id: 'high-visual', label: 'ビジュアルが高いX人' },
   { id: 'opponent-center', label: '相手のセンター [バトルのみ]' },
 ]
-const buffTargetOptionsPassive: { id: BuffTargetWithoutSuffix; label: string }[] = [
+const buffTargetOptionsPassive: Option<BuffTargetWithoutSuffix> = [
   { id: 'triggered', label: 'トリガ対象 [Pスキルのみ]' },
   ...buffTargetOptions,
 ]
-const buffTargetSuffixOptions: { id: BuffTargetCount; label: string }[] = [
+const buffTargetSuffixOptions: Option<BuffTargetCount> = [
   { id: '1', label: '1人' },
   { id: '2', label: '2人' },
   { id: '3', label: '3人' },
 ]
-const conditionOptions: { id: AbilityConditionType | 'none'; label: string }[] = [
-  { id: 'none', label: '発動条件なし' },
-  { id: 'combo', label: 'Xコンボ以上時' },
-  { id: 'stamina-greater-than', label: 'スタミナX%以上時' },
-  { id: 'stamina-less-than', label: 'スタミナX%以下の時' },
-  { id: 'vocal-up', label: 'ボーカルアップ時' },
-  { id: 'dance-up', label: 'ダンスアップ時' },
-  { id: 'visual-up', label: 'ビジュアルアップ時' },
-  { id: 'tension-up', label: 'テンションアップ時' },
-  { id: 'anyone-vocal-up', label: '誰かがボーカルアップ時' },
-  { id: 'anyone-dance-up', label: '誰かがダンスアップ時' },
-  { id: 'anyone-visual-up', label: '誰かがビジュアルアップ時' },
-  { id: 'anyone-eye-catch', label: '誰かが集目時' },
-  { id: 'in-vocal-lane', label: '自身がボーカルレーンの時' },
-  { id: 'in-dance-lane', label: '自身がダンスレーンの時' },
-  { id: 'in-visual-lane', label: '自身がビジュアルレーンの時' },
-  { id: 'critical', label: 'クリティカル発動時' },
+const conditionOptions: Option<AbilityConditionType> = [
+  ...objToOption(ABILITY_CONDITION_WITHOUT_VALUE),
+  ...objToOption(ABILITY_CONDITION_WITH_VALUE),
 ]
 
 const SKILLS_NAME_PLACEHOLDER = ['太陽の光と共に', '大好きなあのキャラ', '人生の倍返し'] as const

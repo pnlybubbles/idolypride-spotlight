@@ -7,7 +7,6 @@ import {
   SkillType,
   BuffAbilityType,
   BuffTargetCount,
-  SkillTriggerType,
   BuffTargetWithoutSuffix,
   SkillIndex,
   IdolData,
@@ -15,17 +14,15 @@ import {
   AbilityData,
   AbilityCondition,
   PassiveAbilityData,
-  SkillTrigger,
   BuffTargetWithSuffix,
   PassiveBuffTarget,
 } from '~~/utils/types'
 import { defined, mapArrayN, strictParseInt, unreachable } from '~~/utils'
 import {
+  isAbilityConditionWithoutValue,
   isAbilityConditionWithValue,
   isActionAbilityType,
   isBuffAbilityType,
-  isSkillTriggerTypeWithoutValue,
-  isSkillTriggerTypeWithValue,
 } from '~~/utils/formatter'
 
 export interface AbilityInput {
@@ -47,8 +44,6 @@ export interface SkillInput {
   name: string
   level: number
   type: SkillType
-  trigger: SkillTriggerType
-  triggerValue: string
   ct: string
   once: boolean
   ability: AbilityInput[]
@@ -76,8 +71,6 @@ export const defaultIdolInput = (): IdolInput => ({
       name: '',
       level: 1,
       type: 'sp',
-      trigger: 'idle',
-      triggerValue: '',
       ct: '',
       once: false,
       ability: [],
@@ -88,8 +81,6 @@ export const defaultIdolInput = (): IdolInput => ({
       name: '',
       level: 1,
       type: 'a',
-      trigger: 'idle',
-      triggerValue: '',
       ct: '',
       once: false,
       ability: [],
@@ -100,8 +91,6 @@ export const defaultIdolInput = (): IdolInput => ({
       name: '',
       level: 1,
       type: 'p',
-      trigger: 'idle',
-      triggerValue: '',
       ct: '',
       once: false,
       ability: [],
@@ -138,20 +127,9 @@ const formatSkill = (v: SkillInput): SkillData => {
     level: v.level,
   }
   if (v.type === 'p') {
-    const trigger: SkillTrigger = isSkillTriggerTypeWithValue(v.trigger)
-      ? {
-          type: v.trigger,
-          amount: strictParseInt(v.triggerValue),
-        }
-      : isSkillTriggerTypeWithoutValue(v.trigger)
-      ? {
-          type: v.trigger,
-        }
-      : unreachable(v.trigger)
     return {
       type: 'p',
-      trigger,
-      ability: v.ability.map((w) => formatPassiveAbility(w, trigger)),
+      ability: v.ability.map((w) => formatPassiveAbility(w)),
       ct: v.once ? 0 : strictParseInt(v.ct),
       ...common,
     }
@@ -187,31 +165,30 @@ const formatAbility = (v: AbilityInput): AbilityData => {
   return ability
 }
 
-export const formatPassiveAbility = (v: AbilityInput, trigger?: SkillTrigger): PassiveAbilityData => {
+export const formatPassiveAbility = (v: AbilityInput): PassiveAbilityData => {
   const id = v.id
   const amount = deriveDisabledAmount(v.type) ? 0 : parseInt(v.amount, 10)
-  const condition: AbilityCondition =
-    v.condition === 'none'
-      ? null
-      : isAbilityConditionWithValue(v.condition)
-      ? {
-          type: v.condition,
-          amount: parseInt(v.conditionValue, 10),
-        }
-      : {
-          type: v.condition,
-        }
+  const condition: AbilityCondition = isAbilityConditionWithValue(v.condition)
+    ? {
+        type: v.condition,
+        amount: parseInt(v.conditionValue, 10),
+      }
+    : isAbilityConditionWithoutValue(v.condition)
+    ? {
+        type: v.condition,
+      }
+    : unreachable(v.condition)
   if (v.div === 'score') {
     return { id, div: 'score', amount, condition }
   }
   const type = defined(v.type, 'type must not be null with action-buff')
   const targetWithoutSuffix = defined(v.target, 'target must not be null with action-buff')
-  const target =
-    trigger && availableNoSpan(trigger.type)
-      ? 'triggered'
-      : isBuffTargetSuffixRequired(targetWithoutSuffix)
-      ? (`${targetWithoutSuffix}-${v.targetSuffix}` as const)
-      : targetWithoutSuffix
+  // TODO: 必ずしもtriggered固定ではない
+  const target = availableNoSpan(v.condition)
+    ? 'triggered'
+    : isBuffTargetSuffixRequired(targetWithoutSuffix)
+    ? (`${targetWithoutSuffix}-${v.targetSuffix}` as const)
+    : targetWithoutSuffix
   if (v.div === 'action-buff') {
     if (!isActionAbilityType(type)) {
       throw new Error(`div is "action-buff", type "${type}" is invalid`)
@@ -240,8 +217,6 @@ const deformatSkill = (w: SkillData, i: SkillIndex): SkillInput => {
     ...w,
     ct: 'ct' in w ? w.ct.toString() : def.skills[i].ct,
     once: 'ct' in w ? w.ct === 0 : def.skills[i].once,
-    trigger: 'trigger' in w ? w.trigger.type : def.skills[i].trigger,
-    triggerValue: 'trigger' in w && 'amount' in w.trigger ? w.trigger.amount.toString() : def.skills[i].triggerValue,
     ability: w.ability.map(deformatAbility),
   }
 }
@@ -256,7 +231,7 @@ const deformatAbility = (v: AbilityData | PassiveAbilityData): AbilityInput => {
     span: 'span' in v && !noSpan ? v.span.toString() : def.span,
     type: 'type' in v ? v.type : def.type,
     condition: v.condition?.type ?? def.condition,
-    conditionValue: v.condition && 'amount' in v.condition ? v.condition.amount.toString() : def.conditionValue,
+    conditionValue: 'amount' in v.condition ? v.condition.amount.toString() : def.conditionValue,
     noSpan,
     ...('target' in v
       ? extractBuffTarget(v.target)
@@ -308,4 +283,4 @@ export const isBuffTargetSuffixRequired = (t: BuffTargetWithoutSuffix): t is Buf
 export const deriveDisabledAmount = (type: BuffAbilityType | ActionAbilityType | null): boolean =>
   type === 'cmb-continuous'
 
-export const availableNoSpan = (t: SkillTriggerType) => t === 'sp' || t === 'a'
+export const availableNoSpan = (t: AbilityConditionType) => t === 'sp' || t === 'a'

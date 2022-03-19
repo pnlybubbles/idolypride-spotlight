@@ -17,7 +17,6 @@ import {
   IdolData,
   PassiveAbilityData,
   SkillData,
-  SkillTrigger,
 } from './types'
 import { v4 as uuid } from 'uuid'
 
@@ -63,26 +62,8 @@ const deserializeSkill = ({ type, ...rest }: TmpSkill): SkillData => {
           type,
           ability,
           ct: rest.ct ?? 0,
-          trigger: deserializeTrigger(rest.trigger, rest.trigger_value),
         }
       : unreachable(type)),
-  }
-}
-
-const deserializeTrigger = (
-  trigger: string | undefined | null,
-  triggerValue: number | undefined | null
-): SkillTrigger => {
-  const type = defined(trigger)
-  if (isSkillTriggerTypeWithValue(type)) {
-    return {
-      type,
-      amount: triggerValue ?? 0,
-    }
-  } else if (isSkillTriggerTypeWithoutValue(type)) {
-    return { type }
-  } else {
-    return { type: 'unknown' }
   }
 }
 
@@ -102,7 +83,8 @@ const deserializeAbility = ({ type, ...rest }: TmpAbility): AbilityData => {
             type: rest.condition,
           }
         : { type: 'unknown' }
-      : null
+      : // TODO: conditionがnullのケースはなくなるはず
+        { type: 'none' }
   return type === 'get-score'
     ? {
         div: 'score',
@@ -180,8 +162,9 @@ const serializeSkill = (v: SkillData, upsert: boolean): RequiredSerialized<Skill
   name: v.name,
   type: v.type,
   level: v.level,
-  trigger: v.type === 'p' ? v.trigger.type : null,
-  trigger_value: v.type === 'p' && 'amount' in v.trigger ? v.trigger.amount : null,
+  // TODO: 消す
+  trigger: null,
+  trigger_value: null,
   ct: v.type !== 'sp' ? v.ct : null,
   abilities: {
     data: v.ability.map((w) => serializeAbility(w, upsert)),
@@ -203,66 +186,50 @@ const serializeAbility = (v: PassiveAbilityData, upsert: boolean): RequiredSeria
   span: v.div === 'buff' ? v.span : null,
   target: v.div !== 'score' ? v.target : null,
   condition: v.condition?.type ?? null,
-  condition_value: v.condition && 'amount' in v.condition ? v.condition.amount : null,
+  condition_value: 'amount' in v.condition ? v.condition.amount : null,
 })
-
-// 値ありのスキルのトリガ
-type SkillTriggerTypeWithValue = Extract<SkillTrigger, { amount: unknown }>['type']
-const SKILL_TRIGGER_TYPE_WITH_VALUE_LIST: Record<SkillTriggerTypeWithValue, true> = {
-  'stamina-less-than': true,
-  combo: true,
-}
-export const isSkillTriggerTypeWithValue = (type: string): type is SkillTriggerTypeWithValue =>
-  SKILL_TRIGGER_TYPE_WITH_VALUE_LIST[type as SkillTriggerTypeWithValue]
-
-// 値なしのスキルのトリガ
-type SkillTriggerTypeWithoutValue = Exclude<SkillTrigger, { amount: unknown }>['type']
-const SKILL_TRIGGER_TYPE_WITHOUT_VALUE: Record<SkillTriggerTypeWithoutValue, true> = {
-  idle: true,
-  critical: true,
-  beat: true,
-  sp: true,
-  a: true,
-  'score-up': true,
-  'a-score-up': true,
-  'sp-score-up': true,
-  'beat-score-up': true,
-  'cmb-score-up': true,
-  'anyone-tension-up': true,
-  unknown: true,
-}
-export const isSkillTriggerTypeWithoutValue = (type: string): type is SkillTriggerTypeWithoutValue =>
-  SKILL_TRIGGER_TYPE_WITHOUT_VALUE[type as SkillTriggerTypeWithoutValue]
 
 // 値ありの効果条件
 type AbilityConditionWithValue = Extract<AbilityCondition, { amount: unknown }>['type']
-const ABILITY_CONDITION_WITH_VALUE: Record<AbilityConditionWithValue, true> = {
-  'stamina-less-than': true,
-  'stamina-greater-than': true,
-  combo: true,
+export const ABILITY_CONDITION_WITH_VALUE: Record<AbilityConditionWithValue, string> = {
+  combo: 'Xコンボ以上時',
+  'stamina-greater-than': 'スタミナX%以上の時',
+  'stamina-less-than': 'スタミナX%以下の時',
+  'anyone-stamina-less-than': '誰かのスタミナがX%以下の時',
 }
 export const isAbilityConditionWithValue = (type: string): type is AbilityConditionWithValue =>
-  ABILITY_CONDITION_WITH_VALUE[type as AbilityConditionWithValue]
+  !!ABILITY_CONDITION_WITH_VALUE[type as AbilityConditionWithValue]
 
 // 値なしの効果条件
 type AbilityConditionWithoutValue = Exclude<AbilityCondition, { amount: unknown } | null>['type']
-const ABILITY_CONDITION_WITHOUT_VALUE: Record<AbilityConditionWithoutValue, true> = {
-  critical: true,
-  'anyone-eye-catch': true,
-  'tension-up': true,
-  'vocal-up': true,
-  'dance-up': true,
-  'visual-up': true,
-  'anyone-vocal-up': true,
-  'anyone-dance-up': true,
-  'anyone-visual-up': true,
-  'in-vocal-lane': true,
-  'in-dance-lane': true,
-  'in-visual-lane': true,
-  unknown: true,
+export const ABILITY_CONDITION_WITHOUT_VALUE: Record<AbilityConditionWithoutValue, string> = {
+  none: '発動条件なし',
+  sp: '誰かがSPスキル発動前',
+  a: '誰かがAスキル発動前',
+  beat: 'ビート時',
+  critical: 'クリティカル発動時',
+  'vocal-up': '自身がボーカルアップ時',
+  'dance-up': '自身がダンスアップ時',
+  'visual-up': '自身がビジュアルアップ時',
+  'eye-catch': '自身が集目状態の時',
+  'tension-up': '自身がテンションアップ時',
+  'score-up': '自身がスコアアップ時',
+  'a-score-up': '自身がAスキルスコアアップ時',
+  'sp-score-up': '自身がSPスキルスコアアップ時',
+  'beat-score-up': '自身がビートスコアアップ時',
+  'cmb-score-up': '自身がコンボスコアアップ時',
+  'in-vocal-lane': '自身がボーカルレーンの時',
+  'in-dance-lane': '自身がダンスレーンの時',
+  'in-visual-lane': '自身がビジュアルレーンの時',
+  'anyone-vocal-up': '誰かがボーカルアップ時',
+  'anyone-dance-up': '誰かがダンスアップ時',
+  'anyone-visual-up': '誰かがビジュアルアップ時',
+  'anyone-eye-catch': '誰かが集目状態の時',
+  'anyone-tension-up': '誰かがテンションアップ状態の時',
+  unknown: '不明',
 }
 export const isAbilityConditionWithoutValue = (type: string): type is AbilityConditionWithoutValue =>
-  ABILITY_CONDITION_WITHOUT_VALUE[type as AbilityConditionWithoutValue]
+  !!ABILITY_CONDITION_WITHOUT_VALUE[type as AbilityConditionWithoutValue]
 
 // 持続効果
 const BUFF_ABILITY_TYPE: Record<BuffAbilityType, true> = {

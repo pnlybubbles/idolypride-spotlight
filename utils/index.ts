@@ -1,9 +1,7 @@
 /**
  * Function used to assert a given code path is unreachable
  */
-export function unreachable(): never
-export function unreachable(value: never): never
-export function unreachable(value?: never): never {
+export function unreachable(value: never): never {
   throw new Error(arguments.length === 0 ? 'unreachable' : `unreachable (${JSON.stringify(value)})`)
 }
 
@@ -12,6 +10,11 @@ export function defined<T>(value: T | null | undefined, error?: string): T {
     throw new Error(error ?? '`value` must not be null or undefined.')
   }
   return value
+}
+
+export function isDefined<T>(value: T | null | undefined): value is T {
+  void defined(value)
+  return true
 }
 
 export function strictParseInt(value: string, error?: string): number {
@@ -70,3 +73,5 @@ export function mapObject<S extends string | number, T, U>(object: { [key in S]:
 export function uid() {
   return Math.random().toString(36).substr(2, 9)
 }
+
+export type PartiallyNonNullable<T, S extends keyof T> = { [K in keyof T]: K extends S ? NonNullable<T[K]> : T[K] }
