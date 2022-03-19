@@ -3,9 +3,7 @@ import { SKILLS } from './common'
 
 // type
 export type BuffAbilityType =
-  | 'vocal'
-  | 'dance'
-  | 'visual'
+  | IdolType
   | 'critical-rate'
   | 'critical-score'
   | 'score'
@@ -22,6 +20,7 @@ export type BuffAbilityType =
   | 'eye-catch'
   | 'skill-success'
   | 'unknown'
+  | `${IdolType}-down`
 export type ActionAbilityType =
   | 'buff-span'
   | 'ct-reduction'

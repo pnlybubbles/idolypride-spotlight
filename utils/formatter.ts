@@ -254,6 +254,9 @@ const BUFF_ABILITY_TYPE: Record<BuffAbilityType, true> = {
   'eye-catch': true,
   'skill-success': true,
   unknown: true,
+  'vocal-down': true,
+  'dance-down': true,
+  'visual-down': true,
 }
 export const isBuffAbilityType = (type: string): type is BuffAbilityType => BUFF_ABILITY_TYPE[type as BuffAbilityType]
 

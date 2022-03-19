@@ -293,6 +293,9 @@ const buffTypeOptions: Option<BuffAbilityType> = [
   { id: 'tension', label: 'テンションUP' },
   { id: 'eye-catch', label: '集目効果' },
   { id: 'skill-success', label: 'スキル成功率上昇' },
+  { id: 'vocal-down', label: 'ボーカル低下' },
+  { id: 'dance-down', label: 'ダンス低下' },
+  { id: 'visual-down', label: 'ビジュアル低下' },
 ]
 const actionBuffTypeOptions: Option<ActionAbilityType> = [
   { id: 'buff-span', label: '強化効果延長' },

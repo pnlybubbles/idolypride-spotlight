@@ -48,5 +48,9 @@ export const theme: Theme = {
     'eye-catch': normal,
     'skill-success': normal,
     unknown: normal,
+    'vocal-down': normal,
+    'dance-down': normal,
+    'visual-down': normal,
+    'debuff-recovery': normal,
   },
 }
