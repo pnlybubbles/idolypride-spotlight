@@ -21,15 +21,7 @@ import { useError } from '~~/composable/error'
 import { GetFumentListDocument } from '~~/generated/graphql'
 import { DEFAULT_META } from '~~/utils/meta'
 
-const { user, getToken, notAuthenticated } = useAuth()
-
-watchEffect(async () => {
-  if (!user.value) {
-    return
-  }
-  const token = await getToken()
-  console.log(token)
-})
+const { notAuthenticated } = useAuth()
 
 const { data, error, fetching } = useQuery({ query: GetFumentListDocument, pause: notAuthenticated })
 useError(error)
