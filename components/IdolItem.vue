@@ -18,9 +18,6 @@
       </div>
       <div class="skill-list">
         <div v-for="skill in idol.skills" :key="skill.id" class="skill-item">
-          <div v-if="skill.type === 'p'" class="ability">
-            <font-awesome-icon icon="flag"></font-awesome-icon>
-          </div>
           <div v-for="ability in sortAbility(skill.ability)" :key="ability.id" class="ability">
             <template v-if="ability.div === 'score'">
               <RoleIcon role="scorer"></RoleIcon>
