@@ -15,7 +15,6 @@
 import { useQuery } from '@urql/vue'
 import { useAuth } from '~~/composable/auth0'
 import { useError } from '~~/composable/error'
-import { useRouteGuard } from '~~/composable/route'
 import { GetFumenDocument } from '~~/generated/graphql'
 import { ArrayN } from '~~/utils'
 import { LANES } from '~~/utils/common'
@@ -48,7 +47,6 @@ const live = computed(() => {
 
 const selectedIdols = reactive<ArrayN<IdolData | null, 5>>([null, null, null, null, null])
 
-useRouteGuard()
 useMeta(DEFAULT_META)
 </script>
 <style lang="scss" scoped>

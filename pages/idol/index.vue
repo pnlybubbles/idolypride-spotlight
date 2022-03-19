@@ -27,7 +27,6 @@ import { useQuery } from '@urql/vue'
 import { GetIdolListDocument } from '~/generated/graphql'
 import { useAuth } from '~~/composable/auth0'
 import { useError } from '~~/composable/error'
-import { useRouteGuard } from '~~/composable/route'
 import { deserializeIdolList } from '~~/utils/formatter'
 import { DEFAULT_META } from '~~/utils/meta'
 
@@ -50,7 +49,6 @@ const isOwned = (idolId: string) => {
   return idolOwner != null && user.value?.sub != null && idolOwner == user.value.sub
 }
 
-useRouteGuard()
 useMeta(DEFAULT_META)
 </script>
 <style lang="scss" scoped>

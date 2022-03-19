@@ -12,7 +12,6 @@ import { useBeforeUnload } from '~~/composable/atom'
 import { useAuth } from '~~/composable/auth0'
 import { useError } from '~~/composable/error'
 import { useForm } from '~~/composable/form'
-import { useRouteGuard } from '~~/composable/route'
 import { GetIdolDocument, UpdateIdolDocument } from '~~/generated/graphql'
 import { deserializeIdol, serializeIdol } from '~~/utils/formatter'
 import { DEFAULT_META } from '~~/utils/meta'
@@ -65,6 +64,5 @@ const submit = async (data: IdolData) => {
 
 const skipUnloadConfirm = useBeforeUnload(() => confirm('ページを離れる場合は編集内容が破棄されます。よろしいですか？'))
 
-useRouteGuard()
 useMeta(DEFAULT_META)
 </script>

@@ -53,7 +53,6 @@
 import { useMutation } from '@urql/vue'
 import { useError } from '~~/composable/error'
 import { useForm } from '~~/composable/form'
-import { useRouteGuard } from '~~/composable/route'
 import { SUNNY_PEACE_HARMONY } from '~~/data/live'
 import { CreateFumenDocument } from '~~/generated/graphql'
 import { mapArrayN } from '~~/utils'
@@ -106,7 +105,6 @@ const submit = async () => {
 const A_SKILL_PLACEHOLDER = mapArrayN(SUNNY_PEACE_HARMONY.a, (v) => v.join(' '))
 const SP_SKILL_PLACEHOLDER = mapArrayN(SUNNY_PEACE_HARMONY.sp, (v) => v.join(' '))
 
-useRouteGuard()
 useMeta(DEFAULT_META)
 </script>
 <style lang="scss" scoped></style>

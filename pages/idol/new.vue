@@ -7,7 +7,6 @@
 </template>
 <script setup lang="ts">
 import { useMutation } from '@urql/vue'
-import { useRouteGuard } from '~~/composable/route'
 import { CreateIdolDocument } from '~~/generated/graphql'
 import { DEFAULT_META } from '~~/utils/meta'
 import { useForm } from '~~/composable/form'
@@ -37,7 +36,6 @@ const submit = async (data: IdolData) => {
 
 const skipUnloadConfirm = useBeforeUnload(() => confirm('ページを離れる場合は編集内容が破棄されます。よろしいですか？'))
 
-useRouteGuard()
 useMeta(DEFAULT_META)
 </script>
 <style lang="scss" scoped></style>
