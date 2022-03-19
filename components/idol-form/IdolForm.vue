@@ -88,12 +88,10 @@
               <template #label>詳細</template>
               <div class="left-main">
                 <Listbox
-                  :model-value="availableNoSpan(ability.condition) ? 'triggered' : ability.target"
-                  :disabled="availableNoSpan(ability.condition)"
+                  v-model="ability.target"
                   placeholder="対象"
-                  :options="skill?.type === 'p' ? buffTargetOptionsPassive : buffTargetOptions"
+                  :options="availableNoSpan(ability.condition) ? buffTargetOptionsPassive : buffTargetOptions"
                   required
-                  @update:model-value="ability.target = $event as any"
                 ></Listbox>
                 <Listbox
                   v-if="ability.target && isBuffTargetSuffixRequired(ability.target)"
