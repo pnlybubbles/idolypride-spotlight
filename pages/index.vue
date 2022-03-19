@@ -1,13 +1,7 @@
 <template>
   <Layout>
-    <template #heading>{{ TITLE }}<span class="badge">alpha</span></template>
-    <div v-if="!isAuthenticated" class="signin-view">
-      <NoteText>非公式のファンサイトです。公式とは一切関係ありませんので、迷惑をかけないようお願いします。</NoteText>
-      <NoteText>現在は許可制で運営しております。</NoteText>
-      <NoteText><HelpText /></NoteText>
-      <Button @click="signIn">サインイン</Button>
-    </div>
-    <div v-else class="list">
+    <template #heading>ライブ</template>
+    <div class="list">
       <NuxtLink v-for="item in fumenList" :key="item.id" :to="`/fumen/${item.id}`" class="item" @touchend="null">
         <div class="title">{{ item.title }}</div>
         <div class="unit">
@@ -29,9 +23,9 @@ import { useQuery } from '@urql/vue'
 import { useAuth } from '~~/composable/auth0'
 import { useError } from '~~/composable/error'
 import { GetFumentListDocument, GetFumentListQuery, IsUserAllowedDocument } from '~~/generated/graphql'
-import { DEFAULT_META, TITLE } from '~~/utils/meta'
+import { DEFAULT_META } from '~~/utils/meta'
 
-const { isAuthenticated, user, getToken, signIn, notAuthenticated } = useAuth()
+const { user, getToken, notAuthenticated } = useAuth()
 
 watchEffect(async () => {
   if (!user.value) {
@@ -70,17 +64,6 @@ useMeta(DEFAULT_META)
 @import '~~/components/partials/token.scss';
 @import '~~/components/partials/utils.scss';
 
-.badge {
-  @include round-corner;
-  font-size: $typography-s;
-  font-weight: bold;
-  border: 2px solid $text3;
-  color: $text3;
-  padding: 1px 3px;
-  margin-left: 8px;
-  vertical-align: middle;
-}
-
 .list {
   @include align;
 
@@ -113,12 +96,6 @@ useMeta(DEFAULT_META)
 
 .unit-icon {
   margin-right: 4px;
-}
-
-.signin-view {
-  @include align;
-  display: grid;
-  gap: 16px;
 }
 
 .loading {
