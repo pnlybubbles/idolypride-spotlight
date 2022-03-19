@@ -162,7 +162,6 @@
   </VStack>
 </template>
 <script setup lang="ts">
-import Listbox from '~~/components/Listbox.vue'
 import {
   AbilityDiv,
   ActionAbilityType,
@@ -192,6 +191,7 @@ import {
   availableNoSpan,
 } from './helper'
 import { defined } from '~~/utils'
+import { IDOL_NAME } from '~~/utils/common'
 
 interface Props {
   idol?: IdolData
@@ -232,27 +232,9 @@ const handleSubmit = () => {
 type Option<T> = { id: T; label: string }[]
 const objToOption = <K extends string>(obj: Record<K, string>): Option<K> =>
   Object.entries(obj).map(([id, label]) => ({ id, label })) as Option<K>
+const arrayToOption = (array: string[]): Option<string> => array.map((id) => ({ id, label: id }))
 
-const nameOptions: Option<string> = [
-  '長瀬琴乃',
-  '伊吹渚',
-  '白石沙季',
-  '成宮すず',
-  '早坂芽衣',
-  '川咲さくら',
-  '兵藤雫',
-  '白石千紗',
-  '一ノ瀬怜',
-  '佐伯遙子',
-  '天動瑠依',
-  '鈴村優',
-  '奥山すみれ',
-  '神崎莉央',
-  '井川葵',
-  '小美山愛',
-  '赤崎こころ',
-  '長瀬麻奈',
-].map((id) => ({ id, label: id }))
+const nameOptions: Option<string> = arrayToOption(IDOL_NAME)
 const typeOptions: Option<IdolType> = [
   { id: 'vocal', label: 'ボーカル' },
   { id: 'dance', label: 'ダンス' },
