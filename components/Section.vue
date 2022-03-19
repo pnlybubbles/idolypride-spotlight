@@ -1,18 +1,22 @@
 <template>
-  <div class="section" :style="gutter ? { padding: `0 ${gutter}px` } : {}">
-    <div v-if="$slots.label" class="label">
+  <div class="section" :style="overflow ? { padding: '0' } : gutterStyle">
+    <div v-if="$slots.label" class="label" :style="!overflow ? { padding: '0' } : gutterStyle">
       <slot name="label"></slot>
     </div>
-    <div class="stack">
-      <slot></slot>
+    <div v-if="overflow" class="overflow">
+      <div class="scrolling" :style="gutterStyle"><slot></slot></div>
     </div>
+    <div v-else class="stack"><slot></slot></div>
   </div>
 </template>
 <script setup lang="ts">
 interface Props {
   gutter?: number
+  overflow?: boolean
 }
-defineProps<Props>()
+const props = defineProps<Props>()
+
+const gutterStyle = computed(() => (props.gutter !== undefined ? { padding: `0 ${props.gutter}px` } : {}))
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
@@ -26,6 +30,8 @@ defineProps<Props>()
 }
 
 .label {
+  @include align;
+
   font-size: $typography-s;
   color: $text1;
 }
@@ -34,5 +40,16 @@ defineProps<Props>()
   display: grid;
   grid: auto-flow / auto;
   gap: 8px;
+}
+
+.overflow {
+  display: inline-flex;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  margin-bottom: -10px;
+}
+
+.scrolling {
+  @include align;
 }
 </style>
