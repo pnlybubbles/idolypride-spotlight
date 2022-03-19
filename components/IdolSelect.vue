@@ -6,11 +6,14 @@
     </div>
     <div v-else class="not-selected">未選択</div>
   </button>
-  <Sheet v-model:present="present">
+  <Sheet v-model:present="present" fixed>
+    <div class="filter">
+      <IdolFilter v-model="filter"></IdolFilter>
+    </div>
     <ul class="options">
       <li v-if="fetching" class="loading"><Spinner></Spinner></li>
-      <li v-for="item in idolList" :key="item.id">
-        <button class="button" @click="handleClick(item)">{{ item.title }} - {{ item.name }}</button>
+      <li v-for="item in filteredIdolList" :key="item.id">
+        <IdolItem :idol="item" variant="mini" @click="handleClick(item)"></IdolItem>
       </li>
     </ul>
   </Sheet>
@@ -21,6 +24,7 @@ import { useAuth } from '~~/composable/auth0'
 import { GetIdolListDocument } from '~~/generated/graphql'
 import { deserializeIdolList } from '~~/utils/formatter'
 import { IdolData } from '~~/utils/types'
+import { Filter, idolFilter } from './idol-filter/helper'
 
 interface Props {
   modelValue: null | IdolData
@@ -37,6 +41,7 @@ if (error.value) {
   console.error(error.value)
 }
 const idolList = computed(() => (data.value ? deserializeIdolList(data.value) : []))
+const filteredIdolList = computed(() => idolFilter(idolList.value, filter.value))
 
 const present = ref(false)
 
@@ -44,6 +49,8 @@ const handleClick = (item: IdolData) => {
   emit('update:modelValue', item)
   present.value = false
 }
+
+const filter = ref<Filter[]>([])
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
@@ -86,6 +93,10 @@ const handleClick = (item: IdolData) => {
   list-style: none;
   margin: 0;
   padding: 0;
+}
+
+.filter {
+  padding: 0 0 8px;
 }
 
 .button {

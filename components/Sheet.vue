@@ -2,7 +2,7 @@
   <teleport v-if="ready" to="body">
     <transition name="slide">
       <div v-if="present" class="sheet" @click.self="$emit('update:present', false)">
-        <div class="content">
+        <div class="content" :style="fixed ? { height: '90%' } : {}">
           <slot></slot>
         </div>
       </div>
@@ -12,6 +12,7 @@
 <script setup lang="ts">
 interface Props {
   present: boolean
+  fixed?: boolean
 }
 interface Emits {
   (e: 'update:present', value: boolean): void

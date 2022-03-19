@@ -16,7 +16,7 @@
           <div v-if="skill.type !== 'sp'" class="skill-ct">{{ skill.ct === 0 ? '-' : skill.ct }}</div>
         </div>
       </div>
-      <div class="skill-list">
+      <div v-if="variant === 'default'" class="skill-list">
         <div v-for="skill in idol.skills" :key="skill.id" class="skill-item">
           <div v-for="ability in sortAbility(skill.ability)" :key="ability.id" class="ability">
             <template v-if="ability.div === 'score'">
@@ -56,8 +56,10 @@ import { AbilityData, AbilityDiv, IdolData, PassiveAbilityData } from '~~/utils/
 
 interface Props {
   idol: IdolData
+  variant?: 'default' | 'mini'
 }
-defineProps<Props>()
+withDefaults(defineProps<Props>(), { variant: 'default' })
+
 interface Emits {
   (e: 'click'): void
 }
