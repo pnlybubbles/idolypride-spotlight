@@ -12,20 +12,49 @@
           @click="handleFilter(item)"
           @touchend="null"
         >
-          <span class="type">{{ TYPE_TO_LABEL[item.type] }}</span>
-          <span class="value">{{ item.value }}</span>
+          <span v-if="TYPE_TO_LABEL[item.type] !== null" class="type">{{ TYPE_TO_LABEL[item.type] }}</span>
+          <span class="value">{{ item.label }}</span>
         </button>
       </div>
       <button class="filter-button" @click="open = !open" @touchend="null">
         <font-awesome-icon icon="filter"></font-awesome-icon>
       </button>
     </div>
-    <div v-if="open">
+    <div v-if="open" class="details">
       <Section overflow>
         <template #label>名前</template>
         <div class="picker">
-          <button v-for="item in IDOL_NAME" :key="item" class="picker-item" @click="handlePick(item)" @touchend="null">
-            {{ item }}
+          <button
+            v-for="id in IDOL_NAME"
+            :key="id"
+            class="picker-item"
+            @click="handlePick('name', id, id)"
+            @touchend="null"
+          >
+            {{ id }}
+          </button>
+        </div>
+      </Section>
+      <Section overflow>
+        <template #label>タイプ</template>
+        <div class="picker">
+          <button
+            v-for="(label, id) in IDOL_TYPE"
+            :key="id"
+            class="picker-item"
+            @click="handlePick('type', id, label)"
+            @touchend="null"
+          >
+            {{ label }}
+          </button>
+          <button
+            v-for="(label, id) in IDOL_ROLE"
+            :key="id"
+            class="picker-item"
+            @click="handlePick('role', id, label)"
+            @touchend="null"
+          >
+            {{ label }}
           </button>
         </div>
       </Section>
@@ -33,8 +62,8 @@
   </div>
 </template>
 <script setup lang="ts">
-import { IDOL_NAME } from '~~/utils/common'
-import { Filter } from './types'
+import { IDOL_NAME, IDOL_TYPE, IDOL_ROLE } from '~~/utils/common'
+import { Filter, FilterType } from './types'
 
 interface Props {
   modelValue: Filter[]
@@ -56,15 +85,17 @@ const handleFilter = (item: Filter) => {
   )
 }
 
-const handlePick = (value: string) => {
-  if (props.modelValue.find((v) => filterEq(v, { type: 'name', value }))) {
+const handlePick = (type: FilterType, value: string, label: string) => {
+  if (props.modelValue.find((v) => filterEq(v, { type, value, label }))) {
     return
   }
-  emit('update:modelValue', [...props.modelValue, { type: 'name', value }])
+  emit('update:modelValue', [...props.modelValue, { type, value, label }])
 }
 
-const TYPE_TO_LABEL: Record<Filter['type'], string> = {
+const TYPE_TO_LABEL: Record<FilterType, string | null> = {
   name: '名前',
+  type: null,
+  role: null,
 }
 </script>
 <style lang="scss">
@@ -82,6 +113,11 @@ const TYPE_TO_LABEL: Record<Filter['type'], string> = {
   grid: auto / 1fr auto;
   align-items: center;
   min-width: 0;
+}
+
+.details {
+  display: grid;
+  gap: 8px;
 }
 
 .applied {

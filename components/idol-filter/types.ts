@@ -1,4 +1,6 @@
+export type FilterType = 'name' | 'type' | 'role'
 export type Filter = {
-  type: 'name'
+  type: FilterType
+  label: string
   value: string
 }

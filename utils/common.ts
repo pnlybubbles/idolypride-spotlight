@@ -3,7 +3,9 @@ export const SKILLS = [0, 1, 2] as const
 
 export const px = (value: number) => `${value}px`
 
-// アイドルの名前
+/**
+ * アイドルの名前
+ */
 export const IDOL_NAME = [
   '長瀬琴乃',
   '伊吹渚',
@@ -24,3 +26,21 @@ export const IDOL_NAME = [
   '赤崎こころ',
   '長瀬麻奈',
 ]
+
+/**
+ * アイドルのタイプ
+ */
+export const IDOL_TYPE = {
+  vocal: 'ボーカル',
+  dance: 'ダンス',
+  visual: 'ビジュアル',
+}
+
+/**
+ * アイドルのロール
+ */
+export const IDOL_ROLE = {
+  scorer: 'スコアラー',
+  buffer: 'バッファー',
+  supporter: 'サポーター',
+}
