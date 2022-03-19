@@ -98,18 +98,27 @@ export const defaultIdolInput = (): IdolInput => ({
   ],
 })
 
-export const defaultAbilityInput = (div: 'score' | 'buff' = 'buff'): AbilityInput => ({
-  id: '',
-  div: div,
-  type: null,
-  condition: 'none',
-  conditionValue: '',
-  target: null,
-  targetSuffix: '1',
-  amount: '',
-  span: '',
-  noSpan: false,
-})
+export const defaultAbilityInput = (
+  override: {
+    div?: 'score' | 'buff' | undefined
+    condition?: AbilityConditionType | undefined
+    conditionValue?: string | undefined
+  } = {}
+): AbilityInput => {
+  const { div = 'buff', condition = 'none', conditionValue = '' } = override
+  return {
+    id: '',
+    div: div,
+    type: null,
+    condition: condition,
+    conditionValue: conditionValue,
+    target: null,
+    targetSuffix: '1',
+    amount: '',
+    span: '',
+    noSpan: false,
+  }
+}
 
 export const formatIdol = (v: IdolInput): IdolData => {
   return {

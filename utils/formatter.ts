@@ -203,7 +203,7 @@ export const isAbilityConditionWithValue = (type: string): type is AbilityCondit
 // 値なしの効果条件
 type AbilityConditionWithoutValue = Exclude<AbilityCondition, { amount: unknown } | null>['type']
 export const ABILITY_CONDITION_WITHOUT_VALUE: Record<AbilityConditionWithoutValue, string> = {
-  none: '発動条件なし',
+  none: 'なし',
   sp: '誰かがSPスキル発動前',
   a: '誰かがAスキル発動前',
   beat: 'ビート時',

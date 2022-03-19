@@ -71,6 +71,19 @@
               <template #label>種別</template>
               <Listbox v-model="ability.div" :options="abilityTypeOptions"></Listbox>
             </Section>
+            <Section :gutter="8">
+              <template #label>発動条件</template>
+              <div class="left-main">
+                <Listbox v-model="ability.condition" :options="conditionOptions" required></Listbox>
+                <TextField
+                  v-if="isAbilityConditionWithValue(ability.condition)"
+                  v-model="ability.conditionValue"
+                  placeholder="X"
+                  type="number"
+                  required
+                ></TextField>
+              </div>
+            </Section>
             <Section v-if="ability.div === 'buff' || ability.div === 'action-buff'" :gutter="8">
               <template #label>詳細</template>
               <div class="left-main">
@@ -128,16 +141,6 @@
                   >トリガビートを選択すると、Pスキルの発動起因となったA/SPスキルにのみ影響する効果になります</NoteText
                 >
               </template>
-              <div class="left-main">
-                <Listbox v-model="ability.condition" :options="conditionOptions" required></Listbox>
-                <TextField
-                  v-if="isAbilityConditionWithValue(ability.condition)"
-                  v-model="ability.conditionValue"
-                  placeholder="X"
-                  type="number"
-                  required
-                ></TextField>
-              </div>
             </Section>
             <Section v-else-if="ability.div === 'score'" :gutter="8">
               <template #label>スコア</template>
@@ -186,6 +189,7 @@ import {
   SkillInput,
   availableNoSpan,
 } from './helper'
+import { defined } from '~~/utils'
 
 interface Props {
   idol?: IdolData
@@ -201,12 +205,14 @@ const emit = defineEmits<Emits>()
 const idol = reactive<IdolInput>(props.idol ? deformatIdol(props.idol) : defaultIdolInput())
 
 const handleAddAbility = (skill: SkillInput) => {
-  const currentSkill = idol.skills.find((v) => v.index === skill.index)
-  if (!currentSkill) {
-    return
-  }
+  const currentSkill = defined(idol.skills.find((v) => v.index === skill.index))
+  const currentAbility = currentSkill.ability.slice(-1)[0]
   currentSkill.ability.push(
-    defaultAbilityInput(currentSkill.type !== 'p' && currentSkill.ability.length === 0 ? 'score' : 'buff')
+    defaultAbilityInput({
+      div: currentSkill.type !== 'p' && currentSkill.ability.length === 0 ? 'score' : 'buff',
+      condition: currentSkill.type === 'p' ? currentAbility?.condition : undefined,
+      conditionValue: currentSkill.type === 'p' ? currentAbility?.conditionValue : undefined,
+    })
   )
 }
 
