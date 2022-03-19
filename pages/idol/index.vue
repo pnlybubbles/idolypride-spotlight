@@ -2,9 +2,12 @@
   <Layout>
     <template #heading>アイドル</template>
     <div class="main">
+      <div class="sticky">
+        <IdolFilter v-model="filter"></IdolFilter>
+      </div>
       <div v-if="fetching" class="loading"><Spinner></Spinner></div>
       <ul v-else class="list">
-        <li v-for="idol in idolList" :key="idol.id">
+        <li v-for="idol in filteredIdolList" :key="idol.id">
           <IdolItem :idol="idol" @click="handleClick(idol.id)"></IdolItem>
         </li>
       </ul>
@@ -25,6 +28,7 @@
 <script setup lang="ts">
 import { useQuery } from '@urql/vue'
 import { GetIdolListDocument } from '~/generated/graphql'
+import { Filter } from '~~/components/idol-filter/types'
 import { useAuth } from '~~/composable/auth0'
 import { useError } from '~~/composable/error'
 import { deserializeIdolList } from '~~/utils/formatter'
@@ -35,6 +39,10 @@ const { data, fetching, error } = useQuery({ query: GetIdolListDocument, pause: 
 useError(error)
 
 const idolList = computed(() => (data.value ? deserializeIdolList(data.value) : []))
+const filteredIdolList = computed(() => {
+  const nameList = filter.value.filter((v) => v.type === 'name').map((v) => v.value)
+  return idolList.value.filter((v) => (nameList.length === 0 ? true : nameList.includes(v.name)))
+})
 
 const present = ref(false)
 const currentIdolId = ref('')
@@ -48,6 +56,8 @@ const isOwned = (idolId: string) => {
   const idolOwner = idolList.value.find((v) => v.id === idolId)?.userId
   return idolOwner != null && user.value?.sub != null && idolOwner == user.value.sub
 }
+
+const filter = ref<Filter[]>([])
 
 useMeta(DEFAULT_META)
 </script>
@@ -77,5 +87,16 @@ useMeta(DEFAULT_META)
 
 .add-button {
   @include align;
+}
+
+.sticky {
+  @include bloom(black);
+
+  position: sticky;
+  top: 0;
+  padding: 16px 0;
+  margin: -16px 0;
+  background-color: $background1;
+  z-index: 1;
 }
 </style>

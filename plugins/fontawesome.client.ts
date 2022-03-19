@@ -18,6 +18,7 @@ import {
   faCircleExclamation,
   faCircleCheck,
   faCircleXmark,
+  faFilter,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
@@ -39,7 +40,8 @@ library.add(
   faFlag,
   faCircleExclamation,
   faCircleCheck,
-  faCircleXmark
+  faCircleXmark,
+  faFilter
 )
 
 export default defineNuxtPlugin((nuxtApp) => {
