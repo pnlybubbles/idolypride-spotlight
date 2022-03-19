@@ -124,6 +124,7 @@ export type SkillData = {
   | {
       type: 'p'
       ability: PassiveAbilityData[]
+      // ct=0のときはライブ中1回
       ct: number
     }
 )

@@ -323,6 +323,10 @@ const extractCtState = ({ state, currentBeat }: Pick<DomainState, 'state' | 'cur
         }
         // Pスキル
         if (v.type === 'p') {
+          // ライブ中1回のチェック
+          if (v.skill.ct === 0) {
+            return v
+          }
           // CTチェック
           if (!inCT(v.beat, v.skill.ct)) {
             return null
