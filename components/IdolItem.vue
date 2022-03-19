@@ -31,7 +31,7 @@
               <div>{{ ability.amount }}</div>
               <div>{{ ability.type }}</div>
               <div>{{ ability.target }}</div>
-              <div v-if="ability.condition">
+              <div v-if="ability.condition.type !== 'none'">
                 ({{ ability.condition.type }}{{ 'amount' in ability.condition ? ` ${ability.condition.amount}` : '' }})
               </div>
               <div>[{{ ability.span }}]</div>
@@ -41,7 +41,7 @@
               <div>{{ ability.amount }}</div>
               <div>{{ ability.type }}</div>
               <div>{{ ability.target }}</div>
-              <div v-if="ability.condition">
+              <div v-if="ability.condition.type !== 'none'">
                 ({{ ability.condition.type }}{{ 'amount' in ability.condition ? ` ${ability.condition.amount}` : '' }})
               </div>
             </template>
