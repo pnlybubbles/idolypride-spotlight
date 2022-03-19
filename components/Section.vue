@@ -47,6 +47,10 @@ const gutterStyle = computed(() => (props.gutter !== undefined ? { padding: `0 $
   overflow-x: auto;
   padding-bottom: 10px;
   margin-bottom: -10px;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .scrolling {
