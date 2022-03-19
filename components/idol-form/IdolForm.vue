@@ -309,6 +309,9 @@ const buffTargetOptions: Option<BuffTargetWithoutSuffix> = [
   { id: 'high-vocal', label: 'ボーカルが高いX人' },
   { id: 'high-dance', label: 'ダンスが高いX人' },
   { id: 'high-visual', label: 'ビジュアルが高いX人' },
+  { id: 'vocal', label: 'ボーカルタイプX人' },
+  { id: 'dance', label: 'ダンスタイプX人' },
+  { id: 'visual', label: 'ビジュアルタイプX人' },
   { id: 'opponent-center', label: '相手のセンター [バトルのみ]' },
 ]
 const buffTargetOptionsPassive: Option<BuffTargetWithoutSuffix> = [
