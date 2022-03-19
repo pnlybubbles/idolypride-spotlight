@@ -290,6 +290,6 @@ export const isBuffTargetSuffixRequired = (t: BuffTargetWithoutSuffix): t is Buf
     : unreachable(t)
 
 export const deriveDisabledAmount = (type: BuffAbilityType | ActionAbilityType | null): boolean =>
-  type === 'cmb-continuous'
+  type === 'cmb-continuous' || type === 'debuff-recovery' || type === 'shift-before-sp'
 
 export const availableNoSpan = (t: AbilityConditionType) => t === 'sp' || t === 'a'
