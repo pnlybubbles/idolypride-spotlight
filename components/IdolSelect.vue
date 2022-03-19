@@ -1,5 +1,5 @@
 <template>
-  <button class="idol-select" @click="present = true" @touchend="null">
+  <button class="idol-select" @click="present = true" @touchend="handleTouchEnd" @touchstart="handleTouchStart">
     <div v-if="modelValue" class="selected">
       <div class="title">{{ modelValue.title }}</div>
       <div class="name">{{ modelValue.name }}</div>
@@ -19,6 +19,14 @@
       </ul>
     </div>
   </Sheet>
+  <Sheet v-model:present="detailPresent">
+    <VStack :spacing="16">
+      <IdolItem v-if="modelValue !== null" :idol="modelValue"></IdolItem>
+      <Section>
+        <Button @click="handleReset">未選択に戻す</Button>
+      </Section>
+    </VStack>
+  </Sheet>
 </template>
 <script setup lang="ts">
 import { useQuery } from '@urql/vue'
@@ -33,7 +41,7 @@ interface Props {
 }
 defineProps<Props>()
 interface Emits {
-  (e: 'update:modelValue', value: IdolData): void
+  (e: 'update:modelValue', value: null | IdolData): void
 }
 const emit = defineEmits<Emits>()
 
@@ -46,6 +54,21 @@ const idolList = computed(() => (data.value ? deserializeIdolList(data.value) : 
 const filteredIdolList = computed(() => idolFilter(idolList.value, filter.value))
 
 const present = ref(false)
+
+const detailPresent = ref(false)
+
+let touchTimer: NodeJS.Timeout | null = null
+const handleTouchStart = () => {
+  touchTimer = setTimeout(handleLongTouch, 500)
+}
+const handleTouchEnd = () => touchTimer && clearTimeout(touchTimer)
+
+const handleLongTouch = () => (detailPresent.value = true)
+
+const handleReset = () => {
+  emit('update:modelValue', null)
+  detailPresent.value = false
+}
 
 const handleClick = (item: IdolData) => {
   emit('update:modelValue', item)
