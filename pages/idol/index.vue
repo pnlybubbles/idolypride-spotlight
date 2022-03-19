@@ -28,7 +28,7 @@
 <script setup lang="ts">
 import { useQuery } from '@urql/vue'
 import { GetIdolListDocument } from '~/generated/graphql'
-import { Filter } from '~~/components/idol-filter/types'
+import { Filter, idolFilter } from '~~/components/idol-filter/helper'
 import { useAuth } from '~~/composable/auth0'
 import { useError } from '~~/composable/error'
 import { deserializeIdolList } from '~~/utils/formatter'
@@ -39,15 +39,7 @@ const { data, fetching, error } = useQuery({ query: GetIdolListDocument, pause: 
 useError(error)
 
 const idolList = computed(() => (data.value ? deserializeIdolList(data.value) : []))
-const filteredIdolList = computed(() => {
-  const nameList = filter.value.filter((v) => v.type === 'name').map((v) => v.value)
-  const typeList = filter.value.filter((v) => v.type === 'type').map((v) => v.value)
-  const roleList = filter.value.filter((v) => v.type === 'role').map((v) => v.value)
-  return idolList.value
-    .filter((v) => (nameList.length === 0 ? true : nameList.includes(v.name)))
-    .filter((v) => (typeList.length === 0 ? true : typeList.includes(v.type)))
-    .filter((v) => (roleList.length === 0 ? true : roleList.includes(v.role)))
-})
+const filteredIdolList = computed(() => idolFilter(idolList.value, filter.value))
 
 const present = ref(false)
 const currentIdolId = ref('')

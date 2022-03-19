@@ -63,7 +63,7 @@
 </template>
 <script setup lang="ts">
 import { IDOL_NAME, IDOL_TYPE, IDOL_ROLE } from '~~/utils/common'
-import { Filter, FilterType } from './types'
+import { Filter, FilterType } from './helper'
 
 interface Props {
   modelValue: Filter[]
