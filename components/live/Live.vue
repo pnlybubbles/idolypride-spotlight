@@ -166,6 +166,8 @@ const lanes = computed(() =>
   @include lane-grid;
   height: calc(v-bind(beat) * $scale-factor);
   user-select: none;
+  position: relative;
+  z-index: 0;
 }
 
 .lane + .lane {

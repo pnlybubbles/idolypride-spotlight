@@ -1,5 +1,5 @@
 <template>
-  <Layout>
+  <Layout class="root">
     <template #heading>アイドル</template>
     <div class="main">
       <div class="sticky">
@@ -61,6 +61,11 @@ useMeta(DEFAULT_META)
 <style lang="scss" scoped>
 @import '~~/components/partials/utils.scss';
 @import '~~/components/partials/token.scss';
+
+.root {
+  position: relative;
+  z-index: 0;
+}
 
 .main {
   display: grid;

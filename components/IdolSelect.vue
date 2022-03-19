@@ -131,6 +131,7 @@ const filter = ref<Filter[]>([])
 
 .container {
   position: relative;
+  z-index: 0;
 }
 
 .loading {
