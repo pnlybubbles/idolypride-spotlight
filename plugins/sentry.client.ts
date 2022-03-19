@@ -13,6 +13,9 @@ export default defineNuxtPlugin((nuxtApp) => {
         tracingOrigins: ['localhost', 'idolypride-spotlight.vercel.app', /^\//],
       }),
     ],
+    // ログが `instrument.ts` になってしまう問題は↓
+    // https://docs.sentry.io/platforms/javascript/guides/nextjs/troubleshooting/#instrumentjs-line-numbers-for-console-log-statements
+    logErrors: true,
     // Set tracesSampleRate to 1.0 to capture 100%
     // of transactions for performance monitoring.
     // We recommend adjusting this value in production
