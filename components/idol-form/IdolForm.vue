@@ -74,7 +74,11 @@
             <Section :gutter="8">
               <template #label>発動条件</template>
               <div class="left-main">
-                <Listbox v-model="ability.condition" :options="conditionOptions" required></Listbox>
+                <Listbox
+                  v-model="ability.condition"
+                  :options="skill.type === 'p' ? conditionOptionsForP : conditionOptions"
+                  required
+                ></Listbox>
                 <TextField
                   v-if="isAbilityConditionWithValue(ability.condition)"
                   v-model="ability.conditionValue"
@@ -90,7 +94,7 @@
                 <Listbox
                   v-model="ability.target"
                   placeholder="対象"
-                  :options="availableNoSpan(ability.condition) ? buffTargetOptionsPassive : buffTargetOptions"
+                  :options="availableNoSpan(ability.condition) ? buffTargetOptionsForP : buffTargetOptions"
                   required
                 ></Listbox>
                 <Listbox
@@ -316,7 +320,7 @@ const buffTargetOptions: Option<BuffTargetWithoutSuffix> = [
   { id: 'visual', label: 'ビジュアルタイプX人' },
   { id: 'opponent-center', label: '相手のセンター [バトルのみ]' },
 ]
-const buffTargetOptionsPassive: Option<BuffTargetWithoutSuffix> = [
+const buffTargetOptionsForP: Option<BuffTargetWithoutSuffix> = [
   { id: 'triggered', label: 'トリガ対象 [Pスキルのみ]' },
   ...buffTargetOptions,
 ]
@@ -325,10 +329,12 @@ const buffTargetSuffixOptions: Option<BuffTargetCount> = [
   { id: '2', label: '2人' },
   { id: '3', label: '3人' },
 ]
-const conditionOptions: Option<AbilityConditionType> = [
-  ...objToOption(ABILITY_CONDITION_WITHOUT_VALUE),
+const conditionOptionsForP: Option<AbilityConditionType> = [
+  ...objToOption(ABILITY_CONDITION_WITHOUT_VALUE).filter((v) => v.id !== 'unknown'),
   ...objToOption(ABILITY_CONDITION_WITH_VALUE),
 ]
+const ABILITY_CONDITION_AVAILABLE_FOR_P_ONLY: AbilityConditionType[] = ['a', 'sp']
+const conditionOptions = conditionOptionsForP.filter((v) => !ABILITY_CONDITION_AVAILABLE_FOR_P_ONLY.includes(v.id))
 
 const SKILLS_NAME_PLACEHOLDER = ['太陽の光と共に', '大好きなあのキャラ', '人生の倍返し'] as const
 const SKILLS_CT_PLACEHOLDER = ['', '30', ''] as const
