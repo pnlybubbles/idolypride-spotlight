@@ -20,6 +20,7 @@
         </li>
       </ul>
     </Sheet>
+    <template #error>選択肢が変化したため再選択が必要です</template>
   </AssistiveText>
 </template>
 <script setup lang="ts">
@@ -61,7 +62,7 @@ const handleOpen = () => {
 }
 
 // どのエラーを表示するか (入力中や未入力では不完全な状態になっているはずなので、入力が終わるまでエラーを出すのを待つ制御をする)
-const showError = ref<null | 'required'>(null)
+const showError = ref<null | 'required' | 'validation'>(null)
 // 入力必須エラーが発生しているかどうか
 const requiredError = computed(() => props.required && props.modelValue === null)
 // ユーザーのキー入力によってエラーが発生したかどうか
@@ -74,8 +75,12 @@ watchEffect(() => {
   }
   requiredErrorOnEditing.value = requiredError.value
 })
+// オプションが変化して変更が必須になっているエラーが発生しているかどうか
+const changeRequiredError = computed(
+  () => props.modelValue !== null && props.options.find((v) => v.id === props.modelValue) === undefined
+)
 watchEffect(() => {
-  const error = requiredErrorOnEditing.value ? 'required' : null
+  const error = requiredErrorOnEditing.value ? 'required' : changeRequiredError.value ? 'validation' : null
   // 一貫してフォーカス中にエラーが表示されないようにする
   // エラーを消す処理は即時に行う
   if (present.value && showError.value == null && error) {
