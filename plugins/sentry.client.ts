@@ -20,6 +20,12 @@ export default defineNuxtPlugin((nuxtApp) => {
     // of transactions for performance monitoring.
     // We recommend adjusting this value in production
     tracesSampleRate: 1.0,
+    beforeSend(event, hint) {
+      if (event.exception) {
+        console.error(hint?.originalException)
+      }
+      return event
+    },
   })
 
   return {
