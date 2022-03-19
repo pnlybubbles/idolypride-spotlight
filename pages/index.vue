@@ -9,11 +9,7 @@
           <span>{{ item.unit }}</span>
         </div>
       </NuxtLink>
-      <div v-if="fetching || fetchingAllow" class="loading"><Spinner></Spinner></div>
-      <Callout v-else-if="isNotAllowed">
-        <template #title>ユーザーが許可されていません</template>
-        ただいま完全許可制になっております。こちらまでご連絡ください。<HelpLink />
-      </Callout>
+      <div v-if="fetching" class="loading"><Spinner></Spinner></div>
       <ButtonLink to="/fumen/new">譜面を追加する</ButtonLink>
     </div>
   </Layout>
@@ -22,7 +18,7 @@
 import { useQuery } from '@urql/vue'
 import { useAuth } from '~~/composable/auth0'
 import { useError } from '~~/composable/error'
-import { GetFumentListDocument, GetFumentListQuery, IsUserAllowedDocument } from '~~/generated/graphql'
+import { GetFumentListDocument } from '~~/generated/graphql'
 import { DEFAULT_META } from '~~/utils/meta'
 
 const { user, getToken, notAuthenticated } = useAuth()
@@ -39,24 +35,6 @@ const { data, error, fetching } = useQuery({ query: GetFumentListDocument, pause
 useError(error)
 
 const fumenList = computed(() => data.value?.fumen ?? [])
-
-const notAllowedCandidate = (value: GetFumentListQuery | undefined) => value !== undefined && value.fumen.length === 0
-
-const {
-  data: allowData,
-  fetching: fetchingAllow,
-  error: errorAllow,
-} = useQuery({
-  query: IsUserAllowedDocument,
-  variables: computed(() => ({ id: user.value?.sub ?? '' })),
-  pause: computed(() => notAuthenticated.value || !notAllowedCandidate(data.value)),
-})
-useError(errorAllow)
-
-const isNotAllowed = computed(() => {
-  const allow = allowData.value?.user_by_pk?.allow
-  return notAllowedCandidate(data.value) && allow !== undefined && !allow
-})
 
 useMeta(DEFAULT_META)
 </script>
