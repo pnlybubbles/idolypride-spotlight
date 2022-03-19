@@ -70,7 +70,8 @@ const deserializeSkill = ({ type, ...rest }: TmpSkill): SkillData => {
 type TmpAbility = TmpSkill['abilities'][number]
 const deserializeAbility = ({ type, ...rest }: TmpAbility): AbilityData => {
   const id = rest.id as string
-  const amount = defined(rest.amount)
+  // TODO: amountが無い効果もあるので型を適切に分岐する
+  const amount = rest.amount ?? 0
   const condition: AbilityCondition =
     rest.condition != null
       ? isAbilityConditionWithValue(rest.condition)
