@@ -54,7 +54,7 @@ export interface SkillInput {
 
 export interface IdolInput {
   id: string
-  name: string
+  name: string | null
   title: string
   type: IdolType
   role: IdolRole
@@ -63,7 +63,7 @@ export interface IdolInput {
 
 export const defaultIdolInput = (): IdolInput => ({
   id: '',
-  name: '',
+  name: null,
   title: '',
   type: 'vocal',
   role: 'scorer',
@@ -125,6 +125,7 @@ export const defaultAbilityInput = (
 export const formatIdol = (v: IdolInput): IdolData => {
   return {
     ...v,
+    name: defined(v.name),
     userId: null,
     skills: mapArrayN(v.skills, formatSkill),
   }

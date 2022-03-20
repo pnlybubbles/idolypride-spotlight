@@ -1,7 +1,7 @@
 <template>
   <AssistiveText :show="showError">
     <button class="listbox" :class="{ error: showError !== null }" :disabled="disabled" @click="handleOpen">
-      <div class="current" :class="{ placeholder: modelValue === null }">
+      <div class="current" :class="{ placeholder: selectedLabel === undefined }">
         {{ selectedLabel ?? placeholder ?? '選択してください' }}
       </div>
       <font-awesome-icon icon="angle-down" class="icon"></font-awesome-icon>
