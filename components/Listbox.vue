@@ -161,6 +161,10 @@ useFormComponent(computed(() => ({ error: requiredError.value })))
 }
 
 .current {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
   &.placeholder {
     color: $text3;
   }
