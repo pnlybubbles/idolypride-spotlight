@@ -94,7 +94,9 @@
                 <Listbox
                   v-model="ability.target"
                   placeholder="対象"
-                  :options="availableNoSpan(ability.condition) ? buffTargetOptionsForP : buffTargetOptions"
+                  :options="
+                    availableTrigger(ability.condition) ? buffTargetOptionsIncludingTriggered : buffTargetOptions
+                  "
                   required
                 ></Listbox>
                 <Listbox
@@ -302,7 +304,7 @@ const buffTargetOptions: Option<BuffTargetWithoutSuffix> = [
   { id: 'visual', label: 'ビジュアルタイプX人' },
   { id: 'opponent-center', label: '相手のセンター [バトルのみ]' },
 ]
-const buffTargetOptionsForP: Option<BuffTargetWithoutSuffix> = [
+const buffTargetOptionsIncludingTriggered: Option<BuffTargetWithoutSuffix> = [
   { id: 'triggered', label: 'トリガ対象 [Pスキルのみ]' },
   ...buffTargetOptions,
 ]
@@ -317,6 +319,40 @@ const conditionOptionsForP: Option<AbilityConditionType> = [
 ]
 const ABILITY_CONDITION_AVAILABLE_FOR_P_ONLY: AbilityConditionType[] = ['a', 'sp']
 const conditionOptions = conditionOptionsForP.filter((v) => !ABILITY_CONDITION_AVAILABLE_FOR_P_ONLY.includes(v.id))
+
+const AVAILAVLE_TRIGGER: Record<AbilityConditionType, boolean> = {
+  none: false,
+  sp: true,
+  a: true,
+  beat: false,
+  critical: false,
+  'vocal-up': false,
+  'dance-up': false,
+  'visual-up': false,
+  'eye-catch': false,
+  'tension-up': false,
+  'critical-up': false,
+  'score-up': false,
+  'a-score-up': false,
+  'sp-score-up': false,
+  'beat-score-up': false,
+  'cmb-score-up': false,
+  'in-vocal-lane': false,
+  'in-dance-lane': false,
+  'in-visual-lane': false,
+  'anyone-vocal-up': true,
+  'anyone-dance-up': true,
+  'anyone-visual-up': true,
+  'anyone-eye-catch': true,
+  'anyone-tension-up': true,
+  'anyone-critical-up': true,
+  unknown: false,
+  combo: false,
+  'stamina-greater-than': false,
+  'stamina-less-than': false,
+  'anyone-stamina-less-than': true,
+}
+const availableTrigger = (t: AbilityConditionType) => AVAILAVLE_TRIGGER[t]
 
 const SKILLS_NAME_PLACEHOLDER = ['太陽の光と共に', '大好きなあのキャラ', '人生の倍返し'] as const
 const SKILLS_CT_PLACEHOLDER = ['', '30', ''] as const
