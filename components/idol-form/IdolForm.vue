@@ -289,7 +289,7 @@ const buffTargetOptions: Option<BuffTargetWithoutSuffix> = [
   { id: 'opponent-center', label: '相手のセンター [バトルのみ]' },
 ]
 const buffTargetOptionsIncludingTriggered: Option<BuffTargetWithoutSuffix> = [
-  { id: 'triggered', label: 'トリガ対象 [Pスキルのみ]' },
+  { id: 'triggered', label: '"発動条件"の引き金となった対象' },
   ...buffTargetOptions,
 ]
 const buffTargetSuffixOptions: Option<BuffTargetCount> = [
