@@ -122,29 +122,13 @@
                   required
                 ></TextField>
                 <TextField
-                  v-if="ability.div === 'buff' && !availableNoSpan(ability.condition)"
                   v-model="ability.span"
+                  :disabled="disableSpan(ability.type)"
                   placeholder="持続ビート数"
                   type="number"
                   required
                 ></TextField>
               </HStack>
-              <template v-if="ability.div === 'buff' && availableNoSpan(ability.condition)">
-                <HStack :spacing="8">
-                  <TextField
-                    :model-value="ability.noSpan ? '1' : ability.span"
-                    placeholder="持続ビート数"
-                    type="number"
-                    :disabled="ability.noSpan"
-                    required
-                    @update:model-value="ability.span = $event"
-                  ></TextField>
-                  <Check v-model="ability.noSpan">トリガビート</Check>
-                </HStack>
-                <NoteText v-if="availableNoSpan(ability.condition)"
-                  >トリガビートを選択すると、Pスキルの発動起因となったA/SPスキルにのみ影響する効果になります</NoteText
-                >
-              </template>
             </Section>
             <Section v-else-if="ability.div === 'score'" :gutter="8">
               <template #label>スコア</template>
@@ -190,7 +174,7 @@ import {
   defaultAbilityInput,
   deformatIdol,
   SkillInput,
-  availableNoSpan,
+  disableSpan,
 } from './helper'
 import { defined } from '~~/utils'
 import { IDOL_NAME } from '~~/utils/common'

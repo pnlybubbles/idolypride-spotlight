@@ -1,11 +1,9 @@
 import {
   AbilityDiv,
-  ActionAbilityType,
   AbilityConditionType,
   IdolRole,
   IdolType,
   SkillType,
-  BuffAbilityType,
   BuffTargetCount,
   BuffTargetWithoutSuffix,
   SkillIndex,
@@ -16,6 +14,7 @@ import {
   PassiveAbilityData,
   BuffTargetWithSuffix,
   PassiveBuffTarget,
+  AbilityType,
 } from '~~/utils/types'
 import { defined, mapArrayN, strictParseInt, unreachable } from '~~/utils'
 import {
@@ -28,14 +27,18 @@ import {
 export interface AbilityInput {
   id: string
   div: AbilityDiv
-  type: BuffAbilityType | ActionAbilityType | null
+  /**
+   * divによっては使わないのでnullになる
+   *
+   * TODO: データ的には別々に持ったほうがUIが壊れにくそう
+   */
+  type: AbilityType | null
   condition: AbilityConditionType | 'none'
   conditionValue: string
   target: BuffTargetWithoutSuffix | null
   targetSuffix: BuffTargetCount
   amount: string
   span: string
-  noSpan: boolean
 }
 
 export interface SkillInput {
@@ -116,7 +119,6 @@ export const defaultAbilityInput = (
     targetSuffix: '1',
     amount: '',
     span: '',
-    noSpan: false,
   }
 }
 
@@ -192,10 +194,7 @@ export const formatPassiveAbility = (v: AbilityInput): PassiveAbilityData => {
   }
   const type = defined(v.type, 'type must not be null with action-buff')
   const targetWithoutSuffix = defined(v.target, 'target must not be null with action-buff')
-  // TODO: 必ずしもtriggered固定ではない
-  const target = availableNoSpan(v.condition)
-    ? 'triggered'
-    : isBuffTargetSuffixRequired(targetWithoutSuffix)
+  const target = isBuffTargetSuffixRequired(targetWithoutSuffix)
     ? (`${targetWithoutSuffix}-${v.targetSuffix}` as const)
     : targetWithoutSuffix
   if (v.div === 'action-buff') {
@@ -205,7 +204,7 @@ export const formatPassiveAbility = (v: AbilityInput): PassiveAbilityData => {
     return { div: 'action-buff', id, type, target, amount, condition }
   }
   // SP発動前などのケースで[持続ビート数]が書いてない場合、1ビートとして扱う
-  const span = v.noSpan ? 1 : parseInt(v.span, 10)
+  const span = disableSpan(v.type) ? 1 : parseInt(v.span, 10)
   if (v.div === 'buff') {
     if (!isBuffAbilityType(type)) {
       throw new Error(`div is "buff", type "${type}" is invalid`)
@@ -232,16 +231,14 @@ const deformatSkill = (w: SkillData, i: SkillIndex): SkillInput => {
 
 const deformatAbility = (v: AbilityData | PassiveAbilityData): AbilityInput => {
   const def = defaultAbilityInput()
-  const noSpan = 'span' in v ? v.span === 1 : def.noSpan
   return {
     id: v.id,
     div: v.div,
     amount: v.amount.toString(),
-    span: 'span' in v && !noSpan ? v.span.toString() : def.span,
+    span: 'span' in v ? v.span.toString() : def.span,
     type: 'type' in v ? v.type : def.type,
     condition: v.condition?.type ?? def.condition,
     conditionValue: 'amount' in v.condition ? v.condition.amount.toString() : def.conditionValue,
-    noSpan,
     ...('target' in v
       ? extractBuffTarget(v.target)
       : {
@@ -289,7 +286,10 @@ export const isBuffTargetSuffixRequired = (t: BuffTargetWithoutSuffix): t is Buf
     ? false
     : unreachable(t)
 
-export const deriveDisabledAmount = (type: BuffAbilityType | ActionAbilityType | null): boolean =>
+export const deriveDisabledAmount = (type: AbilityType | null): boolean =>
   type === 'cmb-continuous' || type === 'debuff-recovery' || type === 'shift-before-sp'
 
-export const availableNoSpan = (t: AbilityConditionType) => t === 'sp' || t === 'a'
+/**
+ * SPスキルスコア上昇の場合は、持続ビートは存在しない (便宜的にspan=1にする)
+ */
+export const disableSpan = (t: AbilityType | null) => t === 'sp-score'
