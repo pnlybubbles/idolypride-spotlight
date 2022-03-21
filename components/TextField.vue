@@ -13,7 +13,7 @@
       @focus="handleFocus"
       @blur="handleBlur"
     />
-    <div v-if="preset.length !== 0 && focusing" ref="presetRef" class="preset">
+    <div v-if="preset.length !== 0 && focusing" class="preset">
       <button v-for="item in preset" :key="item" class="preset-item" @click="handleFillPreset(item)" @touchend="null">
         {{ item }}
       </button>
@@ -58,28 +58,25 @@ const slots = useSlots()
 const isCustomErrorDefined = slots.error != undefined
 
 const focusing = ref(false)
-const onceFocused = ref(false)
-const presetRef = ref<HTMLDivElement | null>(null)
 const handleFocus = () => {
   focusing.value = true
-  onceFocused.value = true
-}
-const handleBlur = (event: FocusEvent) => {
-  if (presetRef.value == null) {
-    return
-  }
-  // プリセットのボタンのクリックによって発生したイベントであれば取り消し
-  if (presetRef.value.contains(event.relatedTarget as Node | null)) {
-    if (event.currentTarget != null) {
-      ;(event.currentTarget as HTMLInputElement).focus()
-    }
-    return
-  }
-  focusing.value = false
 }
 
+// プリセットが押されてフォーカスが外れた時だけプリセットを閉じないようにする
+let timer: NodeJS.Timeout | null = null
+const handleBlur = () => {
+  timer = setTimeout(() => {
+    focusing.value = false
+  }, 0)
+}
+const inputRef = ref<HTMLInputElement | null>(null)
 const handleFillPreset = (input: string | number) => {
+  timer && clearTimeout(timer)
   emit('update:modelValue', input.toString())
+  if (inputRef.value === null) {
+    return
+  }
+  inputRef.value.focus()
 }
 
 // どのエラーを表示するか (入力中や未入力では不完全な状態になっているはずなので、入力が終わるまでエラーを出すのを待つ制御をする)
