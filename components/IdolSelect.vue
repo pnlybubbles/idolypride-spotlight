@@ -6,17 +6,19 @@
     </div>
     <div v-else class="not-selected">未選択</div>
   </button>
-  <Sheet v-model:present="present" fixed no-top-padding>
+  <Sheet v-model:present="present" fixed no-padding>
     <div class="container">
-      <div class="sticky">
+      <div class="controlls">
         <IdolFilter v-model="filter"></IdolFilter>
       </div>
-      <ul class="options">
-        <li v-if="fetching" class="loading"><Spinner></Spinner></li>
-        <li v-for="item in filteredIdolList" :key="item.id">
-          <IdolItem :idol="item" variant="mini" @click="handleClick(item)"></IdolItem>
-        </li>
-      </ul>
+      <div class="scrolling">
+        <ul class="options">
+          <li v-if="fetching" class="loading"><Spinner></Spinner></li>
+          <li v-for="item in filteredIdolList" :key="item.id">
+            <IdolItem :idol="item" variant="mini" @click="handleClick(item)"></IdolItem>
+          </li>
+        </ul>
+      </div>
     </div>
   </Sheet>
   <Sheet v-model:present="detailPresent">
@@ -118,20 +120,23 @@ const filter = ref<Filter[]>([])
   list-style: none;
   margin: 0;
   padding: 0;
+  padding-bottom: 40px;
 }
 
-.sticky {
+.controlls {
   @include bloom(black);
-  position: sticky;
   padding: 24px 0 16px;
-  top: 0;
   background-color: $background1;
-  z-index: 1;
 }
 
 .container {
-  position: relative;
-  z-index: 0;
+  height: 100%;
+  display: grid;
+  grid: auto 1fr / auto;
+}
+
+.scrolling {
+  overflow-y: auto;
 }
 
 .loading {

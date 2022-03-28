@@ -4,7 +4,10 @@
       <div v-if="present" class="sheet" @click.self="$emit('update:present', false)">
         <div
           class="content"
-          :style="{ ...(fixed ? { height: '90%' } : {}), ...(noTopPadding ? { 'padding-top': 0 } : {}) }"
+          :style="{
+            ...(fixed ? { height: '90%' } : {}),
+            ...(noPadding ? { 'padding-top': 0, 'padding-bottom': 0 } : {}),
+          }"
         >
           <slot></slot>
         </div>
@@ -16,7 +19,7 @@
 interface Props {
   present: boolean
   fixed?: boolean
-  noTopPadding?: boolean
+  noPadding?: boolean
 }
 interface Emits {
   (e: 'update:present', value: boolean): void
