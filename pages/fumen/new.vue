@@ -105,6 +105,6 @@ const submit = async () => {
 const A_SKILL_PLACEHOLDER = mapArrayN(SUNNY_PEACE_HARMONY.a, (v) => v.join(' '))
 const SP_SKILL_PLACEHOLDER = mapArrayN(SUNNY_PEACE_HARMONY.sp, (v) => v.join(' '))
 
-useMeta(DEFAULT_META)
+useHead(DEFAULT_META)
 </script>
 <style lang="scss" scoped></style>

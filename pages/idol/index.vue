@@ -56,7 +56,7 @@ const isOwned = (idolId: string) => {
 
 const filter = ref<Filter[]>([])
 
-useMeta(DEFAULT_META)
+useHead(DEFAULT_META)
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/utils.scss';

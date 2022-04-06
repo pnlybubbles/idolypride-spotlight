@@ -47,7 +47,7 @@ const live = computed(() => {
 
 const selectedIdols = reactive<ArrayN<IdolData | null, 5>>([null, null, null, null, null])
 
-useMeta(DEFAULT_META)
+useHead(DEFAULT_META)
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';

@@ -36,6 +36,6 @@ const submit = async (data: IdolData) => {
 
 const skipUnloadConfirm = useBeforeUnload(() => confirm('ページを離れる場合は編集内容が破棄されます。よろしいですか？'))
 
-useMeta(DEFAULT_META)
+useHead(DEFAULT_META)
 </script>
 <style lang="scss" scoped></style>

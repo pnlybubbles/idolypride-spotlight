@@ -3,7 +3,7 @@ const DESCRIPTION = 'アイドルのスキルを見たり譜面を見たりす�
 const BASE_URL = 'https://idolypride-spotlight.vercel.app'
 const IMAGE_URL = `${BASE_URL}/logo.png`
 
-export const DEFAULT_META: Parameters<typeof useMeta>[0] = {
+export const DEFAULT_META: Parameters<typeof useHead>[0] = {
   title: TITLE,
   meta: [
     { name: 'description', content: DESCRIPTION },

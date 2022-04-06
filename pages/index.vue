@@ -28,7 +28,7 @@ useError(error)
 
 const fumenList = computed(() => data.value?.fumen ?? [])
 
-useMeta(DEFAULT_META)
+useHead(DEFAULT_META)
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
