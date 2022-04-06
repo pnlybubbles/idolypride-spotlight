@@ -6,7 +6,7 @@
     @click="showTooltip = !showTooltip"
   >
     <div class="beat">{{ beat }}</div>
-    <div v-show="showTooltip" class="tooltip">
+    <div v-show="showTooltip" class="tooltip" @touchstart.stop @touchend.stop>
       <div v-if="skill" class="heading">
         <div class="name">{{ skill.name }}</div>
         <SkillText :skill="skill" class="detail"></SkillText>
