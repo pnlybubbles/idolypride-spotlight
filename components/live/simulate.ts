@@ -4,23 +4,27 @@ import { ArrayN, indexed, PartiallyNonNullable, uid, unreachable } from '~~/util
 
 type Result = ({
   id: string
+  // 表示開始位置
   beat: number
   // 色付けに使うバフID
   buff: AbilityType
+  // 表示するレーン
+  lane: Lane
 } & (
   | {
       type: 'p'
-      lane: Lane
     }
   | {
       type: 'sp' | 'a'
-      lane: Lane
+      // 失敗したか否か
       fail: boolean
+      // 乗っているバフ
+      // activated: { type: BuffAbilityType; amount: number }[]
     }
   | {
       type: 'buff'
-      lane: Lane
       span: number
+      // バフがスコア獲得スキルに当たったかどうか
       affected: boolean
     }
 ))[]
@@ -49,11 +53,13 @@ type Idols = ArrayN<IdolData | null, 5>
 
 export function simulate(live: LiveData, idols: Idols) {
   const BEATS = new Array(live.beat).fill(0).map((_, i) => i + 1)
-  return BEATS.reduce(
+  // 1ビートづつシミュレーションしていく
+  return BEATS.reduce<{ result: Result; state: State }>(
     ({ result, state }, currentBeat) => {
-      const appendAffected = <T>(v: T) => ({ ...v, affected: false })
-      const appendId = <T>(v: T) => ({ ...v, id: uid() })
-      const clampSpan = (span: number, liveBeat: number) => Math.min(span, liveBeat - currentBeat + 1)
+      //
+      // 1パス目
+      // このビートで発動しているスキルを導出して状態(State)を更新する
+      //
 
       const domain = { live, idols, state, currentBeat }
 
@@ -63,166 +69,83 @@ export function simulate(live: LiveData, idols: Idols) {
       // Aスキルの発動チェック
       const aState = deriveAState({ ...domain, ctState })
 
-      const aResult = aState
-        .map(({ lane, skill }) => ({
-          type: 'a' as const,
-          buff: skill?.ability.map((v) => (v.div === 'buff' ? v : null)).filter(isNonNullable)[0]?.type ?? 'unknown',
-          lane,
-          fail: skill === null,
-        }))
-        .map(appendBeat(currentBeat))
-        .map(appendId)
-
-      if (!true) {
-        const _: Result = aResult
-        _
-      }
+      const aResult = aState.map(({ lane, skill }) => ({
+        type: 'a' as const,
+        buff: skill?.ability.map((v) => (v.div === 'buff' ? v : null)).filter(isNonNullable)[0]?.type ?? 'unknown',
+        lane,
+        fail: skill === null,
+      }))
 
       // Aスキルによるバフ
-      const aBuffResult = aState
-        .flatMap(({ lane, skill }) => {
-          // nullのときはスキル失敗なので、バフの計算はしない
-          if (skill === null) {
-            return []
-          }
-          return skill.ability
-            .filter(isDiv('buff'))
-            .flatMap((ability) => {
-              const lanes = deriveBuffLanes(ability.target, lane, idols)
-              return lanes.map((lane) => ({
-                type: 'buff' as const,
-                buff: ability.type,
-                lane,
-                span: clampSpan(ability.span, live.beat),
-              }))
-            })
-            .filter(isNonNullable)
-        })
-        .filter(isNonNullable)
-        .map(appendBeat(currentBeat))
-        .map(appendAffected)
-        .map(appendId)
-
-      if (!true) {
-        const _: Result = aBuffResult
-        _
-      }
+      const aBuffResult = deriveNaiveBuffResult(aState, domain)
 
       // SPスキルの発動チェック
       const spState = deriveSpState(domain)
 
-      const spResult = spState
-        .map(({ lane, skill }) => ({
-          type: 'sp' as const,
-          buff: skill?.ability.map((v) => (v.div === 'buff' ? v : null)).filter(isNonNullable)[0]?.type ?? 'unknown',
-          lane,
-          fail: skill === null,
-        }))
-        .map(appendBeat(currentBeat))
-        .map(appendId)
-
-      if (!true) {
-        const _: Result = spResult
-        _
-      }
+      const spResult = spState.map(({ lane, skill }) => ({
+        type: 'sp' as const,
+        buff: skill?.ability.map((v) => (v.div === 'buff' ? v : null)).filter(isNonNullable)[0]?.type ?? 'unknown',
+        lane,
+        fail: skill === null,
+      }))
 
       // SPスキルによるバフ
-      const spBuffResult = spState
-        .flatMap(({ lane, skill }) => {
-          // nullのときはスキル失敗なので、バフの計算はしない
-          if (skill === null) {
-            return []
-          }
-          return skill.ability
-            .filter(isDiv('buff'))
-            .flatMap((ability) => {
-              const lanes = deriveBuffLanes(ability.target, lane, idols)
-              return lanes.map((lane) => ({
-                type: 'buff' as const,
-                buff: ability.type,
-                lane,
-                span: clampSpan(ability.span, live.beat),
-              }))
-            })
-            .filter(isNonNullable)
-        })
-        .filter(isNonNullable)
-        .map(appendBeat(currentBeat))
-        .map(appendAffected)
-        .map(appendId)
-
-      if (!true) {
-        const _: Result = spBuffResult
-        _
-      }
+      const spBuffResult = deriveNaiveBuffResult(spState, domain)
 
       // Pスキルの発動チェック
       const pState = derivePState({ ...domain, ctState, aState, spState })
 
-      const pResult = pState
-        .map(({ lane, skill }) => ({
-          type: 'p' as const,
-          // とりあえず1個目の効果を優先
-          buff: skill.ability.map((v) => (v.div === 'buff' ? v : null)).filter(isNonNullable)[0]?.type ?? 'unknown',
-          lane,
-        }))
-        .map(appendBeat(currentBeat))
-        .map(appendId)
-
-      if (!true) {
-        const _: Result = pResult
-        _
-      }
+      const pResult = pState.map(({ lane, skill }) => ({
+        type: 'p' as const,
+        // とりあえず1個目の効果を優先
+        buff: skill.ability.map((v) => (v.div === 'buff' ? v : null)).filter(isNonNullable)[0]?.type ?? 'unknown',
+        lane,
+      }))
 
       // Pスキルによるバフ
-      const pBuffResult = pState
-        .flatMap(({ lane, skill, availableAbilities }) => {
-          return skill.ability
-            .filter(isDiv('buff'))
-            .map((ability) => {
-              // スキルの効果の中で条件を満たしているもののみを抽出
-              const available = availableAbilities.find((v) => v.id === ability.id)
-              if (available === undefined) {
-                return null
-              }
-              return [ability, available.triggeredLane] as const
-            })
-            .filter(isNonNullable)
-            .flatMap(([ability, triggeredLane]) => {
-              const lanes =
-                ability.target === 'triggered'
-                  ? triggeredLane
-                    ? [triggeredLane]
-                    : []
-                  : deriveBuffLanes(ability.target, lane, idols)
-              return lanes.map((lane) => ({
-                type: 'buff' as const,
-                buff: ability.type,
-                lane,
-                span: clampSpan(ability.span, live.beat),
-              }))
-            })
-            .filter(isNonNullable)
-        })
-        .filter(isNonNullable)
-        .map(appendBeat(currentBeat))
-        .map(appendAffected)
-        .map(appendId)
+      const pBuffResult = pState.flatMap(({ lane, skill, availableAbilities }) => {
+        return skill.ability
+          .filter(isDiv('buff'))
+          .map((ability) => {
+            // スキルの効果の中で条件を満たしているもののみを抽出
+            const available = availableAbilities.find((v) => v.id === ability.id)
+            if (available === undefined) {
+              return null
+            }
+            return [ability, available.triggeredLane] as const
+          })
+          .filter(isNonNullable)
+          .flatMap(([ability, triggeredLane]) => {
+            const lanes =
+              ability.target === 'triggered'
+                ? triggeredLane
+                  ? [triggeredLane]
+                  : []
+                : deriveBuffLanes(ability.target, lane, idols)
+            return lanes.map((lane) => ({
+              type: 'buff' as const,
+              buff: ability.type,
+              lane,
+              span: clampSpan(ability.span, live.beat, currentBeat),
+            }))
+          })
+      })
 
-      if (!true) {
-        const _: Result = pBuffResult
-        _
-      }
+      const buffResult = [...aBuffResult, ...spBuffResult, ...pBuffResult].map((v) => ({
+        ...v,
+        affected: false,
+      }))
+      const currentResult = [...aResult, ...spResult, ...pResult, ...buffResult].map((v) => ({
+        ...v,
+        beat: currentBeat,
+        id: uid(),
+      }))
+      const tmpResult = [...result, ...currentResult]
 
-      const tmpResult = [
-        ...result,
-        ...aResult,
-        ...aBuffResult,
-        ...spResult,
-        ...spBuffResult,
-        ...pResult,
-        ...pBuffResult,
-      ]
+      //
+      // 2パス目
+      // このビートで変化した状態を含めて、過去から現在までに発生したバフの影響を導出する
+      //
 
       // スコア獲得スキルにバフが効いているかをチェック
       // 注意:
@@ -250,8 +173,18 @@ export function simulate(live: LiveData, idols: Idols) {
         state: [...state, ...aState, ...spState, ...pState],
       }
     },
-    { result: [] as Result, state: [] as State }
+    { result: [], state: [] }
   )
+}
+
+type DomainState = {
+  live: LiveData
+  idols: Idols
+  state: State
+  ctState: CtState
+  aState: AState
+  spState: SpState
+  currentBeat: number
 }
 
 function deriveBuffLanes(target: BuffTarget, selfLane: Lane, idol: ArrayN<IdolData | null, 5>): Lane[] {
@@ -281,14 +214,25 @@ function deriveBuffLanes(target: BuffTarget, selfLane: Lane, idol: ArrayN<IdolDa
   }
 }
 
-type DomainState = {
-  live: LiveData
-  idols: Idols
-  state: State
-  ctState: CtState
-  aState: AState
-  spState: SpState
-  currentBeat: number
+const deriveNaiveBuffResult = (
+  state: { lane: Lane; skill: Extract<SkillData, { type: 'sp' | 'a' }> | null }[],
+  { idols, live, currentBeat }: Pick<DomainState, 'idols' | 'live' | 'currentBeat'>
+) => {
+  return state.flatMap(({ lane, skill }) => {
+    // nullのときはスキル失敗なので、バフの計算はしない
+    if (skill === null) {
+      return []
+    }
+    return skill.ability.filter(isDiv('buff')).flatMap((ability) => {
+      const lanes = deriveBuffLanes(ability.target, lane, idols)
+      return lanes.map((lane) => ({
+        type: 'buff' as const,
+        buff: ability.type,
+        lane,
+        span: clampSpan(ability.span, live.beat, currentBeat),
+      }))
+    })
+  })
 }
 
 type APStateItem = Extract<State[number], { type: 'a' | 'p' }>
@@ -452,6 +396,8 @@ const derivePState = (
 const appendBeat =
   (currentBeat: number) =>
   <T>(v: T) => ({ ...v, beat: currentBeat })
+
+const clampSpan = (span: number, liveBeat: number, currentBeat: number) => Math.min(span, liveBeat - currentBeat + 1)
 
 export const isType =
   <Type extends string>(type: Type) =>
