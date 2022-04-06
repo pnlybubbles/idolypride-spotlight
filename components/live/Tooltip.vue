@@ -2,7 +2,7 @@
   <div class="tooltip" @touchstart.stop @touchend.stop>
     <div v-if="skill" class="heading">
       <div class="name">{{ skill.name }}</div>
-      <SkillText :skill="skill" class="detail"></SkillText>
+      <SkillText :skill="skill" class="detail" with-ct></SkillText>
     </div>
     <div v-else>スキル失敗</div>
     <div v-if="activated && activated.length > 0" class="buff">

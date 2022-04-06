@@ -1,5 +1,6 @@
 <template>
   <div class="skill-text">
+    <div v-if="withCt && skill.type !== 'sp'" class="ability">CT{{ skill.ct }}</div>
     <div v-for="ability in sortAbility(skill.ability)" :key="ability.id" class="ability">
       <template v-if="ability.div === 'score'">
         <RoleIcon role="scorer"></RoleIcon>
@@ -35,6 +36,7 @@ import { AbilityData, AbilityDiv, PassiveAbilityData, SkillData } from '~~/utils
 
 interface Props {
   skill: SkillData
+  withCt?: boolean
 }
 defineProps<Props>()
 
