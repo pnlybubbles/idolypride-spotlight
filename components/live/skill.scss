@@ -10,10 +10,3 @@ $skill-border: 2px;
   transform: translate(-50%, -50%);
   border-radius: 100%;
 }
-
-@mixin failable {
-  &.fail {
-    border-color: red;
-    background: repeating-linear-gradient(45deg, red, red 2px, transparent 2px, transparent 6px);
-  }
-}

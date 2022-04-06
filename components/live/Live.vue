@@ -8,9 +8,18 @@
     </div>
     <div v-for="(lane, i) in lanes" :key="i" class="lane">
       <template v-for="item in lane" :key="item.id">
-        <LiveSPSkill v-if="item.type === 'sp'" v-bind="item" @long-press="tapSP(item)"></LiveSPSkill>
-        <LiveASkill v-else-if="item.type === 'a'" v-bind="item" @click="tapA(item)"></LiveASkill>
-        <LivePSkill v-else-if="item.type === 'p'" :beat="item.beat" :buff="item.buff" @click="tapP(item)"></LivePSkill>
+        <LiveSPASkill
+          v-if="item.type === 'sp' || item.type === 'a'"
+          :variant="item.type"
+          v-bind="item"
+          @long-press="updateGuide(item.beat)"
+        ></LiveSPASkill>
+        <LivePSkill
+          v-else-if="item.type === 'p'"
+          :beat="item.beat"
+          :buff="item.buff"
+          @long-press="updateGuide(item.beat)"
+        ></LivePSkill>
         <LiveBuff
           v-else-if="item.type === 'buff'"
           :beat="item.beat"
@@ -76,15 +85,6 @@ const guides = computed<GuideProps[]>(() => {
     }))
   return [...lines, ...intervals]
 })
-const tapSP = (item: Item) => {
-  updateGuide(item.beat)
-}
-const tapA = (item: Item) => {
-  updateGuide(item.beat)
-}
-const tapP = (item: Item) => {
-  updateGuide(item.beat)
-}
 const updateGuide = (beat: number) => {
   const index = beatGuides.value.findIndex((v) => v === beat)
   if (index !== -1) {

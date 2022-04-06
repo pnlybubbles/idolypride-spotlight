@@ -1,5 +1,5 @@
 <template>
-  <div class="p" @click="$emit('click')" @touchend="null"></div>
+  <Interactive class="p" @long-press="$emit('long-press')" @touchend="null"></Interactive>
 </template>
 <script setup lang="ts">
 import { AbilityType } from '~~/utils/types'
@@ -13,7 +13,7 @@ interface Props {
 const props = defineProps<Props>()
 
 interface Emits {
-  (e: 'click'): void
+  (e: 'long-press'): void
 }
 
 defineEmits<Emits>()
