@@ -6,11 +6,16 @@
     @click="showTooltip = !showTooltip"
   >
     <div class="beat">{{ beat }}</div>
-    <LiveTooltip v-show="showTooltip" :activated="activated" :skill="skill"></LiveTooltip>
+    <LiveTooltip
+      v-show="showTooltip"
+      :activated="activated"
+      :skill="skill"
+      :position="lane === 0 ? 'right' : 'left'"
+    ></LiveTooltip>
   </Interactive>
 </template>
 <script setup lang="ts">
-import { AbilityType, BuffAbilityType, SkillData } from '~~/utils/types'
+import { AbilityType, BuffAbilityType, Lane, SkillData } from '~~/utils/types'
 import { cssBeat, cssBuff } from './helper'
 
 interface Props {
@@ -20,6 +25,7 @@ interface Props {
   buff: AbilityType
   activated: { type: BuffAbilityType; amount: number }[]
   skill: SkillData | undefined
+  lane: Lane
 }
 
 const props = defineProps<Props>()

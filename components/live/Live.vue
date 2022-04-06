@@ -13,6 +13,7 @@
           :variant="item.type"
           v-bind="item"
           :skill="getSkill(i, item.index)"
+          :lane="i"
           @long-press="updateGuide(item.beat)"
         ></LiveSPASkill>
         <LivePSkill
@@ -20,6 +21,7 @@
           :beat="item.beat"
           :buff="item.buff"
           :skill="getSkill(i, item.index)"
+          :lane="i"
           @long-press="updateGuide(item.beat)"
         ></LivePSkill>
         <LiveBuff

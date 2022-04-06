@@ -1,11 +1,11 @@
 <template>
-  <div class="tooltip" @touchstart.stop @touchend.stop>
+  <div class="tooltip" :class="[position]" @touchstart.stop @touchend.stop>
     <div v-if="skill" class="heading">
       <div class="name">{{ skill.name }}</div>
       <SkillText :skill="skill" class="detail" with-ct></SkillText>
     </div>
     <div v-else>スキル失敗</div>
-    <div v-if="aggregatedActivated && Object.keys(aggregatedActivated).length > 0" class="buff">
+    <div v-if="Object.keys(aggregatedActivated).length > 0" class="buff">
       <div v-for="(value, key) in aggregatedActivated" :key="key" class="item">{{ value }} {{ key }}</div>
     </div>
   </div>
@@ -16,17 +16,16 @@ import { BuffAbilityType, SkillData } from '~~/utils/types'
 interface Props {
   skill: SkillData | undefined
   activated?: { type: BuffAbilityType; amount: number }[]
+  position?: 'left' | 'right'
 }
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), { position: 'left', activated: () => [] })
 
 // 同じバフが2重でかかったりするので集計する
 const aggregatedActivated = computed(() =>
-  props.activated
-    ? props.activated?.reduce(
-        (acc, v) => ({ ...acc, [v.type]: (acc[v.type] ?? 0) + v.amount }),
-        {} as { [key in BuffAbilityType]?: number }
-      )
-    : undefined
+  props.activated.reduce(
+    (acc, v) => ({ ...acc, [v.type]: (acc[v.type] ?? 0) + v.amount }),
+    {} as { [key in BuffAbilityType]?: number }
+  )
 )
 </script>
 <style lang="scss" scoped>
@@ -37,9 +36,7 @@ const aggregatedActivated = computed(() =>
   @include background-blur;
   position: absolute;
   z-index: 2;
-  right: 50%;
   top: 50%;
-  transform: translate(-4px, 4px);
   background-color: $surface2;
   color: $text4;
   padding: 6px 8px;
@@ -49,6 +46,16 @@ const aggregatedActivated = computed(() =>
   max-width: 120px;
   display: grid;
   gap: 7px;
+
+  &.left {
+    right: 50%;
+    transform: translate(-4px, 4px);
+  }
+
+  &.right {
+    left: 50%;
+    transform: translate(4px, 4px);
+  }
 }
 
 .heading {

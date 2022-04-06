@@ -1,16 +1,17 @@
 <template>
   <Interactive class="p" @long-press="$emit('long-press')" @click="showTooltip = !showTooltip">
-    <LiveTooltip v-show="showTooltip" :skill="skill"> </LiveTooltip>
+    <LiveTooltip v-show="showTooltip" :skill="skill" :position="lane === 0 ? 'right' : 'left'"></LiveTooltip>
   </Interactive>
 </template>
 <script setup lang="ts">
-import { AbilityType, SkillData } from '~~/utils/types'
+import { AbilityType, Lane, SkillData } from '~~/utils/types'
 import { cssBeat, cssBuff } from './helper'
 
 interface Props {
   beat: number
   buff: AbilityType
   skill: SkillData | undefined
+  lane: Lane
 }
 
 const props = defineProps<Props>()
