@@ -201,6 +201,8 @@ function deriveBuffLanes(target: BuffTarget, selfLane: Lane, idol: ArrayN<IdolDa
       return [0, 1, 2, 3, 4]
     case 'self':
       return [selfLane]
+    case 'center':
+      return [2]
     case 'scorer-1': {
       const candidate = indexed(idol)
         .filter(([v]) => v?.role === 'scorer')
@@ -414,6 +416,13 @@ const derivePState = (
                   // 誰かがAスキル発動時
                   const aLane = aState.find((v) => v.skill != null)?.lane
                   return aLane === undefined ? null : { triggeredLane: aLane, ability }
+                }
+                case 'combo': {
+                  // Xコンボ以上時
+                  if (currentBeat >= ability.condition.amount) {
+                    return { triggeredLane: null, ability }
+                  }
+                  return null
                 }
                 default:
                   return null
