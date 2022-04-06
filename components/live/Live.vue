@@ -8,20 +8,8 @@
     </div>
     <div v-for="(lane, i) in lanes" :key="i" class="lane">
       <template v-for="item in lane" :key="item.id">
-        <LiveSPSkill
-          v-if="item.type === 'sp'"
-          :beat="item.beat"
-          :buff="item.buff"
-          :fail="item.fail"
-          @click="tapSP(item)"
-        ></LiveSPSkill>
-        <LiveASkill
-          v-else-if="item.type === 'a'"
-          :beat="item.beat"
-          :buff="item.buff"
-          :fail="item.fail"
-          @click="tapA(item)"
-        ></LiveASkill>
+        <LiveSPSkill v-if="item.type === 'sp'" v-bind="item" @long-press="tapSP(item)"></LiveSPSkill>
+        <LiveASkill v-else-if="item.type === 'a'" v-bind="item" @click="tapA(item)"></LiveASkill>
         <LivePSkill v-else-if="item.type === 'p'" :beat="item.beat" :buff="item.buff" @click="tapP(item)"></LivePSkill>
         <LiveBuff
           v-else-if="item.type === 'buff'"
@@ -39,7 +27,7 @@
 import { isType, simulate } from './simulate'
 import { ArrayN } from '~~/utils'
 import isNonNullable from 'is-non-nullable'
-import { AbilityType, IdolData, LiveData } from '~~/utils/types'
+import { AbilityType, BuffAbilityType, IdolData, LiveData } from '~~/utils/types'
 import { LANES } from '~~/utils/common'
 
 interface Props {
@@ -116,6 +104,7 @@ type Item = {
   | {
       type: 'sp' | 'a'
       fail: boolean
+      activated: { type: BuffAbilityType; amount: number }[]
     }
   | {
       type: 'p'

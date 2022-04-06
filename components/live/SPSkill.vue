@@ -1,22 +1,26 @@
 <template>
-  <div class="sp" :class="{ fail }" @click="$emit('click')" @touchend="null">
+  <Interactive class="sp" :class="{ fail }" @long-press="$emit('long-press')" @click="showTooltip = !showTooltip">
     <div class="beat">{{ beat }}</div>
-  </div>
+    <div v-show="showTooltip" class="tooltip">
+      <div v-for="(item, i) in activated" :key="i" class="item">{{ item.amount }} {{ item.type }}</div>
+    </div>
+  </Interactive>
 </template>
 <script setup lang="ts">
-import { AbilityType } from '~~/utils/types'
+import { AbilityType, BuffAbilityType } from '~~/utils/types'
 import { cssBeat, cssBuff } from './helper'
 
 interface Props {
   fail: boolean
   beat: number
   buff: AbilityType
+  activated: { type: BuffAbilityType; amount: number }[]
 }
 
 const props = defineProps<Props>()
 
 interface Emits {
-  (e: 'click'): void
+  (e: 'long-press'): void
 }
 
 defineEmits<Emits>()
@@ -24,6 +28,8 @@ defineEmits<Emits>()
 const { fail, beat, buff } = toRefs(props)
 const top = computed(() => cssBeat(beat.value))
 const color = computed(() => cssBuff(buff.value))
+
+const showTooltip = ref(false)
 </script>
 <style lang="scss" scoped>
 @import './skill.scss';
@@ -41,5 +47,23 @@ const color = computed(() => cssBuff(buff.value))
   position: absolute;
   font-size: $typography-m;
   color: $text3;
+}
+
+.tooltip {
+  @include round-corner;
+  @include background-blur;
+  position: absolute;
+  right: 50%;
+  top: 50%;
+  transform: translate(-4px, 4px);
+  background-color: $surface2;
+  color: $text4;
+  display: grid;
+  padding: 4px 8px;
+  font-size: $typography-s;
+
+  .item {
+    white-space: nowrap;
+  }
 }
 </style>
