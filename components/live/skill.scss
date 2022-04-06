@@ -2,11 +2,10 @@ $skill-border: 2px;
 
 @mixin skill($size, $color, $top) {
   position: absolute;
-  top: $top;
-  left: 50%;
+  top: calc($top - $size / 2);
+  left: calc(50% - $size / 2);
   border: $skill-border solid $color;
   width: $size;
   height: $size;
-  transform: translate(-50%, -50%);
   border-radius: 100%;
 }

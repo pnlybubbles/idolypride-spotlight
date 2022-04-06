@@ -6,12 +6,13 @@
         <div v-else-if="guide.type === 'interval'" class="interval-annotation">{{ guide.num }}</div>
       </div>
     </div>
-    <div v-for="(lane, i) in lanes" :key="i" class="lane">
-      <template v-for="item in lane" :key="item.id">
+    <div v-for="i in LANES" :key="i" class="lane">
+      <template v-for="item in lanes[i]" :key="item.id">
         <LiveSPASkill
           v-if="item.type === 'sp' || item.type === 'a'"
           :variant="item.type"
           v-bind="item"
+          :skill="getSkill(i, item.index)"
           @long-press="updateGuide(item.beat)"
         ></LiveSPASkill>
         <LivePSkill
@@ -36,7 +37,7 @@
 import { isType, simulate } from './simulate'
 import { ArrayN } from '~~/utils'
 import isNonNullable from 'is-non-nullable'
-import { AbilityType, BuffAbilityType, IdolData, LiveData } from '~~/utils/types'
+import { AbilityType, BuffAbilityType, IdolData, Lane, LiveData, SkillIndex } from '~~/utils/types'
 import { LANES } from '~~/utils/common'
 
 interface Props {
@@ -85,6 +86,7 @@ const guides = computed<GuideProps[]>(() => {
     }))
   return [...lines, ...intervals]
 })
+
 const updateGuide = (beat: number) => {
   const index = beatGuides.value.findIndex((v) => v === beat)
   if (index !== -1) {
@@ -93,6 +95,9 @@ const updateGuide = (beat: number) => {
     beatGuides.value.push(beat)
   }
 }
+
+const getSkill = (lane: Lane, skillIndex: SkillIndex | undefined) =>
+  props.idols[lane]?.skills.find((v) => v.index === skillIndex)
 
 const simulated = computed(() => simulate(props.live, props.idols))
 
@@ -103,11 +108,13 @@ type Item = {
 } & (
   | {
       type: 'sp' | 'a'
+      index: SkillIndex | undefined
       fail: boolean
       activated: { type: BuffAbilityType; amount: number }[]
     }
   | {
       type: 'p'
+      index: SkillIndex
     }
   | {
       type: 'buff'

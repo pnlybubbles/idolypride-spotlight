@@ -1,4 +1,13 @@
-import { BuffTarget, AbilityType, Lane, LiveData, SkillData, IdolData, BuffAbilityType } from '~/utils/types'
+import {
+  BuffTarget,
+  AbilityType,
+  Lane,
+  LiveData,
+  SkillData,
+  IdolData,
+  BuffAbilityType,
+  SkillIndex,
+} from '~/utils/types'
 import isNonNullable from 'is-non-nullable'
 import { ArrayN, indexed, PartiallyNonNullable, uid, unreachable } from '~~/utils'
 import { isBuffAbilityType } from '~~/utils/formatter'
@@ -14,9 +23,11 @@ type Result = ({
 } & (
   | {
       type: 'p'
+      index: SkillIndex
     }
   | {
       type: 'sp' | 'a'
+      index: SkillIndex | undefined
       // 失敗したか否か
       fail: boolean
       // 乗っているバフ
@@ -76,6 +87,7 @@ export function simulate(live: LiveData, idols: Idols) {
         buff: skill?.ability.map((v) => (v.div === 'buff' ? v : null)).filter(isNonNullable)[0]?.type ?? 'unknown',
         lane,
         fail: skill === null,
+        index: skill?.index,
       }))
 
       // Aスキルによるバフ
@@ -89,6 +101,7 @@ export function simulate(live: LiveData, idols: Idols) {
         buff: skill?.ability.map((v) => (v.div === 'buff' ? v : null)).filter(isNonNullable)[0]?.type ?? 'unknown',
         lane,
         fail: skill === null,
+        index: skill?.index,
       }))
 
       // SPスキルによるバフ
@@ -102,6 +115,7 @@ export function simulate(live: LiveData, idols: Idols) {
         // とりあえず1個目の効果を優先
         buff: skill.ability.map((v) => (v.div === 'buff' ? v : null)).filter(isNonNullable)[0]?.type ?? 'unknown',
         lane,
+        index: skill.index,
       }))
 
       // Pスキルによるバフ
