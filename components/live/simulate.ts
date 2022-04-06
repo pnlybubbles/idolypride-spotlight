@@ -103,33 +103,7 @@ export function simulate(live: LiveData, idols: Idols) {
       }))
 
       // Pスキルによるバフ
-      const pBuffResult = pState.flatMap(({ lane, skill, availableAbilities }) => {
-        return skill.ability
-          .filter(isDiv('buff'))
-          .map((ability) => {
-            // スキルの効果の中で条件を満たしているもののみを抽出
-            const available = availableAbilities.find((v) => v.id === ability.id)
-            if (available === undefined) {
-              return null
-            }
-            return [ability, available.triggeredLane] as const
-          })
-          .filter(isNonNullable)
-          .flatMap(([ability, triggeredLane]) => {
-            const lanes =
-              ability.target === 'triggered'
-                ? triggeredLane
-                  ? [triggeredLane]
-                  : []
-                : deriveBuffLanes(ability.target, lane, idols)
-            return lanes.map((lane) => ({
-              type: 'buff' as const,
-              buff: ability.type,
-              lane,
-              span: clampSpan(ability.span, live.beat, currentBeat),
-            }))
-          })
-      })
+      const pBuffResult = derivePBuffResult({ pState, ...domain })
 
       const buffResult = [...aBuffResult, ...spBuffResult, ...pBuffResult].map((v) => ({
         ...v,
@@ -184,6 +158,7 @@ type DomainState = {
   ctState: CtState
   aState: AState
   spState: SpState
+  pState: PState
   currentBeat: number
 }
 
@@ -232,6 +207,41 @@ const deriveNaiveBuffResult = (
         span: clampSpan(ability.span, live.beat, currentBeat),
       }))
     })
+  })
+}
+
+const derivePBuffResult = ({
+  pState,
+  live,
+  idols,
+  currentBeat,
+}: Pick<DomainState, 'pState' | 'idols' | 'live' | 'currentBeat'>) => {
+  return pState.flatMap(({ lane, skill, availableAbilities }) => {
+    return skill.ability
+      .filter(isDiv('buff'))
+      .map((ability) => {
+        // スキルの効果の中で条件を満たしているもののみを抽出
+        const available = availableAbilities.find((v) => v.id === ability.id)
+        if (available === undefined) {
+          return null
+        }
+        return [ability, available.triggeredLane] as const
+      })
+      .filter(isNonNullable)
+      .flatMap(([ability, triggeredLane]) => {
+        const lanes =
+          ability.target === 'triggered'
+            ? triggeredLane
+              ? [triggeredLane]
+              : []
+            : deriveBuffLanes(ability.target, lane, idols)
+        return lanes.map((lane) => ({
+          type: 'buff' as const,
+          buff: ability.type,
+          lane,
+          span: clampSpan(ability.span, live.beat, currentBeat),
+        }))
+      })
   })
 }
 
