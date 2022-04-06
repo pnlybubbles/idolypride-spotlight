@@ -25,11 +25,27 @@ const emit = defineEmits<Emits>()
 
 let touchTimer: NodeJS.Timeout | null = null
 
+const handleContextMenu = (e: MouseEvent) => e.preventDefault()
+
 const handleTouchStart = () => {
   touchTimer = setTimeout(() => emit('longPress'), LONG_PRESS_THREASHOLD)
+  // iOSで長押し中にテキストの選択が起こる問題を抑制する
+  document.body.style.webkitUserSelect = 'none'
+  // macOSで長押しで右クリックメニューが表示される問題を抑制する
+  document.addEventListener('contextmenu', handleContextMenu)
 }
 
-const handleTouchEnd = () => touchTimer && clearTimeout(touchTimer)
+const handleTouchEnd = () => {
+  cleanup()
+  if (touchTimer) clearTimeout(touchTimer)
+}
+
+const cleanup = () => {
+  document.body.style.webkitUserSelect = ''
+  document.removeEventListener('contextmenu', handleContextMenu)
+}
+
+onUnmounted(cleanup)
 
 const handleClick = () => emit('click')
 </script>
