@@ -2,7 +2,7 @@
   <button
     class="interactive"
     :disabled="disabled"
-    @click="$emit('click')"
+    @click="handleClick"
     @touchstart="handleTouchStart"
     @touchend="handleTouchEnd"
   >
@@ -10,7 +10,7 @@
   </button>
 </template>
 <script setup lang="ts">
-const LONG_PRESS_THREASHOLD = 500 // ms
+const LONG_PRESS_THREASHOLD = 300 // ms
 
 interface Props {
   disabled?: boolean
@@ -24,10 +24,14 @@ interface Emits {
 const emit = defineEmits<Emits>()
 
 let touchTimer: NodeJS.Timeout | null = null
+
 const handleTouchStart = () => {
   touchTimer = setTimeout(() => emit('longPress'), LONG_PRESS_THREASHOLD)
 }
+
 const handleTouchEnd = () => touchTimer && clearTimeout(touchTimer)
+
+const handleClick = () => emit('click')
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/utils.scss';
