@@ -7,6 +7,7 @@ import {
   IdolData,
   BuffAbilityType,
   SkillIndex,
+  PassiveAbilityData,
 } from '~/utils/types'
 import isNonNullable from 'is-non-nullable'
 import { ArrayN, indexed, PartiallyNonNullable, uid, unreachable } from '~~/utils'
@@ -388,7 +389,7 @@ type PState = Extract<State[number], { type: 'p' }>[]
 const derivePState = (
   domain: Pick<DomainState, 'idols' | 'currentBeat' | 'ctState' | 'aState' | 'spState'>
 ): PState => {
-  const { idols, currentBeat, ctState, aState, spState } = domain
+  const { idols, currentBeat, ctState } = domain
   return indexed(idols)
     .flatMap(([idol, lane]) => {
       // CT中ではない発動可能なPスキルがあるかチェック
@@ -401,33 +402,7 @@ const derivePState = (
       return canTriggerSkills
         .map((skill) => {
           const triggeredAbility = skill.ability
-            .map((ability) => {
-              switch (ability.condition.type) {
-                case 'none': {
-                  // 無条件
-                  return { triggeredLane: null, ability }
-                }
-                case 'sp': {
-                  // 誰かがSPスキルは発動時
-                  const spLane = spState.find((v) => v.skill != null)?.lane
-                  return spLane === undefined ? null : { triggeredLane: spLane, ability }
-                }
-                case 'a': {
-                  // 誰かがAスキル発動時
-                  const aLane = aState.find((v) => v.skill != null)?.lane
-                  return aLane === undefined ? null : { triggeredLane: aLane, ability }
-                }
-                case 'combo': {
-                  // Xコンボ以上時
-                  if (currentBeat >= ability.condition.amount) {
-                    return { triggeredLane: null, ability }
-                  }
-                  return null
-                }
-                default:
-                  return null
-              }
-            })
+            .map((ability) => deriveTriggeredAbilityWithCondition(ability, domain))
             .filter(isNonNullable)
           if (triggeredAbility.length === 0) {
             return null
@@ -445,6 +420,40 @@ const derivePState = (
     })
     .map(appendBeat(currentBeat))
     .map(appendType('p'))
+}
+
+const deriveTriggeredAbilityWithCondition = (
+  ability: PassiveAbilityData,
+  { spState, aState, currentBeat }: Pick<DomainState, 'aState' | 'spState' | 'currentBeat'>
+) => {
+  switch (ability.condition.type) {
+    case 'none': {
+      // 無条件
+      return { triggeredLane: null, ability }
+    }
+    case 'sp': {
+      // 誰かがSPスキルは発動時
+      const spLane = spState.find((v) => v.skill != null)?.lane
+      return spLane === undefined ? null : { triggeredLane: spLane, ability }
+    }
+    case 'a': {
+      // 誰かがAスキル発動時
+      const aLane = aState.find((v) => v.skill != null)?.lane
+      return aLane === undefined ? null : { triggeredLane: aLane, ability }
+    }
+    case 'combo': {
+      // Xコンボ以上時
+      if (currentBeat >= ability.condition.amount) {
+        return { triggeredLane: null, ability }
+      }
+      return null
+    }
+    case 'score-up': {
+      // スコアアップ状態の時
+    }
+    default:
+      return null
+  }
 }
 
 const appendBeat =
