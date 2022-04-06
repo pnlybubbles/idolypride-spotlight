@@ -5,8 +5,8 @@
       <SkillText :skill="skill" class="detail" with-ct></SkillText>
     </div>
     <div v-else>スキル失敗</div>
-    <div v-if="activated && activated.length > 0" class="buff">
-      <div v-for="(item, i) in activated" :key="i" class="item">{{ item.amount }} {{ item.type }}</div>
+    <div v-if="aggregatedActivated && Object.keys(aggregatedActivated).length > 0" class="buff">
+      <div v-for="(value, key) in aggregatedActivated" :key="key" class="item">{{ value }} {{ key }}</div>
     </div>
   </div>
 </template>
@@ -17,7 +17,17 @@ interface Props {
   skill: SkillData | undefined
   activated?: { type: BuffAbilityType; amount: number }[]
 }
-defineProps<Props>()
+const props = defineProps<Props>()
+
+// 同じバフが2重でかかったりするので集計する
+const aggregatedActivated = computed(() =>
+  props.activated
+    ? props.activated?.reduce(
+        (acc, v) => ({ ...acc, [v.type]: (acc[v.type] ?? 0) + v.amount }),
+        {} as { [key in BuffAbilityType]?: number }
+      )
+    : undefined
+)
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
