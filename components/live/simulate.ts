@@ -1,6 +1,7 @@
-import { BuffTarget, AbilityType, Lane, LiveData, SkillData, IdolData } from '~/utils/types'
+import { BuffTarget, AbilityType, Lane, LiveData, SkillData, IdolData, BuffAbilityType } from '~/utils/types'
 import isNonNullable from 'is-non-nullable'
 import { ArrayN, indexed, PartiallyNonNullable, uid, unreachable } from '~~/utils'
+import { isBuffAbilityType } from '~~/utils/formatter'
 
 type Result = ({
   id: string
@@ -19,10 +20,11 @@ type Result = ({
       // 失敗したか否か
       fail: boolean
       // 乗っているバフ
-      // activated: { type: BuffAbilityType; amount: number }[]
+      activated: { type: BuffAbilityType; amount: number }[]
     }
   | {
       type: 'buff'
+      amount: number
       span: number
       // バフがスコア獲得スキルに当たったかどうか
       affected: boolean
@@ -109,7 +111,11 @@ export function simulate(live: LiveData, idols: Idols) {
         ...v,
         affected: false,
       }))
-      const currentResult = [...aResult, ...spResult, ...pResult, ...buffResult].map((v) => ({
+      const currentResult = [
+        ...[...aResult, ...spResult].map((v) => ({ ...v, activated: [] })),
+        ...pResult,
+        ...buffResult,
+      ].map((v) => ({
         ...v,
         beat: currentBeat,
         id: uid(),
@@ -126,7 +132,7 @@ export function simulate(live: LiveData, idols: Idols) {
       // - このビートで発動したSP,A,Pスキルでのバフはそのスキル自身のスコア獲得に影響を与える (Pは未検証)
       // - スコア獲得スキルを持たないSP,Aスキルは存在しない前提
 
-      // 現在のバフを取得
+      // 現在のビートに効いている過去も含めたすべてのバフを取得
       const availableBuffs = tmpResult.filter(isType('buff')).filter(
         (v) =>
           // スキルが発動したビートからバフがかかる
@@ -136,11 +142,24 @@ export function simulate(live: LiveData, idols: Idols) {
       // TODO: Pのスコア獲得スキル対応
       // スコア獲得スキルが発動したレーン
       const scoredLanes = [...aState, ...spState].map((v) => v.lane)
-      const affectedBuffs = availableBuffs
+      // affectedを適用する
+      const affectedAppliedResult = availableBuffs
         .filter((v) => scoredLanes.includes(v.lane))
         .map((v) => ({ ...v, affected: true }))
 
-      const newResult = [...tmpResult.filter((v) => !affectedBuffs.map((v) => v.id).includes(v.id)), ...affectedBuffs]
+      // TODO: Pのスコア獲得スキル対応
+      // このビートで発動したスコア獲得スキルに効いているバフを反映する
+      const scoredResult = [...currentResult.filter(isType('a')), ...currentResult.filter(isType('sp'))]
+      const activatedAppliedResult = scoredResult.map((v) => ({
+        ...v,
+        activated: availableBuffs
+          .filter((w) => w.lane === v.lane)
+          // スコアスキルに影響するのは持続効果のみなのでBuffAbilityに絞る
+          .map((w) => (isBuffAbilityType(w.buff) ? { type: w.buff, amount: w.amount } : null))
+          .filter(isNonNullable),
+      }))
+
+      const newResult = overrideArray(overrideArray(tmpResult, affectedAppliedResult), activatedAppliedResult)
 
       return {
         result: newResult,
@@ -205,6 +224,7 @@ const deriveNaiveBuffResult = (
         buff: ability.type,
         lane,
         span: clampSpan(ability.span, live.beat, currentBeat),
+        amount: ability.amount,
       }))
     })
   })
@@ -240,6 +260,7 @@ const derivePBuffResult = ({
           buff: ability.type,
           lane,
           span: clampSpan(ability.span, live.beat, currentBeat),
+          amount: ability.amount,
         }))
       })
   })
@@ -430,3 +451,11 @@ function second<T>([, value]: readonly [unknown, T]) {
 function comparebyCenter(a: number, b: number) {
   return Math.abs(2.1 - a) - Math.abs(2.1 - b)
 }
+
+/**
+ * idを含む配列をidのユニーク性を保ちながらマージする (順序保証はされない)
+ */
+const overrideArray = <T extends { id: string }, S extends { id: string }>(origin: T[], override: S[]) => [
+  ...origin.filter((v) => !override.map((v) => v.id).includes(v.id)),
+  ...override,
+]
