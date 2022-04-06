@@ -13,7 +13,7 @@
   <Sheet v-model:present="present">
     <VStack :spacing="16">
       <div class="heading">
-        <img src="/logo.png" alt="logo" class="logo" />
+        <img src="/logo.svg" alt="logo" class="logo" />
         <div class="logo-label">{{ TITLE }}</div>
       </div>
       <div class="section">
