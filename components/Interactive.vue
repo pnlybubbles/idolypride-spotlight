@@ -23,12 +23,17 @@ interface Emits {
 }
 const emit = defineEmits<Emits>()
 
-let touchTimer: NodeJS.Timeout | null = null
-
 const handleContextMenu = (e: MouseEvent) => e.preventDefault()
 
+let touchTimer: NodeJS.Timeout | null = null
+let isLongPress = false
+
 const handleTouchStart = () => {
-  touchTimer = setTimeout(() => emit('longPress'), LONG_PRESS_THREASHOLD)
+  isLongPress = false
+  touchTimer = setTimeout(() => {
+    emit('longPress')
+    isLongPress = true
+  }, LONG_PRESS_THREASHOLD)
   // iOSで長押し中にテキストの選択が起こる問題を抑制する
   document.body.style.webkitUserSelect = 'none'
   // macOSで長押しで右クリックメニューが表示される問題を抑制する
@@ -40,14 +45,17 @@ const handleTouchEnd = () => {
   if (touchTimer) clearTimeout(touchTimer)
 }
 
+const handleClick = () => {
+  if (isLongPress) return
+  emit('click')
+}
+
 const cleanup = () => {
   document.body.style.webkitUserSelect = ''
   document.removeEventListener('contextmenu', handleContextMenu)
 }
 
 onUnmounted(cleanup)
-
-const handleClick = () => emit('click')
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/utils.scss';
