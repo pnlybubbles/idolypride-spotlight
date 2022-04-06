@@ -1,11 +1,11 @@
 <template>
-  <button class="idol-select" @click="present = true" @touchend="handleTouchEnd" @touchstart="handleTouchStart">
+  <Interactive class="idol-select" @click="present = true" @long-press="detailPresent = true">
     <div v-if="modelValue" class="selected">
       <div class="title">{{ modelValue.title }}</div>
       <div class="name">{{ modelValue.name }}</div>
     </div>
     <div v-else class="not-selected">未選択</div>
-  </button>
+  </Interactive>
   <Sheet v-model:present="present" fixed no-padding>
     <div class="container">
       <div class="controlls">
@@ -59,14 +59,6 @@ const present = ref(false)
 
 const detailPresent = ref(false)
 
-let touchTimer: NodeJS.Timeout | null = null
-const handleTouchStart = () => {
-  touchTimer = setTimeout(handleLongTouch, 500)
-}
-const handleTouchEnd = () => touchTimer && clearTimeout(touchTimer)
-
-const handleLongTouch = () => (detailPresent.value = true)
-
 const handleReset = () => {
   emit('update:modelValue', null)
   detailPresent.value = false
@@ -84,8 +76,6 @@ const filter = ref<Filter[]>([])
 @import '~~/components/partials/utils.scss';
 
 .idol-select {
-  @include reset-button;
-  @include clickable;
   padding: 8px 0;
 }
 
