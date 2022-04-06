@@ -19,6 +19,7 @@
           v-else-if="item.type === 'p'"
           :beat="item.beat"
           :buff="item.buff"
+          :skill="getSkill(i, item.index)"
           @long-press="updateGuide(item.beat)"
         ></LivePSkill>
         <LiveBuff
