@@ -290,7 +290,11 @@ type CtState = (
 )[]
 
 const extractCtState = ({ state, currentBeat }: Pick<DomainState, 'state' | 'currentBeat'>): CtState => {
-  const inCT = (beat: number, ct: number) => beat + ct >= currentBeat
+  // 発動ビートから1ビート経つと1CTを消化したことになる
+  // アイプラ上の表示では発動ビート直後でCT29と出る (CT30の場合)
+  // これは切り捨て表示であり、29CTまるまる残っている & 消化中の1未満のCTがある状態
+  // つまりスキル間がちょうど30ビート(86,116など)であれば、CT30をちょうど消化しきることができる
+  const inCT = (beat: number, ct: number) => beat + ct - 1 >= currentBeat
 
   return (
     state
