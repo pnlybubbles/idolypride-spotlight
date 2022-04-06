@@ -267,6 +267,8 @@ const buffTypeOptions: Option<BuffAbilityType> = [
   { id: 'vocal-down', label: 'ボーカル低下' },
   { id: 'dance-down', label: 'ダンス低下' },
   { id: 'visual-down', label: 'ビジュアル低下' },
+  { id: 'down-guard', label: '低下効果防止' },
+  { id: 'slump', label: '不調' },
 ]
 const actionBuffTypeOptions: Option<ActionAbilityType> = [
   { id: 'buff-span', label: '強化効果延長' },
@@ -288,6 +290,7 @@ const buffTargetOptions: Option<BuffTargetWithoutSuffix> = [
   { id: 'dance', label: 'ダンスタイプX人' },
   { id: 'visual', label: 'ビジュアルタイプX人' },
   { id: 'opponent-center', label: '相手のセンター [バトルのみ]' },
+  { id: 'opponent-scorer', label: '相手のスコアラーX人 [バトルのみ]' },
 ]
 const buffTargetOptionsIncludingTriggered: Option<BuffTargetWithoutSuffix> = [
   { id: 'triggered', label: '"発動条件"の引き金となった対象' },

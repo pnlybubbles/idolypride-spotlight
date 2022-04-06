@@ -275,6 +275,7 @@ export const isBuffTargetSuffixRequired = (t: BuffTargetWithoutSuffix): t is Buf
   t === 'dance' ||
   t === 'visual' ||
   t === 'scorer' ||
+  t === 'opponent-scorer' ||
   t === 'lowstamina'
     ? true
     : t === 'all' ||
@@ -288,7 +289,11 @@ export const isBuffTargetSuffixRequired = (t: BuffTargetWithoutSuffix): t is Buf
     : unreachable(t)
 
 export const deriveDisabledAmount = (type: AbilityType | null): boolean =>
-  type === 'cmb-continuous' || type === 'debuff-recovery' || type === 'shift-before-sp'
+  type === 'cmb-continuous' ||
+  type === 'debuff-recovery' ||
+  type === 'shift-before-sp' ||
+  type === 'slump' ||
+  type === 'down-guard'
 
 /**
  * SPスキルスコア上昇の場合は、持続ビートは存在しない (便宜的にspan=1にする)

@@ -19,6 +19,8 @@ export type BuffAbilityType =
   | 'tension'
   | 'eye-catch'
   | 'skill-success'
+  | 'slump'
+  | 'down-guard'
   | 'unknown'
   | `${IdolType}-down`
 export type ActionAbilityType =
@@ -31,7 +33,7 @@ export type AbilityType = BuffAbilityType | ActionAbilityType
 
 // target
 export type BuffTargetNoSuffix = 'all' | 'self' | 'center' | 'opponent-center' | `neighbor` | 'unknown'
-export type BuffTargetWithSuffix = 'scorer' | 'lowstamina' | `${'high-' | ''}${IdolType}` | IdolType
+export type BuffTargetWithSuffix = 'scorer' | 'opponent-scorer' | 'lowstamina' | `${'high-' | ''}${IdolType}` | IdolType
 export type BuffTargetCount = '1' | '2' | '3'
 export type BuffTarget = BuffTargetNoSuffix | `${BuffTargetWithSuffix}-${BuffTargetCount}`
 type BuffTargetPassiveOnly = 'triggered'

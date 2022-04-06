@@ -254,6 +254,8 @@ const BUFF_ABILITY_TYPE: Record<BuffAbilityType, true> = {
   tension: true,
   'eye-catch': true,
   'skill-success': true,
+  slump: true,
+  'down-guard': true,
   unknown: true,
   'vocal-down': true,
   'dance-down': true,
