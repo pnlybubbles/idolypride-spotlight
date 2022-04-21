@@ -11,6 +11,9 @@
     "fmt": "run-p 'fmt:*'",
     "fmt:eslint": "cross-env DEBUG=eslint:cli-engine eslint '**/*.{ts,js,vue}' --max-warnings=0 --fix",
     "fmt:prettier": "prettier '**/*.{json,yml}' --write --ignore-path .gitignore",
+    "lint": "run-p 'lint:*'",
+    "lint:eslint": "eslint '**/*.{ts,js,vue}' --max-warnings=0",
+    "lint:prettier": "prettier '**/*.{json,yml}' --check --ignore-path .gitignore",
     "typecheck": "vue-tsc --noEmit",
     "graphql": "graphql-codegen --config codegen.config.js"
   },
