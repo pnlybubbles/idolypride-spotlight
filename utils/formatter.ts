@@ -14,6 +14,10 @@ import {
   ActionAbilityType,
   BuffAbilityType,
   BuffTarget,
+  BuffTargetNoSuffix,
+  BuffTargetPassiveOnly,
+  BuffTargetWithoutSuffix,
+  BuffTargetWithSuffix,
   IdolData,
   PassiveAbilityData,
   SkillData,
@@ -235,44 +239,70 @@ export const isAbilityConditionWithoutValue = (type: string): type is AbilityCon
   !!ABILITY_CONDITION_WITHOUT_VALUE[type as AbilityConditionWithoutValue]
 
 // 持続効果
-const BUFF_ABILITY_TYPE: Record<BuffAbilityType, true> = {
-  vocal: true,
-  dance: true,
-  visual: true,
-  'critical-rate': true,
-  'critical-score': true,
-  score: true,
-  'beat-score': true,
-  'a-score': true,
-  'sp-score': true,
-  'cmb-score': true,
-  'stamina-saving': true,
-  'stamina-exhaust': true,
-  'buff-amount': true,
-  steruss: true,
-  'cmb-continuous': true,
-  tension: true,
-  'eye-catch': true,
-  'skill-success': true,
-  slump: true,
-  'down-guard': true,
-  unknown: true,
-  'vocal-down': true,
-  'dance-down': true,
-  'visual-down': true,
+export const BUFF_ABILITY_TYPE: Record<BuffAbilityType, string> = {
+  vocal: 'ボーカル上昇',
+  dance: 'ダンス上昇',
+  visual: 'ビジュアル上昇',
+  score: 'スコア上昇',
+  'a-score': 'Aスキルスコア上昇',
+  'sp-score': 'SPスキルスコア上昇',
+  'beat-score': 'ビートスコア上昇',
+  'buff-amount': '強化効果増強',
+  'cmb-continuous': 'コンボ継続',
+  'cmb-score': 'コンボスコア上昇',
+  'critical-rate': 'クリティカル率上昇',
+  'critical-score': 'クリティカル係数上昇',
+  'stamina-exhaust': 'スタミナ消費増加',
+  'stamina-saving': 'スタミナ消費低下',
+  steruss: 'ステルス',
+  tension: 'テンションUP',
+  'eye-catch': '集目効果',
+  'skill-success': 'スキル成功率上昇',
+  'vocal-down': 'ボーカル低下',
+  'dance-down': 'ダンス低下',
+  'visual-down': 'ビジュアル低下',
+  'down-guard': '低下効果防止',
+  slump: '不調',
+  unknown: '不明',
 }
-export const isBuffAbilityType = (type: string): type is BuffAbilityType => BUFF_ABILITY_TYPE[type as BuffAbilityType]
+export const isBuffAbilityType = (type: string): type is BuffAbilityType => !!BUFF_ABILITY_TYPE[type as BuffAbilityType]
 
 // 即時効果
-const ACTION_ABILITY_TYPE: Record<ActionAbilityType, true> = {
-  'buff-span': true,
-  'ct-reduction': true,
-  'stamina-recovery': true,
-  'debuff-recovery': true,
-  'shift-before-sp': true,
+export const ACTION_ABILITY_TYPE: Record<ActionAbilityType, string> = {
+  'buff-span': '強化効果延長',
+  'ct-reduction': 'CT減少',
+  'stamina-recovery': 'スタミナ回復',
+  'debuff-recovery': '低下効果回復',
+  'shift-before-sp': '強化効果をSPスキル前に移動',
 }
 export const isActionAbilityType = (type: string): type is ActionAbilityType =>
-  ACTION_ABILITY_TYPE[type as ActionAbilityType]
+  !!ACTION_ABILITY_TYPE[type as ActionAbilityType]
+
+// 効果対象
+export const BUFF_TARGET_NO_SUFFIX: Record<BuffTargetNoSuffix | BuffTargetPassiveOnly, string> = {
+  triggered: '"発動条件"の引き金となった対象',
+  self: '自身',
+  all: '全員',
+  center: 'センター',
+  neighbor: '隣接',
+  'opponent-center': '相手のセンター [バトルのみ]',
+  unknown: '不明',
+}
+export const BUFF_TARGET_WITH_SUFFIX: Record<BuffTargetWithSuffix, string> = {
+  scorer: 'スコアラーX人',
+  'high-vocal': 'ボーカルが高いX人',
+  'high-dance': 'ダンスが高いX人',
+  'high-visual': 'ビジュアルが高いX人',
+  vocal: 'ボーカルタイプX人',
+  dance: 'ダンスタイプX人',
+  visual: 'ビジュアルタイプX人',
+  'opponent-scorer': '相手のスコアラーX人 [バトルのみ]',
+  lowstamina: 'スタミナが低いX人',
+}
+export const BUFF_TARGET_WITHOUT_SUFFIX: Record<BuffTargetWithoutSuffix, string> = {
+  ...BUFF_TARGET_NO_SUFFIX,
+  ...BUFF_TARGET_WITH_SUFFIX,
+}
 
 // ソート
 export const sortSkills = (skills: readonly [SkillData, SkillData, SkillData]) =>

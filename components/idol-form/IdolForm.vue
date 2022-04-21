@@ -164,6 +164,9 @@ import {
 import {
   ABILITY_CONDITION_WITHOUT_VALUE,
   ABILITY_CONDITION_WITH_VALUE,
+  ACTION_ABILITY_TYPE,
+  BUFF_ABILITY_TYPE,
+  BUFF_TARGET_WITHOUT_SUFFIX,
   isAbilityConditionWithValue,
 } from '~~/utils/formatter'
 import {
@@ -221,6 +224,13 @@ const objToOption = <K extends string>(obj: Record<K, string>): Option<K> =>
   Object.entries(obj).map(([id, label]) => ({ id, label })) as Option<K>
 const arrayToOption = (array: string[]): Option<string> => array.map((id) => ({ id, label: id }))
 
+type ExcludeUnknown<T> = Exclude<T, 'unknown'>
+const omitOption =
+  <S>(id: S) =>
+  <T>(opt: Option<T | S>) =>
+    opt.filter((v) => v.id !== id) as Option<T>
+const omitUnknownOption = omitOption('unknown' as const)
+
 const nameOptions: Option<string> = arrayToOption(IDOL_NAME)
 const typeOptions: Option<IdolType> = [
   { id: 'vocal', label: 'ボーカル' },
@@ -245,64 +255,21 @@ const abilityTypeOptions: Option<AbilityDiv> = [
   { id: 'action-buff', label: '即時効果' },
   { id: 'score', label: 'スコア獲得' },
 ]
-const buffTypeOptions: Option<BuffAbilityType> = [
-  { id: 'vocal', label: 'ボーカル上昇' },
-  { id: 'dance', label: 'ダンス上昇' },
-  { id: 'visual', label: 'ビジュアル上昇' },
-  { id: 'score', label: 'スコア上昇' },
-  { id: 'a-score', label: 'Aスキルスコア上昇' },
-  { id: 'sp-score', label: 'SPスキルスコア上昇' },
-  { id: 'beat-score', label: 'ビートスコア上昇' },
-  { id: 'buff-amount', label: '強化効果増強' },
-  { id: 'cmb-continuous', label: 'コンボ継続' },
-  { id: 'cmb-score', label: 'コンボスコア上昇' },
-  { id: 'critical-rate', label: 'クリティカル率上昇' },
-  { id: 'critical-score', label: 'クリティカル係数上昇' },
-  { id: 'stamina-exhaust', label: 'スタミナ消費増加' },
-  { id: 'stamina-saving', label: 'スタミナ消費低下' },
-  { id: 'steruss', label: 'ステルス' },
-  { id: 'tension', label: 'テンションUP' },
-  { id: 'eye-catch', label: '集目効果' },
-  { id: 'skill-success', label: 'スキル成功率上昇' },
-  { id: 'vocal-down', label: 'ボーカル低下' },
-  { id: 'dance-down', label: 'ダンス低下' },
-  { id: 'visual-down', label: 'ビジュアル低下' },
-  { id: 'down-guard', label: '低下効果防止' },
-  { id: 'slump', label: '不調' },
-]
-const actionBuffTypeOptions: Option<ActionAbilityType> = [
-  { id: 'buff-span', label: '強化効果延長' },
-  { id: 'ct-reduction', label: 'CT減少' },
-  { id: 'stamina-recovery', label: 'スタミナ回復' },
-  { id: 'debuff-recovery', label: '低下効果回復' },
-  { id: 'shift-before-sp', label: '強化効果をSPスキル前に移動' },
-]
-const buffTargetOptions: Option<BuffTargetWithoutSuffix> = [
-  { id: 'self', label: '自身' },
-  { id: 'all', label: '全員' },
-  { id: 'center', label: 'センター' },
-  { id: 'neighbor', label: '隣接' },
-  { id: 'scorer', label: 'スコアラーX人' },
-  { id: 'high-vocal', label: 'ボーカルが高いX人' },
-  { id: 'high-dance', label: 'ダンスが高いX人' },
-  { id: 'high-visual', label: 'ビジュアルが高いX人' },
-  { id: 'vocal', label: 'ボーカルタイプX人' },
-  { id: 'dance', label: 'ダンスタイプX人' },
-  { id: 'visual', label: 'ビジュアルタイプX人' },
-  { id: 'opponent-center', label: '相手のセンター [バトルのみ]' },
-  { id: 'opponent-scorer', label: '相手のスコアラーX人 [バトルのみ]' },
-]
-const buffTargetOptionsIncludingTriggered: Option<BuffTargetWithoutSuffix> = [
-  { id: 'triggered', label: '"発動条件"の引き金となった対象' },
-  ...buffTargetOptions,
-]
+const buffTypeOptions: Option<ExcludeUnknown<BuffAbilityType>> = omitUnknownOption(objToOption(BUFF_ABILITY_TYPE))
+const actionBuffTypeOptions: Option<ActionAbilityType> = objToOption(ACTION_ABILITY_TYPE)
+const buffTargetOptions: Option<Exclude<ExcludeUnknown<BuffTargetWithoutSuffix>, 'triggered'>> = omitOption(
+  'triggered' as const
+)(omitUnknownOption(objToOption(BUFF_TARGET_WITHOUT_SUFFIX)))
+const buffTargetOptionsIncludingTriggered: Option<ExcludeUnknown<BuffTargetWithoutSuffix>> = omitUnknownOption(
+  objToOption(BUFF_TARGET_WITHOUT_SUFFIX)
+)
 const buffTargetSuffixOptions: Option<BuffTargetCount> = [
   { id: '1', label: '1人' },
   { id: '2', label: '2人' },
   { id: '3', label: '3人' },
 ]
-const conditionOptionsForP: Option<AbilityConditionType> = [
-  ...objToOption(ABILITY_CONDITION_WITHOUT_VALUE).filter((v) => v.id !== 'unknown'),
+const conditionOptionsForP: Option<ExcludeUnknown<AbilityConditionType>> = [
+  ...omitUnknownOption(objToOption(ABILITY_CONDITION_WITHOUT_VALUE)),
   ...objToOption(ABILITY_CONDITION_WITH_VALUE),
 ]
 const ABILITY_CONDITION_AVAILABLE_FOR_P_ONLY: AbilityConditionType[] = ['a', 'sp']
