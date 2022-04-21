@@ -1,5 +1,5 @@
 import {
-  BuffTarget,
+  ActiveBuffTarget,
   AbilityType,
   Lane,
   LiveData,
@@ -196,7 +196,7 @@ type DomainState = {
   currentBeat: number
 }
 
-function deriveBuffLanes(target: BuffTarget, selfLane: Lane, idol: ArrayN<IdolData | null, 5>): Lane[] {
+function deriveBuffLanes(target: ActiveBuffTarget, selfLane: Lane, idol: ArrayN<IdolData | null, 5>): Lane[] {
   switch (target) {
     case 'all':
       return [0, 1, 2, 3, 4]

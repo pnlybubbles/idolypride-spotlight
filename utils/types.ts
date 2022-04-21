@@ -32,13 +32,13 @@ export type ActionAbilityType =
 export type AbilityType = BuffAbilityType | ActionAbilityType
 
 // target
-export type BuffTargetNoSuffix = 'all' | 'self' | 'center' | 'opponent-center' | `neighbor` | 'unknown'
+export type BuffTargetWithoutSuffix = 'all' | 'self' | 'center' | 'opponent-center' | `neighbor` | 'unknown'
 export type BuffTargetWithSuffix = 'scorer' | 'opponent-scorer' | 'lowstamina' | `${'high-' | ''}${IdolType}` | IdolType
 export type BuffTargetCount = '1' | '2' | '3'
-export type BuffTarget = BuffTargetNoSuffix | `${BuffTargetWithSuffix}-${BuffTargetCount}`
-export type BuffTargetPassiveOnly = 'triggered'
-export type PassiveBuffTarget = BuffTarget | BuffTargetPassiveOnly
-export type BuffTargetWithoutSuffix = BuffTargetNoSuffix | BuffTargetWithSuffix | BuffTargetPassiveOnly
+export type ActiveBuffTarget = BuffTargetWithoutSuffix | `${BuffTargetWithSuffix}-${BuffTargetCount}`
+export type PassiveOnlyBuffTarget = 'triggered'
+export type PassiveBuffTarget = ActiveBuffTarget | PassiveOnlyBuffTarget
+export type BuffTarget = BuffTargetWithoutSuffix | BuffTargetWithSuffix | PassiveOnlyBuffTarget
 
 // condition
 export type AbilityConditionType = Exclude<AbilityCondition, null>['type']
@@ -71,7 +71,7 @@ type BuffAbility = {
   id: string
   type: BuffAbilityType
   condition: AbilityCondition
-  target: BuffTarget
+  target: ActiveBuffTarget
   amount: number
   span: number
 }
@@ -88,7 +88,7 @@ type ActionBuffAbility = {
   id: string
   type: ActionAbilityType
   condition: AbilityCondition
-  target: BuffTarget
+  target: ActiveBuffTarget
   amount: number
 }
 

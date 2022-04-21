@@ -5,7 +5,7 @@ import {
   IdolType,
   SkillType,
   BuffTargetCount,
-  BuffTargetWithoutSuffix,
+  BuffTarget,
   SkillIndex,
   IdolData,
   SkillData,
@@ -35,7 +35,7 @@ export interface AbilityInput {
   type: AbilityType | null
   condition: AbilityConditionType | 'none'
   conditionValue: string
-  target: BuffTargetWithoutSuffix | null
+  target: BuffTarget | null
   targetSuffix: BuffTargetCount
   amount: string
   span: string
@@ -249,17 +249,15 @@ const deformatAbility = (v: AbilityData | PassiveAbilityData): AbilityInput => {
   }
 }
 
-export const extractBuffTarget = (
-  t: PassiveBuffTarget
-): { target: BuffTargetWithoutSuffix; targetSuffix: BuffTargetCount } => {
+export const extractBuffTarget = (t: PassiveBuffTarget): { target: BuffTarget; targetSuffix: BuffTargetCount } => {
   const matched = t.match(/^(?<target>.+)\-(?<suffix>1|2|3)$/)?.groups
   if (matched === undefined) {
     return {
-      target: t as BuffTargetWithoutSuffix,
+      target: t as BuffTarget,
       targetSuffix: '1',
     }
   }
-  const target = matched?.target as BuffTargetWithoutSuffix | undefined
+  const target = matched?.target as BuffTarget | undefined
   const suffix = matched?.suffix as BuffTargetCount | undefined
   return {
     target: target ?? 'unknown',
@@ -267,7 +265,7 @@ export const extractBuffTarget = (
   }
 }
 
-export const isBuffTargetSuffixRequired = (t: BuffTargetWithoutSuffix): t is BuffTargetWithSuffix =>
+export const isBuffTargetSuffixRequired = (t: BuffTarget): t is BuffTargetWithSuffix =>
   t === 'high-vocal' ||
   t === 'high-dance' ||
   t === 'high-visual' ||

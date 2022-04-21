@@ -158,7 +158,7 @@ import {
   SkillType,
   BuffAbilityType,
   BuffTargetCount,
-  BuffTargetWithoutSuffix,
+  BuffTarget,
   IdolData,
 } from '~~/utils/types'
 import {
@@ -166,7 +166,7 @@ import {
   ABILITY_CONDITION_WITH_VALUE,
   ACTION_ABILITY_TYPE,
   BUFF_ABILITY_TYPE,
-  BUFF_TARGET_WITHOUT_SUFFIX,
+  BUFF_TARGET,
   isAbilityConditionWithValue,
 } from '~~/utils/formatter'
 import {
@@ -257,11 +257,11 @@ const abilityTypeOptions: Option<AbilityDiv> = [
 ]
 const buffTypeOptions: Option<ExcludeUnknown<BuffAbilityType>> = omitUnknownOption(objToOption(BUFF_ABILITY_TYPE))
 const actionBuffTypeOptions: Option<ActionAbilityType> = objToOption(ACTION_ABILITY_TYPE)
-const buffTargetOptions: Option<Exclude<ExcludeUnknown<BuffTargetWithoutSuffix>, 'triggered'>> = omitOption(
-  'triggered' as const
-)(omitUnknownOption(objToOption(BUFF_TARGET_WITHOUT_SUFFIX)))
-const buffTargetOptionsIncludingTriggered: Option<ExcludeUnknown<BuffTargetWithoutSuffix>> = omitUnknownOption(
-  objToOption(BUFF_TARGET_WITHOUT_SUFFIX)
+const buffTargetOptions: Option<Exclude<ExcludeUnknown<BuffTarget>, 'triggered'>> = omitOption('triggered' as const)(
+  omitUnknownOption(objToOption(BUFF_TARGET))
+)
+const buffTargetOptionsIncludingTriggered: Option<ExcludeUnknown<BuffTarget>> = omitUnknownOption(
+  objToOption(BUFF_TARGET)
 )
 const buffTargetSuffixOptions: Option<BuffTargetCount> = [
   { id: '1', label: '1人' },

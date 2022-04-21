@@ -13,10 +13,10 @@ import {
   AbilityDiv,
   ActionAbilityType,
   BuffAbilityType,
-  BuffTarget,
-  BuffTargetNoSuffix,
-  BuffTargetPassiveOnly,
+  ActiveBuffTarget,
   BuffTargetWithoutSuffix,
+  PassiveOnlyBuffTarget,
+  BuffTarget,
   BuffTargetWithSuffix,
   IdolData,
   PassiveAbilityData,
@@ -103,9 +103,9 @@ const deserializeAbility = ({ type, ...rest }: TmpAbility): AbilityData => {
         id,
         type,
         condition,
-        target: (rest.target ?? 'unknown') as BuffTarget,
+        target: (rest.target ?? 'unknown') as ActiveBuffTarget,
         amount,
-        span: rest.span ?? 0,
+        span: rest.span ?? 1,
       }
     : isActionAbilityType(type)
     ? {
@@ -113,7 +113,7 @@ const deserializeAbility = ({ type, ...rest }: TmpAbility): AbilityData => {
         id,
         type,
         condition,
-        target: (rest.target ?? 'unknown') as BuffTarget,
+        target: (rest.target ?? 'unknown') as ActiveBuffTarget,
         amount,
       }
     : // 存在しない場合はbuffのunknownにフォールバック
@@ -122,7 +122,7 @@ const deserializeAbility = ({ type, ...rest }: TmpAbility): AbilityData => {
         id,
         type: 'unknown',
         condition,
-        target: (rest.target ?? 'unknown') as BuffTarget,
+        target: (rest.target ?? 'unknown') as ActiveBuffTarget,
         amount,
         span: rest.span ?? 0,
       }
@@ -279,7 +279,7 @@ export const isActionAbilityType = (type: string): type is ActionAbilityType =>
   !!ACTION_ABILITY_TYPE[type as ActionAbilityType]
 
 // 効果対象
-export const BUFF_TARGET_NO_SUFFIX: Record<BuffTargetNoSuffix | BuffTargetPassiveOnly, string> = {
+export const BUFF_TARGET_WITHOUT_SUFFIX: Record<BuffTargetWithoutSuffix | PassiveOnlyBuffTarget, string> = {
   triggered: '"発動条件"の引き金となった対象',
   self: '自身',
   all: '全員',
@@ -299,8 +299,8 @@ export const BUFF_TARGET_WITH_SUFFIX: Record<BuffTargetWithSuffix, string> = {
   'opponent-scorer': '相手のスコアラーX人 [バトルのみ]',
   lowstamina: 'スタミナが低いX人',
 }
-export const BUFF_TARGET_WITHOUT_SUFFIX: Record<BuffTargetWithoutSuffix, string> = {
-  ...BUFF_TARGET_NO_SUFFIX,
+export const BUFF_TARGET: Record<BuffTarget, string> = {
+  ...BUFF_TARGET_WITHOUT_SUFFIX,
   ...BUFF_TARGET_WITH_SUFFIX,
 }
 
