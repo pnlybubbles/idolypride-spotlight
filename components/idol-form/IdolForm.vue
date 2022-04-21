@@ -71,7 +71,7 @@
               <template #label>種別</template>
               <Listbox v-model="ability.div" :options="abilityTypeOptions"></Listbox>
             </Section>
-            <Section :gutter="8">
+            <Section v-if="!disableCondition(skill.type, ability.div)" :gutter="8">
               <template #label>発動条件</template>
               <div class="left-main">
                 <Listbox
@@ -179,6 +179,7 @@ import {
   deformatIdol,
   SkillInput,
   disableSpan,
+  disableCondition,
 } from './helper'
 import { defined, lift } from '~~/utils'
 import { IDOL_NAME } from '~~/utils/common'
@@ -272,8 +273,8 @@ const conditionOptionsForP: Option<ExcludeUnknown<AbilityConditionType>> = [
   ...omitUnknownOption(objToOption(ABILITY_CONDITION_WITHOUT_VALUE)),
   ...objToOption(ABILITY_CONDITION_WITH_VALUE),
 ]
-const ABILITY_CONDITION_AVAILABLE_FOR_P_ONLY: AbilityConditionType[] = ['a', 'sp']
-const conditionOptions = conditionOptionsForP.filter((v) => !ABILITY_CONDITION_AVAILABLE_FOR_P_ONLY.includes(v.id))
+// SP,Aスキル発動を起点とする発動条件はPスキル特有なので、A,SPでは取り除く
+const conditionOptions = omitOption('sp' as const)(omitOption('a' as const)(conditionOptionsForP))
 
 const AVAILAVLE_TRIGGER: Record<AbilityConditionType, boolean> = {
   none: false,

@@ -141,12 +141,12 @@ const formatSkill = (v: SkillInput): SkillData => {
   if (v.type === 'p') {
     return {
       type: 'p',
-      ability: v.ability.map((w) => formatPassiveAbility(w)),
+      ability: v.ability.map((w) => formatPassiveAbility(w, v)),
       ct: v.once ? 0 : strictParseInt(v.ct),
       ...common,
     }
   }
-  const ability = v.ability.map(formatAbility)
+  const ability = v.ability.map((w) => formatAbility(w, v))
   if (v.type === 'a') {
     return {
       type: 'a',
@@ -165,8 +165,8 @@ const formatSkill = (v: SkillInput): SkillData => {
   return unreachable(v.type)
 }
 
-const formatAbility = (v: AbilityInput): AbilityData => {
-  const ability = formatPassiveAbility(v)
+const formatAbility = (v: AbilityInput, s: SkillInput): AbilityData => {
+  const ability = formatPassiveAbility(v, s)
   if (ability.div === 'action-buff' || ability.div === 'buff') {
     const target = ability.target
     if (target === 'triggered') {
@@ -177,10 +177,12 @@ const formatAbility = (v: AbilityInput): AbilityData => {
   return ability
 }
 
-export const formatPassiveAbility = (v: AbilityInput): PassiveAbilityData => {
+export const formatPassiveAbility = (v: AbilityInput, s: SkillInput): PassiveAbilityData => {
   const id = v.id
   const amount = lift(deriveDisabledAmount)(v.type) ?? false ? 0 : parseInt(v.amount, 10)
-  const condition: AbilityCondition = isAbilityConditionWithValue(v.condition)
+  const condition: AbilityCondition = disableCondition(s.type, v.div)
+    ? { type: 'none' }
+    : isAbilityConditionWithValue(v.condition)
     ? {
         type: v.condition,
         amount: parseInt(v.conditionValue, 10),
@@ -326,3 +328,8 @@ export const deriveDisabledAmount = (type: AbilityType): boolean => ABILITY_TYPE
  * SPスキルスコア上昇の場合は、持続ビートは存在しない (便宜的にspan=1にする)
  */
 export const disableSpan = (t: AbilityType) => t === 'sp-score'
+
+/**
+ * SP,Aのスコア獲得スキルの場合は発動条件は存在しない
+ */
+export const disableCondition = (type: SkillType, div: AbilityDiv) => (type === 'sp' || type === 'a') && div === 'score'
