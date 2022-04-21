@@ -117,7 +117,7 @@
                 <TextField
                   v-model="ability.amount"
                   :placeholder="deriveUnitByBuffType(ability.type)"
-                  :disabled="deriveDisabledAmount(ability.type)"
+                  :disabled="lift(deriveDisabledAmount)(ability.type) ?? false"
                   type="number"
                   required
                 ></TextField>
@@ -180,7 +180,7 @@ import {
   SkillInput,
   disableSpan,
 } from './helper'
-import { defined } from '~~/utils'
+import { defined, lift } from '~~/utils'
 import { IDOL_NAME } from '~~/utils/common'
 
 interface Props {

@@ -75,3 +75,7 @@ export function uid() {
 }
 
 export type PartiallyNonNullable<T, S extends keyof T> = { [K in keyof T]: K extends S ? NonNullable<T[K]> : T[K] }
+
+export function lift<T, S>(f: (domain: T) => S): (domain: T | null | undefined) => S | null | undefined {
+  return (domain) => (domain != null ? f(domain) : (domain as null | undefined))
+}

@@ -16,7 +16,7 @@ import {
   PassiveBuffTarget,
   AbilityType,
 } from '~~/utils/types'
-import { defined, mapArrayN, strictParseInt, unreachable } from '~~/utils'
+import { defined, lift, mapArrayN, strictParseInt, unreachable } from '~~/utils'
 import {
   isAbilityConditionWithoutValue,
   isAbilityConditionWithValue,
@@ -179,7 +179,7 @@ const formatAbility = (v: AbilityInput): AbilityData => {
 
 export const formatPassiveAbility = (v: AbilityInput): PassiveAbilityData => {
   const id = v.id
-  const amount = deriveDisabledAmount(v.type) ? 0 : parseInt(v.amount, 10)
+  const amount = lift(deriveDisabledAmount)(v.type) ?? false ? 0 : parseInt(v.amount, 10)
   const condition: AbilityCondition = isAbilityConditionWithValue(v.condition)
     ? {
         type: v.condition,
@@ -288,12 +288,41 @@ export const isBuffTargetSuffixRequired = (t: BuffTargetWithoutSuffix): t is Buf
     ? false
     : unreachable(t)
 
-export const deriveDisabledAmount = (type: AbilityType | null): boolean =>
-  type === 'cmb-continuous' ||
-  type === 'debuff-recovery' ||
-  type === 'shift-before-sp' ||
-  type === 'slump' ||
-  type === 'down-guard'
+/**
+ * X段階などの明示的なスキルの強度が指定できないもの
+ */
+const ABILITY_TYPE_DISABLED_AMOUNT: Record<AbilityType, boolean> = {
+  'cmb-continuous': true,
+  'debuff-recovery': true,
+  'shift-before-sp': true,
+  slump: true,
+  'down-guard': true,
+  'a-score': false,
+  'beat-score': false,
+  'buff-amount': false,
+  'buff-span': false,
+  'cmb-score': false,
+  'critical-rate': false,
+  'critical-score': false,
+  'ct-reduction': false,
+  'dance-down': false,
+  'eye-catch': false,
+  'skill-success': false,
+  'sp-score': false,
+  'stamina-exhaust': false,
+  'stamina-recovery': false,
+  'stamina-saving': false,
+  'visual-down': false,
+  'vocal-down': false,
+  dance: false,
+  score: false,
+  steruss: false,
+  tension: false,
+  unknown: false,
+  visual: false,
+  vocal: false,
+}
+export const deriveDisabledAmount = (type: AbilityType): boolean => ABILITY_TYPE_DISABLED_AMOUNT[type]
 
 /**
  * SPスキルスコア上昇の場合は、持続ビートは存在しない (便宜的にspan=1にする)
