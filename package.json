@@ -15,6 +15,7 @@
     "lint:eslint": "eslint '**/*.{ts,js,vue}' --max-warnings=0",
     "lint:prettier": "prettier '**/*.{json,yml}' --check --ignore-path .gitignore",
     "typecheck": "vue-tsc --noEmit",
+    "test": "echo no test",
     "graphql": "graphql-codegen --config codegen.config.js"
   },
   "devDependencies": {
