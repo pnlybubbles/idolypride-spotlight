@@ -8775,7 +8775,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nuxt3@npm:^3.0.0-rc.0-27508091.78fcbcf":
+"nuxt@npm:nuxt3@latest":
   version: 3.0.0-rc.0-27508091.78fcbcf
   resolution: "nuxt3@npm:3.0.0-rc.0-27508091.78fcbcf"
   dependencies:
@@ -10347,7 +10347,7 @@ __metadata:
     graphql: ^16.3.0
     is-non-nullable: ^1.0.2
     npm-run-all: ^4.1.5
-    nuxt3: ^3.0.0-rc.0-27508091.78fcbcf
+    nuxt: "npm:nuxt3@latest"
     postcss: ^8.4.12
     prettier: ^2.6.2
     sass: ^1.50.1
