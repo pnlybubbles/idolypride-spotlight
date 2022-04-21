@@ -124,7 +124,7 @@
                 <TextField
                   v-if="ability.div === 'buff'"
                   v-model="ability.span"
-                  :disabled="disableSpan(ability.type)"
+                  :disabled="lift(disableSpan)(ability.type) ?? false"
                   placeholder="持続ビート数"
                   type="number"
                   required

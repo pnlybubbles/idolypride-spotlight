@@ -205,7 +205,7 @@ export const formatPassiveAbility = (v: AbilityInput): PassiveAbilityData => {
     return { div: 'action-buff', id, type, target, amount, condition }
   }
   // SP発動前などのケースで[持続ビート数]が書いてない場合、1ビートとして扱う
-  const span = disableSpan(v.type) ? 1 : parseInt(v.span, 10)
+  const span = lift(disableSpan)(v.type) ?? false ? 1 : parseInt(v.span, 10)
   if (v.div === 'buff') {
     if (!isBuffAbilityType(type)) {
       throw new Error(`div is "buff", type "${type}" is invalid`)
@@ -327,4 +327,4 @@ export const deriveDisabledAmount = (type: AbilityType): boolean => ABILITY_TYPE
 /**
  * SPスキルスコア上昇の場合は、持続ビートは存在しない (便宜的にspan=1にする)
  */
-export const disableSpan = (t: AbilityType | null) => t === 'sp-score'
+export const disableSpan = (t: AbilityType) => t === 'sp-score'
