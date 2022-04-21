@@ -37,6 +37,11 @@ jobs:
       - name: Prepare deps
         run: |
           yarn install --immutable --inline-builds
+
+      - name: GraphQL codegen
+        env:
+          HASURA_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET }}
+        run: |
           yarn graphql
 
       - name: Test
