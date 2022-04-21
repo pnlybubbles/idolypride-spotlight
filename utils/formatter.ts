@@ -16,7 +16,7 @@ import {
   ActiveBuffTarget,
   BuffTargetWithoutSuffix,
   PassiveOnlyBuffTarget,
-  BuffTarget,
+  BuffTargetPrefix,
   BuffTargetWithSuffix,
   IdolData,
   PassiveAbilityData,
@@ -302,7 +302,7 @@ export const BUFF_TARGET_WITH_SUFFIX: Record<BuffTargetWithSuffix, string> = {
 }
 export const isBuffTargetWithSuffix = isKeyInObject(BUFF_TARGET_WITH_SUFFIX)
 
-export const BUFF_TARGET: Record<BuffTarget, string> = {
+export const BUFF_TARGET_PREFIX: Record<BuffTargetPrefix, string> = {
   ...BUFF_TARGET_WITHOUT_SUFFIX,
   ...BUFF_TARGET_WITH_SUFFIX,
 }

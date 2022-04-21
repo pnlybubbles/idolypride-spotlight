@@ -38,7 +38,7 @@ export type BuffTargetCount = '1' | '2' | '3'
 export type ActiveBuffTarget = BuffTargetWithoutSuffix | `${BuffTargetWithSuffix}-${BuffTargetCount}`
 export type PassiveOnlyBuffTarget = 'triggered'
 export type PassiveBuffTarget = ActiveBuffTarget | PassiveOnlyBuffTarget
-export type BuffTarget = BuffTargetWithoutSuffix | BuffTargetWithSuffix | PassiveOnlyBuffTarget
+export type BuffTargetPrefix = BuffTargetWithoutSuffix | BuffTargetWithSuffix | PassiveOnlyBuffTarget
 
 // condition
 export type AbilityConditionType = Exclude<AbilityCondition, null>['type']
