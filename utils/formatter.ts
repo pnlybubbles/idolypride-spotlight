@@ -5,7 +5,7 @@ import {
   Idol_Insert_Input,
   Skill_Insert_Input,
 } from '~~/generated/graphql'
-import { defined, mapArrayN, unreachable } from '.'
+import { defined, isKeyInObject, mapArrayN, unreachable } from '.'
 import { SKILLS } from './common'
 import {
   AbilityCondition,
@@ -202,8 +202,7 @@ export const ABILITY_CONDITION_WITH_VALUE: Record<AbilityConditionWithValue, str
   'stamina-less-than': 'スタミナX%以下の時',
   'anyone-stamina-less-than': '誰かのスタミナがX%以下の時',
 }
-export const isAbilityConditionWithValue = (type: string): type is AbilityConditionWithValue =>
-  !!ABILITY_CONDITION_WITH_VALUE[type as AbilityConditionWithValue]
+export const isAbilityConditionWithValue = isKeyInObject(ABILITY_CONDITION_WITH_VALUE)
 
 // 値なしの効果条件
 type AbilityConditionWithoutValue = Exclude<AbilityCondition, { amount: unknown } | null>['type']
@@ -235,8 +234,7 @@ export const ABILITY_CONDITION_WITHOUT_VALUE: Record<AbilityConditionWithoutValu
   'anyone-critical-up': '誰かがクリティカル率アップ状態の時',
   unknown: '不明',
 }
-export const isAbilityConditionWithoutValue = (type: string): type is AbilityConditionWithoutValue =>
-  !!ABILITY_CONDITION_WITHOUT_VALUE[type as AbilityConditionWithoutValue]
+export const isAbilityConditionWithoutValue = isKeyInObject(ABILITY_CONDITION_WITHOUT_VALUE)
 
 // 持続効果
 export const BUFF_ABILITY_TYPE: Record<BuffAbilityType, string> = {
@@ -265,7 +263,8 @@ export const BUFF_ABILITY_TYPE: Record<BuffAbilityType, string> = {
   slump: '不調',
   unknown: '不明',
 }
-export const isBuffAbilityType = (type: string): type is BuffAbilityType => !!BUFF_ABILITY_TYPE[type as BuffAbilityType]
+
+export const isBuffAbilityType = isKeyInObject(BUFF_ABILITY_TYPE)
 
 // 即時効果
 export const ACTION_ABILITY_TYPE: Record<ActionAbilityType, string> = {
@@ -275,8 +274,7 @@ export const ACTION_ABILITY_TYPE: Record<ActionAbilityType, string> = {
   'debuff-recovery': '低下効果回復',
   'shift-before-sp': '強化効果をSPスキル前に移動',
 }
-export const isActionAbilityType = (type: string): type is ActionAbilityType =>
-  !!ACTION_ABILITY_TYPE[type as ActionAbilityType]
+export const isActionAbilityType = isKeyInObject(ACTION_ABILITY_TYPE)
 
 // 効果対象
 export const BUFF_TARGET_WITHOUT_SUFFIX: Record<BuffTargetWithoutSuffix | PassiveOnlyBuffTarget, string> = {
@@ -288,6 +286,9 @@ export const BUFF_TARGET_WITHOUT_SUFFIX: Record<BuffTargetWithoutSuffix | Passiv
   'opponent-center': '相手のセンター [バトルのみ]',
   unknown: '不明',
 }
+export const isBuffTargetWithoutSuffix = isKeyInObject(BUFF_TARGET_WITHOUT_SUFFIX)
+
+// 効果対象 (X人付き)
 export const BUFF_TARGET_WITH_SUFFIX: Record<BuffTargetWithSuffix, string> = {
   scorer: 'スコアラーX人',
   'high-vocal': 'ボーカルが高いX人',
@@ -299,6 +300,8 @@ export const BUFF_TARGET_WITH_SUFFIX: Record<BuffTargetWithSuffix, string> = {
   'opponent-scorer': '相手のスコアラーX人 [バトルのみ]',
   lowstamina: 'スタミナが低いX人',
 }
+export const isBuffTargetWithSuffix = isKeyInObject(BUFF_TARGET_WITH_SUFFIX)
+
 export const BUFF_TARGET: Record<BuffTarget, string> = {
   ...BUFF_TARGET_WITHOUT_SUFFIX,
   ...BUFF_TARGET_WITH_SUFFIX,

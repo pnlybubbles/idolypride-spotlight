@@ -79,3 +79,8 @@ export type PartiallyNonNullable<T, S extends keyof T> = { [K in keyof T]: K ext
 export function lift<T, S>(f: (domain: T) => S): (domain: T | null | undefined) => S | null | undefined {
   return (domain) => (domain != null ? f(domain) : (domain as null | undefined))
 }
+
+export const isKeyInObject =
+  <T extends string>(map: Record<T, unknown>) =>
+  (key: string): key is T =>
+    map[key as T] !== undefined
