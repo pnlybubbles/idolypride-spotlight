@@ -80,16 +80,7 @@ const deserializeAbility = ({ type, ...rest }: TmpAbility): AbilityData => {
   const amount = rest.amount ?? 0
   const condition: AbilityCondition =
     rest.condition != null
-      ? isAbilityConditionWithValue(rest.condition)
-        ? {
-            type: rest.condition,
-            amount: rest.condition_value ?? 0,
-          }
-        : isAbilityConditionWithoutValue(rest.condition)
-        ? {
-            type: rest.condition,
-          }
-        : { type: 'unknown' }
+      ? formatAbilityCondition(rest.condition, rest.condition_value)
       : // TODO: conditionがnullのケースはなくなるはず
         { type: 'none' }
   return type === 'get-score'
@@ -133,6 +124,15 @@ const deserializeAbility = ({ type, ...rest }: TmpAbility): AbilityData => {
         amount,
         span: rest.span ?? 0,
       }
+}
+
+export function formatAbilityCondition(condition: string, value: IntLike): AbilityCondition {
+  if (isAbilityConditionWithValue(condition)) {
+    return { type: condition, amount: safeParseInt(value) }
+  } else if (isAbilityConditionWithoutValue(condition)) {
+    return { type: condition }
+  }
+  return { type: 'unknown' }
 }
 
 export function formatAbilityEnhance(enhance: string, value: IntLike): AbilityEnhance {
@@ -217,7 +217,7 @@ const serializeAbility = (v: PassiveAbilityData, upsert: boolean): RequiredSeria
   type: v.div === 'score' ? 'get-score' : v.type,
   span: v.div === 'buff' ? v.span : null,
   target: v.div !== 'score' ? v.target : null,
-  condition: v.condition?.type ?? null,
+  condition: v.condition.type,
   condition_value: 'amount' in v.condition ? v.condition.amount : null,
   skill: null,
 })

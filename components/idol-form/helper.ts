@@ -19,9 +19,8 @@ import {
 } from '~~/utils/types'
 import { defined, lift, mapArrayN, safeParseInt, unreachable } from '~~/utils'
 import {
+  formatAbilityCondition,
   formatAbilityEnhance,
-  isAbilityConditionWithoutValue,
-  isAbilityConditionWithValue,
   isActionAbilityType,
   isBuffAbilityType,
 } from '~~/utils/formatter'
@@ -188,16 +187,7 @@ export const formatPassiveAbility = (v: AbilityInput, s: SkillInput): PassiveAbi
   const amount = lift(deriveDisabledAmount)(v.type) ?? false ? 0 : parseInt(v.amount, 10)
   const condition: AbilityCondition = disableCondition(s.type, v.div)
     ? { type: 'none' }
-    : isAbilityConditionWithValue(v.condition)
-    ? {
-        type: v.condition,
-        amount: parseInt(v.conditionValue, 10),
-      }
-    : isAbilityConditionWithoutValue(v.condition)
-    ? {
-        type: v.condition,
-      }
-    : unreachable(v.condition)
+    : formatAbilityCondition(v.condition, v.conditionValue)
   if (v.div === 'score') {
     const enhance = formatAbilityEnhance(v.enhance, 0)
     return { id, div: 'score', amount, enhance, condition }
