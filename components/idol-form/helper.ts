@@ -5,7 +5,7 @@ import {
   IdolType,
   SkillType,
   BuffTargetCount,
-  BuffTargetWithoutSuffix,
+  BuffTargetPrefix,
   SkillIndex,
   IdolData,
   SkillData,
@@ -16,7 +16,7 @@ import {
   PassiveBuffTarget,
   AbilityType,
 } from '~~/utils/types'
-import { defined, mapArrayN, strictParseInt, unreachable } from '~~/utils'
+import { defined, lift, mapArrayN, strictParseInt, unreachable } from '~~/utils'
 import {
   isAbilityConditionWithoutValue,
   isAbilityConditionWithValue,
@@ -35,7 +35,7 @@ export interface AbilityInput {
   type: AbilityType | null
   condition: AbilityConditionType | 'none'
   conditionValue: string
-  target: BuffTargetWithoutSuffix | null
+  target: BuffTargetPrefix | null
   targetSuffix: BuffTargetCount
   amount: string
   span: string
@@ -141,12 +141,12 @@ const formatSkill = (v: SkillInput): SkillData => {
   if (v.type === 'p') {
     return {
       type: 'p',
-      ability: v.ability.map((w) => formatPassiveAbility(w)),
+      ability: v.ability.map((w) => formatPassiveAbility(w, v)),
       ct: v.once ? 0 : strictParseInt(v.ct),
       ...common,
     }
   }
-  const ability = v.ability.map(formatAbility)
+  const ability = v.ability.map((w) => formatAbility(w, v))
   if (v.type === 'a') {
     return {
       type: 'a',
@@ -165,8 +165,8 @@ const formatSkill = (v: SkillInput): SkillData => {
   return unreachable(v.type)
 }
 
-const formatAbility = (v: AbilityInput): AbilityData => {
-  const ability = formatPassiveAbility(v)
+const formatAbility = (v: AbilityInput, s: SkillInput): AbilityData => {
+  const ability = formatPassiveAbility(v, s)
   if (ability.div === 'action-buff' || ability.div === 'buff') {
     const target = ability.target
     if (target === 'triggered') {
@@ -177,10 +177,12 @@ const formatAbility = (v: AbilityInput): AbilityData => {
   return ability
 }
 
-export const formatPassiveAbility = (v: AbilityInput): PassiveAbilityData => {
+export const formatPassiveAbility = (v: AbilityInput, s: SkillInput): PassiveAbilityData => {
   const id = v.id
-  const amount = deriveDisabledAmount(v.type) ? 0 : parseInt(v.amount, 10)
-  const condition: AbilityCondition = isAbilityConditionWithValue(v.condition)
+  const amount = lift(deriveDisabledAmount)(v.type) ?? false ? 0 : parseInt(v.amount, 10)
+  const condition: AbilityCondition = disableCondition(s.type, v.div)
+    ? { type: 'none' }
+    : isAbilityConditionWithValue(v.condition)
     ? {
         type: v.condition,
         amount: parseInt(v.conditionValue, 10),
@@ -205,7 +207,7 @@ export const formatPassiveAbility = (v: AbilityInput): PassiveAbilityData => {
     return { div: 'action-buff', id, type, target, amount, condition }
   }
   // SP発動前などのケースで[持続ビート数]が書いてない場合、1ビートとして扱う
-  const span = disableSpan(v.type) ? 1 : parseInt(v.span, 10)
+  const span = lift(disableSpan)(v.type) ?? false ? 1 : parseInt(v.span, 10)
   if (v.div === 'buff') {
     if (!isBuffAbilityType(type)) {
       throw new Error(`div is "buff", type "${type}" is invalid`)
@@ -251,15 +253,15 @@ const deformatAbility = (v: AbilityData | PassiveAbilityData): AbilityInput => {
 
 export const extractBuffTarget = (
   t: PassiveBuffTarget
-): { target: BuffTargetWithoutSuffix; targetSuffix: BuffTargetCount } => {
-  const matched = t.match(/^(?<target>.+)\-(?<suffix>1|2|3)$/)?.groups
+): { target: BuffTargetPrefix; targetSuffix: BuffTargetCount } => {
+  const matched = t.match(/^(?<target>.+)-(?<suffix>1|2|3)$/)?.groups
   if (matched === undefined) {
     return {
-      target: t as BuffTargetWithoutSuffix,
+      target: t as BuffTargetPrefix,
       targetSuffix: '1',
     }
   }
-  const target = matched?.target as BuffTargetWithoutSuffix | undefined
+  const target = matched?.target as BuffTargetPrefix | undefined
   const suffix = matched?.suffix as BuffTargetCount | undefined
   return {
     target: target ?? 'unknown',
@@ -267,7 +269,7 @@ export const extractBuffTarget = (
   }
 }
 
-export const isBuffTargetSuffixRequired = (t: BuffTargetWithoutSuffix): t is BuffTargetWithSuffix =>
+export const isBuffTargetSuffixRequired = (t: BuffTargetPrefix): t is BuffTargetWithSuffix =>
   t === 'high-vocal' ||
   t === 'high-dance' ||
   t === 'high-visual' ||
@@ -288,14 +290,48 @@ export const isBuffTargetSuffixRequired = (t: BuffTargetWithoutSuffix): t is Buf
     ? false
     : unreachable(t)
 
-export const deriveDisabledAmount = (type: AbilityType | null): boolean =>
-  type === 'cmb-continuous' ||
-  type === 'debuff-recovery' ||
-  type === 'shift-before-sp' ||
-  type === 'slump' ||
-  type === 'down-guard'
+/**
+ * X段階などの明示的なスキルの強度が指定できないもの
+ */
+const ABILITY_TYPE_DISABLED_AMOUNT: Record<AbilityType, boolean> = {
+  'cmb-continuous': true,
+  'debuff-recovery': true,
+  'shift-before-sp': true,
+  slump: true,
+  'down-guard': true,
+  'a-score': false,
+  'beat-score': false,
+  'buff-amount': false,
+  'buff-span': false,
+  'cmb-score': false,
+  'critical-rate': false,
+  'critical-score': false,
+  'ct-reduction': false,
+  'dance-down': false,
+  'eye-catch': false,
+  'skill-success': false,
+  'sp-score': false,
+  'stamina-exhaust': false,
+  'stamina-recovery': false,
+  'stamina-saving': false,
+  'visual-down': false,
+  'vocal-down': false,
+  dance: false,
+  score: false,
+  steruss: false,
+  tension: false,
+  unknown: false,
+  visual: false,
+  vocal: false,
+}
+export const deriveDisabledAmount = (type: AbilityType): boolean => ABILITY_TYPE_DISABLED_AMOUNT[type]
 
 /**
  * SPスキルスコア上昇の場合は、持続ビートは存在しない (便宜的にspan=1にする)
  */
-export const disableSpan = (t: AbilityType | null) => t === 'sp-score'
+export const disableSpan = (t: AbilityType) => t === 'sp-score'
+
+/**
+ * SP,Aのスコア獲得スキルの場合は発動条件は存在しない
+ */
+export const disableCondition = (type: SkillType, div: AbilityDiv) => (type === 'sp' || type === 'a') && div === 'score'

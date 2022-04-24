@@ -19,7 +19,9 @@ export default defineNuxtPlugin((nuxtApp) => {
           cacheLocation: 'localstorage',
         })
         auth0.user = await auth0.client.getUser()
-      } catch {}
+      } catch {
+        // do nothing
+      }
       auth0.busy = false
     })()
   }

@@ -1,0 +1,7 @@
+node_modules
+.nuxt
+.output
+generated
+graphql.schema.json
+.vercel
+.yarn
