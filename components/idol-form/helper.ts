@@ -15,9 +15,11 @@ import {
   BuffTargetWithSuffix,
   PassiveBuffTarget,
   AbilityType,
+  AbilityEnhanceType,
 } from '~~/utils/types'
-import { defined, lift, mapArrayN, strictParseInt, unreachable } from '~~/utils'
+import { defined, lift, mapArrayN, safeParseInt, unreachable } from '~~/utils'
 import {
+  formatAbilityEnhance,
   isAbilityConditionWithoutValue,
   isAbilityConditionWithValue,
   isActionAbilityType,
@@ -33,11 +35,13 @@ export interface AbilityInput {
    * TODO: データ的には別々に持ったほうがUIが壊れにくそう
    */
   type: AbilityType | null
-  condition: AbilityConditionType | 'none'
+  condition: AbilityConditionType
   conditionValue: string
   target: BuffTargetPrefix | null
   targetSuffix: BuffTargetCount
   amount: string
+  enhance: AbilityEnhanceType
+  enhanceValue: string
   span: string
 }
 
@@ -118,6 +122,8 @@ export const defaultAbilityInput = (
     target: null,
     targetSuffix: '1',
     amount: '',
+    enhance: 'none',
+    enhanceValue: '',
     span: '',
   }
 }
@@ -142,7 +148,7 @@ const formatSkill = (v: SkillInput): SkillData => {
     return {
       type: 'p',
       ability: v.ability.map((w) => formatPassiveAbility(w, v)),
-      ct: v.once ? 0 : strictParseInt(v.ct),
+      ct: v.once ? 0 : safeParseInt(v.ct),
       ...common,
     }
   }
@@ -151,7 +157,7 @@ const formatSkill = (v: SkillInput): SkillData => {
     return {
       type: 'a',
       ability,
-      ct: v.once ? 0 : strictParseInt(v.ct),
+      ct: v.once ? 0 : safeParseInt(v.ct),
       ...common,
     }
   }
@@ -193,7 +199,8 @@ export const formatPassiveAbility = (v: AbilityInput, s: SkillInput): PassiveAbi
       }
     : unreachable(v.condition)
   if (v.div === 'score') {
-    return { id, div: 'score', amount, condition }
+    const enhance = formatAbilityEnhance(v.enhance, 0)
+    return { id, div: 'score', amount, enhance, condition }
   }
   const type = defined(v.type, 'type must not be null with action-buff')
   const targetWithoutSuffix = defined(v.target, 'target must not be null with action-buff')
@@ -217,6 +224,9 @@ export const formatPassiveAbility = (v: AbilityInput, s: SkillInput): PassiveAbi
   return unreachable(v.div)
 }
 
+/**
+ * 入力状態保持用のステート型に変換する
+ */
 export const deformatIdol = (v: IdolData): IdolInput => ({
   ...v,
   skills: [...mapArrayN(v.skills, deformatSkill)],
@@ -238,6 +248,8 @@ const deformatAbility = (v: AbilityData | PassiveAbilityData): AbilityInput => {
     id: v.id,
     div: v.div,
     amount: v.amount.toString(),
+    enhance: 'enhance' in v ? v.enhance.type : def.enhance,
+    enhanceValue: 'enhance' in v && 'value' in v.enhance ? v.enhance.value.toString() : def.enhanceValue,
     span: 'span' in v ? v.span.toString() : def.span,
     type: 'type' in v ? v.type : def.type,
     condition: v.condition?.type ?? def.condition,

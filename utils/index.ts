@@ -17,12 +17,17 @@ export function isDefined<T>(value: T | null | undefined): value is T {
   return true
 }
 
-export function strictParseInt(value: string, error?: string): number {
-  const int = parseInt(value, 10)
-  if (isFinite(int)) {
-    return int
+export type IntLike = string | number | undefined | null
+export function safeParseInt(value: IntLike, fallback = 0): number {
+  // 明示的に文字列か数値でない場合はパースを試みない
+  if (typeof value !== 'number' && typeof value !== 'string') {
+    return fallback
+  }
+  const number = typeof value === 'string' ? parseInt(value, 10) : value
+  if (Number.isSafeInteger(number)) {
+    return number
   } else {
-    throw new Error(error ?? `"${value}" must be numerical string.`)
+    return fallback
   }
 }
 

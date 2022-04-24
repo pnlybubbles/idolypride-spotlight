@@ -65,6 +65,30 @@ export type AbilityCondition =
 
 type IfAnyone = 'anyone-' | ''
 
+export type AbilityEnhance =
+  | {
+      type:
+        | 'none'
+        | 'buff'
+        | 'combo'
+        | 'stamina-rest'
+        | 'stamina-rest-less'
+        | 'stamina-comsumed'
+        | 'core-fan'
+        | 'audience-rate-less'
+        | 'skill-activated'
+        | IdolType
+        | 'eye-catch'
+        | 'critical-rate'
+        | 'stamina-saving'
+        | 'unknown'
+    }
+  | {
+      type: 'combo-more-than-80'
+      value: number
+    }
+export type AbilityEnhanceType = AbilityEnhance['type']
+
 // ability
 type BuffAbility = {
   div: 'buff'
@@ -80,6 +104,7 @@ type ScoreAbility = {
   div: 'score'
   id: string
   amount: number
+  enhance: AbilityEnhance
   condition: AbilityCondition
 }
 

@@ -5,7 +5,7 @@ import {
   Idol_Insert_Input,
   Skill_Insert_Input,
 } from '~~/generated/graphql'
-import { defined, isKeyInObject, mapArrayN, unreachable } from '.'
+import { defined, IntLike, isKeyInObject, mapArrayN, safeParseInt, unreachable } from '.'
 import { SKILLS } from './common'
 import {
   AbilityCondition,
@@ -21,6 +21,8 @@ import {
   IdolData,
   PassiveAbilityData,
   SkillData,
+  AbilityEnhance,
+  AbilityEnhanceType,
 } from './types'
 import { v4 as uuid } from 'uuid'
 
@@ -96,6 +98,11 @@ const deserializeAbility = ({ type, ...rest }: TmpAbility): AbilityData => {
         id,
         amount,
         condition,
+        enhance:
+          rest.enhance != null
+            ? formatAbilityEnhance(rest.enhance, rest.enhance_value)
+            : // get-scoreのときにenhanceがnullになるケースはありえない
+              { type: 'none' },
       }
     : isBuffAbilityType(type)
     ? {
@@ -126,6 +133,15 @@ const deserializeAbility = ({ type, ...rest }: TmpAbility): AbilityData => {
         amount,
         span: rest.span ?? 0,
       }
+}
+
+export function formatAbilityEnhance(enhance: string, value: IntLike): AbilityEnhance {
+  if (isAbilityEnhanceWithValue(enhance)) {
+    return { type: enhance, value: safeParseInt(value) }
+  } else if (isAbilityEnhanceWithoutValue(enhance)) {
+    return { type: enhance }
+  }
+  return { type: 'unknown' }
 }
 
 // Serialize
@@ -187,6 +203,8 @@ const serializeSkill = (v: SkillData, upsert: boolean): RequiredSerialized<Skill
 const serializeAbility = (v: PassiveAbilityData, upsert: boolean): RequiredSerialized<Ability_Insert_Input> => ({
   id: upsert && v.id !== '' ? v.id : uuid(),
   amount: v.amount,
+  enhance: v.div === 'score' ? v.enhance.type : null,
+  enhance_value: v.div === 'score' && 'value' in v.enhance ? v.enhance.value : null,
   type: v.div === 'score' ? 'get-score' : v.type,
   span: v.div === 'buff' ? v.span : null,
   target: v.div !== 'score' ? v.target : null,
@@ -306,6 +324,40 @@ export const isBuffTargetWithSuffix = isKeyInObject(BUFF_TARGET_WITH_SUFFIX)
 export const BUFF_TARGET_PREFIX: Record<BuffTargetPrefix, string> = {
   ...BUFF_TARGET_WITHOUT_SUFFIX,
   ...BUFF_TARGET_WITH_SUFFIX,
+}
+
+// 値ありのスコア獲得強化
+type AbilityEnhanceWithoutValue = Exclude<AbilityEnhance, { value: unknown } | null>['type']
+export const ABILITY_ENHANCE_WITHOUT_VALUE: Record<AbilityEnhanceWithoutValue, string> = {
+  none: 'なし',
+  buff: '強化効果が多い程',
+  combo: 'コンボ数が多い程',
+  'stamina-rest': '残スタミナが多い程',
+  'stamina-rest-less': '残スタミナが少ない程',
+  'stamina-comsumed': '消費したスタミナが多い程',
+  'core-fan': 'コアファン率が多い程',
+  'audience-rate-less': '観客数割合が少ない程',
+  'skill-activated': '自身の発動したスキル数が多い程',
+  vocal: 'ボーカルアップ状態の段階数が多い程',
+  dance: 'ダンスアップ状態の段階数が多い程',
+  visual: 'ビジュアルアップ状態の段階数が多い程',
+  'eye-catch': '集目状態の段階数が多い程',
+  'critical-rate': 'クリティカル率アップ状態の段階数が多い程',
+  'stamina-saving': 'スタミナ消費低減状態の段階数が多い程',
+  unknown: '不明',
+}
+const isAbilityEnhanceWithoutValue = isKeyInObject(ABILITY_ENHANCE_WITHOUT_VALUE)
+
+// 値なしのスコア獲得強化
+type AbilityEnhanceWithValue = Extract<AbilityEnhance, { value: unknown } | null>['type']
+export const ABILITY_ENHANCE_WITH_VALUE: Record<AbilityEnhanceWithValue, string> = {
+  'combo-more-than-80': 'コンボ数が80以上時 倍率がX%に上昇',
+}
+export const isAbilityEnhanceWithValue = isKeyInObject(ABILITY_ENHANCE_WITH_VALUE)
+
+export const ABILITY_ENHANCE: Record<AbilityEnhanceType, string> = {
+  ...ABILITY_ENHANCE_WITHOUT_VALUE,
+  ...ABILITY_ENHANCE_WITH_VALUE,
 }
 
 // ソート
