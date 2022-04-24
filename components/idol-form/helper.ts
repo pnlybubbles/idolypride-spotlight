@@ -127,6 +127,12 @@ export const defaultAbilityInput = (
   }
 }
 
+/**
+ * フォームの制約を遵守してデータの整形を行う
+ *
+ * フォームが表示されてなかったとしても入力データは保持されているので、制御されていない値はnullなどの適切な値に上書きする必要がある。
+ * 一部の値のフォーマットには、デシリアライズ時と同じ関数を再利用する (utils/formatter)
+ */
 export const formatIdol = (v: IdolInput): IdolData => {
   return {
     ...v,
@@ -146,12 +152,12 @@ const formatSkill = (v: SkillInput): SkillData => {
   if (v.type === 'p') {
     return {
       type: 'p',
-      ability: v.ability.map((w) => formatPassiveAbility(w, v)),
+      ability: v.ability.map((w, i) => formatPassiveAbility(w, { skillType: v.type, abilityIndex: i })),
       ct: v.once ? 0 : safeParseInt(v.ct),
       ...common,
     }
   }
-  const ability = v.ability.map((w) => formatAbility(w, v))
+  const ability = v.ability.map((w, i) => formatAbility(w, { skillType: v.type, abilityIndex: i }))
   if (v.type === 'a') {
     return {
       type: 'a',
@@ -170,8 +176,13 @@ const formatSkill = (v: SkillInput): SkillData => {
   return unreachable(v.type)
 }
 
-const formatAbility = (v: AbilityInput, s: SkillInput): AbilityData => {
-  const ability = formatPassiveAbility(v, s)
+interface FormatAbilityOption {
+  skillType: SkillType
+  abilityIndex: number
+}
+
+const formatAbility = (v: AbilityInput, option: FormatAbilityOption): AbilityData => {
+  const ability = formatPassiveAbility(v, option)
   if (ability.div === 'action-buff' || ability.div === 'buff') {
     const target = ability.target
     if (target === 'triggered') {
@@ -182,10 +193,12 @@ const formatAbility = (v: AbilityInput, s: SkillInput): AbilityData => {
   return ability
 }
 
-export const formatPassiveAbility = (v: AbilityInput, s: SkillInput): PassiveAbilityData => {
+export const formatPassiveAbility = (v: AbilityInput, option: FormatAbilityOption): PassiveAbilityData => {
   const id = v.id
   const amount = lift(deriveDisabledAmount)(v.type) ?? false ? 0 : parseInt(v.amount, 10)
-  const condition: AbilityCondition = disableCondition(s.type, v.div)
+  // 最初のスコア獲得スキルの条件だけ特別にdisabledになるケースがある
+  // 型では保護されていない点に注意
+  const condition: AbilityCondition = disableCondition(option.skillType, v.div, option.abilityIndex)
     ? { type: 'none' }
     : formatAbilityCondition(v.condition, v.conditionValue)
   if (v.div === 'score') {
@@ -334,6 +347,7 @@ export const deriveDisabledAmount = (type: AbilityType): boolean => ABILITY_TYPE
 export const disableSpan = (t: AbilityType) => t === 'sp-score'
 
 /**
- * SP,Aのスコア獲得スキルの場合は発動条件は存在しない
+ * SP,Aの1番目のスコア獲得効果の場合は発動条件は存在しない
  */
-export const disableCondition = (type: SkillType, div: AbilityDiv) => (type === 'sp' || type === 'a') && div === 'score'
+export const disableCondition = (type: SkillType, div: AbilityDiv, abilityIndex: number) =>
+  (type === 'sp' || type === 'a') && div === 'score' && abilityIndex === 0

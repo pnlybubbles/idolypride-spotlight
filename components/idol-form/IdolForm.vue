@@ -71,7 +71,7 @@
               <template #label>種別</template>
               <Listbox v-model="ability.div" :options="abilityTypeOptions"></Listbox>
             </Section>
-            <Section v-if="!disableCondition(skill.type, ability.div)" :gutter="8">
+            <Section v-if="!disableCondition(skill.type, ability.div, j)" :gutter="8">
               <template #label>発動条件</template>
               <div class="left-main">
                 <Listbox
