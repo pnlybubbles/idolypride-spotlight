@@ -192,6 +192,7 @@ const serializeAbility = (v: PassiveAbilityData, upsert: boolean): RequiredSeria
   target: v.div !== 'score' ? v.target : null,
   condition: v.condition?.type ?? null,
   condition_value: 'amount' in v.condition ? v.condition.amount : null,
+  skill: null,
 })
 
 // 値ありの効果条件
