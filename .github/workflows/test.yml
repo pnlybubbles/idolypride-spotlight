@@ -44,6 +44,10 @@ jobs:
         run: |
           yarn graphql
 
+      - name: Prepare nuxt
+        run: |
+          yarn nuxi prepare
+
       - name: Test
         run: |
           yarn test
