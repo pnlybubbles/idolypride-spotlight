@@ -193,7 +193,16 @@ const serializeSkill = (v: SkillData, upsert: boolean): RequiredSerialized<Skill
       ? {
           on_conflict: {
             constraint: 'ability_pkey',
-            update_columns: ['amount', 'type', 'span', 'type', 'condition', 'condition_value'],
+            update_columns: [
+              'amount',
+              'type',
+              'span',
+              'type',
+              'condition',
+              'condition_value',
+              'enhance',
+              'enhance_value',
+            ],
           },
         }
       : null),
