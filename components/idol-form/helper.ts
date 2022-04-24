@@ -195,7 +195,8 @@ const formatAbility = (v: AbilityInput, option: FormatAbilityOption): AbilityDat
 
 export const formatPassiveAbility = (v: AbilityInput, option: FormatAbilityOption): PassiveAbilityData => {
   const id = v.id
-  const amount = lift(deriveDisabledAmount)(v.type) ?? false ? 0 : parseInt(v.amount, 10)
+  // 段階など変数が存在しない効果の場合は0で埋めておく
+  const amount = lift(deriveDisabledAmount)(v.type) ?? false ? 0 : safeParseInt(v.amount)
   // 最初のスコア獲得スキルの条件だけ特別にdisabledになるケースがある
   // 型では保護されていない点に注意
   const condition: AbilityCondition = disableCondition(option.skillType, v.div, option.abilityIndex)
@@ -217,7 +218,7 @@ export const formatPassiveAbility = (v: AbilityInput, option: FormatAbilityOptio
     return { div: 'action-buff', id, type, target, amount, condition }
   }
   // SP発動前などのケースで[持続ビート数]が書いてない場合、1ビートとして扱う
-  const span = lift(disableSpan)(v.type) ?? false ? 1 : parseInt(v.span, 10)
+  const span = lift(disableSpan)(v.type) ?? false ? 1 : safeParseInt(v.span)
   if (v.div === 'buff') {
     if (!isBuffAbilityType(type)) {
       throw new Error(`div is "buff", type "${type}" is invalid`)
