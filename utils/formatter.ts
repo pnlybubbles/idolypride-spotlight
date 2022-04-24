@@ -353,6 +353,7 @@ export const ABILITY_ENHANCE_WITHOUT_VALUE: Record<AbilityEnhanceWithoutValue, s
   vocal: 'ボーカルアップが多い程',
   dance: 'ダンスアップが多い程',
   visual: 'ビジュアルアップが多い程',
+  'a-score': 'Aスキルスコアアップが多い程',
   'critical-rate': 'クリティカル率アップが多い程',
   'eye-catch': '集目効果が多い程',
   'stamina-saving': 'スタミナ消費低減が多い程',

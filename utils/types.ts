@@ -80,6 +80,7 @@ export type AbilityEnhance =
         | 'audience-rate-less'
         | 'skill-activated'
         | IdolType
+        | 'a-score'
         | 'eye-catch'
         | 'critical-rate'
         | 'stamina-saving'
