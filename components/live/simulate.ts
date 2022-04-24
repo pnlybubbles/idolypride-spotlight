@@ -454,6 +454,7 @@ const deriveTriggeredAbilityWithCondition = (
     }
     case 'score-up': {
       // スコアアップ状態の時
+      return null
     }
     default:
       return null

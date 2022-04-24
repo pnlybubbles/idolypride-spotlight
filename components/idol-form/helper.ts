@@ -254,7 +254,7 @@ const deformatAbility = (v: AbilityData | PassiveAbilityData): AbilityInput => {
 export const extractBuffTarget = (
   t: PassiveBuffTarget
 ): { target: BuffTargetPrefix; targetSuffix: BuffTargetCount } => {
-  const matched = t.match(/^(?<target>.+)\-(?<suffix>1|2|3)$/)?.groups
+  const matched = t.match(/^(?<target>.+)-(?<suffix>1|2|3)$/)?.groups
   if (matched === undefined) {
     return {
       target: t as BuffTargetPrefix,

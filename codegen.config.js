@@ -1,3 +1,4 @@
+/* global module,process */
 /** @type { import('@graphql-codegen/plugin-helpers').Types.Config } */
 module.exports = {
   overwrite: true,
