@@ -130,19 +130,7 @@ const deserializeAbility = ({ type, ...rest }: TmpAbility): AbilityData => {
 
 // Serialize
 
-type RequiredSerialized<T> = {
-  [K in keyof T]-?: NonNullable<T[K]> extends {
-    data: unknown[]
-    on_conflict?: unknown
-  }
-    ? {
-        data: RequiredSerialized<NonNullable<T[K]>['data'][number]>[]
-        on_conflict?: NonNullable<NonNullable<T[K]>['on_conflict']>
-      }
-    : T[K]
-}
-
-export const serializeIdol = (v: IdolData, upsert = false): RequiredSerialized<Idol_Insert_Input> => ({
+export const serializeIdol = (v: IdolData, upsert = false): Idol_Insert_Input => ({
   id: upsert && v.id !== '' ? v.id : uuid(),
   name: v.name,
   title: v.title,
@@ -150,19 +138,17 @@ export const serializeIdol = (v: IdolData, upsert = false): RequiredSerialized<I
   role: v.role,
   skills: {
     data: v.skills.map((w) => serializeSkill(w, upsert)),
-    ...(upsert
+    on_conflict: upsert
       ? {
-          on_conflict: {
-            constraint: 'skill_pkey',
-            update_columns: ['index', 'name', 'type', 'level', 'trigger', 'trigger_value', 'ct'],
-            where: null,
-          },
+          constraint: 'skill_pkey',
+          update_columns: ['index', 'name', 'type', 'level', 'trigger', 'trigger_value', 'ct'],
+          where: null,
         }
-      : null),
+      : null,
   },
 })
 
-const serializeSkill = (v: SkillData, upsert: boolean): RequiredSerialized<Skill_Insert_Input> => ({
+const serializeSkill = (v: SkillData, upsert: boolean): Skill_Insert_Input => ({
   id: upsert && v.id !== '' ? v.id : uuid(),
   index: v.index,
   name: v.name,
@@ -174,19 +160,17 @@ const serializeSkill = (v: SkillData, upsert: boolean): RequiredSerialized<Skill
   ct: v.type !== 'sp' ? v.ct : null,
   abilities: {
     data: v.ability.map((w) => serializeAbility(w, upsert)),
-    ...(upsert
+    on_conflict: upsert
       ? {
-          on_conflict: {
-            constraint: 'ability_pkey',
-            update_columns: ['amount', 'type', 'span', 'type', 'condition', 'condition_value'],
-            where: null,
-          },
+          constraint: 'ability_pkey',
+          update_columns: ['amount', 'type', 'span', 'type', 'condition', 'condition_value'],
+          where: null,
         }
-      : null),
+      : null,
   },
 })
 
-const serializeAbility = (v: PassiveAbilityData, upsert: boolean): RequiredSerialized<Ability_Insert_Input> => ({
+const serializeAbility = (v: PassiveAbilityData, upsert: boolean): Ability_Insert_Input => ({
   id: upsert && v.id !== '' ? v.id : uuid(),
   amount: v.amount,
   type: v.div === 'score' ? 'get-score' : v.type,
