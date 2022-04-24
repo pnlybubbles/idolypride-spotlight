@@ -42,7 +42,7 @@ jobs:
         env:
           HASURA_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET }}
         run: |
-          yarn graphql
+          yarn build:graphql
 
       - name: Prepare nuxt
         run: |
