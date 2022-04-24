@@ -10,6 +10,7 @@ export type BuffAbilityType =
   | 'beat-score'
   | 'a-score'
   | 'sp-score'
+  | 'p-score'
   | 'cmb-score'
   | 'stamina-saving'
   | 'stamina-exhaust'

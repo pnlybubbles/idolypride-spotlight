@@ -273,6 +273,7 @@ export const BUFF_ABILITY_TYPE: Record<BuffAbilityType, string> = {
   score: 'スコア上昇',
   'a-score': 'Aスキルスコア上昇',
   'sp-score': 'SPスキルスコア上昇',
+  'p-score': 'Pスキルスコア上昇',
   'beat-score': 'ビートスコア上昇',
   'buff-amount': '強化効果増強',
   'cmb-continuous': 'コンボ継続',

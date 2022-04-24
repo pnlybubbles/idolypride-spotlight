@@ -304,6 +304,7 @@ const ABILITY_TYPE_DISABLED_AMOUNT: Record<AbilityType, boolean> = {
   'ct-reduction': false,
   'dance-down': false,
   'eye-catch': false,
+  'p-score': false,
   'skill-success': false,
   'sp-score': false,
   'stamina-exhaust': false,

@@ -32,6 +32,7 @@ export const theme: Theme = {
     'critical-score': colors[6],
     'a-score': colors[1],
     'sp-score': colors[8],
+    'p-score': colors[1],
     'beat-score': colors[4],
     score: colors[5],
     'stamina-recovery': colors[2],
