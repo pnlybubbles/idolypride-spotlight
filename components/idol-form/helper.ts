@@ -286,7 +286,7 @@ export const extractBuffTarget = (
 }
 
 /**
- * X段階などの明示的なスキルの強度が指定できないもの
+ * X段階, X% などの明示的なスキルの強度が指定できないもの
  */
 const ABILITY_TYPE_DISABLED_AMOUNT: Record<AbilityType, boolean> = {
   'cmb-continuous': true,
@@ -308,6 +308,7 @@ const ABILITY_TYPE_DISABLED_AMOUNT: Record<AbilityType, boolean> = {
   'sp-score': false,
   'stamina-exhaust': false,
   'stamina-recovery': false,
+  'stamina-recovery-percentage': false,
   'stamina-saving': false,
   'visual-down': false,
   'vocal-down': false,

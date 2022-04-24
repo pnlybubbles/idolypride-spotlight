@@ -27,6 +27,7 @@ export type ActionAbilityType =
   | 'buff-span'
   | 'ct-reduction'
   | 'stamina-recovery'
+  | 'stamina-recovery-percentage'
   | 'debuff-recovery'
   | 'shift-before-sp'
 export type AbilityType = BuffAbilityType | ActionAbilityType

@@ -300,6 +300,7 @@ export const ACTION_ABILITY_TYPE: Record<ActionAbilityType, string> = {
   'buff-span': '強化効果延長',
   'ct-reduction': 'CT減少',
   'stamina-recovery': 'スタミナ回復',
+  'stamina-recovery-percentage': 'スタミナX%回復',
   'debuff-recovery': '低下効果回復',
   'shift-before-sp': '強化効果をSPスキル前に移動',
 }
@@ -348,12 +349,12 @@ export const ABILITY_ENHANCE_WITHOUT_VALUE: Record<AbilityEnhanceWithoutValue, s
   'core-fan': 'コアファン率が多い程',
   'audience-rate-less': '観客数割合が少ない程',
   'skill-activated': '自身の発動したスキル数が多い程',
-  vocal: 'ボーカルアップ状態の段階数が多い程',
-  dance: 'ダンスアップ状態の段階数が多い程',
-  visual: 'ビジュアルアップ状態の段階数が多い程',
-  'eye-catch': '集目状態の段階数が多い程',
-  'critical-rate': 'クリティカル率アップ状態の段階数が多い程',
-  'stamina-saving': 'スタミナ消費低減状態の段階数が多い程',
+  vocal: 'ボーカルアップが多い程',
+  dance: 'ダンスアップが多い程',
+  visual: 'ビジュアルアップが多い程',
+  'critical-rate': 'クリティカル率アップが多い程',
+  'eye-catch': '集目効果が多い程',
+  'stamina-saving': 'スタミナ消費低減が多い程',
   unknown: '不明',
 }
 const isAbilityEnhanceWithoutValue = isKeyInObject(ABILITY_ENHANCE_WITHOUT_VALUE)
