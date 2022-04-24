@@ -155,7 +155,6 @@ export const serializeIdol = (v: IdolData, upsert = false): RequiredSerialized<I
           on_conflict: {
             constraint: 'skill_pkey',
             update_columns: ['index', 'name', 'type', 'level', 'trigger', 'trigger_value', 'ct'],
-            where: null,
           },
         }
       : null),
@@ -179,7 +178,6 @@ const serializeSkill = (v: SkillData, upsert: boolean): RequiredSerialized<Skill
           on_conflict: {
             constraint: 'ability_pkey',
             update_columns: ['amount', 'type', 'span', 'type', 'condition', 'condition_value'],
-            where: null,
           },
         }
       : null),
@@ -194,7 +192,6 @@ const serializeAbility = (v: PassiveAbilityData, upsert: boolean): RequiredSeria
   target: v.div !== 'score' ? v.target : null,
   condition: v.condition?.type ?? null,
   condition_value: 'amount' in v.condition ? v.condition.amount : null,
-  skill: null, // relation用なので指定しない
 })
 
 // 値ありの効果条件
