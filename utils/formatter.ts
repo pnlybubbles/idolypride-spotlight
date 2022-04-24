@@ -23,6 +23,7 @@ import {
   SkillData,
   AbilityEnhance,
   AbilityEnhanceType,
+  AbilityConditionType,
 } from './types'
 import { v4 as uuid } from 'uuid'
 
@@ -373,11 +374,30 @@ export const ABILITY_ENHANCE: Record<AbilityEnhanceType, string> = {
 export const sortSkills = (skills: readonly [SkillData, SkillData, SkillData]) =>
   [...skills].sort((a, b) => a.index - b.index) as [SkillData, SkillData, SkillData]
 
-const ABILITY_ORDERING: { [key in AbilityDiv]: number } = {
+// スコア獲得効果を先頭に
+const ABILITY_DIV_ORDERING: { [key in AbilityDiv]: number } = {
   score: 0,
   buff: 1,
   'action-buff': 2,
 }
 
-const sortAblities = <T extends { div: AbilityDiv }>(abilities: T[]) =>
-  [...abilities].sort((a, b) => ABILITY_ORDERING[a.div] - ABILITY_ORDERING[b.div])
+// スコア獲得スキルかつ、条件なしが先頭に来るように
+const ABILITY_CONDITION_ORDERING = (condition: AbilityConditionType): number => {
+  switch (condition) {
+    case 'none':
+      return 0
+    default:
+      return 1
+  }
+}
+
+const sortAblities = <T extends { div: AbilityDiv; condition: AbilityCondition }>(abilities: T[]) =>
+  [...abilities].sort((a, b) => {
+    const divOrdering = ABILITY_DIV_ORDERING[a.div] - ABILITY_DIV_ORDERING[b.div]
+    if (divOrdering !== 0) {
+      return divOrdering
+    }
+    const conditionOrdering =
+      ABILITY_CONDITION_ORDERING(a.condition.type) - ABILITY_CONDITION_ORDERING(b.condition.type)
+    return conditionOrdering
+  })
