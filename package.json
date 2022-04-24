@@ -49,6 +49,7 @@
     "@fortawesome/free-regular-svg-icons": "^6.1.1",
     "@fortawesome/free-solid-svg-icons": "^6.1.1",
     "@fortawesome/vue-fontawesome": "^3.0.0-5",
+    "@nuxtjs/web-vitals": "^0.1.8",
     "@sentry/tracing": "^6.19.6",
     "@sentry/vue": "^6.19.6",
     "@urql/exchange-auth": "^0.1.7",
