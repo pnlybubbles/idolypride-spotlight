@@ -5,7 +5,7 @@ import {
   Idol_Insert_Input,
   Skill_Insert_Input,
 } from '~~/generated/graphql'
-import { defined, isKeyInObject, mapArrayN, unreachable } from '.'
+import { defined, IntLike, isKeyInObject, mapArrayN, safeParseInt, unreachable } from '.'
 import { SKILLS } from './common'
 import {
   AbilityCondition,
@@ -21,6 +21,9 @@ import {
   IdolData,
   PassiveAbilityData,
   SkillData,
+  AbilityEnhance,
+  AbilityEnhanceType,
+  AbilityConditionType,
 } from './types'
 import { v4 as uuid } from 'uuid'
 
@@ -78,16 +81,7 @@ const deserializeAbility = ({ type, ...rest }: TmpAbility): AbilityData => {
   const amount = rest.amount ?? 0
   const condition: AbilityCondition =
     rest.condition != null
-      ? isAbilityConditionWithValue(rest.condition)
-        ? {
-            type: rest.condition,
-            amount: rest.condition_value ?? 0,
-          }
-        : isAbilityConditionWithoutValue(rest.condition)
-        ? {
-            type: rest.condition,
-          }
-        : { type: 'unknown' }
+      ? formatAbilityCondition(rest.condition, rest.condition_value)
       : // TODO: conditionがnullのケースはなくなるはず
         { type: 'none' }
   return type === 'get-score'
@@ -96,6 +90,11 @@ const deserializeAbility = ({ type, ...rest }: TmpAbility): AbilityData => {
         id,
         amount,
         condition,
+        enhance:
+          rest.enhance != null
+            ? formatAbilityEnhance(rest.enhance, rest.enhance_value)
+            : // get-scoreのときにenhanceがnullになるケースはありえない
+              { type: 'none' },
       }
     : isBuffAbilityType(type)
     ? {
@@ -126,6 +125,24 @@ const deserializeAbility = ({ type, ...rest }: TmpAbility): AbilityData => {
         amount,
         span: rest.span ?? 0,
       }
+}
+
+export function formatAbilityCondition(condition: string, value: IntLike): AbilityCondition {
+  if (isAbilityConditionWithValue(condition)) {
+    return { type: condition, amount: safeParseInt(value) }
+  } else if (isAbilityConditionWithoutValue(condition)) {
+    return { type: condition }
+  }
+  return { type: 'unknown' }
+}
+
+export function formatAbilityEnhance(enhance: string, value: IntLike): AbilityEnhance {
+  if (isAbilityEnhanceWithValue(enhance)) {
+    return { type: enhance, value: safeParseInt(value) }
+  } else if (isAbilityEnhanceWithoutValue(enhance)) {
+    return { type: enhance }
+  }
+  return { type: 'unknown' }
 }
 
 // Serialize
@@ -177,7 +194,16 @@ const serializeSkill = (v: SkillData, upsert: boolean): RequiredSerialized<Skill
       ? {
           on_conflict: {
             constraint: 'ability_pkey',
-            update_columns: ['amount', 'type', 'span', 'type', 'condition', 'condition_value'],
+            update_columns: [
+              'amount',
+              'type',
+              'span',
+              'type',
+              'condition',
+              'condition_value',
+              'enhance',
+              'enhance_value',
+            ],
           },
         }
       : null),
@@ -187,10 +213,12 @@ const serializeSkill = (v: SkillData, upsert: boolean): RequiredSerialized<Skill
 const serializeAbility = (v: PassiveAbilityData, upsert: boolean): RequiredSerialized<Ability_Insert_Input> => ({
   id: upsert && v.id !== '' ? v.id : uuid(),
   amount: v.amount,
+  enhance: v.div === 'score' ? v.enhance.type : null,
+  enhance_value: v.div === 'score' && 'value' in v.enhance ? v.enhance.value : null,
   type: v.div === 'score' ? 'get-score' : v.type,
   span: v.div === 'buff' ? v.span : null,
   target: v.div !== 'score' ? v.target : null,
-  condition: v.condition?.type ?? null,
+  condition: v.condition.type,
   condition_value: 'amount' in v.condition ? v.condition.amount : null,
   skill: null,
 })
@@ -245,6 +273,7 @@ export const BUFF_ABILITY_TYPE: Record<BuffAbilityType, string> = {
   score: 'スコア上昇',
   'a-score': 'Aスキルスコア上昇',
   'sp-score': 'SPスキルスコア上昇',
+  'p-score': 'Pスキルスコア上昇',
   'beat-score': 'ビートスコア上昇',
   'buff-amount': '強化効果増強',
   'cmb-continuous': 'コンボ継続',
@@ -272,6 +301,7 @@ export const ACTION_ABILITY_TYPE: Record<ActionAbilityType, string> = {
   'buff-span': '強化効果延長',
   'ct-reduction': 'CT減少',
   'stamina-recovery': 'スタミナ回復',
+  'stamina-recovery-percentage': 'スタミナX%回復',
   'debuff-recovery': '低下効果回復',
   'shift-before-sp': '強化効果をSPスキル前に移動',
 }
@@ -308,15 +338,69 @@ export const BUFF_TARGET_PREFIX: Record<BuffTargetPrefix, string> = {
   ...BUFF_TARGET_WITH_SUFFIX,
 }
 
+// 値ありのスコア獲得強化
+type AbilityEnhanceWithoutValue = Exclude<AbilityEnhance, { value: unknown } | null>['type']
+export const ABILITY_ENHANCE_WITHOUT_VALUE: Record<AbilityEnhanceWithoutValue, string> = {
+  none: 'なし',
+  buff: '強化効果が多い程',
+  combo: 'コンボ数が多い程',
+  'stamina-rest': '残スタミナが多い程',
+  'stamina-rest-less': '残スタミナが少ない程',
+  'stamina-comsumed': '消費したスタミナが多い程',
+  'core-fan': 'コアファン率が多い程',
+  'audience-rate-less': '観客数割合が少ない程',
+  'skill-activated': '自身の発動したスキル数が多い程',
+  vocal: 'ボーカルアップが多い程',
+  dance: 'ダンスアップが多い程',
+  visual: 'ビジュアルアップが多い程',
+  'a-score': 'Aスキルスコアアップが多い程',
+  'critical-rate': 'クリティカル率アップが多い程',
+  'eye-catch': '集目効果が多い程',
+  'stamina-saving': 'スタミナ消費低減が多い程',
+  unknown: '不明',
+}
+const isAbilityEnhanceWithoutValue = isKeyInObject(ABILITY_ENHANCE_WITHOUT_VALUE)
+
+// 値なしのスコア獲得強化
+type AbilityEnhanceWithValue = Extract<AbilityEnhance, { value: unknown } | null>['type']
+export const ABILITY_ENHANCE_WITH_VALUE: Record<AbilityEnhanceWithValue, string> = {
+  'combo-more-than-80': 'コンボ数が80以上時 倍率がX%に上昇',
+}
+export const isAbilityEnhanceWithValue = isKeyInObject(ABILITY_ENHANCE_WITH_VALUE)
+
+export const ABILITY_ENHANCE: Record<AbilityEnhanceType, string> = {
+  ...ABILITY_ENHANCE_WITHOUT_VALUE,
+  ...ABILITY_ENHANCE_WITH_VALUE,
+}
+
 // ソート
 export const sortSkills = (skills: readonly [SkillData, SkillData, SkillData]) =>
   [...skills].sort((a, b) => a.index - b.index) as [SkillData, SkillData, SkillData]
 
-const ABILITY_ORDERING: { [key in AbilityDiv]: number } = {
+// スコア獲得効果を先頭に
+const ABILITY_DIV_ORDERING: { [key in AbilityDiv]: number } = {
   score: 0,
   buff: 1,
   'action-buff': 2,
 }
 
-const sortAblities = <T extends { div: AbilityDiv }>(abilities: T[]) =>
-  [...abilities].sort((a, b) => ABILITY_ORDERING[a.div] - ABILITY_ORDERING[b.div])
+// スコア獲得スキルかつ、条件なしが先頭に来るように
+const ABILITY_CONDITION_ORDERING = (condition: AbilityConditionType): number => {
+  switch (condition) {
+    case 'none':
+      return 0
+    default:
+      return 1
+  }
+}
+
+const sortAblities = <T extends { div: AbilityDiv; condition: AbilityCondition }>(abilities: T[]) =>
+  [...abilities].sort((a, b) => {
+    const divOrdering = ABILITY_DIV_ORDERING[a.div] - ABILITY_DIV_ORDERING[b.div]
+    if (divOrdering !== 0) {
+      return divOrdering
+    }
+    const conditionOrdering =
+      ABILITY_CONDITION_ORDERING(a.condition.type) - ABILITY_CONDITION_ORDERING(b.condition.type)
+    return conditionOrdering
+  })

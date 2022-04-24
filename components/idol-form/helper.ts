@@ -12,16 +12,17 @@ import {
   AbilityData,
   AbilityCondition,
   PassiveAbilityData,
-  BuffTargetWithSuffix,
   PassiveBuffTarget,
   AbilityType,
+  AbilityEnhanceType,
 } from '~~/utils/types'
-import { defined, lift, mapArrayN, strictParseInt, unreachable } from '~~/utils'
+import { defined, lift, mapArrayN, safeParseInt, unreachable } from '~~/utils'
 import {
-  isAbilityConditionWithoutValue,
-  isAbilityConditionWithValue,
+  formatAbilityCondition,
+  formatAbilityEnhance,
   isActionAbilityType,
   isBuffAbilityType,
+  isBuffTargetWithSuffix,
 } from '~~/utils/formatter'
 
 export interface AbilityInput {
@@ -33,11 +34,13 @@ export interface AbilityInput {
    * TODO: データ的には別々に持ったほうがUIが壊れにくそう
    */
   type: AbilityType | null
-  condition: AbilityConditionType | 'none'
+  condition: AbilityConditionType
   conditionValue: string
   target: BuffTargetPrefix | null
   targetSuffix: BuffTargetCount
   amount: string
+  enhance: AbilityEnhanceType
+  enhanceValue: string
   span: string
 }
 
@@ -118,10 +121,18 @@ export const defaultAbilityInput = (
     target: null,
     targetSuffix: '1',
     amount: '',
+    enhance: 'none',
+    enhanceValue: '',
     span: '',
   }
 }
 
+/**
+ * フォームの制約を遵守してデータの整形を行う
+ *
+ * フォームが表示されてなかったとしても入力データは保持されているので、制御されていない値はnullなどの適切な値に上書きする必要がある。
+ * 一部の値のフォーマットには、デシリアライズ時と同じ関数を再利用する (utils/formatter)
+ */
 export const formatIdol = (v: IdolInput): IdolData => {
   return {
     ...v,
@@ -141,17 +152,17 @@ const formatSkill = (v: SkillInput): SkillData => {
   if (v.type === 'p') {
     return {
       type: 'p',
-      ability: v.ability.map((w) => formatPassiveAbility(w, v)),
-      ct: v.once ? 0 : strictParseInt(v.ct),
+      ability: v.ability.map((w, i) => formatPassiveAbility(w, { skillType: v.type, abilityIndex: i })),
+      ct: v.once ? 0 : safeParseInt(v.ct),
       ...common,
     }
   }
-  const ability = v.ability.map((w) => formatAbility(w, v))
+  const ability = v.ability.map((w, i) => formatAbility(w, { skillType: v.type, abilityIndex: i }))
   if (v.type === 'a') {
     return {
       type: 'a',
       ability,
-      ct: v.once ? 0 : strictParseInt(v.ct),
+      ct: v.once ? 0 : safeParseInt(v.ct),
       ...common,
     }
   }
@@ -165,8 +176,13 @@ const formatSkill = (v: SkillInput): SkillData => {
   return unreachable(v.type)
 }
 
-const formatAbility = (v: AbilityInput, s: SkillInput): AbilityData => {
-  const ability = formatPassiveAbility(v, s)
+interface FormatAbilityOption {
+  skillType: SkillType
+  abilityIndex: number
+}
+
+const formatAbility = (v: AbilityInput, option: FormatAbilityOption): AbilityData => {
+  const ability = formatPassiveAbility(v, option)
   if (ability.div === 'action-buff' || ability.div === 'buff') {
     const target = ability.target
     if (target === 'triggered') {
@@ -177,27 +193,22 @@ const formatAbility = (v: AbilityInput, s: SkillInput): AbilityData => {
   return ability
 }
 
-export const formatPassiveAbility = (v: AbilityInput, s: SkillInput): PassiveAbilityData => {
+export const formatPassiveAbility = (v: AbilityInput, option: FormatAbilityOption): PassiveAbilityData => {
   const id = v.id
-  const amount = lift(deriveDisabledAmount)(v.type) ?? false ? 0 : parseInt(v.amount, 10)
-  const condition: AbilityCondition = disableCondition(s.type, v.div)
+  // 段階など変数が存在しない効果の場合は0で埋めておく
+  const amount = lift(deriveDisabledAmount)(v.type) ?? false ? 0 : safeParseInt(v.amount)
+  // 最初のスコア獲得スキルの条件だけ特別にdisabledになるケースがある
+  // 型では保護されていない点に注意
+  const condition: AbilityCondition = disableCondition(option.skillType, v.div, option.abilityIndex)
     ? { type: 'none' }
-    : isAbilityConditionWithValue(v.condition)
-    ? {
-        type: v.condition,
-        amount: parseInt(v.conditionValue, 10),
-      }
-    : isAbilityConditionWithoutValue(v.condition)
-    ? {
-        type: v.condition,
-      }
-    : unreachable(v.condition)
+    : formatAbilityCondition(v.condition, v.conditionValue)
   if (v.div === 'score') {
-    return { id, div: 'score', amount, condition }
+    const enhance = formatAbilityEnhance(v.enhance, 0)
+    return { id, div: 'score', amount, enhance, condition }
   }
   const type = defined(v.type, 'type must not be null with action-buff')
   const targetWithoutSuffix = defined(v.target, 'target must not be null with action-buff')
-  const target = isBuffTargetSuffixRequired(targetWithoutSuffix)
+  const target = isBuffTargetWithSuffix(targetWithoutSuffix)
     ? (`${targetWithoutSuffix}-${v.targetSuffix}` as const)
     : targetWithoutSuffix
   if (v.div === 'action-buff') {
@@ -207,7 +218,7 @@ export const formatPassiveAbility = (v: AbilityInput, s: SkillInput): PassiveAbi
     return { div: 'action-buff', id, type, target, amount, condition }
   }
   // SP発動前などのケースで[持続ビート数]が書いてない場合、1ビートとして扱う
-  const span = lift(disableSpan)(v.type) ?? false ? 1 : parseInt(v.span, 10)
+  const span = lift(disableSpan)(v.type) ?? false ? 1 : safeParseInt(v.span)
   if (v.div === 'buff') {
     if (!isBuffAbilityType(type)) {
       throw new Error(`div is "buff", type "${type}" is invalid`)
@@ -217,6 +228,9 @@ export const formatPassiveAbility = (v: AbilityInput, s: SkillInput): PassiveAbi
   return unreachable(v.div)
 }
 
+/**
+ * 入力状態保持用のステート型に変換する
+ */
 export const deformatIdol = (v: IdolData): IdolInput => ({
   ...v,
   skills: [...mapArrayN(v.skills, deformatSkill)],
@@ -238,6 +252,8 @@ const deformatAbility = (v: AbilityData | PassiveAbilityData): AbilityInput => {
     id: v.id,
     div: v.div,
     amount: v.amount.toString(),
+    enhance: 'enhance' in v ? v.enhance.type : def.enhance,
+    enhanceValue: 'enhance' in v && 'value' in v.enhance ? v.enhance.value.toString() : def.enhanceValue,
     span: 'span' in v ? v.span.toString() : def.span,
     type: 'type' in v ? v.type : def.type,
     condition: v.condition?.type ?? def.condition,
@@ -269,29 +285,8 @@ export const extractBuffTarget = (
   }
 }
 
-export const isBuffTargetSuffixRequired = (t: BuffTargetPrefix): t is BuffTargetWithSuffix =>
-  t === 'high-vocal' ||
-  t === 'high-dance' ||
-  t === 'high-visual' ||
-  t === 'vocal' ||
-  t === 'dance' ||
-  t === 'visual' ||
-  t === 'scorer' ||
-  t === 'opponent-scorer' ||
-  t === 'lowstamina'
-    ? true
-    : t === 'all' ||
-      t === 'self' ||
-      t === 'center' ||
-      t === 'neighbor' ||
-      t === 'opponent-center' ||
-      t === 'triggered' ||
-      t === 'unknown'
-    ? false
-    : unreachable(t)
-
 /**
- * X段階などの明示的なスキルの強度が指定できないもの
+ * X段階, X% などの明示的なスキルの強度が指定できないもの
  */
 const ABILITY_TYPE_DISABLED_AMOUNT: Record<AbilityType, boolean> = {
   'cmb-continuous': true,
@@ -309,10 +304,12 @@ const ABILITY_TYPE_DISABLED_AMOUNT: Record<AbilityType, boolean> = {
   'ct-reduction': false,
   'dance-down': false,
   'eye-catch': false,
+  'p-score': false,
   'skill-success': false,
   'sp-score': false,
   'stamina-exhaust': false,
   'stamina-recovery': false,
+  'stamina-recovery-percentage': false,
   'stamina-saving': false,
   'visual-down': false,
   'vocal-down': false,
@@ -332,6 +329,7 @@ export const deriveDisabledAmount = (type: AbilityType): boolean => ABILITY_TYPE
 export const disableSpan = (t: AbilityType) => t === 'sp-score'
 
 /**
- * SP,Aのスコア獲得スキルの場合は発動条件は存在しない
+ * SP,Aの1番目のスコア獲得効果の場合は発動条件は存在しない
  */
-export const disableCondition = (type: SkillType, div: AbilityDiv) => (type === 'sp' || type === 'a') && div === 'score'
+export const disableCondition = (type: SkillType, div: AbilityDiv, abilityIndex: number) =>
+  (type === 'sp' || type === 'a') && div === 'score' && abilityIndex === 0

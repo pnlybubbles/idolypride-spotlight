@@ -71,7 +71,7 @@
               <template #label>種別</template>
               <Listbox v-model="ability.div" :options="abilityTypeOptions"></Listbox>
             </Section>
-            <Section v-if="!disableCondition(skill.type, ability.div)" :gutter="8">
+            <Section v-if="!disableCondition(skill.type, ability.div, j)" :gutter="8">
               <template #label>発動条件</template>
               <div class="left-main">
                 <Listbox
@@ -100,7 +100,7 @@
                   required
                 ></Listbox>
                 <Listbox
-                  v-if="ability.target && isBuffTargetSuffixRequired(ability.target)"
+                  v-if="ability.target && isBuffTargetWithSuffix(ability.target)"
                   v-model="ability.targetSuffix"
                   placeholder="人数"
                   :options="buffTargetSuffixOptions"
@@ -131,10 +131,22 @@
                 ></TextField>
               </HStack>
             </Section>
-            <Section v-else-if="ability.div === 'score'" :gutter="8">
-              <template #label>スコア</template>
-              <TextField v-model="ability.amount" placeholder="1000" type="number" required></TextField>
-            </Section>
+            <template v-else-if="ability.div === 'score'">
+              <Section :gutter="8">
+                <template #label>スコア</template>
+                <TextField v-model="ability.amount" placeholder="1000" type="number" required></TextField>
+              </Section>
+              <Section :gutter="8">
+                <template #label>効果上昇</template>
+                <Listbox v-model="ability.enhance" :options="enhanceOptions" required></Listbox>
+                <TextField
+                  v-if="isAbilityEnhanceWithValue(ability.enhance)"
+                  v-model="ability.enhanceValue"
+                  type="number"
+                  required
+                ></TextField>
+              </Section>
+            </template>
           </div>
           <button class="new-ability" @click="handleAddAbility(skill)" @touchend="null">
             <font-awesome-icon icon="circle-plus"></font-awesome-icon>
@@ -164,16 +176,18 @@ import {
 import {
   ABILITY_CONDITION_WITHOUT_VALUE,
   ABILITY_CONDITION_WITH_VALUE,
+  ABILITY_ENHANCE,
   ACTION_ABILITY_TYPE,
   BUFF_ABILITY_TYPE,
   BUFF_TARGET_PREFIX,
   isAbilityConditionWithValue,
+  isAbilityEnhanceWithValue,
+  isBuffTargetWithSuffix,
 } from '~~/utils/formatter'
 import {
   defaultIdolInput,
   formatIdol,
   IdolInput,
-  isBuffTargetSuffixRequired,
   deriveDisabledAmount,
   defaultAbilityInput,
   deformatIdol,
@@ -275,6 +289,7 @@ const conditionOptionsForP: Option<ExcludeUnknown<AbilityConditionType>> = [
 ]
 // SP,Aスキル発動を起点とする発動条件はPスキル特有なので、A,SPでは取り除く
 const conditionOptions = omitOption('sp' as const)(omitOption('a' as const)(conditionOptionsForP))
+const enhanceOptions = omitUnknownOption(objToOption(ABILITY_ENHANCE))
 
 const AVAILAVLE_TRIGGER: Record<AbilityConditionType, boolean> = {
   none: false,

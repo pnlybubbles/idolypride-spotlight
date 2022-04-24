@@ -10,6 +10,7 @@ export type BuffAbilityType =
   | 'beat-score'
   | 'a-score'
   | 'sp-score'
+  | 'p-score'
   | 'cmb-score'
   | 'stamina-saving'
   | 'stamina-exhaust'
@@ -27,6 +28,7 @@ export type ActionAbilityType =
   | 'buff-span'
   | 'ct-reduction'
   | 'stamina-recovery'
+  | 'stamina-recovery-percentage'
   | 'debuff-recovery'
   | 'shift-before-sp'
 export type AbilityType = BuffAbilityType | ActionAbilityType
@@ -65,6 +67,31 @@ export type AbilityCondition =
 
 type IfAnyone = 'anyone-' | ''
 
+export type AbilityEnhance =
+  | {
+      type:
+        | 'none'
+        | 'buff'
+        | 'combo'
+        | 'stamina-rest'
+        | 'stamina-rest-less'
+        | 'stamina-comsumed'
+        | 'core-fan'
+        | 'audience-rate-less'
+        | 'skill-activated'
+        | IdolType
+        | 'a-score'
+        | 'eye-catch'
+        | 'critical-rate'
+        | 'stamina-saving'
+        | 'unknown'
+    }
+  | {
+      type: 'combo-more-than-80'
+      value: number
+    }
+export type AbilityEnhanceType = AbilityEnhance['type']
+
 // ability
 type BuffAbility = {
   div: 'buff'
@@ -80,6 +107,7 @@ type ScoreAbility = {
   div: 'score'
   id: string
   amount: number
+  enhance: AbilityEnhance
   condition: AbilityCondition
 }
 
