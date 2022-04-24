@@ -12,7 +12,6 @@ import {
   AbilityData,
   AbilityCondition,
   PassiveAbilityData,
-  BuffTargetWithSuffix,
   PassiveBuffTarget,
   AbilityType,
   AbilityEnhanceType,
@@ -23,6 +22,7 @@ import {
   formatAbilityEnhance,
   isActionAbilityType,
   isBuffAbilityType,
+  isBuffTargetWithSuffix,
 } from '~~/utils/formatter'
 
 export interface AbilityInput {
@@ -208,7 +208,7 @@ export const formatPassiveAbility = (v: AbilityInput, option: FormatAbilityOptio
   }
   const type = defined(v.type, 'type must not be null with action-buff')
   const targetWithoutSuffix = defined(v.target, 'target must not be null with action-buff')
-  const target = isBuffTargetSuffixRequired(targetWithoutSuffix)
+  const target = isBuffTargetWithSuffix(targetWithoutSuffix)
     ? (`${targetWithoutSuffix}-${v.targetSuffix}` as const)
     : targetWithoutSuffix
   if (v.div === 'action-buff') {
@@ -284,27 +284,6 @@ export const extractBuffTarget = (
     targetSuffix: suffix ?? '1',
   }
 }
-
-export const isBuffTargetSuffixRequired = (t: BuffTargetPrefix): t is BuffTargetWithSuffix =>
-  t === 'high-vocal' ||
-  t === 'high-dance' ||
-  t === 'high-visual' ||
-  t === 'vocal' ||
-  t === 'dance' ||
-  t === 'visual' ||
-  t === 'scorer' ||
-  t === 'opponent-scorer' ||
-  t === 'lowstamina'
-    ? true
-    : t === 'all' ||
-      t === 'self' ||
-      t === 'center' ||
-      t === 'neighbor' ||
-      t === 'opponent-center' ||
-      t === 'triggered' ||
-      t === 'unknown'
-    ? false
-    : unreachable(t)
 
 /**
  * X段階などの明示的なスキルの強度が指定できないもの

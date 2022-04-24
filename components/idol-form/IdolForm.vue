@@ -100,7 +100,7 @@
                   required
                 ></Listbox>
                 <Listbox
-                  v-if="ability.target && isBuffTargetSuffixRequired(ability.target)"
+                  v-if="ability.target && isBuffTargetWithSuffix(ability.target)"
                   v-model="ability.targetSuffix"
                   placeholder="人数"
                   :options="buffTargetSuffixOptions"
@@ -182,12 +182,12 @@ import {
   BUFF_TARGET_PREFIX,
   isAbilityConditionWithValue,
   isAbilityEnhanceWithValue,
+  isBuffTargetWithSuffix,
 } from '~~/utils/formatter'
 import {
   defaultIdolInput,
   formatIdol,
   IdolInput,
-  isBuffTargetSuffixRequired,
   deriveDisabledAmount,
   defaultAbilityInput,
   deformatIdol,
