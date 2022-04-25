@@ -15,17 +15,19 @@ import { BuffAbilityType, SkillData } from '~~/utils/types'
 
 interface Props {
   skill: SkillData | undefined
-  activated?: { type: BuffAbilityType; amount: number }[]
+  activated: { type: BuffAbilityType; amount: number }[] | undefined
   position?: 'left' | 'right'
 }
-const props = withDefaults(defineProps<Props>(), { position: 'left', activated: () => [] })
+const props = withDefaults(defineProps<Props>(), { position: 'left' })
 
 // 同じバフが2重でかかったりするので集計する
 const aggregatedActivated = computed(() =>
-  props.activated.reduce(
-    (acc, v) => ({ ...acc, [v.type]: (acc[v.type] ?? 0) + v.amount }),
-    {} as { [key in BuffAbilityType]?: number }
-  )
+  props.activated
+    ? props.activated.reduce(
+        (acc, v) => ({ ...acc, [v.type]: (acc[v.type] ?? 0) + v.amount }),
+        {} as { [key in BuffAbilityType]?: number }
+      )
+    : []
 )
 </script>
 <style lang="scss" scoped>

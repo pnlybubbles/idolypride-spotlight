@@ -3,7 +3,7 @@
     <Interactive class="hit" @long-press="$emit('long-press')" @click="showTooltip = !showTooltip">
       <div class="marker" :class="{ fail, [variant]: true }"></div>
     </Interactive>
-    <div class="beat" :class="variant">{{ beat }}</div>
+    <div v-if="variant !== 'p'" class="beat" :class="variant">{{ beat }}</div>
     <LiveTooltip
       v-show="showTooltip"
       :activated="activated"
@@ -17,11 +17,11 @@ import { AbilityType, BuffAbilityType, Lane, SkillData } from '~~/utils/types'
 import { cssBeat, cssBuff } from './helper'
 
 interface Props {
-  variant: 'a' | 'sp'
-  fail: boolean
+  variant: 'a' | 'sp' | 'p'
+  fail?: boolean
   beat: number
   buff: AbilityType
-  activated: { type: BuffAbilityType; amount: number }[]
+  activated?: { type: BuffAbilityType; amount: number }[]
   skill: SkillData | undefined
   lane: Lane
 }
@@ -60,6 +60,7 @@ const showTooltip = ref(false)
 
 $sp-size: 40px;
 $a-size: 20px;
+$p-size: 8px;
 
 .marker {
   position: absolute;
@@ -77,6 +78,11 @@ $a-size: 20px;
   &.a {
     width: $a-size;
     height: $a-size;
+  }
+
+  &.p {
+    width: $p-size;
+    height: $p-size;
   }
 
   &.fail {
@@ -98,6 +104,10 @@ $a-size: 20px;
 
   &.a {
     right: calc(100% + 4px + $a-size / 2);
+  }
+
+  &.p {
+    right: calc(100% + 4px + $p-size / 2);
   }
 }
 </style>
