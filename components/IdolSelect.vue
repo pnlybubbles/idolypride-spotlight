@@ -1,5 +1,5 @@
 <template>
-  <Interactive class="idol-select" @click="present = true" @long-press="detailPresent = true">
+  <Interactive class="idol-select" @click="present = true" @long-press="handleLongPress">
     <div v-if="modelValue" class="selected">
       <div class="title">{{ modelValue.title }}</div>
       <div class="name">{{ modelValue.name }}</div>
@@ -41,7 +41,7 @@ import { Filter, idolFilter, idolSort } from './idol-filter/helper'
 interface Props {
   modelValue: null | IdolData
 }
-defineProps<Props>()
+const props = defineProps<Props>()
 interface Emits {
   (e: 'update:modelValue', value: null | IdolData): void
 }
@@ -58,6 +58,13 @@ const filteredIdolList = computed(() => idolSort(idolFilter(idolList.value, filt
 const present = ref(false)
 
 const detailPresent = ref(false)
+
+const handleLongPress = () => {
+  if (props.modelValue === null) {
+    return
+  }
+  detailPresent.value = true
+}
 
 const handleReset = () => {
   emit('update:modelValue', null)
