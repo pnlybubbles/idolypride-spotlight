@@ -5,6 +5,9 @@
       <template v-if="ability.div === 'score'">
         <RoleIcon role="scorer"></RoleIcon>
         <div>{{ ability.amount }}%</div>
+        <div v-if="ability.enhance.type !== 'none'">
+          {{ ability.enhance.type }}{{ 'value' in ability.enhance ? ` ${ability.enhance.value}` : '' }}
+        </div>
         <div v-if="ability.condition.type !== 'none'">
           ({{ ability.condition.type }}{{ 'amount' in ability.condition ? ` ${ability.condition.amount}` : '' }})
         </div>
