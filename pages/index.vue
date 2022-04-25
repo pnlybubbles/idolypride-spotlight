@@ -73,10 +73,15 @@ useHead(DEFAULT_META)
 .unit {
   font-size: $typography-s;
   color: $text3;
-}
+  display: grid;
+  grid: auto / auto-flow;
+  align-items: center;
+  justify-content: start;
+  gap: 4px;
 
-.unit-icon {
-  margin-right: 4px;
+  .unit-icon {
+    margin-top: -1px;
+  }
 }
 
 .loading {
