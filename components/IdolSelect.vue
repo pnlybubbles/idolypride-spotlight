@@ -36,7 +36,7 @@ import { useAuth } from '~~/composable/auth0'
 import { GetIdolListDocument } from '~~/generated/graphql'
 import { deserializeIdolList } from '~~/utils/formatter'
 import { IdolData } from '~~/utils/types'
-import { Filter, idolFilter } from './idol-filter/helper'
+import { Filter, idolFilter, idolSort } from './idol-filter/helper'
 
 interface Props {
   modelValue: null | IdolData
@@ -53,7 +53,7 @@ if (error.value) {
   console.error(error.value)
 }
 const idolList = computed(() => (data.value ? deserializeIdolList(data.value) : []))
-const filteredIdolList = computed(() => idolFilter(idolList.value, filter.value))
+const filteredIdolList = computed(() => idolSort(idolFilter(idolList.value, filter.value)))
 
 const present = ref(false)
 
