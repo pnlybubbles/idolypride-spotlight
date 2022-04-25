@@ -3,6 +3,11 @@ export const SKILLS = [0, 1, 2] as const
 
 export const px = (value: number) => `${value}px`
 
+export const arrayToOrdering = <T>(array: T[]) => {
+  const map = array.reduce((acc, v, i) => acc.set(v, i), new Map<T, number>())
+  return (key: T) => map.get(key) ?? 9999
+}
+
 /**
  * アイドルの名前
  */
@@ -26,6 +31,21 @@ export const IDOL_NAME = [
   '赤崎こころ',
   '長瀬麻奈',
 ]
+
+/**
+ * ユニット名
+ */
+export const UNIT_NAME = [
+  'サニーピース',
+  '月のテンペスト',
+  'TRINITYAiLE',
+  'LizNoir',
+  'MACARON DONUTS',
+  '長瀬麻奈',
+  '川咲さくら',
+  '兵藤雫×天動瑠依',
+]
+export const UNIT_NAME_ORDERING = arrayToOrdering(UNIT_NAME)
 
 /**
  * アイドルのタイプ
