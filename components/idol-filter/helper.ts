@@ -17,3 +17,14 @@ export const idolFilter = (idolList: IdolData[], filter: Filter[]) => {
     .filter((v) => (typeList.length === 0 ? true : typeList.includes(v.type)))
     .filter((v) => (roleList.length === 0 ? true : roleList.includes(v.role)))
 }
+
+export const idolSort = (idolList: IdolData[]) => {
+  return [...idolList].sort((a, b) => {
+    const nameOrdering = a.name.localeCompare(b.name, 'ja')
+    if (nameOrdering !== 0) {
+      return nameOrdering
+    }
+    const titleOrdering = a.title.localeCompare(b.title, 'ja')
+    return titleOrdering
+  })
+}
