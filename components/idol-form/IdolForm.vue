@@ -435,6 +435,7 @@ const deriveUnitByBuffType = (type: BuffAbilityType | ActionAbilityType | null):
 
 .new-ability {
   @include reset-button;
+  @include clickable;
   @include round-corner;
   border: solid 1px $surface1;
   font-size: $typography-s;

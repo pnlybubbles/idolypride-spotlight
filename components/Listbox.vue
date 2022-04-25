@@ -1,6 +1,12 @@
 <template>
   <AssistiveText :show="showError">
-    <button class="listbox" :class="{ error: showError !== null }" :disabled="disabled" @click="handleOpen">
+    <button
+      class="listbox"
+      :class="{ error: showError !== null }"
+      :disabled="disabled"
+      @click="handleOpen"
+      @touchend="null"
+    >
       <div class="current" :class="{ placeholder: selectedLabel === undefined }">
         {{ selectedLabel ?? placeholder ?? '選択してください' }}
       </div>
