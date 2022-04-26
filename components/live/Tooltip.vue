@@ -2,16 +2,25 @@
   <div class="tooltip" :class="[position]" @touchstart.stop @touchend.stop>
     <div v-if="skill" class="heading">
       <div class="name">{{ skill.name }}</div>
-      <SkillText :skill="skill" class="detail" with-ct></SkillText>
+      <div class="detail">
+        <SkillText :skill="skill" class="scrolling" with-ct></SkillText>
+      </div>
     </div>
-    <div v-else>スキル失敗</div>
-    <div v-if="Object.keys(aggregatedActivated).length > 0" class="buff">
-      <div v-for="(value, key) in aggregatedActivated" :key="key" class="item">{{ value }} {{ key }}</div>
-    </div>
+    <div v-else class="fail">スキル失敗</div>
+    <template v-if="Object.keys(aggregatedActivated).length > 0">
+      <div class="divider"></div>
+      <div class="buff">
+        <div v-for="(value, key) in aggregatedActivated" :key="key" class="item">
+          {{ value }} {{ buffAbilityTypeLabel(key, internalLabel) }}
+        </div>
+      </div>
+    </template>
   </div>
 </template>
 <script setup lang="ts">
+import { useInternalLabel } from '~~/composable/localstorage-descriptors'
 import { BuffAbilityType, SkillData } from '~~/utils/types'
+import { buffAbilityTypeLabel } from '~~/utils/common'
 
 interface Props {
   skill: SkillData | undefined
@@ -22,16 +31,20 @@ const props = withDefaults(defineProps<Props>(), { position: 'left' })
 
 // 同じバフが2重でかかったりするので集計する
 const aggregatedActivated = computed(() =>
-  props.activated
-    ? props.activated.reduce(
-        (acc, v) => ({ ...acc, [v.type]: (acc[v.type] ?? 0) + v.amount }),
-        {} as { [key in BuffAbilityType]?: number }
-      )
-    : []
+  (props.activated ?? []).reduce(
+    (acc, v) => ({ ...acc, [v.type]: (acc[v.type] ?? 0) + v.amount }),
+    {} as { [key in BuffAbilityType]?: number }
+  )
 )
+
+const [internalLabel] = useInternalLabel()
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
+
+@mixin padder {
+  padding: 0 8px;
+}
 
 .tooltip {
   @include round-corner;
@@ -41,13 +54,13 @@ const aggregatedActivated = computed(() =>
   top: 50%;
   background-color: $surface2;
   color: $text4;
-  padding: 6px 8px;
+  padding: 6px 0;
   font-size: $typography-s;
   text-align: left;
   width: max-content;
   max-width: 120px;
   display: grid;
-  gap: 7px;
+  gap: 4px;
 
   &.left {
     right: 50%;
@@ -62,10 +75,14 @@ const aggregatedActivated = computed(() =>
 
 .heading {
   overflow: hidden;
-  margin-bottom: -8px;
+}
+
+.fail {
+  @include padder;
 }
 
 .name {
+  @include padder;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -74,9 +91,15 @@ const aggregatedActivated = computed(() =>
 .detail {
   overflow-x: auto;
   padding-bottom: 8px;
+  margin-bottom: -8px;
+
+  .scrolling {
+    @include padder;
+    display: inline-flex;
+  }
 }
 
-.buff {
+.divider {
   position: relative;
 
   &::before {
@@ -84,14 +107,21 @@ const aggregatedActivated = computed(() =>
     display: block;
     position: absolute;
     left: 50%;
-    top: -4px;
     transform: translateX(-50%);
-    width: 110%;
+    width: 95%;
     border-top: 1px solid $surface2-stroke;
   }
 }
 
+.buff {
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin-bottom: -8px;
+}
+
 .item {
+  @include padder;
+  display: inline-flex;
   white-space: nowrap;
 }
 </style>
