@@ -28,7 +28,7 @@
 <script setup lang="ts">
 import { useQuery } from '@urql/vue'
 import { GetIdolListDocument } from '~/generated/graphql'
-import { Filter, idolFilter } from '~~/components/idol-filter/helper'
+import { Filter, idolFilter, idolSort } from '~~/components/idol-filter/helper'
 import { useAuth } from '~~/composable/auth0'
 import { useError } from '~~/composable/error'
 import { deserializeIdolList } from '~~/utils/formatter'
@@ -39,7 +39,7 @@ const { data, fetching, error } = useQuery({ query: GetIdolListDocument, pause: 
 useError(error)
 
 const idolList = computed(() => (data.value ? deserializeIdolList(data.value) : []))
-const filteredIdolList = computed(() => idolFilter(idolList.value, filter.value))
+const filteredIdolList = computed(() => idolSort(idolFilter(idolList.value, filter.value)))
 
 const present = ref(false)
 const currentIdolId = ref('')

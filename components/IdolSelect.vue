@@ -1,5 +1,5 @@
 <template>
-  <Interactive class="idol-select" @click="present = true" @long-press="detailPresent = true">
+  <Interactive class="idol-select" @click="present = true" @long-press="handleLongPress">
     <div v-if="modelValue" class="selected">
       <div class="title">{{ modelValue.title }}</div>
       <div class="name">{{ modelValue.name }}</div>
@@ -36,12 +36,12 @@ import { useAuth } from '~~/composable/auth0'
 import { GetIdolListDocument } from '~~/generated/graphql'
 import { deserializeIdolList } from '~~/utils/formatter'
 import { IdolData } from '~~/utils/types'
-import { Filter, idolFilter } from './idol-filter/helper'
+import { Filter, idolFilter, idolSort } from './idol-filter/helper'
 
 interface Props {
   modelValue: null | IdolData
 }
-defineProps<Props>()
+const props = defineProps<Props>()
 interface Emits {
   (e: 'update:modelValue', value: null | IdolData): void
 }
@@ -53,11 +53,18 @@ if (error.value) {
   console.error(error.value)
 }
 const idolList = computed(() => (data.value ? deserializeIdolList(data.value) : []))
-const filteredIdolList = computed(() => idolFilter(idolList.value, filter.value))
+const filteredIdolList = computed(() => idolSort(idolFilter(idolList.value, filter.value)))
 
 const present = ref(false)
 
 const detailPresent = ref(false)
+
+const handleLongPress = () => {
+  if (props.modelValue === null) {
+    return
+  }
+  detailPresent.value = true
+}
 
 const handleReset = () => {
   emit('update:modelValue', null)

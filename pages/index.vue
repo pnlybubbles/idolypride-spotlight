@@ -19,6 +19,7 @@ import { useQuery } from '@urql/vue'
 import { useAuth } from '~~/composable/auth0'
 import { useError } from '~~/composable/error'
 import { GetFumentListDocument } from '~~/generated/graphql'
+import { UNIT_NAME_ORDERING } from '~~/utils/common'
 import { DEFAULT_META } from '~~/utils/meta'
 
 const { notAuthenticated } = useAuth()
@@ -26,7 +27,17 @@ const { notAuthenticated } = useAuth()
 const { data, error, fetching } = useQuery({ query: GetFumentListDocument, pause: notAuthenticated })
 useError(error)
 
-const fumenList = computed(() => data.value?.fumen ?? [])
+const sortFumen = <T extends { title: string; unit: string }>(fumen: T[]) =>
+  [...fumen].sort((a, b) => {
+    const unitOrdering = UNIT_NAME_ORDERING(a.unit) - UNIT_NAME_ORDERING(b.unit)
+    if (unitOrdering !== 0) {
+      return unitOrdering
+    }
+    const titleOrdering = a.title.localeCompare(b.title, 'ja')
+    return titleOrdering
+  })
+
+const fumenList = computed(() => sortFumen(data.value?.fumen ?? []))
 
 useHead(DEFAULT_META)
 </script>
@@ -62,10 +73,15 @@ useHead(DEFAULT_META)
 .unit {
   font-size: $typography-s;
   color: $text3;
-}
+  display: grid;
+  grid: auto / auto-flow;
+  align-items: center;
+  justify-content: start;
+  gap: 4px;
 
-.unit-icon {
-  margin-right: 4px;
+  .unit-icon {
+    margin-top: -1px;
+  }
 }
 
 .loading {

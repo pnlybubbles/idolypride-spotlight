@@ -8,22 +8,14 @@
     </div>
     <div v-for="i in LANES" :key="i" class="lane">
       <template v-for="item in lanes[i]" :key="item.id">
-        <LiveSPASkill
-          v-if="item.type === 'sp' || item.type === 'a'"
+        <LiveSkill
+          v-if="item.type === 'sp' || item.type === 'a' || item.type === 'p'"
           :variant="item.type"
           v-bind="item"
           :skill="getSkill(i, item.index)"
           :lane="i"
           @long-press="updateGuide(item.beat)"
-        ></LiveSPASkill>
-        <LivePSkill
-          v-else-if="item.type === 'p'"
-          :beat="item.beat"
-          :buff="item.buff"
-          :skill="getSkill(i, item.index)"
-          :lane="i"
-          @long-press="updateGuide(item.beat)"
-        ></LivePSkill>
+        ></LiveSkill>
         <LiveBuff
           v-else-if="item.type === 'buff'"
           :beat="item.beat"

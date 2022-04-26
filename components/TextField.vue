@@ -12,6 +12,7 @@
       @input="$emit('update:modelValue', ($event.target as any).value)"
       @focus="handleFocus"
       @blur="handleBlur"
+      @touchend="null"
     />
     <div v-if="preset.length !== 0 && focusing" class="preset">
       <button v-for="item in preset" :key="item" class="preset-item" @click="handleFillPreset(item)" @touchend="null">
@@ -123,6 +124,7 @@ useFormComponent(computed(() => ({ error: requiredError.value || validationError
 
 .input {
   @include round-corner;
+  @include clickable;
   border: 0;
   background-color: $surface1;
   padding: 0 12px;
