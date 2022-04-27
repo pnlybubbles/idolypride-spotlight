@@ -5,31 +5,21 @@
       <template v-if="ability.div === 'score'">
         <RoleIcon role="scorer"></RoleIcon>
         <div>{{ ability.amount }}%</div>
-        <div v-if="ability.enhance.type !== 'none'">
-          {{ ability.enhance.type }}{{ 'value' in ability.enhance ? ` ${ability.enhance.value}` : '' }}
-        </div>
+        <div v-if="ability.enhance.type !== 'none'">{{ abilityEnhanceLabel(ability.enhance, internalLabel) }}</div>
         <div v-if="ability.condition.type !== 'none'">
-          ({{ ability.condition.type }}{{ 'amount' in ability.condition ? ` ${ability.condition.amount}` : '' }})
+          ({{ abilityConditionTypeLabel(ability.condition, internalLabel) }})
         </div>
       </template>
-      <template v-if="ability.div === 'buff'">
+      <template v-if="ability.div === 'buff' || ability.div === 'action-buff'">
         <RoleIcon role="buffer"></RoleIcon>
-        <div>{{ ability.amount }}</div>
-        <div>{{ ability.type }}</div>
-        <div>{{ ability.target }}</div>
+        <div v-if="!deriveDisabledAmount(ability.type)">{{ ability.amount }}</div>
+        <div v-if="ability.div === 'buff'">{{ buffAbilityTypeLabel(ability.type, internalLabel) }}</div>
+        <div v-else-if="ability.div === 'action-buff'">{{ actionAbilityTypeLabel(ability.type, internalLabel) }}</div>
+        <div>{{ abilityTargetLabel(ability.target, internalLabel) }}</div>
         <div v-if="ability.condition.type !== 'none'">
-          ({{ ability.condition.type }}{{ 'amount' in ability.condition ? ` ${ability.condition.amount}` : '' }})
+          ({{ abilityConditionTypeLabel(ability.condition, internalLabel) }})
         </div>
-        <div>[{{ ability.span }}]</div>
-      </template>
-      <template v-if="ability.div === 'action-buff'">
-        <RoleIcon role="buffer"></RoleIcon>
-        <div>{{ ability.amount }}</div>
-        <div>{{ ability.type }}</div>
-        <div>{{ ability.target }}</div>
-        <div v-if="ability.condition.type !== 'none'">
-          ({{ ability.condition.type }}{{ 'amount' in ability.condition ? ` ${ability.condition.amount}` : '' }})
-        </div>
+        <div v-if="ability.div === 'buff'">[{{ ability.span }}]</div>
       </template>
     </div>
     <div class="ability">
@@ -38,7 +28,16 @@
   </div>
 </template>
 <script setup lang="ts">
+import { useInternalLabel } from '~~/composable/localstorage-descriptors'
 import { AbilityData, AbilityDiv, PassiveAbilityData, SkillData } from '~~/utils/types'
+import { deriveDisabledAmount } from './idol-form/helper'
+import {
+  abilityEnhanceLabel,
+  abilityConditionTypeLabel,
+  buffAbilityTypeLabel,
+  actionAbilityTypeLabel,
+  abilityTargetLabel,
+} from '~~/utils/common'
 
 interface Props {
   skill: SkillData
@@ -54,6 +53,8 @@ const ABILITY_ORDERING: { [key in AbilityDiv]: number } = {
 
 const sortAbility = (ability: AbilityData[] | PassiveAbilityData[]) =>
   [...ability].sort((a, b) => ABILITY_ORDERING[a.div] - ABILITY_ORDERING[b.div])
+
+const [internalLabel] = useInternalLabel()
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';

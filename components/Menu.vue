@@ -11,38 +11,13 @@
     </button>
   </div>
   <Sheet v-model:present="present">
-    <VStack :spacing="16">
-      <div class="heading">
-        <img src="/logo.svg" alt="logo" class="logo" />
-        <div class="logo-label">{{ TITLE }}</div>
-      </div>
-      <div class="section">
-        <div class="section-hedding">このページについて</div>
-        <NoteText><HelpText /></NoteText>
-      </div>
-      <div class="section">
-        <div class="section-hedding">ユーザー情報</div>
-        <NoteText>{{ user?.email }}</NoteText>
-      </div>
-      <div class="section">
-        <Button @click="handleSignOut">サインアウト</Button>
-      </div>
-    </VStack>
+    <Settings></Settings>
   </Sheet>
 </template>
 <script setup lang="ts">
-import { useAuth } from '~~/composable/auth0'
-import { TITLE } from '~~/utils/meta'
-
-const router = useRouter()
 const route = useRoute()
 const active = route.path === '/' ? 'top' : route.path === '/idol' ? 'idol' : null
 const present = ref(false)
-const { user, signOut } = useAuth()
-const handleSignOut = async () => {
-  await signOut()
-  await router.push('/')
-}
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
@@ -80,37 +55,5 @@ $gap: 4px;
   @include background-blur;
   @include round-corner('L');
   @include bloom(black);
-}
-
-.heading {
-  display: grid;
-  grid: auto auto / auto;
-  justify-items: center;
-  padding-bottom: 8px;
-}
-
-.logo {
-  display: block;
-  width: 40px;
-  height: 40px;
-  justify-self: center;
-}
-
-.logo-label {
-  font-size: $typography-s;
-  font-weight: bold;
-}
-
-.section {
-  @include align;
-  display: grid;
-  grid: auto-flow / auto;
-  gap: 4px;
-}
-
-.section-hedding {
-  font-size: $typography-s;
-  color: $text1;
-  font-weight: bold;
 }
 </style>
