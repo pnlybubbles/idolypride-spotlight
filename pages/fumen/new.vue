@@ -75,6 +75,7 @@ const unitOptions = [
   '長瀬麻奈',
   '川咲さくら',
   '兵藤雫×天動瑠依',
+  '白石沙季×白石千紗',
 ].map((id) => ({ id, label: id }))
 const parseSpaceSeparatedInt = (value: string) =>
   value
