@@ -16,7 +16,7 @@
           <span class="value">{{ item.label }}</span>
         </button>
       </div>
-      <button class="filter-button" @click="open = !open" @touchend="null">
+      <button class="filter-button" :class="{ active: open }" @click="open = !open" @touchend="null">
         <font-awesome-icon icon="filter"></font-awesome-icon>
       </button>
     </div>
@@ -189,7 +189,14 @@ const TYPE_TO_LABEL: Record<FilterType, string | null> = {
   justify-items: center;
   border-radius: 50%;
   background-color: $surface1;
+  color: $text1;
   align-self: flex-start;
+  border: solid 1px transparent;
+  margin: -1px;
+
+  &.active {
+    border-color: $text1;
+  }
 
   svg {
     margin-bottom: -2px;
