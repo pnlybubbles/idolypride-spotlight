@@ -60,21 +60,35 @@ test('Aスキルが発動する', () => {
     {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       id: expect.any(String),
+      type: 'a',
       beat: 1,
       buff: 'unknown',
       lane: 0,
-      type: 'a',
       index: 1,
       fail: false,
       activated: [],
     },
   ]
   expect(
-    simulate(
-      mockLive({
-        a: [[1], [], [], [], []],
-      }),
-      [mockIdol({ preset: 'sp_a_a' }), null, null, null, null]
-    ).result
+    simulate(mockLive({ a: [[1], [], [], [], []] }), [mockIdol({ preset: 'sp_a_a' }), null, null, null, null]).result
+  ).toStrictEqual(expected)
+})
+
+test('SPスキルが発動する', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'sp',
+      beat: 1,
+      buff: 'unknown',
+      lane: 0,
+      index: 0,
+      fail: false,
+      activated: [],
+    },
+  ]
+  expect(
+    simulate(mockLive({ sp: [[1], [], [], [], []] }), [mockIdol({ preset: 'sp_a_a' }), null, null, null, null]).result
   ).toStrictEqual(expected)
 })
