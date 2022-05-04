@@ -37,21 +37,6 @@
         </div>
       </Section>
       <Section overflow>
-        <template #label>ユニット</template>
-        <div class="picker">
-          <button
-            v-for="id in FILTERABLE_UNIT_NAME"
-            :key="id"
-            class="picker-item"
-            :class="{ active: isActive('unit', id) }"
-            @click="handlePick('unit', id, id)"
-            @touchend="null"
-          >
-            {{ id }}
-          </button>
-        </div>
-      </Section>
-      <Section overflow>
         <template #label>タイプ</template>
         <div class="picker">
           <button
@@ -76,6 +61,26 @@
           </button>
         </div>
       </Section>
+      <Interactive class="more" :class="{ active: more }" @click="more = !more"
+        ><font-awesome-icon icon="caret-down" class="icon"></font-awesome-icon>詳細フィルター</Interactive
+      >
+      <template v-if="more">
+        <Section overflow>
+          <template #label>ユニット</template>
+          <div class="picker">
+            <button
+              v-for="id in FILTERABLE_UNIT_NAME"
+              :key="id"
+              class="picker-item"
+              :class="{ active: isActive('unit', id) }"
+              @click="handlePick('unit', id, id)"
+              @touchend="null"
+            >
+              {{ id }}
+            </button>
+          </div>
+        </Section>
+      </template>
     </div>
   </div>
 </template>
@@ -121,6 +126,8 @@ const TYPE_TO_LABEL: Record<FilterType, string | null> = {
   type: null,
   role: null,
 }
+
+const more = ref(false)
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
@@ -155,7 +162,7 @@ const TYPE_TO_LABEL: Record<FilterType, string | null> = {
   @include clickable;
   @include round-corner;
 
-  font-size: 12px;
+  font-size: $typography-xs;
   background-color: $surface1;
   color: $text1;
   padding: 4px 8px;
@@ -181,7 +188,7 @@ const TYPE_TO_LABEL: Record<FilterType, string | null> = {
   @include reset-button;
   @include clickable;
 
-  font-size: 12px;
+  font-size: $typography-xs;
   height: 32px;
   width: 32px;
   display: grid;
@@ -214,7 +221,7 @@ const TYPE_TO_LABEL: Record<FilterType, string | null> = {
   @include clickable;
   @include round-corner;
 
-  font-size: 12px;
+  font-size: $typography-xs;
   background-color: $surface1;
   color: $text1;
   padding: 4px 8px;
@@ -224,6 +231,22 @@ const TYPE_TO_LABEL: Record<FilterType, string | null> = {
 
   &.active {
     border-color: $text1;
+  }
+}
+
+.more {
+  font-size: $typography-s;
+  color: $text3;
+  text-align: center;
+
+  .icon {
+    margin-right: 4px;
+  }
+
+  &.active {
+    .icon {
+      transform: rotate(180deg);
+    }
   }
 }
 </style>
