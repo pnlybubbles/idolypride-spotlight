@@ -102,10 +102,11 @@ const handleFilter = (item: Filter) => {
 }
 
 const handlePick = (type: FilterType, value: string, label: string) => {
-  if (props.modelValue.find((v) => filterEq(v, { type, value, label }))) {
-    return
+  const item = { type, value, label }
+  if (props.modelValue.find((v) => filterEq(v, item))) {
+    return handleFilter(item)
   }
-  emit('update:modelValue', [...props.modelValue, { type, value, label }])
+  emit('update:modelValue', [...props.modelValue, item])
 }
 
 const TYPE_TO_LABEL: Record<FilterType, string | null> = {
