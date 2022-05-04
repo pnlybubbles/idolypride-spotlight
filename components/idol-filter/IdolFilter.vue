@@ -28,6 +28,7 @@
             v-for="id in IDOL_NAME"
             :key="id"
             class="picker-item"
+            :class="{ active: isActive('name', id) }"
             @click="handlePick('name', id, id)"
             @touchend="null"
           >
@@ -42,6 +43,7 @@
             v-for="id in FILTERABLE_UNIT_NAME"
             :key="id"
             class="picker-item"
+            :class="{ active: isActive('unit', id) }"
             @click="handlePick('unit', id, id)"
             @touchend="null"
           >
@@ -56,6 +58,7 @@
             v-for="(label, id) in IDOL_TYPE"
             :key="id"
             class="picker-item"
+            :class="{ active: isActive('type', id) }"
             @click="handlePick('type', id, label)"
             @touchend="null"
           >
@@ -65,6 +68,7 @@
             v-for="(label, id) in IDOL_ROLE"
             :key="id"
             class="picker-item"
+            :class="{ active: isActive('role', id) }"
             @click="handlePick('role', id, label)"
             @touchend="null"
           >
@@ -108,6 +112,8 @@ const handlePick = (type: FilterType, value: string, label: string) => {
   }
   emit('update:modelValue', [...props.modelValue, item])
 }
+
+const isActive = (type: FilterType, value: string) => props.modelValue.find((v) => v.type === type && v.value === value)
 
 const TYPE_TO_LABEL: Record<FilterType, string | null> = {
   name: '名前',
@@ -206,5 +212,11 @@ const TYPE_TO_LABEL: Record<FilterType, string | null> = {
   color: $text1;
   padding: 4px 8px;
   white-space: nowrap;
+  border: solid 1px transparent;
+  margin: 0 -1px;
+
+  &.active {
+    border-color: $text1;
+  }
 }
 </style>
