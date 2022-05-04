@@ -91,6 +91,7 @@ export const isKeyInObject =
     map[key as T] !== undefined
 
 export const eraceObjectLiteralTypes = <T>(object: Record<string, T>): Record<string, T> => object
+export const eraceArrayLiteralTypes = (array: string[]): string[] => array
 
 export const isUnique = (value: unknown, index: number, array: unknown[]) => array.indexOf(value) === index
 

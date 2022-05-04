@@ -2,6 +2,9 @@
   <div class="section" :style="overflow ? { padding: '0' } : gutterStyle">
     <div v-if="$slots.label" class="label" :style="!overflow ? { padding: '0' } : gutterStyle">
       <slot name="label"></slot>
+      <span v-if="$slots.sub" class="sub">
+        <slot name="sub"></slot>
+      </span>
     </div>
     <div v-if="overflow" class="overflow">
       <div class="scrolling" :style="gutterStyle"><slot></slot></div>
@@ -34,6 +37,11 @@ const gutterStyle = computed(() => (props.gutter !== undefined ? { padding: `0 $
 
   font-size: $typography-s;
   color: $text1;
+
+  .sub {
+    margin-left: 4px;
+    color: $text3;
+  }
 }
 
 .stack {

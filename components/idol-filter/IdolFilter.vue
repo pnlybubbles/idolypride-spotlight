@@ -80,15 +80,41 @@
             </button>
           </div>
         </Section>
+        <Section overflow>
+          <template #label>効果</template>
+          <template #sub>*複数選択はANDで評価されます</template>
+          <div class="picker">
+            <button
+              v-for="item in FILTERABLE_ABILITY_TYPE"
+              :key="item.id"
+              class="picker-item"
+              :class="{ active: isActive('ability', item.id) }"
+              @click="handlePick('ability', item.id, item.label)"
+              @touchend="null"
+            >
+              {{ item.label }}
+            </button>
+          </div>
+        </Section>
       </template>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { IDOL_NAME, IDOL_TYPE, IDOL_ROLE, UNIT_NAME, UNIT_TO_IDOL_NAME } from '~~/utils/common'
+import {
+  IDOL_NAME,
+  IDOL_TYPE,
+  IDOL_ROLE,
+  UNIT_NAME,
+  UNIT_TO_IDOL_NAME,
+  objToOption,
+  omitUnknownOption,
+} from '~~/utils/common'
+import { ACTION_ABILITY_TYPE, BUFF_ABILITY_TYPE } from '~~/utils/formatter'
 import { Filter, FilterType } from './helper'
 
 const FILTERABLE_UNIT_NAME = UNIT_NAME.filter((unit) => UNIT_TO_IDOL_NAME[unit].length > 2)
+const FILTERABLE_ABILITY_TYPE = omitUnknownOption(objToOption({ ...BUFF_ABILITY_TYPE, ...ACTION_ABILITY_TYPE }))
 
 interface Props {
   modelValue: Filter[]
@@ -125,6 +151,7 @@ const TYPE_TO_LABEL: Record<FilterType, string | null> = {
   unit: 'ユニット',
   type: null,
   role: null,
+  ability: '効果',
 }
 
 const more = ref(false)
