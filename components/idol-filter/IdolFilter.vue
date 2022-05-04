@@ -36,6 +36,20 @@
         </div>
       </Section>
       <Section overflow>
+        <template #label>ユニット</template>
+        <div class="picker">
+          <button
+            v-for="id in FILTERABLE_UNIT_NAME"
+            :key="id"
+            class="picker-item"
+            @click="handlePick('unit', id, id)"
+            @touchend="null"
+          >
+            {{ id }}
+          </button>
+        </div>
+      </Section>
+      <Section overflow>
         <template #label>タイプ</template>
         <div class="picker">
           <button
@@ -62,8 +76,10 @@
   </div>
 </template>
 <script setup lang="ts">
-import { IDOL_NAME, IDOL_TYPE, IDOL_ROLE } from '~~/utils/common'
+import { IDOL_NAME, IDOL_TYPE, IDOL_ROLE, UNIT_NAME, UNIT_TO_IDOL_NAME } from '~~/utils/common'
 import { Filter, FilterType } from './helper'
+
+const FILTERABLE_UNIT_NAME = UNIT_NAME.filter((unit) => UNIT_TO_IDOL_NAME[unit].length > 2)
 
 interface Props {
   modelValue: Filter[]
@@ -94,6 +110,7 @@ const handlePick = (type: FilterType, value: string, label: string) => {
 
 const TYPE_TO_LABEL: Record<FilterType, string | null> = {
   name: '名前',
+  unit: 'ユニット',
   type: null,
   role: null,
 }

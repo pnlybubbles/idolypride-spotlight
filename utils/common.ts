@@ -17,7 +17,7 @@ export const SKILLS = [0, 1, 2] as const
 
 export const px = (value: number) => `${value}px`
 
-export const arrayToOrdering = <T>(array: T[]) => {
+export const arrayToOrdering = <T>(array: readonly T[]) => {
   const map = array.reduce((acc, v, i) => acc.set(v, i), new Map<T, number>())
   return (key: T) => map.get(key) ?? 9999
 }
@@ -44,7 +44,8 @@ export const IDOL_NAME = [
   '小美山愛',
   '赤崎こころ',
   '長瀬麻奈',
-]
+] as const
+export type IdolName = typeof IDOL_NAME[number]
 
 /**
  * ユニット名
@@ -58,8 +59,22 @@ export const UNIT_NAME = [
   '長瀬麻奈',
   '川咲さくら',
   '兵藤雫×天動瑠依',
-]
+  '白石沙季×白石千紗',
+] as const
+export type UnitName = typeof UNIT_NAME[number]
 export const UNIT_NAME_ORDERING = arrayToOrdering(UNIT_NAME)
+
+export const UNIT_TO_IDOL_NAME: Record<UnitName, IdolName[]> = {
+  月のテンペスト: ['長瀬琴乃', '伊吹渚', '白石沙季', '成宮すず', '早坂芽衣'],
+  サニーピース: ['川咲さくら', '兵藤雫', '白石千紗', '一ノ瀬怜', '佐伯遙子'],
+  TRINITYAiLE: ['天動瑠依', '鈴村優', '奥山すみれ'],
+  LizNoir: ['神崎莉央', '井川葵', '小美山愛', '赤崎こころ', '長瀬麻奈'],
+  'MACARON DONUTS': ['一ノ瀬怜', '早坂芽衣'],
+  長瀬麻奈: ['長瀬麻奈'],
+  川咲さくら: ['川咲さくら'],
+  '兵藤雫×天動瑠依': ['兵藤雫', '天動瑠依'],
+  '白石沙季×白石千紗': ['白石沙季', '白石千紗'],
+}
 
 /**
  * アイドルのタイプ
@@ -110,3 +125,16 @@ export const abilityConditionTypeLabel = (condition: AbilityCondition, internal:
     : 'amount' in condition
     ? ABILITY_CONDITION_WITH_VALUE[condition.type].replace(/X/, condition.amount.toString())
     : ABILITY_CONDITION_WITHOUT_VALUE[condition.type]
+
+// 本来なら Listbox.vue にあるべきだが、.vueのインポート問題でココにおいておく
+export type Option<T> = { id: T; label: string }[]
+export const objToOption = <K extends string>(obj: Record<K, string>): Option<K> =>
+  Object.entries(obj).map(([id, label]) => ({ id, label })) as Option<K>
+export const arrayToOption = (array: readonly string[]): Option<string> => array.map((id) => ({ id, label: id }))
+
+export type ExcludeUnknown<T> = Exclude<T, 'unknown'>
+export const omitOption =
+  <S>(id: S) =>
+  <T>(opt: Option<T | S>) =>
+    opt.filter((v) => v.id !== id) as Option<T>
+export const omitUnknownOption = omitOption('unknown' as const)
