@@ -2,6 +2,7 @@
   <div class="buff" :class="{ affected }"></div>
 </template>
 <script setup lang="ts">
+import { useFumenScaleFactor } from '~~/composable/localstorage-descriptors'
 import { AbilityType } from '~~/utils/types'
 import { cssBeat, cssBuff } from './helper'
 
@@ -30,7 +31,9 @@ interface Props {
 
 const props = defineProps<Props>()
 const { beat, buff, affected, shift, span } = toRefs(props)
-const top = computed(() => cssBeat(beat.value))
+
+const [scaleFactor] = useFumenScaleFactor()
+const top = computed(() => cssBeat(beat.value, scaleFactor.value))
 const color = computed(() => cssBuff(buff.value))
 </script>
 <style lang="scss" scoped>

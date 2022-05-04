@@ -1,6 +1,6 @@
 import { onBeforeRouteLeave } from 'vue-router'
-import { InjectionKey } from 'vue'
-import { defined } from '~~/utils'
+import { InjectionKey, Ref } from 'vue'
+import { defined, safeParseInt } from '~~/utils'
 
 const UIDContext: InjectionKey<() => string> = Symbol()
 export const provideUID = () => {
@@ -27,4 +27,11 @@ export function useBeforeUnload(callback: () => boolean) {
   return () => {
     skipUnloadFlag.current = true
   }
+}
+
+export function useIntAsString(ref: Ref<number>) {
+  return computed({
+    get: () => ref.value.toString(),
+    set: (value) => (ref.value = safeParseInt(value)),
+  })
 }
