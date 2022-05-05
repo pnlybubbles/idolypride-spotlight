@@ -56,7 +56,7 @@ import { useForm } from '~~/composable/form'
 import { SUNNY_PEACE_HARMONY } from '~~/data/live'
 import { CreateFumenDocument } from '~~/generated/graphql'
 import { mapArrayN } from '~~/utils'
-import { LANES } from '~~/utils/common'
+import { arrayToOption, LANES, UNIT_NAME } from '~~/utils/common'
 import { DEFAULT_META } from '~~/utils/meta'
 import { validSpaceSeparatedPositiveInt } from '~~/utils/validation'
 
@@ -66,16 +66,7 @@ const unit = ref(null)
 const beat = ref('')
 const aSkill = reactive(['', '', '', '', ''] as const)
 const spSkill = reactive(['', '', '', '', ''] as const)
-const unitOptions = [
-  'サニーピース',
-  '月のテンペスト',
-  'TRINITYAiLE',
-  'LizNoir',
-  'MACARON DONUTS',
-  '長瀬麻奈',
-  '川咲さくら',
-  '兵藤雫×天動瑠依',
-].map((id) => ({ id, label: id }))
+const unitOptions = arrayToOption(UNIT_NAME)
 const parseSpaceSeparatedInt = (value: string) =>
   value
     .split(' ')

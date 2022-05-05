@@ -89,3 +89,11 @@ export const isKeyInObject =
   <T extends string>(map: Record<T, unknown>) =>
   (key: string): key is T =>
     map[key as T] !== undefined
+
+export const eraceObjectLiteralTypes = <T>(object: Record<string, T>): Record<string, T> => object
+export const eraceArrayLiteralTypes = (array: string[]): string[] => array
+
+export const isUnique = (value: unknown, index: number, array: unknown[]) => array.indexOf(value) === index
+
+export const literal = <T extends string>(literal: string, assertCandidates: readonly T[]): T | undefined =>
+  assertCandidates.includes(literal as T) ? (literal as T) : undefined

@@ -5,8 +5,19 @@
       <div class="logo-label">{{ TITLE }}</div>
     </div>
     <div class="section">
-      <div class="section-headding">設定</div>
-      <Check v-model="internalLabel" :disabled="!ready">内部的なラベルで表示する</Check>
+      <div class="section-headding">スキル名表示</div>
+      <Check v-model="internalLabel" :disabled="!readyInternalLabel">内部的な識別子で表示する</Check>
+    </div>
+    <div class="section">
+      <div class="section-headding">譜面表示の拡大率</div>
+      <TextField
+        v-model="fumenScaleFactor"
+        placeholder="5"
+        :disabled="!readyFumenScaleFactor"
+        type="number"
+        required
+        :preset="[3, 4, 5, 10, 15]"
+      ></TextField>
     </div>
     <div class="section">
       <div class="section-headding">このページについて</div>
@@ -23,8 +34,9 @@
 </template>
 <script setup lang="ts">
 import { useAuth } from '~~/composable/auth0'
-import { useInternalLabel } from '~~/composable/localstorage-descriptors'
+import { useInternalLabel, useFumenScaleFactor } from '~~/composable/localstorage-descriptors'
 import { TITLE } from '~~/utils/meta'
+import { useIntAsString } from '~~/composable/atom'
 
 const { user, signOut } = useAuth()
 
@@ -35,7 +47,9 @@ const handleSignOut = async () => {
   await router.push('/')
 }
 
-const [internalLabel, ready] = useInternalLabel()
+const [internalLabel, readyInternalLabel] = useInternalLabel()
+const [fumenScaleFactorInt, readyFumenScaleFactor] = useFumenScaleFactor()
+const fumenScaleFactor = useIntAsString(fumenScaleFactorInt)
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';

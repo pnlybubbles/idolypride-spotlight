@@ -196,7 +196,15 @@ import {
   disableCondition,
 } from './helper'
 import { defined, lift } from '~~/utils'
-import { IDOL_NAME } from '~~/utils/common'
+import {
+  arrayToOption,
+  ExcludeUnknown,
+  IDOL_NAME,
+  objToOption,
+  omitOption,
+  omitUnknownOption,
+  Option,
+} from '~~/utils/common'
 
 interface Props {
   idol?: IdolData
@@ -233,18 +241,6 @@ const handleRemoveAbility = (skill: SkillInput, abilityIndex: number) => {
 const handleSubmit = () => {
   emit('submit', formatIdol(idol))
 }
-
-type Option<T> = { id: T; label: string }[]
-const objToOption = <K extends string>(obj: Record<K, string>): Option<K> =>
-  Object.entries(obj).map(([id, label]) => ({ id, label })) as Option<K>
-const arrayToOption = (array: string[]): Option<string> => array.map((id) => ({ id, label: id }))
-
-type ExcludeUnknown<T> = Exclude<T, 'unknown'>
-const omitOption =
-  <S>(id: S) =>
-  <T>(opt: Option<T | S>) =>
-    opt.filter((v) => v.id !== id) as Option<T>
-const omitUnknownOption = omitOption('unknown' as const)
 
 const nameOptions: Option<string> = arrayToOption(IDOL_NAME)
 const typeOptions: Option<IdolType> = [

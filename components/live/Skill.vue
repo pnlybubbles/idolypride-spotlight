@@ -13,6 +13,7 @@
   </div>
 </template>
 <script setup lang="ts">
+import { useFumenScaleFactor } from '~~/composable/localstorage-descriptors'
 import { AbilityType, BuffAbilityType, Lane, SkillData } from '~~/utils/types'
 import { cssBeat, cssBuff } from './helper'
 
@@ -34,8 +35,10 @@ interface Emits {
 
 defineEmits<Emits>()
 
+const [scaleFactor] = useFumenScaleFactor()
+
 const { fail, beat, buff } = toRefs(props)
-const top = computed(() => cssBeat(beat.value))
+const top = computed(() => cssBeat(beat.value, scaleFactor.value))
 const color = computed(() => cssBuff(buff.value))
 
 const showTooltip = ref(false)

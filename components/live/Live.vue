@@ -34,6 +34,7 @@ import { ArrayN } from '~~/utils'
 import isNonNullable from 'is-non-nullable'
 import { AbilityType, BuffAbilityType, IdolData, Lane, LiveData, SkillIndex } from '~~/utils/types'
 import { LANES } from '~~/utils/common'
+import { useFumenScaleFactor } from '~~/composable/localstorage-descriptors'
 
 interface Props {
   live: LiveData
@@ -42,7 +43,7 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const SCALE_FACTOR = 5
+const [scaleFactor] = useFumenScaleFactor()
 const beat = computed(() => props.live.beat)
 const beatGuides = ref<number[]>([])
 type GuideProps = {
@@ -62,7 +63,7 @@ const guides = computed<GuideProps[]>(() => {
     ...beatGuides.value.map((beat) => ({
       type: 'line' as const,
       num: beat,
-      style: { top: `${beat * SCALE_FACTOR}px` },
+      style: { top: `${beat * scaleFactor.value}px` },
     })),
   ].sort((a, b) => a.num - b.num)
   const intervals = lines
@@ -77,7 +78,7 @@ const guides = computed<GuideProps[]>(() => {
     .map(({ interval, prevBeat }) => ({
       type: 'interval' as const,
       num: interval,
-      style: { top: `${(prevBeat - interval / 2) * SCALE_FACTOR}px` },
+      style: { top: `${(prevBeat - interval / 2) * scaleFactor.value}px` },
     }))
   return [...lines, ...intervals]
 })

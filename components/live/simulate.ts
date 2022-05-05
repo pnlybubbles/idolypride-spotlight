@@ -13,7 +13,7 @@ import isNonNullable from 'is-non-nullable'
 import { ArrayN, indexed, PartiallyNonNullable, uid, unreachable } from '~~/utils'
 import { isBuffAbilityType } from '~~/utils/formatter'
 
-type Result = ({
+export type Result = ({
   id: string
   // 表示開始位置
   beat: number
