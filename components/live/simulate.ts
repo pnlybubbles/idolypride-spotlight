@@ -10,9 +10,10 @@ import {
   PassiveAbilityData,
 } from '~/utils/types'
 import isNonNullable from 'is-non-nullable'
-import { ArrayN, indexed, PartiallyNonNullable, uid, unreachable } from '~~/utils'
+import { ArrayN, indexed, PartiallyNonNullable, safeParseInt, uid, unreachable } from '~~/utils'
 import { isBuffAbilityType } from '~~/utils/formatter'
 import { produce } from 'immer'
+import { extractBuffTarget } from '../idol-form/helper'
 
 export type Result = ({
   id: string
@@ -273,7 +274,9 @@ type DomainState = {
   availableBuff: BuffResult
 }
 
-function deriveBuffLanes(target: ActiveBuffTarget, selfLane: Lane, idol: ArrayN<IdolData | null, 5>): Lane[] {
+function deriveBuffLanes(suffixedTarget: ActiveBuffTarget, selfLane: Lane, idol: ArrayN<IdolData | null, 5>): Lane[] {
+  const { target, targetSuffix } = extractBuffTarget(suffixedTarget)
+  const suffix = safeParseInt(targetSuffix)
   switch (target) {
     case 'all':
       return [0, 1, 2, 3, 4]
@@ -281,19 +284,34 @@ function deriveBuffLanes(target: ActiveBuffTarget, selfLane: Lane, idol: ArrayN<
       return [selfLane]
     case 'center':
       return [2]
-    case 'scorer-1': {
+    case 'scorer': {
       const candidate = indexed(idol)
         .filter(([v]) => v?.role === 'scorer')
         .map(second)
         .sort(comparebyCenter)
-      return [candidate[0]].filter(isNonNullable)
+      return candidate.slice(0, suffix)
     }
-    case 'scorer-2': {
+    case 'vocal':
+    case 'visual':
+    case 'dance':
+    case 'high-vocal':
+    case 'high-visual':
+    case 'high-dance': {
+      // ボーカルが高い2人などの実際のステータスは出せないので、ボーカル2人と同じように中央からソートした順にする
+      // TODO: 注意書き
+      const transformedTarget =
+        target === 'high-vocal'
+          ? 'vocal'
+          : target === 'high-visual'
+          ? 'visual'
+          : target === 'high-dance'
+          ? 'dance'
+          : target
       const candidate = indexed(idol)
-        .filter(([v]) => v?.role === 'scorer')
+        .filter(([v]) => v?.type === transformedTarget)
         .map(second)
         .sort(comparebyCenter)
-      return [candidate[0], candidate[1]].filter(isNonNullable)
+      return candidate.slice(0, suffix)
     }
     default:
       return []
