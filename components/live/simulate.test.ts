@@ -477,3 +477,63 @@ test('スコアアップ状態の時にPスキルが発動する', () => {
     ]).result
   ).toStrictEqual(expected)
 })
+
+test('誰かがテンションアップ状態の時にPスキルが発動する', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 5,
+      buff: 'tension',
+      lane: 0,
+      index: 0,
+      fail: false,
+      activated: [],
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 5,
+      buff: 'tension',
+      lane: 2,
+      affected: false,
+      amount: 4,
+      span: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 5,
+      buff: 'dance',
+      lane: 0,
+      index: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 5,
+      buff: 'dance',
+      lane: 2,
+      affected: false,
+      amount: 4,
+      span: 1,
+    },
+  ]
+  expect(
+    simulate(mockLive({ a: [[5], [], [], [], []] }), [
+      mockIdol({
+        preset: 'a_p_p',
+        a1: mockAbility({ type: 'tension', target: 'center' }),
+        p1: mockAbility({ type: 'dance', target: 'center', condition: { type: 'anyone-tension-up' } }),
+      }),
+      null,
+      null,
+      null,
+      null,
+    ]).result
+  ).toStrictEqual(expected)
+})

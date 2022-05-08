@@ -516,7 +516,7 @@ const deriveTriggeredAbilityWithCondition = (
     availableBuff,
     currentBeat,
   }: Pick<DomainState, 'aState' | 'spState' | 'currentBeat' | 'availableBuff'>
-) => {
+): { triggeredLane: Lane | null; ability: PassiveAbilityData } | null => {
   switch (ability.condition.type) {
     case 'none': {
       // 無条件
@@ -541,16 +541,20 @@ const deriveTriggeredAbilityWithCondition = (
     }
     case 'score-up': {
       // 自身がスコアアップ状態の時
-      const hit = availableBuff.find((v) => v.lane === lane && v.buff === 'score')
-      if (hit !== undefined) {
-        return { triggeredLane: null, ability }
-      }
-      return null
+      return isBuffedFor(availableBuff, 'score', lane) ? { triggeredLane: null, ability } : null
+    }
+    case 'anyone-tension-up': {
+      // 誰かがテンションアップ状態の時
+      const hit = isBuffedFor(availableBuff, 'tension')
+      return hit ? { triggeredLane: hit.lane, ability } : null
     }
     default:
       return null
   }
 }
+
+const isBuffedFor = (availableBuff: BuffResult, buff: AbilityType, lane?: Lane) =>
+  availableBuff.find((v) => (lane === undefined || v.lane === lane) && v.buff === buff)
 
 const extractAvailableBuffResult = (result: Result, { currentBeat }: Pick<DomainState, 'currentBeat'>) =>
   result.filter(isType('buff')).filter(
