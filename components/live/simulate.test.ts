@@ -73,9 +73,9 @@ const mockAbility = ({
   condition?: AbilityCondition
   span?: number
   target?: PassiveBuffTarget
-  type: AbilityType | 'score'
+  type: AbilityType | 'get-score'
 }): AbilityData =>
-  type === 'score'
+  type === 'get-score'
     ? {
         div: 'score',
         amount: 1000,
