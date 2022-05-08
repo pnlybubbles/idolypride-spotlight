@@ -24,14 +24,14 @@ import { buffAbilityTypeLabel } from '~~/utils/common'
 
 interface Props {
   skill: SkillData | undefined
-  activated: { type: BuffAbilityType; amount: number }[] | undefined
+  activated?: { type: BuffAbilityType; amount: number }[]
   position?: 'left' | 'right'
 }
-const props = withDefaults(defineProps<Props>(), { position: 'left' })
+const props = withDefaults(defineProps<Props>(), { position: 'left', activated: () => [] })
 
 // 同じバフが2重でかかったりするので集計する
 const aggregatedActivated = computed(() =>
-  (props.activated ?? []).reduce(
+  props.activated.reduce(
     (acc, v) => ({ ...acc, [v.type]: (acc[v.type] ?? 0) + v.amount }),
     {} as { [key in BuffAbilityType]?: number }
   )

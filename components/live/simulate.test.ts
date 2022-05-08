@@ -128,13 +128,73 @@ test('Aスキルが発動する', () => {
       beat: 1,
       buff: 'unknown',
       lane: 0,
-      index: 1,
+      index: 0,
       fail: false,
       activated: [],
     },
   ]
   expect(
-    simulate(mockLive({ a: [[1], [], [], [], []] }), [mockIdol({ preset: 'sp_a_a' }), null, null, null, null]).result
+    simulate(mockLive({ a: [[1], [], [], [], []] }), [mockIdol({ preset: 'a_p_p' }), null, null, null, null]).result
+  ).toStrictEqual(expected)
+})
+
+test('CT中の場合はAスキルが失敗する', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 1,
+      buff: 'unknown',
+      lane: 0,
+      index: 0,
+      fail: false,
+      activated: [],
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 5,
+      buff: 'unknown',
+      lane: 0,
+      index: undefined,
+      fail: true,
+      activated: [],
+    },
+  ]
+  expect(
+    simulate(mockLive({ a: [[1, 5], [], [], [], []] }), [mockIdol({ preset: 'a_p_p' }), null, null, null, null]).result
+  ).toStrictEqual(expected)
+})
+
+test('CT中の場合は2番目のAスキルが発動する', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 1,
+      buff: 'unknown',
+      lane: 0,
+      index: 1,
+      fail: false,
+      activated: [],
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 5,
+      buff: 'unknown',
+      lane: 0,
+      index: 2,
+      fail: false,
+      activated: [],
+    },
+  ]
+  expect(
+    simulate(mockLive({ a: [[1, 5], [], [], [], []] }), [mockIdol({ preset: 'sp_a_a' }), null, null, null, null]).result
   ).toStrictEqual(expected)
 })
 
@@ -154,6 +214,25 @@ test('SPスキルが発動する', () => {
   ]
   expect(
     simulate(mockLive({ sp: [[1], [], [], [], []] }), [mockIdol({ preset: 'sp_a_a' }), null, null, null, null]).result
+  ).toStrictEqual(expected)
+})
+
+test('SPを持っていない場合には失敗する', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'sp',
+      beat: 1,
+      buff: 'unknown',
+      lane: 0,
+      index: undefined,
+      fail: true,
+      activated: [],
+    },
+  ]
+  expect(
+    simulate(mockLive({ sp: [[1], [], [], [], []] }), [mockIdol({ preset: 'a_p_p' }), null, null, null, null]).result
   ).toStrictEqual(expected)
 })
 

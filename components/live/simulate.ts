@@ -73,73 +73,140 @@ export function simulate(live: LiveData, idols: Idols) {
     produce((draft, currentBeat) => {
       //
       // 1パス目
-      // このビートで発動しているスキルを導出して状態(State)を更新する
+      // このビートで発動しているPスキルの判定
       //
 
-      const domain = { live, idols, state: draft.state, currentBeat }
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        const domain = { live, idols, state: draft.state, currentBeat }
 
-      // CT中のスキルを絞り込む
-      const ctState = extractCtState(domain)
+        // CT中のスキルを絞り込む
+        const ctState = extractCtState(domain)
 
-      // Aスキルの発動チェック
-      const aState = deriveAState({ ...domain, ctState })
+        // Pスキルの発動チェック
+        const pState = derivePState({ ...domain, ctState, aState: [], spState: [] })
 
-      const aResult = aState.map(({ lane, skill }) => ({
-        type: 'a' as const,
-        buff: skill?.ability.map((v) => (v.div === 'buff' ? v : null)).filter(isNonNullable)[0]?.type ?? 'unknown',
-        lane,
-        fail: skill === null,
-        index: skill?.index,
-      }))
+        const pResult = pState.map(({ lane, skill }) => ({
+          type: 'p' as const,
+          // とりあえず1個目の効果を優先
+          buff: skill.ability.map((v) => (v.div === 'buff' ? v : null)).filter(isNonNullable)[0]?.type ?? 'unknown',
+          lane,
+          index: skill.index,
+          beat: currentBeat,
+          id: uid(),
+        }))
 
-      // Aスキルによるバフ
-      const aBuffResult = deriveNaiveBuffResult(aState, domain)
+        // Pスキルによるバフ
+        const pBuffResult = derivePBuffResult({ pState, ...domain })
 
-      // SPスキルの発動チェック
-      const spState = deriveSpState(domain)
+        // 更新処理
+        const currentResult = [...pResult, ...pBuffResult.map((v) => ({ ...v, affected: false }))]
 
-      const spResult = spState.map(({ lane, skill }) => ({
-        type: 'sp' as const,
-        buff: skill?.ability.map((v) => (v.div === 'buff' ? v : null)).filter(isNonNullable)[0]?.type ?? 'unknown',
-        lane,
-        fail: skill === null,
-        index: skill?.index,
-      }))
+        draft.result.push(...currentResult)
+        draft.state.push(...pState)
 
-      // SPスキルによるバフ
-      const spBuffResult = deriveNaiveBuffResult(spState, domain)
-
-      // Pスキルの発動チェック
-      const pState = derivePState({ ...domain, ctState, aState, spState })
-
-      const pResult = pState.map(({ lane, skill }) => ({
-        type: 'p' as const,
-        // とりあえず1個目の効果を優先
-        buff: skill.ability.map((v) => (v.div === 'buff' ? v : null)).filter(isNonNullable)[0]?.type ?? 'unknown',
-        lane,
-        index: skill.index,
-      }))
-
-      // Pスキルによるバフ
-      const pBuffResult = derivePBuffResult({ pState, ...domain })
-
-      const buffResult = [...aBuffResult, ...spBuffResult, ...pBuffResult].map((v) => ({
-        ...v,
-        affected: false,
-      }))
-      const currentResult = [
-        ...[...aResult, ...spResult].map((v) => ({ ...v, activated: [] })),
-        ...pResult,
-        ...buffResult,
-      ].map((v) => ({
-        ...v,
-        beat: currentBeat,
-        id: uid(),
-      }))
-      const tmpResult = [...draft.result, ...currentResult]
+        // すべてのトリガが発動しきったら1パス目終了
+        if (pState.length === 0) {
+          break
+        }
+      }
 
       //
       // 2パス目
+      // A,SPスキルの発動チェック
+      //
+      let aState: AState
+      let spState: SpState
+      {
+        const domain = { live, idols, state: draft.state, currentBeat }
+
+        // CT中のスキルを絞り込む
+        const ctState = extractCtState(domain)
+
+        // Aスキルの発動チェック
+        aState = deriveAState({ ...domain, ctState })
+
+        const aResult = aState.map(({ lane, skill }) => ({
+          type: 'a' as const,
+          buff: skill?.ability.map((v) => (v.div === 'buff' ? v : null)).filter(isNonNullable)[0]?.type ?? 'unknown',
+          lane,
+          fail: skill === null,
+          index: skill?.index,
+          beat: currentBeat,
+          id: uid(),
+        }))
+
+        // Aスキルによるバフ
+        const aBuffResult = deriveNaiveBuffResult(aState, domain)
+
+        // SPスキルの発動チェック
+        spState = deriveSpState(domain)
+
+        const spResult = spState.map(({ lane, skill }) => ({
+          type: 'sp' as const,
+          buff: skill?.ability.map((v) => (v.div === 'buff' ? v : null)).filter(isNonNullable)[0]?.type ?? 'unknown',
+          lane,
+          fail: skill === null,
+          index: skill?.index,
+          beat: currentBeat,
+          id: uid(),
+        }))
+
+        // SPスキルによるバフ
+        const spBuffResult = deriveNaiveBuffResult(spState, domain)
+
+        // 更新処理
+        const currentResult = [
+          ...[...aResult, ...spResult].map((v) => ({ ...v, activated: [] })),
+          ...[...aBuffResult, ...spBuffResult].map((v) => ({ ...v, affected: false })),
+        ]
+
+        draft.result.push(...currentResult)
+        draft.state.push(...aState, ...spState)
+      }
+
+      //
+      // 3パス目
+      // A,SPのバフをトリガとしたPスキルの発動チェック
+      //
+
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        const domain = { live, idols, state: draft.state, currentBeat }
+
+        // CT中のスキルを絞り込む
+        const ctState = extractCtState(domain)
+
+        // Pスキルの発動チェック
+        const pState = derivePState({ ...domain, ctState, aState, spState })
+
+        const pResult = pState.map(({ lane, skill }) => ({
+          type: 'p' as const,
+          // とりあえず1個目の効果を優先
+          buff: skill.ability.map((v) => (v.div === 'buff' ? v : null)).filter(isNonNullable)[0]?.type ?? 'unknown',
+          lane,
+          index: skill.index,
+          beat: currentBeat,
+          id: uid(),
+        }))
+
+        // Pスキルによるバフ
+        const pBuffResult = derivePBuffResult({ pState, ...domain })
+
+        // 更新処理
+        const currentResult = [...pResult, ...pBuffResult.map((v) => ({ ...v, affected: false }))]
+
+        draft.result.push(...currentResult)
+        draft.state.push(...pState)
+
+        // すべてのトリガが発動しきったら1パス目終了
+        if (pState.length === 0) {
+          break
+        }
+      }
+
+      //
+      // 4パス目
       // このビートで変化した状態を含めて、過去から現在までに発生したバフの影響を導出する
       //
 
@@ -149,7 +216,7 @@ export function simulate(live: LiveData, idols: Idols) {
       // - スコア獲得スキルを持たないSP,Aスキルは存在しない前提
 
       // 現在のビートに効いている過去も含めたすべてのバフを取得
-      const availableBuffs = tmpResult.filter(isType('buff')).filter(
+      const availableBuffs = draft.result.filter(isType('buff')).filter(
         (v) =>
           // スキルが発動したビートからバフがかかる
           // バフがかかる最後のビートは、発動ビート + 持続ビート数 - 1
@@ -157,28 +224,30 @@ export function simulate(live: LiveData, idols: Idols) {
       )
       // TODO: Pのスコア獲得スキル対応
       // スコア獲得スキルが発動したレーン
-      const scoredLanes = [...aState, ...spState].map((v) => v.lane)
+      const scoredLanes = draft.state
+        .filter((v) => v.beat === currentBeat && (v.type === 'sp' || v.type === 'a'))
+        .map((v) => v.lane)
       // affectedを適用する
-      const affectedAppliedResult = availableBuffs
-        .filter((v) => scoredLanes.includes(v.lane))
-        .map((v) => ({ ...v, affected: true }))
+      for (const v of availableBuffs) {
+        if (!scoredLanes.includes(v.lane)) {
+          continue
+        }
+        v.affected = true
+      }
 
       // TODO: Pのスコア獲得スキル対応
       // このビートで発動したスコア獲得スキルに効いているバフを反映する
-      const scoredResult = [...currentResult.filter(isType('a')), ...currentResult.filter(isType('sp'))]
-      const activatedAppliedResult = scoredResult.map((v) => ({
-        ...v,
-        activated: availableBuffs
+      const resultInCurrrentBeat = draft.result.filter((v) => v.beat === currentBeat)
+      for (const v of resultInCurrrentBeat) {
+        if (v.type !== 'a' && v.type !== 'sp') {
+          continue
+        }
+        v.activated = availableBuffs
           .filter((w) => w.lane === v.lane)
           // スコアスキルに影響するのは持続効果のみなのでBuffAbilityに絞る
           .map((w) => (isBuffAbilityType(w.buff) ? { type: w.buff, amount: w.amount } : null))
-          .filter(isNonNullable),
-      }))
-
-      const newResult = overrideArray(overrideArray(tmpResult, affectedAppliedResult), activatedAppliedResult)
-
-      draft.result = newResult
-      draft.state.push(...aState, ...spState, ...pState)
+          .filter(isNonNullable)
+      }
     }),
     { result: [], state: [] }
   )
@@ -241,6 +310,8 @@ const deriveNaiveBuffResult = (
         lane,
         span: clampSpan(ability.span, live.beat, currentBeat),
         amount: ability.amount,
+        beat: currentBeat,
+        id: uid(),
       }))
     })
   })
@@ -277,6 +348,8 @@ const derivePBuffResult = ({
           lane,
           span: clampSpan(ability.span, live.beat, currentBeat),
           amount: ability.amount,
+          beat: currentBeat,
+          id: uid(),
         }))
       })
   })
@@ -336,7 +409,7 @@ const extractCtState = ({ state, currentBeat }: Pick<DomainState, 'state' | 'cur
 
 type AState = Extract<State[number], { type: 'a' }>[]
 
-const deriveAState = (domain: Pick<DomainState, 'live' | 'idols' | 'currentBeat' | 'state' | 'ctState'>): AState => {
+const deriveAState = (domain: Pick<DomainState, 'live' | 'idols' | 'currentBeat' | 'ctState'>): AState => {
   const { live, idols, currentBeat, ctState } = domain
 
   return indexed(live.a)
@@ -487,11 +560,3 @@ function second<T>([, value]: readonly [unknown, T]) {
 function comparebyCenter(a: number, b: number) {
   return Math.abs(2.1 - a) - Math.abs(2.1 - b)
 }
-
-/**
- * idを含む配列をidのユニーク性を保ちながらマージする (順序保証はされない)
- */
-const overrideArray = <T extends { id: string }, S extends { id: string }>(origin: T[], override: S[]) => [
-  ...origin.filter((v) => !override.map((v) => v.id).includes(v.id)),
-  ...override,
-]

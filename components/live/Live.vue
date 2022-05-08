@@ -30,7 +30,7 @@
 </template>
 <script setup lang="ts">
 import { isType, simulate } from './simulate'
-import { ArrayN } from '~~/utils'
+import { ArrayN, mapArrayN } from '~~/utils'
 import isNonNullable from 'is-non-nullable'
 import { AbilityType, BuffAbilityType, IdolData, Lane, LiveData, SkillIndex } from '~~/utils/types'
 import { LANES } from '~~/utils/common'
@@ -95,7 +95,14 @@ const updateGuide = (beat: number) => {
 const getSkill = (lane: Lane, skillIndex: SkillIndex | undefined) =>
   props.idols[lane]?.skills.find((v) => v.index === skillIndex)
 
-const simulated = computed(() => simulate(props.live, props.idols))
+const simulated = computed(() =>
+  simulate(
+    // immerのProxyとvueのProxyで干渉するので、事前の生オブジェクトに戻す
+    toRaw(props.live),
+    // idolsの各インデックスへの書き込みがトリガになって再計算が走るように、リアクティブな状態で各インデックスへアクセスする
+    mapArrayN(props.idols, (v) => toRaw(v))
+  )
+)
 
 type Item = {
   id: string
