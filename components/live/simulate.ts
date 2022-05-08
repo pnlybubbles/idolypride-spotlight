@@ -67,7 +67,12 @@ type State = ({
 type Idols = ArrayN<IdolData | null, 5>
 
 export function simulate(live: LiveData, idols: Idols) {
-  const BEATS = new Array(live.beat).fill(0).map((_, i) => i + 1)
+  // 無条件のPスキルは0ビート目で発動扱いになるので、実質的に0ビート目を追加で処理する
+  // 無条件PスキルCT50,持続20ビートの場合:
+  // - 1ビート目通過後に残りCT49表示
+  // - 50ビート目に2回目が発動
+  // - 0ビート目発動扱いで19ビート目までバフ持続
+  const BEATS = new Array(live.beat + 1).fill(0).map((_, i) => i)
   // 1ビートづつシミュレーションしていく
   return BEATS.reduce<{ result: Result; state: State }>(
     produce((draft, currentBeat) => {
