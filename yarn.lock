@@ -7408,6 +7408,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"immer@npm:^9.0.12":
+  version: 9.0.12
+  resolution: "immer@npm:9.0.12"
+  checksum: bcbec6d76dac65e49068eb67ece4d407116e62b8cde3126aa89c801e408f5047763ba0aeb62f1938c1aa704bb6612f1d8302bb2a86fa1fc60fcc12d8b25dc895
+  languageName: node
+  linkType: hard
+
 "immutable@npm:^4.0.0":
   version: 4.0.0
   resolution: "immutable@npm:4.0.0"
@@ -11826,6 +11833,7 @@ __metadata:
     eslint-config-prettier: ^8.5.0
     eslint-plugin-vue: ^8.6.0
     graphql: ^16.3.0
+    immer: ^9.0.12
     is-non-nullable: ^1.0.2
     jest: ^28.0.3
     npm-run-all: ^4.1.5

@@ -12,6 +12,7 @@ import {
 import isNonNullable from 'is-non-nullable'
 import { ArrayN, indexed, PartiallyNonNullable, uid, unreachable } from '~~/utils'
 import { isBuffAbilityType } from '~~/utils/formatter'
+import { produce } from 'immer'
 
 export type Result = ({
   id: string
@@ -69,13 +70,13 @@ export function simulate(live: LiveData, idols: Idols) {
   const BEATS = new Array(live.beat).fill(0).map((_, i) => i + 1)
   // 1ビートづつシミュレーションしていく
   return BEATS.reduce<{ result: Result; state: State }>(
-    ({ result, state }, currentBeat) => {
+    produce((draft, currentBeat) => {
       //
       // 1パス目
       // このビートで発動しているスキルを導出して状態(State)を更新する
       //
 
-      const domain = { live, idols, state, currentBeat }
+      const domain = { live, idols, state: draft.state, currentBeat }
 
       // CT中のスキルを絞り込む
       const ctState = extractCtState(domain)
@@ -135,7 +136,7 @@ export function simulate(live: LiveData, idols: Idols) {
         beat: currentBeat,
         id: uid(),
       }))
-      const tmpResult = [...result, ...currentResult]
+      const tmpResult = [...draft.result, ...currentResult]
 
       //
       // 2パス目
@@ -176,11 +177,9 @@ export function simulate(live: LiveData, idols: Idols) {
 
       const newResult = overrideArray(overrideArray(tmpResult, affectedAppliedResult), activatedAppliedResult)
 
-      return {
-        result: newResult,
-        state: [...state, ...aState, ...spState, ...pState],
-      }
-    },
+      draft.result = newResult
+      draft.state.push(...aState, ...spState, ...pState)
+    }),
     { result: [], state: [] }
   )
 }
