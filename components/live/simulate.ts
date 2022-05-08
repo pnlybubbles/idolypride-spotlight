@@ -44,6 +44,8 @@ export type Result = ({
     }
 ))[]
 
+type BuffResult = Extract<Result[number], { type: 'buff' }>[]
+
 // 発生したスキルを記録する
 type State = ({
   lane: Lane // スキルが発生したレーン
@@ -88,8 +90,11 @@ export function simulate(live: LiveData, idols: Idols) {
         // CT中のスキルを絞り込む
         const ctState = extractCtState(domain)
 
+        // 現在のビートに効いている過去も含めたすべてのバフを取得
+        const availableBuff = extractAvailableBuffResult(draft.result, domain)
+
         // Pスキルの発動チェック
-        const pState = derivePState({ ...domain, ctState, aState: [], spState: [] })
+        const pState = derivePState({ ...domain, ctState, aState: [], spState: [], availableBuff })
 
         const pResult = pState.map(({ lane, skill }) => ({
           type: 'p' as const,
@@ -182,8 +187,11 @@ export function simulate(live: LiveData, idols: Idols) {
         // CT中のスキルを絞り込む
         const ctState = extractCtState(domain)
 
+        // 現在のビートに効いている過去も含めたすべてのバフを取得
+        const availableBuff = extractAvailableBuffResult(draft.result, domain)
+
         // Pスキルの発動チェック
-        const pState = derivePState({ ...domain, ctState, aState, spState })
+        const pState = derivePState({ ...domain, ctState, aState, spState, availableBuff })
 
         const pResult = pState.map(({ lane, skill }) => ({
           type: 'p' as const,
@@ -221,19 +229,14 @@ export function simulate(live: LiveData, idols: Idols) {
       // - スコア獲得スキルを持たないSP,Aスキルは存在しない前提
 
       // 現在のビートに効いている過去も含めたすべてのバフを取得
-      const availableBuffs = draft.result.filter(isType('buff')).filter(
-        (v) =>
-          // スキルが発動したビートからバフがかかる
-          // バフがかかる最後のビートは、発動ビート + 持続ビート数 - 1
-          currentBeat >= v.beat && currentBeat <= v.beat + v.span - 1
-      )
+      const availableBuff = extractAvailableBuffResult(draft.result, { currentBeat })
       // TODO: Pのスコア獲得スキル対応
       // スコア獲得スキルが発動したレーン
       const scoredLanes = draft.state
         .filter((v) => v.beat === currentBeat && (v.type === 'sp' || v.type === 'a'))
         .map((v) => v.lane)
       // affectedを適用する
-      for (const v of availableBuffs) {
+      for (const v of availableBuff) {
         if (!scoredLanes.includes(v.lane)) {
           continue
         }
@@ -247,7 +250,7 @@ export function simulate(live: LiveData, idols: Idols) {
         if (v.type !== 'a' && v.type !== 'sp') {
           continue
         }
-        v.activated = availableBuffs
+        v.activated = availableBuff
           .filter((w) => w.lane === v.lane)
           // スコアスキルに影響するのは持続効果のみなのでBuffAbilityに絞る
           .map((w) => (isBuffAbilityType(w.buff) ? { type: w.buff, amount: w.amount } : null))
@@ -267,6 +270,7 @@ type DomainState = {
   spState: SpState
   pState: PState
   currentBeat: number
+  availableBuff: BuffResult
 }
 
 function deriveBuffLanes(target: ActiveBuffTarget, selfLane: Lane, idol: ArrayN<IdolData | null, 5>): Lane[] {
@@ -468,7 +472,7 @@ const deriveSpState = (domain: Pick<DomainState, 'live' | 'idols' | 'currentBeat
 type PState = Extract<State[number], { type: 'p' }>[]
 
 const derivePState = (
-  domain: Pick<DomainState, 'idols' | 'currentBeat' | 'ctState' | 'aState' | 'spState'>
+  domain: Pick<DomainState, 'idols' | 'currentBeat' | 'ctState' | 'aState' | 'spState' | 'availableBuff'>
 ): PState => {
   const { idols, currentBeat, ctState } = domain
   return indexed(idols)
@@ -483,7 +487,7 @@ const derivePState = (
       return canTriggerSkills
         .map((skill) => {
           const triggeredAbility = skill.ability
-            .map((ability) => deriveTriggeredAbilityWithCondition(ability, domain))
+            .map((ability) => deriveTriggeredAbilityWithCondition(ability, lane, domain))
             .filter(isNonNullable)
           if (triggeredAbility.length === 0) {
             return null
@@ -505,7 +509,13 @@ const derivePState = (
 
 const deriveTriggeredAbilityWithCondition = (
   ability: PassiveAbilityData,
-  { spState, aState, currentBeat }: Pick<DomainState, 'aState' | 'spState' | 'currentBeat'>
+  lane: Lane,
+  {
+    spState,
+    aState,
+    availableBuff,
+    currentBeat,
+  }: Pick<DomainState, 'aState' | 'spState' | 'currentBeat' | 'availableBuff'>
 ) => {
   switch (ability.condition.type) {
     case 'none': {
@@ -530,13 +540,25 @@ const deriveTriggeredAbilityWithCondition = (
       return null
     }
     case 'score-up': {
-      // スコアアップ状態の時
+      // 自身がスコアアップ状態の時
+      const hit = availableBuff.find((v) => v.lane === lane && v.buff === 'score')
+      if (hit !== undefined) {
+        return { triggeredLane: null, ability }
+      }
       return null
     }
     default:
       return null
   }
 }
+
+const extractAvailableBuffResult = (result: Result, { currentBeat }: Pick<DomainState, 'currentBeat'>) =>
+  result.filter(isType('buff')).filter(
+    (v) =>
+      // スキルが発動したビートからバフがかかる
+      // バフがかかる最後のビートは、発動ビート + 持続ビート数 - 1
+      currentBeat >= v.beat && currentBeat <= v.beat + v.span - 1
+  )
 
 const appendBeat =
   (currentBeat: number) =>

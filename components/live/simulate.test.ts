@@ -414,3 +414,66 @@ test('Aスキル発動前の条件でPスキルが発動する', () => {
     ]).result
   ).toStrictEqual(expected)
 })
+
+test('スコアアップ状態の時にPスキルが発動する', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 5,
+      buff: 'score',
+      lane: 0,
+      index: 0,
+      fail: false,
+      activated: [
+        { type: 'score', amount: 4 },
+        { type: 'vocal', amount: 4 },
+      ],
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 5,
+      buff: 'score',
+      lane: 0,
+      affected: true,
+      amount: 4,
+      span: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 5,
+      buff: 'vocal',
+      lane: 0,
+      index: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 5,
+      buff: 'vocal',
+      lane: 0,
+      affected: true,
+      amount: 4,
+      span: 1,
+    },
+  ]
+  expect(
+    simulate(mockLive({ a: [[5], [], [], [], []] }), [
+      mockIdol({
+        preset: 'a_p_p',
+        a1: mockAbility({ type: 'score', target: 'self' }),
+        p1: mockAbility({ type: 'vocal', target: 'self', condition: { type: 'score-up' } }),
+      }),
+      null,
+      null,
+      null,
+      null,
+    ]).result
+  ).toStrictEqual(expected)
+})
