@@ -125,6 +125,7 @@ useFormComponent(computed(() => ({ error: requiredError.value || validationError
 .input {
   @include round-corner;
   @include clickable;
+  user-select: auto;
   border: 0;
   background-color: $surface1;
   padding: 0 12px;
