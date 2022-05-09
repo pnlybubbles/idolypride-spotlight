@@ -1,6 +1,10 @@
 <template>
   <div class="skill-text">
     <div v-if="withCt && skill.type !== 'sp'" class="ability">CT{{ skill.ct }}</div>
+    <div v-if="skill.type === 'p'" class="ability">
+      <font-awesome-icon icon="flag"></font-awesome-icon>
+      <div>{{ skillTriggerTypeLabel(skill.trigger, internalLabel) }}</div>
+    </div>
     <div v-for="ability in sortAbility(skill.ability)" :key="ability.id" class="ability">
       <template v-if="ability.div === 'score'">
         <RoleIcon role="scorer"></RoleIcon>
@@ -37,6 +41,7 @@ import {
   buffAbilityTypeLabel,
   actionAbilityTypeLabel,
   abilityTargetLabel,
+  skillTriggerTypeLabel,
 } from '~~/utils/common'
 
 interface Props {

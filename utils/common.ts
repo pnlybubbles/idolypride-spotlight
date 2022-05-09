@@ -9,8 +9,17 @@ import {
   BUFF_TARGET_WITHOUT_SUFFIX,
   BUFF_TARGET_WITH_SUFFIX,
   isBuffTargetWithoutSuffix,
+  SKILL_TRIGGER_WITHOUT_VALUE,
+  SKILL_TRIGGER_WITH_VALUE,
 } from '~~/utils/formatter'
-import { AbilityCondition, AbilityEnhance, ActionAbilityType, BuffAbilityType, PassiveBuffTarget } from '~~/utils/types'
+import {
+  AbilityCondition,
+  AbilityEnhance,
+  ActionAbilityType,
+  BuffAbilityType,
+  PassiveBuffTarget,
+  SkillTrigger,
+} from '~~/utils/types'
 
 export const LANES = [0, 1, 2, 3, 4] as const
 export const SKILLS = [0, 1, 2] as const
@@ -125,6 +134,12 @@ export const abilityConditionTypeLabel = (condition: AbilityCondition, internal:
     : 'amount' in condition
     ? ABILITY_CONDITION_WITH_VALUE[condition.type].replace(/X/, condition.amount.toString())
     : ABILITY_CONDITION_WITHOUT_VALUE[condition.type]
+export const skillTriggerTypeLabel = (trigger: SkillTrigger, internal: boolean) =>
+  internal
+    ? `${trigger.type}${'amount' in trigger ? ` ${trigger.amount}` : ''}`
+    : 'amount' in trigger
+    ? SKILL_TRIGGER_WITH_VALUE[trigger.type].replace(/X/, trigger.amount.toString())
+    : SKILL_TRIGGER_WITHOUT_VALUE[trigger.type]
 
 // 本来なら Listbox.vue にあるべきだが、.vueのインポート問題でココにおいておく
 export type Option<T> = { id: T; label: string }[]
