@@ -83,7 +83,9 @@ const filter = ref<Filter[]>([])
 @import '~~/components/partials/utils.scss';
 
 .idol-select {
-  padding: 8px 0;
+  display: grid;
+  align-content: center;
+  height: 56px;
 }
 
 .not-selected {

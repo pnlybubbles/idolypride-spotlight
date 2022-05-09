@@ -1,5 +1,5 @@
 <template>
-  <Layout>
+  <Layout class="root">
     <template #heading>{{ live?.title ?? 'ライブ' }}</template>
     <div class="idol">
       <div></div>
@@ -53,5 +53,15 @@ useHead(DEFAULT_META)
 @import '~~/components/partials/token.scss';
 .idol {
   @include lane-grid;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: $background1;
+  margin-bottom: 4px;
+}
+
+.root {
+  position: relative;
+  z-index: 0;
 }
 </style>
