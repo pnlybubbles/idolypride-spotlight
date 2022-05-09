@@ -5,7 +5,7 @@ import {
   Idol_Insert_Input,
   Skill_Insert_Input,
 } from '~~/generated/graphql'
-import { defined, IntLike, isKeyInObject, mapArrayN, safeParseInt, unreachable } from '.'
+import { defined, IntLike, isKeyInObject, mapArrayN, omit, safeParseInt, unreachable } from '.'
 import { SKILLS } from './common'
 import {
   AbilityCondition,
@@ -281,10 +281,11 @@ export const isSkillTriggerWithValue = isKeyInObject(SKILL_TRIGGER_WITH_VALUE)
 
 // 値なしのスキルトリガ
 export const SKILL_TRIGGER_WITHOUT_VALUE: Record<SkillTriggerWithoutValue, string> = {
-  ...ABILITY_CONDITION_WITHOUT_VALUE,
+  none: '無条件',
   sp: '誰かがSPスキル発動前',
   a: '誰かがAスキル発動前',
   beat: 'ビート時',
+  ...omit(ABILITY_CONDITION_WITHOUT_VALUE, ['none']),
 }
 export const isSkillTriggerWithoutValue = isKeyInObject(SKILL_TRIGGER_WITHOUT_VALUE)
 
