@@ -3,6 +3,7 @@
 </template>
 <script setup lang="ts">
 import { useFumenScaleFactor } from '~~/composable/localstorage-descriptors'
+import { px } from '~~/utils/common'
 import { AbilityType } from '~~/utils/types'
 import { cssBeat, cssBuff } from './helper'
 
@@ -35,10 +36,9 @@ const { beat, buff, affected, shift, span } = toRefs(props)
 const [scaleFactor] = useFumenScaleFactor()
 const top = computed(() => cssBeat(beat.value, scaleFactor.value))
 const color = computed(() => cssBuff(buff.value))
+const height = computed(() => px((span.value - 1) * scaleFactor.value))
 </script>
 <style lang="scss" scoped>
-@import '~/utils/variables.scss';
-
 $size: 1.5px;
 $shift-scale: 7px;
 
@@ -46,7 +46,7 @@ $shift-scale: 7px;
   position: absolute;
   top: v-bind(top);
   left: calc(50% + v-bind(shift) * $shift-scale);
-  height: calc((v-bind(span) - 1) * $scale-factor);
+  height: v-bind(height);
   width: calc($size * 2);
   transform: translate(-50%, calc($size * -1));
   border-radius: 999999999px;

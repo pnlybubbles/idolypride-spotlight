@@ -3,21 +3,23 @@ import {
   AbilityCondition,
   AbilityData,
   AbilityType,
+  ActiveBuffTarget,
   IdolData,
   LiveData,
+  PassiveAbilityData,
   PassiveBuffTarget,
   SkillData,
-  SkillType,
+  SkillTrigger,
 } from '~~/utils/types'
 import { unreachable } from '~~/utils'
 import { isActionAbilityType, isBuffAbilityType } from '~~/utils/formatter'
 
-const mockLive = ({ sp, a }: { sp?: LiveData['sp']; a?: LiveData['a'] }): LiveData => ({
+const mockLive = ({ sp, a, beat }: { sp?: LiveData['sp']; a?: LiveData['a']; beat?: number }): LiveData => ({
   id: 'mock',
   title: 'MOCK',
   sp: sp ?? [[], [], [], [], []],
   a: a ?? [[], [], [], [], []],
-  beat: Math.max(...[...(sp?.flat() ?? []), ...(a?.flat() ?? []), 1]),
+  beat: Math.max(...[...(sp?.flat() ?? []), ...(a?.flat() ?? []), beat ?? 1]),
   unit: 'UNIT',
 })
 
@@ -28,16 +30,22 @@ const mockIdol = ({
   preset,
   a1,
   p1,
+  p1Trigger,
 }: Partial<Pick<IdolData, 'role' | 'type' | 'skills'>> & {
   preset?: 'sp_a_a' | 'a_p_p'
   a1?: AbilityData
-  p1?: AbilityData
+  p1?: PassiveAbilityData
+  p1Trigger?: SkillTrigger
 }): IdolData => {
   const presetSkills: IdolData['skills'] =
     preset === 'sp_a_a' || preset === undefined
-      ? [mockSkill(0, 'sp', []), mockSkill(1, 'a', a1 ? [a1] : [], 50), mockSkill(2, 'a', [], 50)]
+      ? [mockSPSkill(0, []), mockASkill(1, a1 ? [a1] : [], 50), mockASkill(2, [], 50)]
       : preset === 'a_p_p'
-      ? [mockSkill(0, 'a', a1 ? [a1] : [], 30), mockSkill(1, 'p', p1 ? [p1] : [], 50), mockSkill(2, 'p', [], 50)]
+      ? [
+          mockASkill(0, a1 ? [a1] : [], 30),
+          mockPSkill(1, p1 ? [p1] : [], p1Trigger, 50),
+          mockPSkill(2, [], undefined, 50),
+        ]
       : unreachable(preset)
   return {
     id: 'nagisa',
@@ -50,21 +58,56 @@ const mockIdol = ({
   }
 }
 
-const mockSkill = (index: 0 | 1 | 2, type: SkillType, ability: AbilityData[], ct?: number): SkillData => ({
+const mockSPSkill = (index: 0 | 1 | 2, ability: AbilityData[]): Extract<SkillData, { type: 'sp' }> => ({
   id: `skill_${index}`,
   index,
   level: 1,
-  name: `${type.toUpperCase()} SKILL`,
-  ability,
-  ...(type === 'sp'
-    ? { type }
-    : {
-        type,
-        ct: ct ?? 30,
-      }),
+  name: `SP SKILL`,
+  type: 'sp',
+  ability: ability,
 })
 
-const mockAbility = ({
+const mockASkill = (index: 0 | 1 | 2, ability: AbilityData[], ct?: number): Extract<SkillData, { type: 'a' }> => ({
+  id: `skill_${index}`,
+  index,
+  level: 1,
+  name: `A SKILL`,
+  type: 'a',
+  ability: ability,
+  ct: ct ?? 30,
+})
+
+const mockPSkill = (
+  index: 0 | 1 | 2,
+  ability: PassiveAbilityData[],
+  trigger?: SkillTrigger,
+  ct?: number
+): Extract<SkillData, { type: 'p' }> => ({
+  id: `skill_${index}`,
+  index,
+  level: 1,
+  name: `P SKILL`,
+  type: 'p',
+  ability,
+  ct: ct ?? 30,
+  trigger: trigger ?? { type: 'unknown' },
+})
+
+type MockAbility = {
+  (props: {
+    condition?: AbilityCondition
+    span?: number
+    target: 'triggered'
+    type: AbilityType | 'get-score'
+  }): PassiveAbilityData
+  (props: {
+    condition?: AbilityCondition
+    span?: number
+    target?: ActiveBuffTarget
+    type: AbilityType | 'get-score'
+  }): AbilityData
+}
+const mockAbility: MockAbility = ({
   type,
   condition,
   span,
@@ -73,9 +116,10 @@ const mockAbility = ({
   condition?: AbilityCondition
   span?: number
   target?: PassiveBuffTarget
-  type: AbilityType | 'score'
-}): AbilityData =>
-  type === 'score'
+  type: AbilityType | 'get-score'
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+}): any =>
+  type === 'get-score'
     ? {
         div: 'score',
         amount: 1000,
@@ -91,7 +135,7 @@ const mockAbility = ({
     ? {
         div: 'buff',
         amount: 4,
-        target: target === 'triggered' || target === undefined ? 'all' : target,
+        target: target === undefined ? 'all' : target,
         type,
         condition: condition ?? {
           type: 'none',
@@ -103,7 +147,7 @@ const mockAbility = ({
     ? {
         div: 'action-buff',
         amount: 7,
-        target: target === 'triggered' || target === undefined ? 'all' : target,
+        target: target === undefined ? 'all' : target,
         type,
         condition: condition ?? {
           type: 'none',
@@ -128,13 +172,104 @@ test('Aスキルが発動する', () => {
       beat: 1,
       buff: 'unknown',
       lane: 0,
-      index: 1,
+      index: 0,
       fail: false,
       activated: [],
     },
   ]
   expect(
-    simulate(mockLive({ a: [[1], [], [], [], []] }), [mockIdol({ preset: 'sp_a_a' }), null, null, null, null]).result
+    simulate(mockLive({ a: [[1], [], [], [], []] }), [mockIdol({ preset: 'a_p_p' }), null, null, null, null]).result
+  ).toStrictEqual(expected)
+})
+
+test('CT中の場合はAスキルが失敗する', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 1,
+      buff: 'unknown',
+      lane: 0,
+      index: 0,
+      fail: false,
+      activated: [],
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 5,
+      buff: 'unknown',
+      lane: 0,
+      index: undefined,
+      fail: true,
+      activated: [],
+    },
+  ]
+  expect(
+    simulate(mockLive({ a: [[1, 5], [], [], [], []] }), [mockIdol({ preset: 'a_p_p' }), null, null, null, null]).result
+  ).toStrictEqual(expected)
+})
+
+test('CTピッタリのギャップの場合はAスキルが発動する', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 20,
+      buff: 'unknown',
+      lane: 0,
+      index: 0,
+      fail: false,
+      activated: [],
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 50,
+      buff: 'unknown',
+      lane: 0,
+      index: 0,
+      fail: false,
+      activated: [],
+    },
+  ]
+  expect(
+    simulate(mockLive({ a: [[20, 50], [], [], [], []] }), [mockIdol({ preset: 'a_p_p' }), null, null, null, null])
+      .result
+  ).toStrictEqual(expected)
+})
+
+test('CT中の場合は2番目のAスキルが発動する', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 1,
+      buff: 'unknown',
+      lane: 0,
+      index: 1,
+      fail: false,
+      activated: [],
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 5,
+      buff: 'unknown',
+      lane: 0,
+      index: 2,
+      fail: false,
+      activated: [],
+    },
+  ]
+  expect(
+    simulate(mockLive({ a: [[1, 5], [], [], [], []] }), [mockIdol({ preset: 'sp_a_a' }), null, null, null, null]).result
   ).toStrictEqual(expected)
 })
 
@@ -157,13 +292,32 @@ test('SPスキルが発動する', () => {
   ).toStrictEqual(expected)
 })
 
+test('SPを持っていない場合には失敗する', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'sp',
+      beat: 1,
+      buff: 'unknown',
+      lane: 0,
+      index: undefined,
+      fail: true,
+      activated: [],
+    },
+  ]
+  expect(
+    simulate(mockLive({ sp: [[1], [], [], [], []] }), [mockIdol({ preset: 'a_p_p' }), null, null, null, null]).result
+  ).toStrictEqual(expected)
+})
+
 test('Pスキルが発動する', () => {
   const expected: Result = [
     {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       id: expect.any(String),
       type: 'p',
-      beat: 1,
+      beat: 0,
       buff: 'vocal',
       lane: 0,
       index: 1,
@@ -172,17 +326,241 @@ test('Pスキルが発動する', () => {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       id: expect.any(String),
       type: 'buff',
-      beat: 1,
+      beat: 0,
       buff: 'vocal',
       lane: 0,
+      affected: false,
+      amount: 4,
+      span: 10,
+    },
+  ]
+  expect(
+    simulate(mockLive({ beat: 20 }), [
+      mockIdol({ preset: 'a_p_p', p1: mockAbility({ type: 'vocal', target: 'self' }), p1Trigger: { type: 'none' } }),
+      null,
+      null,
+      null,
+      null,
+    ]).result
+  ).toStrictEqual(expected)
+})
+
+test('無条件の場合、CTが終わった瞬間にPスキルが発動する', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 0,
+      buff: 'vocal',
+      lane: 0,
+      index: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 0,
+      buff: 'vocal',
+      lane: 0,
+      affected: false,
+      amount: 4,
+      span: 10,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 50,
+      buff: 'vocal',
+      lane: 0,
+      index: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 50,
+      buff: 'vocal',
+      lane: 0,
+      affected: false,
+      amount: 4,
+      span: 10,
+    },
+  ]
+  expect(
+    simulate(mockLive({ beat: 70 }), [
+      mockIdol({ preset: 'a_p_p', p1: mockAbility({ type: 'vocal', target: 'self' }), p1Trigger: { type: 'none' } }),
+      null,
+      null,
+      null,
+      null,
+    ]).result
+  ).toStrictEqual(expected)
+})
+
+test('Aスキル発動前の条件でPスキルが発動する', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 5,
+      buff: 'unknown',
+      lane: 1,
+      index: 0,
+      fail: false,
+      activated: [{ type: 'vocal', amount: 4 }],
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 5,
+      buff: 'vocal',
+      lane: 0,
+      index: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 5,
+      buff: 'vocal',
+      lane: 1,
+      affected: true,
+      amount: 4,
+      span: 1,
+    },
+  ]
+  expect(
+    simulate(mockLive({ a: [[], [5], [], [], []] }), [
+      mockIdol({ preset: 'a_p_p', p1: mockAbility({ type: 'vocal', target: 'triggered' }), p1Trigger: { type: 'a' } }),
+      mockIdol({ preset: 'a_p_p', a1: mockAbility({ type: 'get-score' }) }),
+      null,
+      null,
+      null,
+    ]).result
+  ).toStrictEqual(expected)
+})
+
+test('スコアアップ状態の時にPスキルが発動する', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 5,
+      buff: 'score',
+      lane: 0,
+      index: 0,
+      fail: false,
+      activated: [
+        { type: 'score', amount: 4 },
+        { type: 'vocal', amount: 4 },
+      ],
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 5,
+      buff: 'score',
+      lane: 0,
+      affected: true,
+      amount: 4,
+      span: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 5,
+      buff: 'vocal',
+      lane: 0,
+      index: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 5,
+      buff: 'vocal',
+      lane: 0,
+      affected: true,
+      amount: 4,
+      span: 1,
+    },
+  ]
+  expect(
+    simulate(mockLive({ a: [[5], [], [], [], []] }), [
+      mockIdol({
+        preset: 'a_p_p',
+        a1: mockAbility({ type: 'score', target: 'self' }),
+        p1: mockAbility({ type: 'vocal', target: 'self' }),
+        p1Trigger: { type: 'score-up' },
+      }),
+      null,
+      null,
+      null,
+      null,
+    ]).result
+  ).toStrictEqual(expected)
+})
+
+test('誰かがテンションアップ状態の時にPスキルが発動する', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 5,
+      buff: 'tension',
+      lane: 0,
+      index: 0,
+      fail: false,
+      activated: [],
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 5,
+      buff: 'tension',
+      lane: 2,
+      affected: false,
+      amount: 4,
+      span: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 5,
+      buff: 'dance',
+      lane: 0,
+      index: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 5,
+      buff: 'dance',
+      lane: 2,
       affected: false,
       amount: 4,
       span: 1,
     },
   ]
   expect(
-    simulate(mockLive({}), [
-      mockIdol({ preset: 'a_p_p', p1: mockAbility({ type: 'vocal', target: 'self' }) }),
+    simulate(mockLive({ a: [[5], [], [], [], []] }), [
+      mockIdol({
+        preset: 'a_p_p',
+        a1: mockAbility({ type: 'tension', target: 'center' }),
+        p1: mockAbility({ type: 'dance', target: 'center' }),
+        p1Trigger: { type: 'anyone-tension-up' },
+      }),
       null,
       null,
       null,

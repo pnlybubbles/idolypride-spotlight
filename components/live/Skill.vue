@@ -5,11 +5,13 @@
     </Interactive>
     <div v-if="variant !== 'p'" class="beat" :class="variant">{{ beat }}</div>
     <LiveTooltip
+      v-if="activated !== undefined"
       v-show="showTooltip"
       :activated="activated"
       :skill="skill"
       :position="lane === 0 ? 'right' : 'left'"
     ></LiveTooltip>
+    <LiveTooltip v-else v-show="showTooltip" :skill="skill" :position="lane === 0 ? 'right' : 'left'"></LiveTooltip>
   </div>
 </template>
 <script setup lang="ts">

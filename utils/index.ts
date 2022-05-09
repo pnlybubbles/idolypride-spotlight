@@ -97,3 +97,6 @@ export const isUnique = (value: unknown, index: number, array: unknown[]) => arr
 
 export const literal = <T extends string>(literal: string, assertCandidates: readonly T[]): T | undefined =>
   assertCandidates.includes(literal as T) ? (literal as T) : undefined
+
+export const omit = <T extends Record<string, unknown>, S extends keyof T>(object: T, omitKeys: S[]): Omit<T, S> =>
+  Object.fromEntries(Object.entries(object).filter(([key]) => !omitKeys.includes(key as S))) as Omit<T, S>
