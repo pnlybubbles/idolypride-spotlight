@@ -1,13 +1,15 @@
 import { Result, simulate } from './simulate'
 import {
   AbilityCondition,
+  AbilityData,
   AbilityType,
+  ActiveBuffTarget,
   IdolData,
   LiveData,
   PassiveAbilityData,
   PassiveBuffTarget,
   SkillData,
-  SkillType,
+  SkillTrigger,
 } from '~~/utils/types'
 import { unreachable } from '~~/utils'
 import { isActionAbilityType, isBuffAbilityType } from '~~/utils/formatter'
@@ -28,16 +30,22 @@ const mockIdol = ({
   preset,
   a1,
   p1,
+  p1Trigger,
 }: Partial<Pick<IdolData, 'role' | 'type' | 'skills'>> & {
   preset?: 'sp_a_a' | 'a_p_p'
-  a1?: PassiveAbilityData
+  a1?: AbilityData
   p1?: PassiveAbilityData
+  p1Trigger?: SkillTrigger
 }): IdolData => {
   const presetSkills: IdolData['skills'] =
     preset === 'sp_a_a' || preset === undefined
-      ? [mockSkill(0, 'sp', []), mockSkill(1, 'a', a1 ? [a1] : [], 50), mockSkill(2, 'a', [], 50)]
+      ? [mockSPSkill(0, []), mockASkill(1, a1 ? [a1] : [], 50), mockASkill(2, [], 50)]
       : preset === 'a_p_p'
-      ? [mockSkill(0, 'a', a1 ? [a1] : [], 30), mockSkill(1, 'p', p1 ? [p1] : [], 50), mockSkill(2, 'p', [], 50)]
+      ? [
+          mockASkill(0, a1 ? [a1] : [], 30),
+          mockPSkill(1, p1 ? [p1] : [], p1Trigger, 50),
+          mockPSkill(2, [], undefined, 50),
+        ]
       : unreachable(preset)
   return {
     id: 'nagisa',
@@ -50,36 +58,56 @@ const mockIdol = ({
   }
 }
 
-const mockSkill = (index: 0 | 1 | 2, type: SkillType, ability: PassiveAbilityData[], ct?: number): SkillData => ({
+const mockSPSkill = (index: 0 | 1 | 2, ability: AbilityData[]): Extract<SkillData, { type: 'sp' }> => ({
   id: `skill_${index}`,
   index,
   level: 1,
-  name: `${type.toUpperCase()} SKILL`,
-  ...(type === 'sp'
-    ? {
-        type,
-        ability: ability.map((v) =>
-          'target' in v ? { ...v, target: v.target === 'triggered' ? 'all' : v.target } : v
-        ),
-      }
-    : type === 'a'
-    ? {
-        type,
-        ability: ability.map((v) =>
-          'target' in v ? { ...v, target: v.target === 'triggered' ? 'all' : v.target } : v
-        ),
-        ct: ct ?? 30,
-      }
-    : type === 'p'
-    ? {
-        type,
-        ability,
-        ct: ct ?? 30,
-      }
-    : unreachable(type)),
+  name: `SP SKILL`,
+  type: 'sp',
+  ability: ability,
 })
 
-const mockAbility = ({
+const mockASkill = (index: 0 | 1 | 2, ability: AbilityData[], ct?: number): Extract<SkillData, { type: 'a' }> => ({
+  id: `skill_${index}`,
+  index,
+  level: 1,
+  name: `A SKILL`,
+  type: 'a',
+  ability: ability,
+  ct: ct ?? 30,
+})
+
+const mockPSkill = (
+  index: 0 | 1 | 2,
+  ability: PassiveAbilityData[],
+  trigger?: SkillTrigger,
+  ct?: number
+): Extract<SkillData, { type: 'p' }> => ({
+  id: `skill_${index}`,
+  index,
+  level: 1,
+  name: `P SKILL`,
+  type: 'p',
+  ability,
+  ct: ct ?? 30,
+  trigger: trigger ?? { type: 'unknown' },
+})
+
+type MockAbility = {
+  (props: {
+    condition?: AbilityCondition
+    span?: number
+    target: 'triggered'
+    type: AbilityType | 'get-score'
+  }): PassiveAbilityData
+  (props: {
+    condition?: AbilityCondition
+    span?: number
+    target?: ActiveBuffTarget
+    type: AbilityType | 'get-score'
+  }): AbilityData
+}
+const mockAbility: MockAbility = ({
   type,
   condition,
   span,
@@ -89,7 +117,8 @@ const mockAbility = ({
   span?: number
   target?: PassiveBuffTarget
   type: AbilityType | 'get-score'
-}): PassiveAbilityData =>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+}): any =>
   type === 'get-score'
     ? {
         div: 'score',
@@ -307,7 +336,7 @@ test('Pスキルが発動する', () => {
   ]
   expect(
     simulate(mockLive({ beat: 20 }), [
-      mockIdol({ preset: 'a_p_p', p1: mockAbility({ type: 'vocal', target: 'self' }) }),
+      mockIdol({ preset: 'a_p_p', p1: mockAbility({ type: 'vocal', target: 'self' }), p1Trigger: { type: 'none' } }),
       null,
       null,
       null,
@@ -361,7 +390,7 @@ test('無条件の場合、CTが終わった瞬間にPスキルが発動する',
   ]
   expect(
     simulate(mockLive({ beat: 70 }), [
-      mockIdol({ preset: 'a_p_p', p1: mockAbility({ type: 'vocal', target: 'self' }) }),
+      mockIdol({ preset: 'a_p_p', p1: mockAbility({ type: 'vocal', target: 'self' }), p1Trigger: { type: 'none' } }),
       null,
       null,
       null,
@@ -406,7 +435,7 @@ test('Aスキル発動前の条件でPスキルが発動する', () => {
   ]
   expect(
     simulate(mockLive({ a: [[], [5], [], [], []] }), [
-      mockIdol({ preset: 'a_p_p', p1: mockAbility({ type: 'vocal', condition: { type: 'a' }, target: 'triggered' }) }),
+      mockIdol({ preset: 'a_p_p', p1: mockAbility({ type: 'vocal', target: 'triggered' }), p1Trigger: { type: 'a' } }),
       mockIdol({ preset: 'a_p_p', a1: mockAbility({ type: 'get-score' }) }),
       null,
       null,
@@ -468,7 +497,8 @@ test('スコアアップ状態の時にPスキルが発動する', () => {
       mockIdol({
         preset: 'a_p_p',
         a1: mockAbility({ type: 'score', target: 'self' }),
-        p1: mockAbility({ type: 'vocal', target: 'self', condition: { type: 'score-up' } }),
+        p1: mockAbility({ type: 'vocal', target: 'self' }),
+        p1Trigger: { type: 'score-up' },
       }),
       null,
       null,
@@ -528,7 +558,8 @@ test('誰かがテンションアップ状態の時にPスキルが発動する'
       mockIdol({
         preset: 'a_p_p',
         a1: mockAbility({ type: 'tension', target: 'center' }),
-        p1: mockAbility({ type: 'dance', target: 'center', condition: { type: 'anyone-tension-up' } }),
+        p1: mockAbility({ type: 'dance', target: 'center' }),
+        p1Trigger: { type: 'anyone-tension-up' },
       }),
       null,
       null,

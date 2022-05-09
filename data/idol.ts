@@ -35,6 +35,9 @@ export const REI_ICHINOSE: IdolData = {
       type: 'p',
       index: 1,
       level: 1,
+      trigger: {
+        type: 'none',
+      },
       ability: [
         {
           div: 'buff',
@@ -56,6 +59,9 @@ export const REI_ICHINOSE: IdolData = {
       type: 'p',
       index: 2,
       level: 1,
+      trigger: {
+        type: 'critical',
+      },
       ability: [
         {
           div: 'action-buff',
@@ -238,6 +244,9 @@ const aoiNureta: IdolData = {
       type: 'p',
       index: 2,
       level: 1,
+      trigger: {
+        type: 'sp',
+      },
       ability: [
         {
           id: 'a10',

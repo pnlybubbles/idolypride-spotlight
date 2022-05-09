@@ -43,26 +43,25 @@ export type PassiveBuffTarget = ActiveBuffTarget | PassiveOnlyBuffTarget
 export type BuffTargetPrefix = BuffTargetWithoutSuffix | BuffTargetWithSuffix | PassiveOnlyBuffTarget
 
 // condition
-export type AbilityConditionType = Exclude<AbilityCondition, null>['type']
+export type AbilityConditionType = AbilityConditionWithValue | AbilityConditionWithoutValue
+export type AbilityConditionWithValue = 'stamina-greater-than' | `${IfAnyone}stamina-less-than` | 'combo'
+export type AbilityConditionWithoutValue =
+  | 'none'
+  | 'critical'
+  | `${IfAnyone}${IdolType}-up`
+  | `in-${IdolType}-lane`
+  | `${IfAnyone}eye-catch`
+  | `${IfAnyone}tension-up`
+  | `${IfAnyone}critical-up`
+  | `${'score' | 'a-score' | 'sp-score' | 'cmb-score' | 'beat-score'}-up`
+  | 'unknown'
 export type AbilityCondition =
   | {
-      type: 'stamina-greater-than' | `${IfAnyone}stamina-less-than` | 'combo'
+      type: AbilityConditionWithValue
       amount: number
     }
   | {
-      type:
-        | 'none'
-        | 'sp'
-        | 'a'
-        | 'critical'
-        | 'beat'
-        | `${IfAnyone}${IdolType}-up`
-        | `in-${IdolType}-lane`
-        | `${IfAnyone}eye-catch`
-        | `${IfAnyone}tension-up`
-        | `${IfAnyone}critical-up`
-        | `${'score' | 'a-score' | 'sp-score' | 'cmb-score' | 'beat-score'}-up`
-        | 'unknown'
+      type: AbilityConditionWithoutValue
     }
 
 type IfAnyone = 'anyone-' | ''
@@ -156,8 +155,20 @@ export type SkillData = {
       ability: PassiveAbilityData[]
       // ct=0のときはライブ中1回
       ct: number
+      trigger: SkillTrigger
     }
 )
+export type SkillTriggerType = SkillTriggerWithValue | SkillTriggerWithoutValue
+export type SkillTriggerWithValue = AbilityConditionWithValue
+export type SkillTriggerWithoutValue = 'sp' | 'a' | 'beat' | AbilityConditionWithoutValue
+export type SkillTrigger =
+  | {
+      type: SkillTriggerWithValue
+      amount: number
+    }
+  | {
+      type: SkillTriggerWithoutValue
+    }
 
 // idol
 export type IdolRole = 'scorer' | 'buffer' | 'supporter'

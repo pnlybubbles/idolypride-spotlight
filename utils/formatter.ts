@@ -24,6 +24,11 @@ import {
   AbilityEnhance,
   AbilityEnhanceType,
   AbilityConditionType,
+  SkillTrigger,
+  AbilityConditionWithValue,
+  AbilityConditionWithoutValue,
+  SkillTriggerWithValue,
+  SkillTriggerWithoutValue,
 } from './types'
 import { v4 as uuid } from 'uuid'
 
@@ -69,9 +74,19 @@ const deserializeSkill = ({ type, ...rest }: TmpSkill): SkillData => {
           type,
           ability,
           ct: rest.ct ?? 0,
+          trigger: rest.trigger != null ? formatSkillTrigger(rest.trigger, rest.trigger_value) : { type: 'none' },
         }
       : unreachable(type)),
   }
+}
+
+export function formatSkillTrigger(skill: string, value: IntLike): SkillTrigger {
+  if (isSkillTriggerWithValue(skill)) {
+    return { type: skill, amount: safeParseInt(value) }
+  } else if (isSkillTriggerWithoutValue(skill)) {
+    return { type: skill }
+  }
+  return { type: 'unknown' }
 }
 
 type TmpAbility = TmpSkill['abilities'][number]
@@ -224,7 +239,6 @@ const serializeAbility = (v: PassiveAbilityData, upsert: boolean): RequiredSeria
 })
 
 // 値ありの効果条件
-type AbilityConditionWithValue = Extract<AbilityCondition, { amount: unknown }>['type']
 export const ABILITY_CONDITION_WITH_VALUE: Record<AbilityConditionWithValue, string> = {
   combo: 'Xコンボ以上時',
   'stamina-greater-than': 'スタミナX%以上の時',
@@ -234,12 +248,8 @@ export const ABILITY_CONDITION_WITH_VALUE: Record<AbilityConditionWithValue, str
 export const isAbilityConditionWithValue = isKeyInObject(ABILITY_CONDITION_WITH_VALUE)
 
 // 値なしの効果条件
-type AbilityConditionWithoutValue = Exclude<AbilityCondition, { amount: unknown } | null>['type']
 export const ABILITY_CONDITION_WITHOUT_VALUE: Record<AbilityConditionWithoutValue, string> = {
   none: 'なし',
-  sp: '誰かがSPスキル発動前',
-  a: '誰かがAスキル発動前',
-  beat: 'ビート時',
   critical: 'クリティカル発動時',
   'vocal-up': '自身がボーカルアップ時',
   'dance-up': '自身がダンスアップ時',
@@ -264,6 +274,19 @@ export const ABILITY_CONDITION_WITHOUT_VALUE: Record<AbilityConditionWithoutValu
   unknown: '不明',
 }
 export const isAbilityConditionWithoutValue = isKeyInObject(ABILITY_CONDITION_WITHOUT_VALUE)
+
+// 値ありのスキルトリガ
+export const SKILL_TRIGGER_WITH_VALUE: Record<SkillTriggerWithValue, string> = ABILITY_CONDITION_WITH_VALUE
+export const isSkillTriggerWithValue = isKeyInObject(SKILL_TRIGGER_WITH_VALUE)
+
+// 値なしのスキルトリガ
+export const SKILL_TRIGGER_WITHOUT_VALUE: Record<SkillTriggerWithoutValue, string> = {
+  ...ABILITY_CONDITION_WITHOUT_VALUE,
+  sp: '誰かがSPスキル発動前',
+  a: '誰かがAスキル発動前',
+  beat: 'ビート時',
+}
+export const isSkillTriggerWithoutValue = isKeyInObject(SKILL_TRIGGER_WITHOUT_VALUE)
 
 // 持続効果
 export const BUFF_ABILITY_TYPE: Record<BuffAbilityType, string> = {

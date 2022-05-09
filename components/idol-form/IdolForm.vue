@@ -46,6 +46,20 @@
             required
           ></Listbox>
         </Section>
+        <Section v-if="skill.type === 'p'">
+          <template #label>発動トリガー</template>
+          <NoteText>Pスキル発動のきっかけとなるイベント</NoteText>
+          <div class="left-main">
+            <Listbox v-model="skill.trigger" :options="triggerOptions" required></Listbox>
+            <TextField
+              v-if="isSkillTriggerWithValue(skill.trigger)"
+              v-model="skill.triggerValue"
+              placeholder="X"
+              type="number"
+              required
+            ></TextField>
+          </div>
+        </Section>
         <Section v-if="skill.type !== 'sp'">
           <template #label>CT</template>
           <HStack :spacing="8">
@@ -71,14 +85,10 @@
               <template #label>種別</template>
               <Listbox v-model="ability.div" :options="abilityTypeOptions"></Listbox>
             </Section>
-            <Section v-if="!disableCondition(skill.type, ability.div, j)" :gutter="8">
+            <Section v-if="!disableCondition(j)" :gutter="8">
               <template #label>発動条件</template>
               <div class="left-main">
-                <Listbox
-                  v-model="ability.condition"
-                  :options="skill.type === 'p' ? conditionOptionsForP : conditionOptions"
-                  required
-                ></Listbox>
+                <Listbox v-model="ability.condition" :options="conditionOptions" required></Listbox>
                 <TextField
                   v-if="isAbilityConditionWithValue(ability.condition)"
                   v-model="ability.conditionValue"
@@ -95,7 +105,9 @@
                   v-model="ability.target"
                   placeholder="対象"
                   :options="
-                    availableTrigger(ability.condition) ? buffTargetOptionsIncludingTriggered : buffTargetOptions
+                    skill.type === 'p' && availableTrigger(skill.trigger)
+                      ? buffTargetOptionsIncludingTriggered
+                      : buffTargetOptions
                   "
                   required
                 ></Listbox>
@@ -172,6 +184,7 @@ import {
   BuffTargetCount,
   BuffTargetPrefix,
   IdolData,
+  SkillTriggerType,
 } from '~~/utils/types'
 import {
   ABILITY_CONDITION_WITHOUT_VALUE,
@@ -183,6 +196,9 @@ import {
   isAbilityConditionWithValue,
   isAbilityEnhanceWithValue,
   isBuffTargetWithSuffix,
+  isSkillTriggerWithValue,
+  SKILL_TRIGGER_WITHOUT_VALUE,
+  SKILL_TRIGGER_WITH_VALUE,
 } from '~~/utils/formatter'
 import {
   defaultIdolInput,
@@ -279,15 +295,17 @@ const buffTargetSuffixOptions: Option<BuffTargetCount> = [
   { id: '2', label: '2人' },
   { id: '3', label: '3人' },
 ]
-const conditionOptionsForP: Option<ExcludeUnknown<AbilityConditionType>> = [
+const conditionOptions: Option<ExcludeUnknown<AbilityConditionType>> = [
   ...omitUnknownOption(objToOption(ABILITY_CONDITION_WITHOUT_VALUE)),
   ...objToOption(ABILITY_CONDITION_WITH_VALUE),
 ]
-// SP,Aスキル発動を起点とする発動条件はPスキル特有なので、A,SPでは取り除く
-const conditionOptions = omitOption('sp' as const)(omitOption('a' as const)(conditionOptionsForP))
 const enhanceOptions = omitUnknownOption(objToOption(ABILITY_ENHANCE))
+const triggerOptions: Option<ExcludeUnknown<SkillTriggerType>> = [
+  ...omitUnknownOption(objToOption(SKILL_TRIGGER_WITHOUT_VALUE)),
+  ...objToOption(SKILL_TRIGGER_WITH_VALUE),
+]
 
-const AVAILAVLE_TRIGGER: Record<AbilityConditionType, boolean> = {
+const AVAILAVLE_TRIGGER: Record<SkillTriggerType, boolean> = {
   none: false,
   sp: true,
   a: true,
@@ -319,7 +337,7 @@ const AVAILAVLE_TRIGGER: Record<AbilityConditionType, boolean> = {
   'stamina-less-than': false,
   'anyone-stamina-less-than': true,
 }
-const availableTrigger = (t: AbilityConditionType) => AVAILAVLE_TRIGGER[t]
+const availableTrigger = (t: SkillTriggerType) => AVAILAVLE_TRIGGER[t]
 
 const SKILLS_NAME_PLACEHOLDER = ['太陽の光と共に', '大好きなあのキャラ', '人生の倍返し'] as const
 const SKILLS_CT_PLACEHOLDER = ['', '30', ''] as const

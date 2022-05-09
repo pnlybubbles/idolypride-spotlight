@@ -7,7 +7,6 @@ import {
   IdolData,
   BuffAbilityType,
   SkillIndex,
-  PassiveAbilityData,
 } from '~/utils/types'
 import isNonNullable from 'is-non-nullable'
 import { ArrayN, indexed, PartiallyNonNullable, safeParseInt, uid, unreachable } from '~~/utils'
@@ -63,7 +62,7 @@ type State = ({
   | {
       type: 'p'
       skill: Extract<SkillData, { type: 'p' }> // 発動したスキル
-      availableAbilities: { id: string; triggeredLane: Lane | null }[]
+      triggeredLane: Lane | null
     }
 ))[]
 
@@ -329,18 +328,23 @@ const deriveNaiveBuffResult = (
     if (skill === null) {
       return []
     }
-    return skill.ability.filter(isDiv('buff')).flatMap((ability) => {
-      const lanes = deriveBuffLanes(ability.target, lane, idols)
-      return lanes.map((lane) => ({
-        type: 'buff' as const,
-        buff: ability.type,
-        lane,
-        span: clampSpan(ability.span, live.beat, currentBeat),
-        amount: ability.amount,
-        beat: currentBeat,
-        id: uid(),
-      }))
-    })
+    return (
+      skill.ability
+        .filter(isDiv('buff'))
+        // TODO: conditionチェック
+        .flatMap((ability) => {
+          const lanes = deriveBuffLanes(ability.target, lane, idols)
+          return lanes.map((lane) => ({
+            type: 'buff' as const,
+            buff: ability.type,
+            lane,
+            span: clampSpan(ability.span, live.beat, currentBeat),
+            amount: ability.amount,
+            beat: currentBeat,
+            id: uid(),
+          }))
+        })
+    )
   })
 }
 
@@ -350,35 +354,29 @@ const derivePBuffResult = ({
   idols,
   currentBeat,
 }: Pick<DomainState, 'pState' | 'idols' | 'live' | 'currentBeat'>) => {
-  return pState.flatMap(({ lane, skill, availableAbilities }) => {
-    return skill.ability
-      .filter(isDiv('buff'))
-      .map((ability) => {
-        // スキルの効果の中で条件を満たしているもののみを抽出
-        const available = availableAbilities.find((v) => v.id === ability.id)
-        if (available === undefined) {
-          return null
-        }
-        return [ability, available.triggeredLane] as const
-      })
-      .filter(isNonNullable)
-      .flatMap(([ability, triggeredLane]) => {
-        const lanes =
-          ability.target === 'triggered'
-            ? triggeredLane
-              ? [triggeredLane]
-              : []
-            : deriveBuffLanes(ability.target, lane, idols)
-        return lanes.map((lane) => ({
-          type: 'buff' as const,
-          buff: ability.type,
-          lane,
-          span: clampSpan(ability.span, live.beat, currentBeat),
-          amount: ability.amount,
-          beat: currentBeat,
-          id: uid(),
-        }))
-      })
+  return pState.flatMap(({ lane, skill, triggeredLane }) => {
+    return (
+      skill.ability
+        .filter(isDiv('buff'))
+        // TODO: conditionチェック
+        .flatMap((ability) => {
+          const lanes =
+            ability.target === 'triggered'
+              ? triggeredLane
+                ? [triggeredLane]
+                : []
+              : deriveBuffLanes(ability.target, lane, idols)
+          return lanes.map((lane) => ({
+            type: 'buff' as const,
+            buff: ability.type,
+            lane,
+            span: clampSpan(ability.span, live.beat, currentBeat),
+            amount: ability.amount,
+            beat: currentBeat,
+            id: uid(),
+          }))
+        })
+    )
   })
 }
 
@@ -504,18 +502,13 @@ const derivePState = (
         idol?.skills.filter(isType('p')).filter((skill) => !ctSkills.map((v) => v.index).includes(skill.index)) ?? []
       return canTriggerSkills
         .map((skill) => {
-          const triggeredAbility = skill.ability
-            .map((ability) => deriveTriggeredAbilityWithCondition(ability, lane, domain))
-            .filter(isNonNullable)
-          if (triggeredAbility.length === 0) {
+          const triggered = checkSkillTriggered(skill, lane, domain)
+          if (triggered === null) {
             return null
           }
           return {
             skill,
-            availableAbilities: triggeredAbility.map(({ ability, triggeredLane }) => ({
-              id: ability.id,
-              triggeredLane,
-            })),
+            triggeredLane: triggered.triggeredLane,
           }
         })
         .filter(isNonNullable)
@@ -525,8 +518,8 @@ const derivePState = (
     .map(appendType('p'))
 }
 
-const deriveTriggeredAbilityWithCondition = (
-  ability: PassiveAbilityData,
+const checkSkillTriggered = (
+  skill: Extract<SkillData, { type: 'p' }>,
   lane: Lane,
   {
     spState,
@@ -534,37 +527,37 @@ const deriveTriggeredAbilityWithCondition = (
     availableBuff,
     currentBeat,
   }: Pick<DomainState, 'aState' | 'spState' | 'currentBeat' | 'availableBuff'>
-): { triggeredLane: Lane | null; ability: PassiveAbilityData } | null => {
-  switch (ability.condition.type) {
+): { triggeredLane: Lane | null } | null => {
+  switch (skill.trigger.type) {
     case 'none': {
       // 無条件
-      return { triggeredLane: null, ability }
+      return { triggeredLane: null }
     }
     case 'sp': {
       // 誰かがSPスキルは発動時
       const spLane = spState.find((v) => v.skill != null)?.lane
-      return spLane === undefined ? null : { triggeredLane: spLane, ability }
+      return spLane === undefined ? null : { triggeredLane: spLane }
     }
     case 'a': {
       // 誰かがAスキル発動時
       const aLane = aState.find((v) => v.skill != null)?.lane
-      return aLane === undefined ? null : { triggeredLane: aLane, ability }
+      return aLane === undefined ? null : { triggeredLane: aLane }
     }
     case 'combo': {
       // Xコンボ以上時
-      if (currentBeat >= ability.condition.amount) {
-        return { triggeredLane: null, ability }
+      if (currentBeat >= skill.trigger.amount) {
+        return { triggeredLane: null }
       }
       return null
     }
     case 'score-up': {
       // 自身がスコアアップ状態の時
-      return isBuffedFor(availableBuff, 'score', lane) ? { triggeredLane: null, ability } : null
+      return isBuffedFor(availableBuff, 'score', lane) ? { triggeredLane: null } : null
     }
     case 'anyone-tension-up': {
       // 誰かがテンションアップ状態の時
       const hit = isBuffedFor(availableBuff, 'tension')
-      return hit ? { triggeredLane: hit.lane, ability } : null
+      return hit ? { triggeredLane: hit.lane } : null
     }
     default:
       return null

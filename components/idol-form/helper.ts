@@ -15,11 +15,13 @@ import {
   PassiveBuffTarget,
   AbilityType,
   AbilityEnhanceType,
+  SkillTriggerType,
 } from '~~/utils/types'
 import { defined, lift, mapArrayN, safeParseInt, unreachable } from '~~/utils'
 import {
   formatAbilityCondition,
   formatAbilityEnhance,
+  formatSkillTrigger,
   isActionAbilityType,
   isBuffAbilityType,
   isBuffTargetWithSuffix,
@@ -53,6 +55,8 @@ export interface SkillInput {
   ct: string
   once: boolean
   ability: AbilityInput[]
+  trigger: SkillTriggerType
+  triggerValue: string
 }
 
 export interface IdolInput {
@@ -80,6 +84,8 @@ export const defaultIdolInput = (): IdolInput => ({
       ct: '',
       once: false,
       ability: [],
+      trigger: 'none',
+      triggerValue: '',
     },
     {
       id: '',
@@ -90,6 +96,8 @@ export const defaultIdolInput = (): IdolInput => ({
       ct: '',
       once: false,
       ability: [],
+      trigger: 'none',
+      triggerValue: '',
     },
     {
       id: '',
@@ -100,6 +108,8 @@ export const defaultIdolInput = (): IdolInput => ({
       ct: '',
       once: false,
       ability: [],
+      trigger: 'none',
+      triggerValue: '',
     },
   ],
 })
@@ -154,6 +164,7 @@ const formatSkill = (v: SkillInput): SkillData => {
       type: 'p',
       ability: v.ability.map((w, i) => formatPassiveAbility(w, { skillType: v.type, abilityIndex: i })),
       ct: v.once ? 0 : safeParseInt(v.ct),
+      trigger: formatSkillTrigger(v.trigger, v.triggerValue),
       ...common,
     }
   }
@@ -199,7 +210,7 @@ export const formatPassiveAbility = (v: AbilityInput, option: FormatAbilityOptio
   const amount = lift(deriveDisabledAmount)(v.type) ?? false ? 0 : safeParseInt(v.amount)
   // 最初のスコア獲得スキルの条件だけ特別にdisabledになるケースがある
   // 型では保護されていない点に注意
-  const condition: AbilityCondition = disableCondition(option.skillType, v.div, option.abilityIndex)
+  const condition: AbilityCondition = disableCondition(option.abilityIndex)
     ? { type: 'none' }
     : formatAbilityCondition(v.condition, v.conditionValue)
   if (v.div === 'score') {
@@ -243,6 +254,8 @@ const deformatSkill = (w: SkillData, i: SkillIndex): SkillInput => {
     ct: 'ct' in w ? w.ct.toString() : def.skills[i].ct,
     once: 'ct' in w ? w.ct === 0 : def.skills[i].once,
     ability: w.ability.map(deformatAbility),
+    trigger: 'trigger' in w ? w.trigger.type : def.skills[i].trigger,
+    triggerValue: 'trigger' in w && 'amount' in w.trigger ? w.trigger.amount.toString() : def.skills[i].triggerValue,
   }
 }
 
@@ -329,7 +342,6 @@ export const deriveDisabledAmount = (type: AbilityType): boolean => ABILITY_TYPE
 export const disableSpan = (t: AbilityType) => t === 'sp-score'
 
 /**
- * SP,Aの1番目のスコア獲得効果の場合は発動条件は存在しない
+ * 1番目の効果は発動条件は存在しない
  */
-export const disableCondition = (type: SkillType, div: AbilityDiv, abilityIndex: number) =>
-  (type === 'sp' || type === 'a') && div === 'score' && abilityIndex === 0
+export const disableCondition = (abilityIndex: number) => abilityIndex === 0
