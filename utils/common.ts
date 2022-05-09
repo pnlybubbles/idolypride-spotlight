@@ -69,6 +69,7 @@ export const UNIT_NAME = [
   '川咲さくら',
   '兵藤雫×天動瑠依',
   '白石沙季×白石千紗',
+  '星見プロダクション',
 ] as const
 export type UnitName = typeof UNIT_NAME[number]
 export const UNIT_NAME_ORDERING = arrayToOrdering(UNIT_NAME)
@@ -83,6 +84,7 @@ export const UNIT_TO_IDOL_NAME: Record<UnitName, IdolName[]> = {
   川咲さくら: ['川咲さくら'],
   '兵藤雫×天動瑠依': ['兵藤雫', '天動瑠依'],
   '白石沙季×白石千紗': ['白石沙季', '白石千紗'],
+  星見プロダクション: [],
 }
 
 /**
