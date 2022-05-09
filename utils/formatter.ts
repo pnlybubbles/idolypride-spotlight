@@ -199,9 +199,8 @@ const serializeSkill = (v: SkillData, upsert: boolean): RequiredSerialized<Skill
   name: v.name,
   type: v.type,
   level: v.level,
-  // TODO: 消す
-  trigger: null,
-  trigger_value: null,
+  trigger: v.type === 'p' ? v.trigger.type : null,
+  trigger_value: v.type === 'p' && 'amount' in v.trigger ? v.trigger.amount : null,
   ct: v.type !== 'sp' ? v.ct : null,
   abilities: {
     data: v.ability.map((w) => serializeAbility(w, upsert)),
