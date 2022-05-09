@@ -33,7 +33,7 @@ import { isType, simulate } from './simulate'
 import { ArrayN, mapArrayN } from '~~/utils'
 import isNonNullable from 'is-non-nullable'
 import { AbilityType, BuffAbilityType, IdolData, Lane, LiveData, SkillIndex } from '~~/utils/types'
-import { LANES } from '~~/utils/common'
+import { LANES, px } from '~~/utils/common'
 import { useFumenScaleFactor } from '~~/composable/localstorage-descriptors'
 
 interface Props {
@@ -156,14 +156,15 @@ const lanes = computed(() =>
       }, [] as Item[])
   )
 )
+
+const height = computed(() => px(beat.value * scaleFactor.value))
 </script>
 <style lang="scss" scoped>
-@import '~/utils/variables.scss';
 @import '~~/components/partials/token.scss';
 
 .sheet {
   @include lane-grid;
-  height: calc(v-bind(beat) * $scale-factor);
+  height: v-bind(height);
   user-select: none;
   position: relative;
   z-index: 0;
