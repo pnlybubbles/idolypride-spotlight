@@ -15,7 +15,7 @@
         <ul class="options">
           <li v-if="fetching" class="loading"><Spinner></Spinner></li>
           <li v-for="item in filteredIdolList" :key="item.id">
-            <IdolItem :idol="item" variant="mini" @click="handleClick(item)"></IdolItem>
+            <IdolItem :idol="item" @click="handleClick(item)"></IdolItem>
           </li>
         </ul>
       </div>
