@@ -120,6 +120,8 @@ const filter = ref<Filter[]>([])
   margin: 0;
   padding: 0;
   padding-bottom: 40px;
+  display: grid;
+  gap: 16px;
 }
 
 .controlls {
