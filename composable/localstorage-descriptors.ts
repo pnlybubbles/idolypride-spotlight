@@ -1,3 +1,4 @@
+import { Filter } from '~~/components/idol-filter/helper'
 import { StorageDescriptor, useLocalStorage } from './localstorage'
 
 const INTERNAL_LABEL_STORAGE_DESCRIPTOR: StorageDescriptor<boolean> = {
@@ -16,4 +17,13 @@ const FUMEN_SCALE_FACTOR: StorageDescriptor<number> = {
 
 export function useFumenScaleFactor() {
   return useLocalStorage(FUMEN_SCALE_FACTOR)
+}
+
+const IDOL_FILTER_RECENT: StorageDescriptor<Filter[]> = {
+  key: 'idol-filter-memo',
+  defaultValue: () => [],
+}
+
+export function useIdolFilterRecent() {
+  return useLocalStorage(IDOL_FILTER_RECENT)
 }

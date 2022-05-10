@@ -2,8 +2,16 @@
   <div class="filter">
     <div class="overview">
       <div class="applied">
-        <button v-if="modelValue.length === 0" class="filter-item empty" @click="open = true" @touchend="null">
+        <button v-if="modelValue.length === 0" class="filter-item dashed" @click="open = true" @touchend="null">
           フィルターなし
+        </button>
+        <button
+          v-if="modelValue.length === 0 && recentFilter.length !== 0"
+          class="filter-item dashed"
+          @click="handleApplyRecent"
+          @touchend="null"
+        >
+          最近のフィルタ ({{ recentFilter.map((v) => v.label).join(', ') }})
         </button>
         <button
           v-for="item in modelValue"
@@ -116,6 +124,7 @@
   </div>
 </template>
 <script setup lang="ts">
+import { useIdolFilterRecent } from '~~/composable/localstorage-descriptors'
 import {
   IDOL_NAME,
   IDOL_TYPE,
@@ -145,11 +154,12 @@ const open = ref(false)
 
 const filterEq = (a: Filter, b: Filter) => a.type === b.type && a.value === b.value
 
+const [recentFilter] = useIdolFilterRecent()
+
 const handleFilter = (item: Filter) => {
-  emit(
-    'update:modelValue',
-    props.modelValue.filter((v) => !filterEq(v, item))
-  )
+  const newFilter = props.modelValue.filter((v) => !filterEq(v, item))
+  emit('update:modelValue', newFilter)
+  recentFilter.value = newFilter
 }
 
 const handlePick = (type: FilterType, value: string, label: string) => {
@@ -157,7 +167,13 @@ const handlePick = (type: FilterType, value: string, label: string) => {
   if (props.modelValue.find((v) => filterEq(v, item))) {
     return handleFilter(item)
   }
-  emit('update:modelValue', [...props.modelValue, item])
+  const newFilter = [...props.modelValue, item]
+  emit('update:modelValue', newFilter)
+  recentFilter.value = newFilter
+}
+
+const handleApplyRecent = () => {
+  emit('update:modelValue', recentFilter.value)
 }
 
 const isActive = (type: FilterType, value: string) => props.modelValue.find((v) => v.type === type && v.value === value)
@@ -210,7 +226,7 @@ const more = ref(false)
   background-color: $surface1;
   color: $text1;
   padding: 4px 8px;
-  white-space: nowrap;
+  text-align: left;
 
   & .type {
     color: $text3;
@@ -221,7 +237,7 @@ const more = ref(false)
     color: $text1;
   }
 
-  &.empty {
+  &.dashed {
     color: $text3;
     background-color: unset;
     border: 1px dashed $text3;
