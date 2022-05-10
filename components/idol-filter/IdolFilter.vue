@@ -61,9 +61,6 @@
           </button>
         </div>
       </Section>
-      <Interactive class="more" :class="{ active: more }" @click="more = !more"
-        ><font-awesome-icon icon="caret-down" class="icon"></font-awesome-icon>詳細フィルター</Interactive
-      >
       <template v-if="more">
         <Section overflow>
           <template #label>ユニット</template>
@@ -97,6 +94,9 @@
           </div>
         </Section>
       </template>
+      <Interactive class="more" :class="{ active: more }" @click="more = !more"
+        ><font-awesome-icon icon="caret-down" class="icon"></font-awesome-icon>詳細フィルター</Interactive
+      >
     </div>
   </div>
 </template>
