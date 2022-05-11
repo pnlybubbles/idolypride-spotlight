@@ -37,6 +37,7 @@ import { GetIdolListDocument } from '~~/generated/graphql'
 import { deserializeIdolList } from '~~/utils/formatter'
 import { IdolData } from '~~/utils/types'
 import { Filter, idolFilter, idolSort } from './idol-filter/helper'
+import { useError } from '~~/composable/error'
 
 interface Props {
   modelValue: null | IdolData
@@ -48,10 +49,11 @@ interface Emits {
 const emit = defineEmits<Emits>()
 
 const { notAuthenticated } = useAuth()
-const { data, fetching, error } = useQuery({ query: GetIdolListDocument, pause: notAuthenticated })
-if (error.value) {
-  console.error(error.value)
-}
+const { data, fetching, error } = useQuery({
+  query: GetIdolListDocument,
+  pause: computed(() => notAuthenticated.value || !present.value),
+})
+useError(error)
 const idolList = computed(() => (data.value ? deserializeIdolList(data.value) : []))
 const filteredIdolList = computed(() => idolSort(idolFilter(idolList.value, filter.value)))
 
