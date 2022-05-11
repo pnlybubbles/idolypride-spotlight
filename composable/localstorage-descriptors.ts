@@ -1,4 +1,5 @@
 import { Filter } from '~~/components/idol-filter/helper'
+import { ArrayN } from '~~/utils'
 import { StorageDescriptor, useLocalStorage } from './localstorage'
 
 const INTERNAL_LABEL_STORAGE_DESCRIPTOR: StorageDescriptor<boolean> = {
@@ -20,10 +21,19 @@ export function useFumenScaleFactor() {
 }
 
 const IDOL_FILTER_RECENT: StorageDescriptor<Filter[]> = {
-  key: 'idol-filter-memo',
+  key: 'idol-filter-recent',
   defaultValue: () => [],
 }
 
 export function useIdolFilterRecent() {
   return useLocalStorage(IDOL_FILTER_RECENT)
+}
+
+const LIVE_IDOL_SELECT_RECENT: StorageDescriptor<{ [fumentId: string]: ArrayN<string | null, 5> }> = {
+  key: 'live-idol-select-recent',
+  defaultValue: () => ({}),
+}
+
+export function useLiveIdolSelectRecent() {
+  return useLocalStorage(LIVE_IDOL_SELECT_RECENT)
 }
