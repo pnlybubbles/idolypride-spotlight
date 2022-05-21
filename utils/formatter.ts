@@ -340,6 +340,7 @@ export const BUFF_TARGET_WITHOUT_SUFFIX: Record<BuffTargetWithoutSuffix | Passiv
   center: 'センター',
   neighbor: '隣接',
   'opponent-center': '相手のセンター [バトルのみ]',
+  'opponent-same-lane': '相手の同じレーン [バトルのみ]',
   unknown: '不明',
 }
 export const isBuffTargetWithoutSuffix = isKeyInObject(BUFF_TARGET_WITHOUT_SUFFIX)

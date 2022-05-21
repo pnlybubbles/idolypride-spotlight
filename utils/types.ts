@@ -34,7 +34,14 @@ export type ActionAbilityType =
 export type AbilityType = BuffAbilityType | ActionAbilityType
 
 // target
-export type BuffTargetWithoutSuffix = 'all' | 'self' | 'center' | 'opponent-center' | `neighbor` | 'unknown'
+export type BuffTargetWithoutSuffix =
+  | 'all'
+  | 'self'
+  | 'center'
+  | 'opponent-center'
+  | 'opponent-same-lane'
+  | `neighbor`
+  | 'unknown'
 export type BuffTargetWithSuffix =
   | 'scorer'
   | 'opponent-scorer'
