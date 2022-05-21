@@ -39,7 +39,7 @@
     "eslint-plugin-vue": "^8.7.1",
     "jest": "^28.1.0",
     "npm-run-all": "^4.1.5",
-    "nuxt": "npm:nuxt3@latest",
+    "nuxt": "npm:nuxt3@3.0.0-rc.3-27545866.cd37a21",
     "postcss": "^8.4.14",
     "prettier": "^2.6.2",
     "sass": "^1.52.1",
