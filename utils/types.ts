@@ -14,7 +14,6 @@ export type BuffAbilityType =
   | 'cmb-score'
   | 'stamina-saving'
   | 'stamina-exhaust'
-  | 'buff-amount'
   | 'steruss'
   | 'cmb-continuous'
   | 'tension'
@@ -26,6 +25,7 @@ export type BuffAbilityType =
   | `${IdolType}-down`
 export type ActionAbilityType =
   | 'buff-span'
+  | 'buff-amount'
   | 'ct-reduction'
   | 'stamina-recovery'
   | 'stamina-recovery-percentage'

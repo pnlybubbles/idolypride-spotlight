@@ -300,7 +300,6 @@ export const BUFF_ABILITY_TYPE: Record<BuffAbilityType, string> = {
   'sp-score': 'SPスキルスコア上昇',
   'p-score': 'Pスキルスコア上昇',
   'beat-score': 'ビートスコア上昇',
-  'buff-amount': '強化効果増強',
   'cmb-continuous': 'コンボ継続',
   'cmb-score': 'コンボスコア上昇',
   'critical-rate': 'クリティカル率上昇',
@@ -324,6 +323,7 @@ export const isBuffAbilityType = isKeyInObject(BUFF_ABILITY_TYPE)
 // 即時効果
 export const ACTION_ABILITY_TYPE: Record<ActionAbilityType, string> = {
   'buff-span': '強化効果延長',
+  'buff-amount': '強化効果増強',
   'ct-reduction': 'CT減少',
   'stamina-recovery': 'スタミナ回復',
   'stamina-recovery-percentage': 'スタミナX%回復',
