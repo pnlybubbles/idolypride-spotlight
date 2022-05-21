@@ -50,8 +50,38 @@ const live = computed(() => {
 
 const selectedIdols = reactive<ArrayN<IdolData | null, 5>>([null, null, null, null, null])
 
-const [selectedIdolsRecent] = useLiveIdolSelectRecent()
+const {
+  data: idolData,
+  error: idolError,
+  fetching: idolFetch,
+} = useQuery({ query: GetIdolListDocument, pause: notAuthenticated })
+useError(idolError)
+const idolList = computed(() => (idolData.value ? deserializeIdolList(idolData.value) : []))
 
+const [selectedIdolsRecent, readySelectedIdolsRecent] = useLiveIdolSelectRecent()
+const selectedIdolsCurrentLive = computed(() => selectedIdolsRecent.value[id])
+
+const restored = ref(false)
+// ローカルストレージにアイドル選択状態が保持されていたら、復元する
+watchEffect(() => {
+  // ローカルストレージを読込中, アイドルデータを取得中は待機
+  if (!readySelectedIdolsRecent.value || idolFetch.value || restored.value) {
+    return
+  }
+
+  restored.value = true
+
+  if (selectedIdolsCurrentLive.value === undefined) {
+    return
+  }
+
+  for (const [idolId, index] of indexed(selectedIdolsCurrentLive.value)) {
+    const idol = idolList.value.find((v) => v.id === idolId)
+    selectedIdols[index] = idol ?? null
+  }
+})
+
+// アイドルが選択されたらローカルストレージに保存する
 watchEffect(() => {
   if (selectedIdols.every((v) => v === null)) {
     return
@@ -60,37 +90,6 @@ watchEffect(() => {
   selectedIdolsRecent.value = {
     ...selectedIdolsRecent.value,
     [id]: mapArrayN(selectedIdols, (v) => v?.id ?? null),
-  }
-})
-
-const selectedIdolsCurrentLive = computed(() => selectedIdolsRecent.value[id])
-
-const {
-  data: idolData,
-  error: idolError,
-  fetching: idolFetch,
-} = useQuery({
-  query: GetIdolListDocument,
-  pause: computed(
-    () =>
-      notAuthenticated.value ||
-      selectedIdolsCurrentLive.value === undefined ||
-      selectedIdolsCurrentLive.value.every((v) => v === null)
-  ),
-})
-useError(idolError)
-const idolList = computed(() => (idolData.value ? deserializeIdolList(idolData.value) : []))
-
-watchEffect(() => {
-  if (idolData.value === undefined) {
-    return
-  }
-  if (selectedIdolsCurrentLive.value === undefined) {
-    return
-  }
-  for (const [idolId, index] of indexed(selectedIdolsCurrentLive.value)) {
-    const idol = idolList.value.find((v) => v.id === idolId)
-    selectedIdols[index] = idol ?? null
   }
 })
 
