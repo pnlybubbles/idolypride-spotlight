@@ -1,11 +1,11 @@
 import { InjectionKey, Ref } from 'vue'
 import { useUID } from './atom'
 
-export const FormContext: InjectionKey<Map<string, Ref<{ error: boolean }>>> = Symbol()
+export const FormContext: InjectionKey<Map<string, Ref<{ error: boolean }>>> = Symbol('form context')
 
 export const useFormComponent = (state: Ref<{ error: boolean }>) => {
-  const context = inject(FormContext)
-  if (!context) {
+  const context = inject(FormContext, null)
+  if (context === null) {
     return
   }
   const uid = useUID()
