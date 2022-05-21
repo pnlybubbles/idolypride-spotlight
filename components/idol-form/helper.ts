@@ -162,13 +162,13 @@ const formatSkill = (v: SkillInput): SkillData => {
   if (v.type === 'p') {
     return {
       type: 'p',
-      ability: v.ability.map((w, i) => formatPassiveAbility(w, { skillType: v.type, abilityIndex: i })),
+      ability: v.ability.map((w) => formatPassiveAbility(w)),
       ct: v.once ? 0 : safeParseInt(v.ct),
       trigger: formatSkillTrigger(v.trigger, v.triggerValue),
       ...common,
     }
   }
-  const ability = v.ability.map((w, i) => formatAbility(w, { skillType: v.type, abilityIndex: i }))
+  const ability = v.ability.map((w) => formatAbility(w))
   if (v.type === 'a') {
     return {
       type: 'a',
@@ -187,13 +187,8 @@ const formatSkill = (v: SkillInput): SkillData => {
   return unreachable(v.type)
 }
 
-interface FormatAbilityOption {
-  skillType: SkillType
-  abilityIndex: number
-}
-
-const formatAbility = (v: AbilityInput, option: FormatAbilityOption): AbilityData => {
-  const ability = formatPassiveAbility(v, option)
+const formatAbility = (v: AbilityInput): AbilityData => {
+  const ability = formatPassiveAbility(v)
   if (ability.div === 'action-buff' || ability.div === 'buff') {
     const target = ability.target
     if (target === 'triggered') {
@@ -204,15 +199,14 @@ const formatAbility = (v: AbilityInput, option: FormatAbilityOption): AbilityDat
   return ability
 }
 
-export const formatPassiveAbility = (v: AbilityInput, option: FormatAbilityOption): PassiveAbilityData => {
+export const formatPassiveAbility = (v: AbilityInput): PassiveAbilityData => {
   const id = v.id
   // 段階など変数が存在しない効果の場合は0で埋めておく
   const amount = lift(deriveDisabledAmount)(v.type) ?? false ? 0 : safeParseInt(v.amount)
-  // 最初のスコア獲得スキルの条件だけ特別にdisabledになるケースがある
-  // 型では保護されていない点に注意
-  const condition: AbilityCondition = disableCondition(option.abilityIndex)
-    ? { type: 'none' }
-    : formatAbilityCondition(v.condition, v.conditionValue)
+  // 以下の特殊な条件があるが、入力制限を行うと複雑化するため制限していない
+  // - A,SPの場合はスコア獲得スキルが必ず1つ以上は発動しなくてはいけない
+  // - Pの場合は発動トリガーの条件をクリアした場合には必ず1つ以上の効果が発動しなくてはいけない
+  const condition: AbilityCondition = formatAbilityCondition(v.condition, v.conditionValue)
   if (v.div === 'score') {
     const enhance = formatAbilityEnhance(v.enhance, 0)
     return { id, div: 'score', amount, enhance, condition }
@@ -340,8 +334,3 @@ export const deriveDisabledAmount = (type: AbilityType): boolean => ABILITY_TYPE
  * SPスキルスコア上昇の場合は、持続ビートは存在しない (便宜的にspan=1にする)
  */
 export const disableSpan = (t: AbilityType) => t === 'sp-score'
-
-/**
- * 1番目の効果は発動条件は存在しない
- */
-export const disableCondition = (abilityIndex: number) => abilityIndex === 0

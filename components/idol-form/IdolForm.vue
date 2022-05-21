@@ -85,7 +85,7 @@
               <template #label>種別</template>
               <Listbox v-model="ability.div" :options="abilityTypeOptions"></Listbox>
             </Section>
-            <Section v-if="!disableCondition(j)" :gutter="8">
+            <Section :gutter="8">
               <template #label>発動条件</template>
               <div class="left-main">
                 <Listbox v-model="ability.condition" :options="conditionOptions" required></Listbox>
@@ -209,7 +209,6 @@ import {
   deformatIdol,
   SkillInput,
   disableSpan,
-  disableCondition,
 } from './helper'
 import { defined, lift } from '~~/utils'
 import {
