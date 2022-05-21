@@ -10,7 +10,7 @@
     "build": "run-s build:graphql build:nuxt",
     "build:nuxt": "nuxi build",
     "build:graphql": "graphql-codegen",
-    "start": "node .output/server/index.mjs",
+    "start": "cross-env NODE_ENV=production node .output/server/index.mjs",
     "deploy": "vercel",
     "fmt": "run-p 'fmt:*'",
     "fmt:eslint": "cross-env DEBUG=eslint:cli-engine eslint . --ext ts,js,vue --max-warnings=0 --fix",
