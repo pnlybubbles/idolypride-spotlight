@@ -21,7 +21,7 @@ export type BuffAbilityType =
   | 'eye-catch'
   | 'skill-success'
   | 'slump'
-  | 'down-guard'
+  | 'debuff-guard'
   | 'unknown'
   | `${IdolType}-down`
 export type ActionAbilityType =
@@ -35,7 +35,13 @@ export type AbilityType = BuffAbilityType | ActionAbilityType
 
 // target
 export type BuffTargetWithoutSuffix = 'all' | 'self' | 'center' | 'opponent-center' | `neighbor` | 'unknown'
-export type BuffTargetWithSuffix = 'scorer' | 'opponent-scorer' | 'lowstamina' | `${'high-' | ''}${IdolType}` | IdolType
+export type BuffTargetWithSuffix =
+  | 'scorer'
+  | 'opponent-scorer'
+  | 'lowstamina'
+  | 'debuff'
+  | `${'high-' | ''}${IdolType}`
+  | IdolType
 export type BuffTargetCount = '1' | '2' | '3'
 export type ActiveBuffTarget = BuffTargetWithoutSuffix | `${BuffTargetWithSuffix}-${BuffTargetCount}`
 export type PassiveOnlyBuffTarget = 'triggered'
@@ -50,6 +56,7 @@ export type AbilityConditionWithoutValue =
   | 'critical'
   | `${IfAnyone}${IdolType}-up`
   | `in-${IdolType}-lane`
+  | `${IfAnyone}debuff`
   | `${IfAnyone}eye-catch`
   | `${IfAnyone}tension-up`
   | `${IfAnyone}critical-up`

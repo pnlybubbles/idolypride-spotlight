@@ -300,7 +300,7 @@ const ABILITY_TYPE_DISABLED_AMOUNT: Record<AbilityType, boolean> = {
   'debuff-recovery': true,
   'shift-before-sp': true,
   slump: true,
-  'down-guard': true,
+  'debuff-guard': true,
   'a-score': false,
   'beat-score': false,
   'buff-amount': false,

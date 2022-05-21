@@ -254,6 +254,7 @@ export const ABILITY_CONDITION_WITHOUT_VALUE: Record<AbilityConditionWithoutValu
   'dance-up': '自身がダンスアップ時',
   'visual-up': '自身がビジュアルアップ時',
   'eye-catch': '自身が集目状態の時',
+  debuff: '自身が低下効果状態の時',
   'tension-up': '自身がテンションアップ状態の時',
   'critical-up': '自身がクリティカル率アップ状態の時',
   'score-up': '自身がスコアアップ時',
@@ -268,6 +269,7 @@ export const ABILITY_CONDITION_WITHOUT_VALUE: Record<AbilityConditionWithoutValu
   'anyone-dance-up': '誰かがダンスアップ時',
   'anyone-visual-up': '誰かがビジュアルアップ時',
   'anyone-eye-catch': '誰かが集目状態の時',
+  'anyone-debuff': '誰かが低下効果状態の時',
   'anyone-tension-up': '誰かがテンションアップ状態の時',
   'anyone-critical-up': '誰かがクリティカル率アップ状態の時',
   unknown: '不明',
@@ -312,7 +314,7 @@ export const BUFF_ABILITY_TYPE: Record<BuffAbilityType, string> = {
   'vocal-down': 'ボーカル低下',
   'dance-down': 'ダンス低下',
   'visual-down': 'ビジュアル低下',
-  'down-guard': '低下効果防止',
+  'debuff-guard': '低下効果防止',
   slump: '不調',
   unknown: '不明',
 }
@@ -353,6 +355,7 @@ export const BUFF_TARGET_WITH_SUFFIX: Record<BuffTargetWithSuffix, string> = {
   visual: 'ビジュアルタイプX人',
   'opponent-scorer': '相手のスコアラーX人 [バトルのみ]',
   lowstamina: 'スタミナが低いX人',
+  debuff: '低下効果状態のX人',
 }
 export const isBuffTargetWithSuffix = isKeyInObject(BUFF_TARGET_WITH_SUFFIX)
 
