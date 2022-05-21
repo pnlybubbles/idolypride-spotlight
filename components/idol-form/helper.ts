@@ -137,6 +137,14 @@ export const defaultAbilityInput = (
   }
 }
 
+// Format
+// フォーマットはユーザーの入力した値を内部で扱っている型にバリデーションしつつ変換する
+// 基本的に入力UIでバリデーションが行われているはずなので、変換できる前提
+// 変換に失敗した場合はUIの構造がおかしいのでエラーにする
+// UI上に表示されていないが編集用に管理しているステートをフォーマットしないようにする
+// バリデーションに利用する関数はUIの表示制御に用いているものを共有する
+// Deserializeの処理とかなり近いが、型が編集用内部ステートを対象にしている点と、変換に失敗しない前提という点が大きく異る
+
 /**
  * フォームの制約を遵守してデータの整形を行う
  *
@@ -163,7 +171,7 @@ const formatSkill = (v: SkillInput): SkillData => {
     return {
       type: 'p',
       ability: v.ability.map((w) => formatPassiveAbility(w)),
-      ct: v.once ? 0 : safeParseInt(v.ct),
+      ct: availableSkillOnce(v.type) && v.once ? 0 : safeParseInt(v.ct),
       trigger: formatSkillTrigger(v.trigger, v.triggerValue),
       ...common,
     }
@@ -173,7 +181,7 @@ const formatSkill = (v: SkillInput): SkillData => {
     return {
       type: 'a',
       ability,
-      ct: v.once ? 0 : safeParseInt(v.ct),
+      ct: availableSkillOnce(v.type) && v.once ? 0 : safeParseInt(v.ct),
       ...common,
     }
   }
@@ -232,6 +240,11 @@ export const formatPassiveAbility = (v: AbilityInput): PassiveAbilityData => {
   }
   return unreachable(v.div)
 }
+
+// Deformat
+// デフォーマットは内部で扱っている型を編集用のステートに変換する
+// 値域のほうが広いため、存在するデータをとりあえずマッピングすれば問題ない
+// 逆に値域のほうが広いゆえに、ステートに編集用の初期値を埋め込む必要がある
 
 /**
  * 入力状態保持用のステート型に変換する
@@ -334,3 +347,8 @@ export const deriveDisabledAmount = (type: AbilityType): boolean => ABILITY_TYPE
  * SPスキルスコア上昇の場合は、持続ビートは存在しない (便宜的にspan=1にする)
  */
 export const disableSpan = (t: AbilityType) => t === 'sp-score'
+
+/**
+ * Pスキルにしかライブ中1回のCT表示は存在しない
+ */
+export const availableSkillOnce = (t: SkillType) => t === 'p'

@@ -64,15 +64,15 @@
           <template #label>CT</template>
           <HStack :spacing="8">
             <TextField
-              :model-value="skill.once ? 'なし' : skill.ct"
+              :model-value="availableSkillOnce(skill.type) && skill.once ? 'なし' : skill.ct"
               :placeholder="SKILLS_CT_PLACEHOLDER[skill.index]"
-              :disabled="skill.once"
+              :disabled="availableSkillOnce(skill.type) && skill.once"
               type="number"
               required
               :preset="[30, 40, 50, 60, 70]"
               @update:model-value="skill.ct = $event"
             ></TextField>
-            <Check v-model="skill.once">ライブ中1回</Check>
+            <Check v-if="availableSkillOnce(skill.type)" v-model="skill.once">ライブ中1回</Check>
           </HStack>
         </Section>
         <Section>
@@ -209,6 +209,7 @@ import {
   deformatIdol,
   SkillInput,
   disableSpan,
+  availableSkillOnce,
 } from './helper'
 import { defined, lift } from '~~/utils'
 import {

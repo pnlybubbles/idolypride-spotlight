@@ -33,6 +33,12 @@ import {
 import { v4 as uuid } from 'uuid'
 
 // Deserialize
+// デシリアライズはAPIから来た値を型にマッピングする
+// 本当に型に整合しているか値のバリデーションを行う必要性がある
+// APIから来た値は基本的にstringとして扱い、それを内部的に扱っているリテラル型にバリデーションしつつ変換する
+// 変換に失敗した場合はunknownなどの値に適当にフォールバックしてクラッシュさせない
+// フォーマッタは`components/idol-form/helper.ts`のものを共有している
+// TOOD: フォーマッタの配置の変更
 
 export const deserializeIdolList = (data: GetIdolListQuery): IdolData[] =>
   data.idol.map((v) => ({
@@ -161,6 +167,9 @@ export function formatAbilityEnhance(enhance: string, value: IntLike): AbilityEn
 }
 
 // Serialize
+// シリアライズは基本的に型整合している検査済みの値をAPIスキーマに合わせてマッピングする
+// 型的に値があれば入れるし、なければ入れない
+// 特殊な整合性チェックなどは行う必要性がない
 
 type RequiredSerialized<T> = {
   [K in keyof T]-?: NonNullable<T[K]> extends {
