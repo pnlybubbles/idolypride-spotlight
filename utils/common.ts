@@ -108,9 +108,11 @@ export const IDOL_ROLE = {
 export const abilityEnhanceLabel = (enhance: AbilityEnhance, internal: boolean) =>
   internal
     ? `${enhance.type}${'value' in enhance ? ` ${enhance.value}` : ''}`
-    : 'value' in enhance
-    ? ABILITY_ENHANCE_WITH_VALUE[enhance.type].replace(/X/, enhance.value.toString())
-    : ABILITY_ENHANCE_WITHOUT_VALUE[enhance.type]
+    : `${
+        'value' in enhance
+          ? ABILITY_ENHANCE_WITH_VALUE[enhance.type].replace(/X/, enhance.value.toString())
+          : ABILITY_ENHANCE_WITHOUT_VALUE[enhance.type]
+      }上昇`
 export const buffAbilityTypeLabel = (type: BuffAbilityType, internal: boolean) =>
   internal ? type : BUFF_ABILITY_TYPE[type]
 export const actionAbilityTypeLabel = (type: ActionAbilityType, internal: boolean) =>
