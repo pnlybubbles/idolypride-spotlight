@@ -17,17 +17,18 @@
     </div>
     <Sheet v-model:present="present">
       <Section>
-        <ButtonLink :to="`/idol/${currentIdolId}/edit`" :disabled="!isOwned(currentIdolId)"
+        <ButtonLink :to="`/idol/${currentIdolId}/edit`" :disabled="!canEdit(currentIdolId)"
           >アイドルを編集する</ButtonLink
         >
-        <NoteText v-if="!isOwned(currentIdolId)">自分の追加したアイドルのみ編集できます</NoteText>
+        <NoteText v-if="!canEdit(currentIdolId)">自分の追加したアイドルのみ編集できます</NoteText>
+        <NoteText v-if="isAdmin">管理者権限によりすべてのアイドルを編集できます</NoteText>
       </Section>
     </Sheet>
   </Layout>
 </template>
 <script setup lang="ts">
 import { useQuery } from '@urql/vue'
-import { GetIdolListDocument } from '~/generated/graphql'
+import { GetIdolListDocument, IsUserAllowedDocument } from '~/generated/graphql'
 import { Filter, idolFilter, idolSort } from '~~/components/idol-filter/helper'
 import { useAuth } from '~~/composable/auth0'
 import { useError } from '~~/composable/error'
@@ -54,7 +55,23 @@ const isOwned = (idolId: string) => {
   return idolOwner != null && user.value?.sub != null && idolOwner == user.value.sub
 }
 
+const canEdit = (idolId: string) => {
+  return isOwned(idolId) || isAdmin.value
+}
+
 const filter = ref<Filter[]>([])
+
+const { data: isAllowedData, error: isAllowedError } = useQuery({
+  query: IsUserAllowedDocument,
+  variables: computed(() => ({ id: user.value?.sub ?? '' })),
+  pause: notAuthenticated,
+})
+useError(isAllowedError)
+
+const isAdmin = computed(() => {
+  const allow = isAllowedData.value?.user_by_pk?.allow
+  return allow !== undefined && allow
+})
 
 useHead(DEFAULT_META)
 </script>

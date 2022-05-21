@@ -33,6 +33,12 @@ import {
 import { v4 as uuid } from 'uuid'
 
 // Deserialize
+// デシリアライズはAPIから来た値を型にマッピングする
+// 本当に型に整合しているか値のバリデーションを行う必要性がある
+// APIから来た値は基本的にstringとして扱い、それを内部的に扱っているリテラル型にバリデーションしつつ変換する
+// 変換に失敗した場合はunknownなどの値に適当にフォールバックしてクラッシュさせない
+// フォーマッタは`components/idol-form/helper.ts`のものを共有している
+// TOOD: フォーマッタの配置の変更
 
 export const deserializeIdolList = (data: GetIdolListQuery): IdolData[] =>
   data.idol.map((v) => ({
@@ -161,6 +167,9 @@ export function formatAbilityEnhance(enhance: string, value: IntLike): AbilityEn
 }
 
 // Serialize
+// シリアライズは基本的に型整合している検査済みの値をAPIスキーマに合わせてマッピングする
+// 型的に値があれば入れるし、なければ入れない
+// 特殊な整合性チェックなどは行う必要性がない
 
 type RequiredSerialized<T> = {
   [K in keyof T]-?: NonNullable<T[K]> extends {
@@ -254,6 +263,7 @@ export const ABILITY_CONDITION_WITHOUT_VALUE: Record<AbilityConditionWithoutValu
   'dance-up': '自身がダンスアップ時',
   'visual-up': '自身がビジュアルアップ時',
   'eye-catch': '自身が集目状態の時',
+  debuff: '自身が低下効果状態の時',
   'tension-up': '自身がテンションアップ状態の時',
   'critical-up': '自身がクリティカル率アップ状態の時',
   'score-up': '自身がスコアアップ時',
@@ -268,6 +278,7 @@ export const ABILITY_CONDITION_WITHOUT_VALUE: Record<AbilityConditionWithoutValu
   'anyone-dance-up': '誰かがダンスアップ時',
   'anyone-visual-up': '誰かがビジュアルアップ時',
   'anyone-eye-catch': '誰かが集目状態の時',
+  'anyone-debuff': '誰かが低下効果状態の時',
   'anyone-tension-up': '誰かがテンションアップ状態の時',
   'anyone-critical-up': '誰かがクリティカル率アップ状態の時',
   unknown: '不明',
@@ -298,7 +309,6 @@ export const BUFF_ABILITY_TYPE: Record<BuffAbilityType, string> = {
   'sp-score': 'SPスキルスコア上昇',
   'p-score': 'Pスキルスコア上昇',
   'beat-score': 'ビートスコア上昇',
-  'buff-amount': '強化効果増強',
   'cmb-continuous': 'コンボ継続',
   'cmb-score': 'コンボスコア上昇',
   'critical-rate': 'クリティカル率上昇',
@@ -312,7 +322,7 @@ export const BUFF_ABILITY_TYPE: Record<BuffAbilityType, string> = {
   'vocal-down': 'ボーカル低下',
   'dance-down': 'ダンス低下',
   'visual-down': 'ビジュアル低下',
-  'down-guard': '低下効果防止',
+  'debuff-guard': '低下効果防止',
   slump: '不調',
   unknown: '不明',
 }
@@ -322,6 +332,7 @@ export const isBuffAbilityType = isKeyInObject(BUFF_ABILITY_TYPE)
 // 即時効果
 export const ACTION_ABILITY_TYPE: Record<ActionAbilityType, string> = {
   'buff-span': '強化効果延長',
+  'buff-amount': '強化効果増強',
   'ct-reduction': 'CT減少',
   'stamina-recovery': 'スタミナ回復',
   'stamina-recovery-percentage': 'スタミナX%回復',
@@ -332,12 +343,13 @@ export const isActionAbilityType = isKeyInObject(ACTION_ABILITY_TYPE)
 
 // 効果対象
 export const BUFF_TARGET_WITHOUT_SUFFIX: Record<BuffTargetWithoutSuffix | PassiveOnlyBuffTarget, string> = {
-  triggered: '"発動条件"の引き金となった対象',
+  triggered: '発動トリガーの対象',
   self: '自身',
   all: '全員',
   center: 'センター',
   neighbor: '隣接',
   'opponent-center': '相手のセンター [バトルのみ]',
+  'opponent-same-lane': '相手の同じレーン [バトルのみ]',
   unknown: '不明',
 }
 export const isBuffTargetWithoutSuffix = isKeyInObject(BUFF_TARGET_WITHOUT_SUFFIX)
@@ -353,6 +365,7 @@ export const BUFF_TARGET_WITH_SUFFIX: Record<BuffTargetWithSuffix, string> = {
   visual: 'ビジュアルタイプX人',
   'opponent-scorer': '相手のスコアラーX人 [バトルのみ]',
   lowstamina: 'スタミナが低いX人',
+  debuff: '低下効果状態のX人',
 }
 export const isBuffTargetWithSuffix = isKeyInObject(BUFF_TARGET_WITH_SUFFIX)
 
@@ -365,21 +378,21 @@ export const BUFF_TARGET_PREFIX: Record<BuffTargetPrefix, string> = {
 type AbilityEnhanceWithoutValue = Exclude<AbilityEnhance, { value: unknown } | null>['type']
 export const ABILITY_ENHANCE_WITHOUT_VALUE: Record<AbilityEnhanceWithoutValue, string> = {
   none: 'なし',
-  buff: '強化効果が多い程',
-  combo: 'コンボ数が多い程',
-  'stamina-rest': '残スタミナが多い程',
-  'stamina-rest-less': '残スタミナが少ない程',
-  'stamina-comsumed': '消費したスタミナが多い程',
-  'core-fan': 'コアファン率が多い程',
-  'audience-rate-less': '観客数割合が少ない程',
-  'skill-activated': '自身の発動したスキル数が多い程',
-  vocal: 'ボーカルアップが多い程',
-  dance: 'ダンスアップが多い程',
-  visual: 'ビジュアルアップが多い程',
-  'a-score': 'Aスキルスコアアップが多い程',
-  'critical-rate': 'クリティカル率アップが多い程',
-  'eye-catch': '集目効果が多い程',
-  'stamina-saving': 'スタミナ消費低減が多い程',
+  buff: '強化効果が多い程上昇',
+  combo: 'コンボ数が多い程上昇',
+  'stamina-rest': '残スタミナが多い程上昇',
+  'stamina-rest-less': '残スタミナが少ない程上昇',
+  'stamina-comsumed': '消費したスタミナが多い程上昇',
+  'core-fan': 'コアファン率が多い程上昇',
+  'audience-rate-less': '観客数割合が少ない程上昇',
+  'skill-activated': '自身の発動したスキル数が多い程上昇',
+  vocal: 'ボーカルアップが多い程上昇',
+  dance: 'ダンスアップが多い程上昇',
+  visual: 'ビジュアルアップが多い程上昇',
+  'a-score': 'Aスキルスコアアップが多い程上昇',
+  'critical-rate': 'クリティカル率アップが多い程上昇',
+  'eye-catch': '集目効果が多い程上昇',
+  'stamina-saving': 'スタミナ消費低減が多い程上昇',
   unknown: '不明',
 }
 const isAbilityEnhanceWithoutValue = isKeyInObject(ABILITY_ENHANCE_WITHOUT_VALUE)

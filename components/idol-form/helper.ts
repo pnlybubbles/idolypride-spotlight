@@ -137,6 +137,14 @@ export const defaultAbilityInput = (
   }
 }
 
+// Format
+// フォーマットはユーザーの入力した値を内部で扱っている型にバリデーションしつつ変換する
+// 基本的に入力UIでバリデーションが行われているはずなので、変換できる前提
+// 変換に失敗した場合はUIの構造がおかしいのでエラーにする
+// UI上に表示されていないが編集用に管理しているステートをフォーマットしないようにする
+// バリデーションに利用する関数はUIの表示制御に用いているものを共有する
+// Deserializeの処理とかなり近いが、型が編集用内部ステートを対象にしている点と、変換に失敗しない前提という点が大きく異る
+
 /**
  * フォームの制約を遵守してデータの整形を行う
  *
@@ -162,18 +170,18 @@ const formatSkill = (v: SkillInput): SkillData => {
   if (v.type === 'p') {
     return {
       type: 'p',
-      ability: v.ability.map((w, i) => formatPassiveAbility(w, { skillType: v.type, abilityIndex: i })),
-      ct: v.once ? 0 : safeParseInt(v.ct),
+      ability: v.ability.map((w) => formatPassiveAbility(w)),
+      ct: availableSkillOnce(v.type) && v.once ? 0 : safeParseInt(v.ct),
       trigger: formatSkillTrigger(v.trigger, v.triggerValue),
       ...common,
     }
   }
-  const ability = v.ability.map((w, i) => formatAbility(w, { skillType: v.type, abilityIndex: i }))
+  const ability = v.ability.map((w) => formatAbility(w))
   if (v.type === 'a') {
     return {
       type: 'a',
       ability,
-      ct: v.once ? 0 : safeParseInt(v.ct),
+      ct: availableSkillOnce(v.type) && v.once ? 0 : safeParseInt(v.ct),
       ...common,
     }
   }
@@ -187,13 +195,8 @@ const formatSkill = (v: SkillInput): SkillData => {
   return unreachable(v.type)
 }
 
-interface FormatAbilityOption {
-  skillType: SkillType
-  abilityIndex: number
-}
-
-const formatAbility = (v: AbilityInput, option: FormatAbilityOption): AbilityData => {
-  const ability = formatPassiveAbility(v, option)
+const formatAbility = (v: AbilityInput): AbilityData => {
+  const ability = formatPassiveAbility(v)
   if (ability.div === 'action-buff' || ability.div === 'buff') {
     const target = ability.target
     if (target === 'triggered') {
@@ -204,15 +207,14 @@ const formatAbility = (v: AbilityInput, option: FormatAbilityOption): AbilityDat
   return ability
 }
 
-export const formatPassiveAbility = (v: AbilityInput, option: FormatAbilityOption): PassiveAbilityData => {
+export const formatPassiveAbility = (v: AbilityInput): PassiveAbilityData => {
   const id = v.id
   // 段階など変数が存在しない効果の場合は0で埋めておく
   const amount = lift(deriveDisabledAmount)(v.type) ?? false ? 0 : safeParseInt(v.amount)
-  // 最初のスコア獲得スキルの条件だけ特別にdisabledになるケースがある
-  // 型では保護されていない点に注意
-  const condition: AbilityCondition = disableCondition(option.abilityIndex)
-    ? { type: 'none' }
-    : formatAbilityCondition(v.condition, v.conditionValue)
+  // 以下の特殊な条件があるが、入力制限を行うと複雑化するため制限していない
+  // - A,SPの場合はスコア獲得スキルが必ず1つ以上は発動しなくてはいけない
+  // - Pの場合は発動トリガーの条件をクリアした場合には必ず1つ以上の効果が発動しなくてはいけない
+  const condition: AbilityCondition = formatAbilityCondition(v.condition, v.conditionValue)
   if (v.div === 'score') {
     const enhance = formatAbilityEnhance(v.enhance, 0)
     return { id, div: 'score', amount, enhance, condition }
@@ -238,6 +240,11 @@ export const formatPassiveAbility = (v: AbilityInput, option: FormatAbilityOptio
   }
   return unreachable(v.div)
 }
+
+// Deformat
+// デフォーマットは内部で扱っている型を編集用のステートに変換する
+// 値域のほうが広いため、存在するデータをとりあえずマッピングすれば問題ない
+// 逆に値域のほうが広いゆえに、ステートに編集用の初期値を埋め込む必要がある
 
 /**
  * 入力状態保持用のステート型に変換する
@@ -306,7 +313,7 @@ const ABILITY_TYPE_DISABLED_AMOUNT: Record<AbilityType, boolean> = {
   'debuff-recovery': true,
   'shift-before-sp': true,
   slump: true,
-  'down-guard': true,
+  'debuff-guard': true,
   'a-score': false,
   'beat-score': false,
   'buff-amount': false,
@@ -342,6 +349,6 @@ export const deriveDisabledAmount = (type: AbilityType): boolean => ABILITY_TYPE
 export const disableSpan = (t: AbilityType) => t === 'sp-score'
 
 /**
- * 1番目の効果は発動条件は存在しない
+ * Pスキルにしかライブ中1回のCT表示は存在しない
  */
-export const disableCondition = (abilityIndex: number) => abilityIndex === 0
+export const availableSkillOnce = (t: SkillType) => t === 'p'

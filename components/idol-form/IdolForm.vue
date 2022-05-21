@@ -64,15 +64,15 @@
           <template #label>CT</template>
           <HStack :spacing="8">
             <TextField
-              :model-value="skill.once ? 'なし' : skill.ct"
+              :model-value="availableSkillOnce(skill.type) && skill.once ? 'なし' : skill.ct"
               :placeholder="SKILLS_CT_PLACEHOLDER[skill.index]"
-              :disabled="skill.once"
+              :disabled="availableSkillOnce(skill.type) && skill.once"
               type="number"
               required
               :preset="[30, 40, 50, 60, 70]"
               @update:model-value="skill.ct = $event"
             ></TextField>
-            <Check v-model="skill.once">ライブ中1回</Check>
+            <Check v-if="availableSkillOnce(skill.type)" v-model="skill.once">ライブ中1回</Check>
           </HStack>
         </Section>
         <Section>
@@ -85,7 +85,7 @@
               <template #label>種別</template>
               <Listbox v-model="ability.div" :options="abilityTypeOptions"></Listbox>
             </Section>
-            <Section v-if="!disableCondition(j)" :gutter="8">
+            <Section :gutter="8">
               <template #label>発動条件</template>
               <div class="left-main">
                 <Listbox v-model="ability.condition" :options="conditionOptions" required></Listbox>
@@ -209,7 +209,7 @@ import {
   deformatIdol,
   SkillInput,
   disableSpan,
-  disableCondition,
+  availableSkillOnce,
 } from './helper'
 import { defined, lift } from '~~/utils'
 import {
@@ -315,6 +315,7 @@ const AVAILAVLE_TRIGGER: Record<SkillTriggerType, boolean> = {
   'dance-up': false,
   'visual-up': false,
   'eye-catch': false,
+  debuff: false,
   'tension-up': false,
   'critical-up': false,
   'score-up': false,
@@ -329,6 +330,7 @@ const AVAILAVLE_TRIGGER: Record<SkillTriggerType, boolean> = {
   'anyone-dance-up': true,
   'anyone-visual-up': true,
   'anyone-eye-catch': true,
+  'anyone-debuff': true,
   'anyone-tension-up': true,
   'anyone-critical-up': true,
   unknown: false,

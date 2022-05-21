@@ -54,7 +54,7 @@ export const theme: Theme = {
     'dance-down': normal,
     'visual-down': normal,
     'debuff-recovery': normal,
-    'down-guard': normal,
+    'debuff-guard': normal,
     slump: normal,
   },
 }

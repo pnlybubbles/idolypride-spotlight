@@ -8,6 +8,12 @@
       </template>
     </div>
     <Live v-if="live" :live="live" :idols="selectedIdols"></Live>
+    <div v-if="!noIdolSelected" class="footer">
+      <Callout>
+        <template #title>注意</template>
+        Pスキルの発動条件,CT減少,SPシフトなど再現できていない部分が多々あります
+      </Callout>
+    </div>
     <Loading :busy="fetching">譜面を読み込んでいます...</Loading>
     <Loading :busy="!fetching && idolFetch">アイドルを読み込んでいます...</Loading>
   </Layout>
@@ -81,9 +87,11 @@ watchEffect(() => {
   }
 })
 
+const noIdolSelected = computed(() => selectedIdols.every((v) => v === null))
+
 // アイドルが選択されたらローカルストレージに保存する
 watchEffect(() => {
-  if (selectedIdols.every((v) => v === null)) {
+  if (noIdolSelected.value) {
     return
   }
   // なんか[id]に代入するとreactiveがうまく発火しないのでrefのルートに代入している
@@ -109,5 +117,10 @@ useHead(DEFAULT_META)
 .root {
   position: relative;
   z-index: 0;
+}
+
+.footer {
+  @include align;
+  padding-top: 40px;
 }
 </style>

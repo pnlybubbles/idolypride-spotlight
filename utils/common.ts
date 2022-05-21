@@ -111,6 +111,7 @@ export const abilityEnhanceLabel = (enhance: AbilityEnhance, internal: boolean) 
     : 'value' in enhance
     ? ABILITY_ENHANCE_WITH_VALUE[enhance.type].replace(/X/, enhance.value.toString())
     : ABILITY_ENHANCE_WITHOUT_VALUE[enhance.type]
+
 export const buffAbilityTypeLabel = (type: BuffAbilityType, internal: boolean) =>
   internal ? type : BUFF_ABILITY_TYPE[type]
 export const actionAbilityTypeLabel = (type: ActionAbilityType, internal: boolean) =>
