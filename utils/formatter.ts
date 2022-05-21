@@ -332,7 +332,7 @@ export const isActionAbilityType = isKeyInObject(ACTION_ABILITY_TYPE)
 
 // 効果対象
 export const BUFF_TARGET_WITHOUT_SUFFIX: Record<BuffTargetWithoutSuffix | PassiveOnlyBuffTarget, string> = {
-  triggered: '"発動条件"の引き金となった対象',
+  triggered: '発動トリガーの対象',
   self: '自身',
   all: '全員',
   center: 'センター',
