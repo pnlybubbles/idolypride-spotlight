@@ -16,6 +16,6 @@ export const SUNNY_PEACE_HARMONY: LiveData = {
   ],
   sp: [[], [99], [63], [], []],
   beat: 167,
-} as const
+}
 
 export default [SUNNY_PEACE_HARMONY]

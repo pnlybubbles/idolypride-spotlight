@@ -48,7 +48,7 @@ export type NumberUnion<N extends number, T extends unknown[] = [], U extends nu
  * ArrayN<string, 3> // => readonly [string, string, string]
  */
 export type ArrayN<T, N extends number, A extends unknown[] = []> = A extends { length: N }
-  ? Readonly<A>
+  ? A
   : ArrayN<T, N, [...A, T]>
 
 /**

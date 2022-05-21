@@ -2,8 +2,16 @@
   <div class="filter">
     <div class="overview">
       <div class="applied">
-        <button v-if="modelValue.length === 0" class="filter-item empty" @click="open = true" @touchend="null">
+        <button v-if="modelValue.length === 0" class="filter-item dashed" @click="open = true" @touchend="null">
           フィルターなし
+        </button>
+        <button
+          v-if="modelValue.length === 0 && recentFilter.length !== 0"
+          class="filter-item dashed"
+          @click="handleApplyRecent"
+          @touchend="null"
+        >
+          最近のフィルタ ({{ recentFilter.map((v) => v.label).join(', ') }})
         </button>
         <button
           v-for="item in modelValue"
@@ -61,9 +69,6 @@
           </button>
         </div>
       </Section>
-      <Interactive class="more" :class="{ active: more }" @click="more = !more"
-        ><font-awesome-icon icon="caret-down" class="icon"></font-awesome-icon>詳細フィルター</Interactive
-      >
       <template v-if="more">
         <Section overflow>
           <template #label>ユニット</template>
@@ -85,7 +90,7 @@
           <template #sub>*複数選択はANDで評価されます</template>
           <div class="picker">
             <button
-              v-for="item in FILTERABLE_ABILITY_TYPE"
+              v-for="item in FILTERABLE_ABILITY_TYPE_OPTION"
               :key="item.id"
               class="picker-item"
               :class="{ active: isActive('ability', item.id) }"
@@ -96,11 +101,30 @@
             </button>
           </div>
         </Section>
+        <Section overflow>
+          <template #label>スキル構成</template>
+          <div class="picker">
+            <button
+              v-for="item in FILTERABLE_SKILL_FORMATION_OPTION"
+              :key="item.id"
+              class="picker-item"
+              :class="{ active: isActive('formation', item.id) }"
+              @click="handlePick('formation', item.id, item.label)"
+              @touchend="null"
+            >
+              {{ item.label }}
+            </button>
+          </div>
+        </Section>
       </template>
+      <Interactive class="more" :class="{ active: more }" @click="more = !more"
+        ><font-awesome-icon icon="caret-down" class="icon"></font-awesome-icon>詳細フィルター</Interactive
+      >
     </div>
   </div>
 </template>
 <script setup lang="ts">
+import { useIdolFilterRecent } from '~~/composable/localstorage-descriptors'
 import {
   IDOL_NAME,
   IDOL_TYPE,
@@ -111,10 +135,11 @@ import {
   omitUnknownOption,
 } from '~~/utils/common'
 import { ACTION_ABILITY_TYPE, BUFF_ABILITY_TYPE } from '~~/utils/formatter'
-import { Filter, FilterType } from './helper'
+import { Filter, FILTERABLE_SKILL_FORMATION, FilterType } from './helper'
 
 const FILTERABLE_UNIT_NAME = UNIT_NAME.filter((unit) => UNIT_TO_IDOL_NAME[unit].length > 2)
-const FILTERABLE_ABILITY_TYPE = omitUnknownOption(objToOption({ ...BUFF_ABILITY_TYPE, ...ACTION_ABILITY_TYPE }))
+const FILTERABLE_ABILITY_TYPE_OPTION = omitUnknownOption(objToOption({ ...BUFF_ABILITY_TYPE, ...ACTION_ABILITY_TYPE }))
+const FILTERABLE_SKILL_FORMATION_OPTION = objToOption(FILTERABLE_SKILL_FORMATION)
 
 interface Props {
   modelValue: Filter[]
@@ -129,11 +154,12 @@ const open = ref(false)
 
 const filterEq = (a: Filter, b: Filter) => a.type === b.type && a.value === b.value
 
+const [recentFilter] = useIdolFilterRecent()
+
 const handleFilter = (item: Filter) => {
-  emit(
-    'update:modelValue',
-    props.modelValue.filter((v) => !filterEq(v, item))
-  )
+  const newFilter = props.modelValue.filter((v) => !filterEq(v, item))
+  emit('update:modelValue', newFilter)
+  recentFilter.value = newFilter
 }
 
 const handlePick = (type: FilterType, value: string, label: string) => {
@@ -141,7 +167,13 @@ const handlePick = (type: FilterType, value: string, label: string) => {
   if (props.modelValue.find((v) => filterEq(v, item))) {
     return handleFilter(item)
   }
-  emit('update:modelValue', [...props.modelValue, item])
+  const newFilter = [...props.modelValue, item]
+  emit('update:modelValue', newFilter)
+  recentFilter.value = newFilter
+}
+
+const handleApplyRecent = () => {
+  emit('update:modelValue', recentFilter.value)
 }
 
 const isActive = (type: FilterType, value: string) => props.modelValue.find((v) => v.type === type && v.value === value)
@@ -152,6 +184,7 @@ const TYPE_TO_LABEL: Record<FilterType, string | null> = {
   type: null,
   role: null,
   ability: '効果',
+  formation: 'スキル構成',
 }
 
 const more = ref(false)
@@ -193,7 +226,7 @@ const more = ref(false)
   background-color: $surface1;
   color: $text1;
   padding: 4px 8px;
-  white-space: nowrap;
+  text-align: left;
 
   & .type {
     color: $text3;
@@ -204,7 +237,7 @@ const more = ref(false)
     color: $text1;
   }
 
-  &.empty {
+  &.dashed {
     color: $text3;
     background-color: unset;
     border: 1px dashed $text3;

@@ -9,15 +9,18 @@
     </div>
     <Live v-if="live" :live="live" :idols="selectedIdols"></Live>
     <Loading :busy="fetching">譜面を読み込んでいます...</Loading>
+    <Loading :busy="!fetching && idolFetch">アイドルを読み込んでいます...</Loading>
   </Layout>
 </template>
 <script setup lang="ts">
 import { useQuery } from '@urql/vue'
 import { useAuth } from '~~/composable/auth0'
 import { useError } from '~~/composable/error'
-import { GetFumenDocument } from '~~/generated/graphql'
-import { ArrayN } from '~~/utils'
+import { useLiveIdolSelectRecent } from '~~/composable/localstorage-descriptors'
+import { GetFumenDocument, GetIdolListDocument } from '~~/generated/graphql'
+import { ArrayN, indexed, mapArrayN } from '~~/utils'
 import { LANES } from '~~/utils/common'
+import { deserializeIdolList } from '~~/utils/formatter'
 import { DEFAULT_META } from '~~/utils/meta'
 import { IdolData, LiveData } from '~~/utils/types'
 
@@ -46,6 +49,49 @@ const live = computed(() => {
 })
 
 const selectedIdols = reactive<ArrayN<IdolData | null, 5>>([null, null, null, null, null])
+
+const {
+  data: idolData,
+  error: idolError,
+  fetching: idolFetch,
+} = useQuery({ query: GetIdolListDocument, pause: notAuthenticated })
+useError(idolError)
+const idolList = computed(() => (idolData.value ? deserializeIdolList(idolData.value) : []))
+
+const [selectedIdolsRecent, readySelectedIdolsRecent] = useLiveIdolSelectRecent()
+const selectedIdolsCurrentLive = computed(() => selectedIdolsRecent.value[id])
+
+const restored = ref(false)
+// ローカルストレージにアイドル選択状態が保持されていたら、復元する
+watchEffect(() => {
+  // ローカルストレージを読込中, アイドルデータを取得中は待機
+  if (!readySelectedIdolsRecent.value || idolFetch.value || restored.value) {
+    return
+  }
+
+  restored.value = true
+
+  if (selectedIdolsCurrentLive.value === undefined) {
+    return
+  }
+
+  for (const [idolId, index] of indexed(selectedIdolsCurrentLive.value)) {
+    const idol = idolList.value.find((v) => v.id === idolId)
+    selectedIdols[index] = idol ?? null
+  }
+})
+
+// アイドルが選択されたらローカルストレージに保存する
+watchEffect(() => {
+  if (selectedIdols.every((v) => v === null)) {
+    return
+  }
+  // なんか[id]に代入するとreactiveがうまく発火しないのでrefのルートに代入している
+  selectedIdolsRecent.value = {
+    ...selectedIdolsRecent.value,
+    [id]: mapArrayN(selectedIdols, (v) => v?.id ?? null),
+  }
+})
 
 useHead(DEFAULT_META)
 </script>
