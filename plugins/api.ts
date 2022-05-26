@@ -12,12 +12,21 @@ export default defineNuxtPlugin((nuxtApp) => {
   if (process.client) {
     void (async () => {
       try {
-        auth0.client = await createAuth0Client({
-          domain: 'dev-vc3eyhhs.us.auth0.com',
-          client_id: 'q74cyAZzpoWhhLkMlqmViZ61mNtAWsoB',
-          audience: 'https://hasura.io/learn',
-          cacheLocation: 'localstorage',
-        })
+        auth0.client = await createAuth0Client(
+          import.meta.env.MODE === 'production'
+            ? {
+                domain: 'idolypride-spotlight.jp.auth0.com',
+                client_id: 'HxOQBnqvX3vLtbiwXvzYNkoqYdcfJFeT',
+                audience: 'https://idolypride-spotlight.hasura.app',
+                cacheLocation: 'localstorage',
+              }
+            : {
+                domain: 'dev-vc3eyhhs.us.auth0.com',
+                client_id: 'q74cyAZzpoWhhLkMlqmViZ61mNtAWsoB',
+                audience: 'https://hasura.io/learn',
+                cacheLocation: 'localstorage',
+              }
+        )
         auth0.user = await auth0.client.getUser()
       } catch {
         // do nothing
@@ -66,7 +75,10 @@ export default defineNuxtPlugin((nuxtApp) => {
   }
 
   const client = createClient({
-    url: 'https://idolypride-spotlight.hasura.app/v1/graphql',
+    url:
+      import.meta.env.MODE === 'production'
+        ? 'https://idolypride-spotlight.hasura.app/v1/graphql'
+        : 'https://idolypride-spotl-dev.hasura.app/v1/graphql',
     exchanges: [dedupExchange, cacheExchange, authExchange(authConfig), fetchExchange],
   })
 
