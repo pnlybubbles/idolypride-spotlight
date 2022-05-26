@@ -5,7 +5,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   Sentry.init({
     app: nuxtApp.vueApp,
     dsn: 'https://54f8803f9ebc4ffeb2e5974c11f4e4d7@o1171814.ingest.sentry.io/6266745',
-    environment: import.meta.env.MODE as string,
+    environment: import.meta.env.MODE,
     integrations: [
       new BrowserTracing({
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unnecessary-type-assertion, @typescript-eslint/no-explicit-any
