@@ -1,0 +1,6 @@
+-- Could not auto-generate a down migration.
+-- Please write an appropriate down migration for the SQL below:
+-- INSERT INTO idol_role (comment, value) VALUES
+--   ('スコアラー', 'scorer'),
+--   ('バッファー', 'buffer'),
+--   ('サポーター', 'supporter');
