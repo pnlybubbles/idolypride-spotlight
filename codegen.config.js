@@ -5,7 +5,7 @@ module.exports = {
   schema: {
     'https://idolypride-spotlight.hasura.app/v1/graphql': {
       headers: {
-        'x-hasura-admin-secret': process.env.HASURA_ADMIN_SECRET,
+        'x-hasura-admin-secret': process.env.HASURA_GRAPHQL_ADMIN_SECRET,
         'x-hasura-role': 'user',
       },
     },
