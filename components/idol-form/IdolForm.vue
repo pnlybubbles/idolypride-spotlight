@@ -353,6 +353,8 @@ const deriveUnitByBuffType = (type: BuffAbilityType | ActionAbilityType | null):
       return 'CT減少数'
     case 'stamina-recovery':
       return 'スタミナ回復量'
+    case 'stamina-recovery-percentage':
+      return 'スタミナ回復量(%)'
     default:
       return '段階'
   }
