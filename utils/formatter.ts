@@ -337,7 +337,9 @@ export const ACTION_ABILITY_TYPE: Record<ActionAbilityType, string> = {
   'stamina-recovery': 'スタミナ回復',
   'stamina-recovery-percentage': 'スタミナX%回復',
   'debuff-recovery': '低下効果回復',
+  'debuff-inverse': '低下効果反転',
   'shift-before-sp': '強化効果をSPスキル前に移動',
+  'shift-before-a': '強化効果をAスキル前に移動',
 }
 export const isActionAbilityType = isKeyInObject(ACTION_ABILITY_TYPE)
 

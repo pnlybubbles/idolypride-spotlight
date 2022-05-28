@@ -45,6 +45,7 @@ export const theme: Theme = {
     'cmb-continuous': normal,
     'cmb-score': normal,
     'shift-before-sp': normal,
+    'shift-before-a': normal,
     tension: normal,
     steruss: normal,
     'eye-catch': normal,
@@ -55,6 +56,7 @@ export const theme: Theme = {
     'visual-down': normal,
     'debuff-recovery': normal,
     'debuff-guard': normal,
+    'debuff-inverse': normal,
     slump: normal,
   },
 }

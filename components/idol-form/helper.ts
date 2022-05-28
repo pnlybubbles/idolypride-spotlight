@@ -311,7 +311,9 @@ export const extractBuffTarget = (
 const ABILITY_TYPE_DISABLED_AMOUNT: Record<AbilityType, boolean> = {
   'cmb-continuous': true,
   'debuff-recovery': true,
+  'debuff-inverse': true,
   'shift-before-sp': true,
+  'shift-before-a': true,
   slump: true,
   'debuff-guard': true,
   'a-score': false,

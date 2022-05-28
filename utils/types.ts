@@ -30,7 +30,9 @@ export type ActionAbilityType =
   | 'stamina-recovery'
   | 'stamina-recovery-percentage'
   | 'debuff-recovery'
+  | 'debuff-inverse'
   | 'shift-before-sp'
+  | 'shift-before-a'
 export type AbilityType = BuffAbilityType | ActionAbilityType
 
 // target
