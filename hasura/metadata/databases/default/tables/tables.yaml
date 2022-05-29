@@ -3,6 +3,7 @@
 - "!include public_idol.yaml"
 - "!include public_idol_role.yaml"
 - "!include public_idol_type.yaml"
+- "!include public_owned_idol.yaml"
 - "!include public_skill.yaml"
 - "!include public_skill_type.yaml"
 - "!include public_user.yaml"
