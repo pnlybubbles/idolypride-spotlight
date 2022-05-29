@@ -6,7 +6,7 @@
     </Section>
     <Section>
       <template #label>カード名</template>
-      <TextField v-model="idol.title" placeholder="夢の共演" required></TextField>
+      <IdolTitleField v-model="idol.title"></IdolTitleField>
     </Section>
     <Section>
       <template #label>属性</template>
