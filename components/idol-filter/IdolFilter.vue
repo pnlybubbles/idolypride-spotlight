@@ -17,7 +17,7 @@
           v-for="item in modelValue"
           :key="`${item.type}-${item.value}`"
           class="filter-item"
-          @click="handleFilter(item)"
+          @click="handleOmit(item)"
           @touchend="null"
         >
           <span v-if="TYPE_TO_LABEL[item.type] !== null" class="type">{{ TYPE_TO_LABEL[item.type] }}</span>
@@ -116,6 +116,21 @@
             </button>
           </div>
         </Section>
+        <Section overflow>
+          <template #label>その他</template>
+          <div class="picker">
+            <button
+              v-for="item in FILTERABLE_OTHER_OPTION"
+              :key="item.id"
+              class="picker-item"
+              :class="{ active: isActive('other', item.id) }"
+              @click="handlePick('other', item.id, item.label, item.exclusive)"
+              @touchend="null"
+            >
+              {{ item.label }}
+            </button>
+          </div>
+        </Section>
       </template>
       <Interactive class="more" :class="{ active: more }" @click="more = !more"
         ><font-awesome-icon icon="caret-down" class="icon"></font-awesome-icon>詳細フィルター</Interactive
@@ -135,11 +150,15 @@ import {
   omitUnknownOption,
 } from '~~/utils/common'
 import { ACTION_ABILITY_TYPE, BUFF_ABILITY_TYPE } from '~~/utils/formatter'
-import { Filter, FILTERABLE_SKILL_FORMATION, FilterType } from './helper'
+import { Filter, FILTERABLE_SKILL_FORMATION, FilterType, OtherFilterId } from './helper'
 
 const FILTERABLE_UNIT_NAME = UNIT_NAME.filter((unit) => UNIT_TO_IDOL_NAME[unit].length > 2)
 const FILTERABLE_ABILITY_TYPE_OPTION = omitUnknownOption(objToOption({ ...BUFF_ABILITY_TYPE, ...ACTION_ABILITY_TYPE }))
 const FILTERABLE_SKILL_FORMATION_OPTION = objToOption(FILTERABLE_SKILL_FORMATION)
+const FILTERABLE_OTHER_OPTION: { id: OtherFilterId; label: string; exclusive: OtherFilterId[] }[] = [
+  { id: 'owned', label: '加入済', exclusive: ['not-owned'] },
+  { id: 'not-owned', label: '未加入', exclusive: ['owned'] },
+]
 
 interface Props {
   modelValue: Filter[]
@@ -156,18 +175,19 @@ const filterEq = (a: Filter, b: Filter) => a.type === b.type && a.value === b.va
 
 const [recentFilter] = useIdolFilterRecent()
 
-const handleFilter = (item: Filter) => {
+const handleOmit = (item: Filter) => {
   const newFilter = props.modelValue.filter((v) => !filterEq(v, item))
   emit('update:modelValue', newFilter)
   recentFilter.value = newFilter
 }
 
-const handlePick = (type: FilterType, value: string, label: string) => {
+const handlePick = (type: FilterType, value: string, label: string, omit: string[] = []) => {
   const item = { type, value, label }
+  // 既に選択済みであれば解除する
   if (props.modelValue.find((v) => filterEq(v, item))) {
-    return handleFilter(item)
+    return handleOmit(item)
   }
-  const newFilter = [...props.modelValue, item]
+  const newFilter = [...props.modelValue.filter((v) => !omit.some((w) => filterEq(v, { type, value: w, label }))), item]
   emit('update:modelValue', newFilter)
   recentFilter.value = newFilter
 }
@@ -185,6 +205,7 @@ const TYPE_TO_LABEL: Record<FilterType, string | null> = {
   role: null,
   ability: '効果',
   formation: 'スキル構成',
+  other: null,
 }
 
 const more = ref(false)
