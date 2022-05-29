@@ -12,6 +12,7 @@ import { deserializeIdolList } from '~~/utils/formatter'
 
 interface Props {
   modelValue: string
+  editingIdolId: string | null
 }
 const props = defineProps<Props>()
 
@@ -29,6 +30,11 @@ const { notAuthenticated } = useAuth()
 const { data, error } = useQuery({ query: GetIdolListDocument, pause: notAuthenticated })
 useError(error)
 
-const idolList = computed(() => (data.value ? deserializeIdolList(data.value).map((v) => v.title) : []))
-const alreadyExist = computed(() => idolList.value.includes(props.modelValue.trim()))
+const idolList = computed(() => (data.value ? deserializeIdolList(data.value) : []))
+const alreadyExist = computed(() =>
+  idolList.value
+    .filter((v) => props.editingIdolId === null || v.id !== props.editingIdolId)
+    .map((v) => v.title)
+    .includes(props.modelValue.trim())
+)
 </script>
