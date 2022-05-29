@@ -5,7 +5,7 @@
       <Section>
         <template #label>管理</template>
         <template #sub>*自分の設定</template>
-        <Check v-model="isOwned">保有している</Check>
+        <Check v-model="isOwned" :disabled="idol.owned === null">保有している</Check>
       </Section>
       <Section>
         <template #label>データ</template>
@@ -17,7 +17,11 @@
   </Sheet>
 </template>
 <script setup lang="ts">
+import { useMutation } from '@urql/vue'
 import { useAuth } from '~~/composable/auth0'
+import { useError } from '~~/composable/error'
+import { useDebounce } from '~~/composable/atom'
+import { AddOwnedIdolDocument, RemoveOwnedIdolDocument } from '~~/generated/graphql'
 import { IdolData } from '~~/utils/types'
 
 interface Props {
@@ -39,5 +43,19 @@ const canEdit = computed(() => {
   return isManaged.value || props.isAdmin
 })
 
-const isOwned = ref(false)
+const isOwned = ref(props.idol.owned ?? false)
+
+const { executeMutation: executeAddMutation, error: errorAdding } = useMutation(AddOwnedIdolDocument)
+useError(errorAdding)
+
+const { executeMutation: executeRemoveMutation, error: errorRemoving } = useMutation(RemoveOwnedIdolDocument)
+useError(errorRemoving)
+
+useDebounce(isOwned, 500, async (value) => {
+  if (value) {
+    await executeAddMutation({ idol_id: props.idol.id })
+  } else {
+    await executeRemoveMutation({ idol_id: props.idol.id })
+  }
+})
 </script>

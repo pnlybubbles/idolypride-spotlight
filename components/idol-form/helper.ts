@@ -158,6 +158,7 @@ export const formatIdol = (v: IdolInput): IdolData => {
     name: defined(v.name),
     userId: null,
     skills: mapArrayN(v.skills, formatSkill),
+    owned: null,
   }
 }
 

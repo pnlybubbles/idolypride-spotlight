@@ -29,6 +29,9 @@ query getIdolList {
         enhance_value
       }
     }
+    owned_by {
+      id
+    }
   }
 }
 

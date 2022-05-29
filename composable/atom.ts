@@ -35,3 +35,34 @@ export function useIntAsString(ref: Ref<number>) {
     set: (value) => (ref.value = safeParseInt(value)),
   })
 }
+
+export function useDebounce<T>(target: Ref<T>, ms: number, task: (value: T) => Promise<unknown>) {
+  const /* mutable */ queue: T[] = []
+  let cached = target.value
+
+  watch(target, (value, _, onCleanup) => {
+    const timer = setTimeout(async () => {
+      queue.push(value)
+      // 非同期処理中に次の処理が来た場合はキューイングする
+      if (queue.length > 1) {
+        return
+      }
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        const head = queue[0]
+        if (head === undefined) {
+          break
+        }
+        // shallow-equalityで重複除去
+        if (head === cached) {
+          return
+        }
+        await task(head)
+        cached = head
+        queue.shift()
+      }
+    }, ms)
+
+    onCleanup(() => clearTimeout(timer))
+  })
+}

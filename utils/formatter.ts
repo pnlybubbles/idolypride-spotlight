@@ -43,6 +43,7 @@ import { v4 as uuid } from 'uuid'
 export const deserializeIdolList = (data: GetIdolListQuery): IdolData[] =>
   data.idol.map((v) => ({
     ...v,
+    owned: v.owned_by.length > 0,
     userId: v.user_id,
     skills: mapArrayN(SKILLS, (i) => deserializeSkill(defined(v.skills[i]))),
   }))
@@ -51,6 +52,7 @@ export const deserializeIdol = (data: GetIdolQuery): IdolData | null =>
   data.idol_by_pk
     ? {
         ...data.idol_by_pk,
+        owned: null,
         userId: data.idol_by_pk.user_id,
         skills: sortSkills(mapArrayN(SKILLS, (i) => deserializeSkill(defined(data.idol_by_pk?.skills[i])))),
       }
@@ -183,7 +185,10 @@ type RequiredSerialized<T> = {
     : T[K]
 }
 
-export const serializeIdol = (v: IdolData, upsert = false): RequiredSerialized<Idol_Insert_Input> => ({
+export const serializeIdol = (
+  v: IdolData,
+  upsert = false
+): RequiredSerialized<Omit<Idol_Insert_Input, 'owned_by'>> => ({
   id: upsert && v.id !== '' ? v.id : uuid(),
   name: v.name,
   title: v.title,

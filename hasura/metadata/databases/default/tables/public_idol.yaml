@@ -2,6 +2,13 @@ table:
   schema: public
   name: idol
 array_relationships:
+  - name: owned_by
+    using:
+      foreign_key_constraint_on:
+        column: idol_id
+        table:
+          schema: public
+          name: owned_idol
   - name: skills
     using:
       foreign_key_constraint_on:
