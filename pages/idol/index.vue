@@ -8,22 +8,13 @@
       <div v-if="fetching" class="loading"><Spinner></Spinner></div>
       <ul v-else class="list">
         <li v-for="idol in filteredIdolList" :key="idol.id">
-          <IdolItem :idol="idol" @click="handleClick(idol.id)"></IdolItem>
+          <IdolItemEditable :idol="idol" :is-admin="isAdmin"></IdolItemEditable>
         </li>
       </ul>
       <div class="add-button">
         <ButtonLink to="/idol/new">アイドルを追加する</ButtonLink>
       </div>
     </div>
-    <Sheet v-model:present="present">
-      <Section>
-        <ButtonLink :to="`/idol/${currentIdolId}/edit`" :disabled="!canEdit(currentIdolId)"
-          >アイドルを編集する</ButtonLink
-        >
-        <NoteText v-if="!canEdit(currentIdolId)">自分の追加したアイドルのみ編集できます</NoteText>
-        <NoteText v-if="isAdmin">管理者権限によりすべてのアイドルを編集できます</NoteText>
-      </Section>
-    </Sheet>
   </Layout>
 </template>
 <script setup lang="ts">
@@ -41,23 +32,6 @@ useError(error)
 
 const idolList = computed(() => (data.value ? deserializeIdolList(data.value) : []))
 const filteredIdolList = computed(() => idolSort(idolFilter(idolList.value, filter.value)))
-
-const present = ref(false)
-const currentIdolId = ref('')
-
-const handleClick = (idolId: string) => {
-  currentIdolId.value = idolId
-  present.value = true
-}
-
-const isOwned = (idolId: string) => {
-  const idolOwner = idolList.value.find((v) => v.id === idolId)?.userId
-  return idolOwner != null && user.value?.sub != null && idolOwner == user.value.sub
-}
-
-const canEdit = (idolId: string) => {
-  return isOwned(idolId) || isAdmin.value
-}
 
 const filter = ref<Filter[]>([])
 
