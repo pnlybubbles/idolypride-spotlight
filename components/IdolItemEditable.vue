@@ -4,7 +4,7 @@
     <VStack :spacing="16">
       <Section>
         <template #label>管理</template>
-        <template #sub>*自分の設定</template>
+        <template #sub><OwnSettingBadge></OwnSettingBadge></template>
         <Check v-model="isOwned" :disabled="idol.owned === null">保有している</Check>
       </Section>
       <Section>
