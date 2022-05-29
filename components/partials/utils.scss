@@ -43,7 +43,7 @@
 
 @mixin clickable {
   user-select: none;
-  transition: opacity 0.1s;
+  transition: all 0.1s;
 
   &:active {
     opacity: 0.64;

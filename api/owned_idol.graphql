@@ -6,6 +6,15 @@ mutation addOwnedIdol($idol_id: uuid!) {
   }
 }
 
+mutation updateOwnedIdolList($add: [owned_idol_insert_input!]!, $remove: [uuid!]!) {
+  insert_owned_idol(objects: $add) {
+    affected_rows
+  }
+  delete_owned_idol(where: { idol_id: { _in: $remove } }) {
+    affected_rows
+  }
+}
+
 mutation removeOwnedIdol($idol_id: uuid!) {
   delete_owned_idol(where: { idol_id: { _eq: $idol_id } }) {
     affected_rows

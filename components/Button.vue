@@ -1,17 +1,17 @@
 <template>
-  <button :disabled="disabled ?? false" class="button" :class="[variant]" @click="$emit('click')" @touchend="null">
+  <button :disabled="disabled" class="button" :class="[variant]" @click="$emit('click')" @touchend="null">
     <slot></slot>
   </button>
 </template>
 <script setup lang="ts">
 interface Props {
-  variant?: 'primary' | 'secondary'
+  variant?: 'primary' | 'mini'
   disabled?: boolean
 }
 interface Emits {
   (e: 'click'): void
 }
-defineProps<Props>()
+withDefaults(defineProps<Props>(), { variant: 'primary', disabled: false })
 defineEmits<Emits>()
 </script>
 <style lang="scss" scoped>
@@ -20,6 +20,23 @@ defineEmits<Emits>()
 
 .button {
   @include reset-button;
-  @include button-like;
+
+  &.primary {
+    @include button-like;
+  }
+
+  &.mini {
+    font-size: $typography-xs;
+    height: 32px;
+    min-width: 32px;
+    padding: 0 16px;
+    display: grid;
+    align-items: center;
+    justify-items: center;
+    border-radius: 9999px;
+    background-color: $surface1;
+    color: $text1;
+    align-self: flex-start;
+  }
 }
 </style>
