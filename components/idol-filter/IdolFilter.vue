@@ -298,6 +298,7 @@ const more = ref(false)
   font-size: $typography-s;
   color: $text3;
   text-align: center;
+  margin-bottom: -8px;
 
   .icon {
     margin-right: 4px;

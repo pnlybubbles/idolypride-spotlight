@@ -109,13 +109,13 @@ useHead(DEFAULT_META)
 }
 
 .sticky {
-  @include bloom(black);
+  @include background-blur('blend');
 
   position: sticky;
   top: 0;
   padding: 16px 0;
-  margin: -16px 0;
-  background-color: $background1;
+  margin-top: -16px;
   z-index: 1;
+  border-bottom: solid 1px $surface1;
 }
 </style>
