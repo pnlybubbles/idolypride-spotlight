@@ -2990,6 +2990,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@urql/core@npm:>=2.5.0":
+  version: 2.5.0
+  resolution: "@urql/core@npm:2.5.0"
+  dependencies:
+    "@graphql-typed-document-node/core": ^3.1.1
+    wonka: ^4.0.14
+  peerDependencies:
+    graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
+  checksum: 925b495c0b572f6f072a269921792caebf074d10c5bd9fca0433c65b80a81859bc7e889403a9e6d4008affaddb74d9a2dd11dd017e522005307374d591d41aca
+  languageName: node
+  linkType: hard
+
 "@urql/core@npm:^2.3.6":
   version: 2.4.1
   resolution: "@urql/core@npm:2.4.1"
@@ -3002,6 +3014,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@urql/devtools@npm:^2.0.3":
+  version: 2.0.3
+  resolution: "@urql/devtools@npm:2.0.3"
+  dependencies:
+    wonka: ">= 4.0.9"
+  peerDependencies:
+    "@urql/core": ">= 1.14.0"
+    graphql: ">= 0.11.0"
+  checksum: 9b4a46dd0b6cca5296667bc0e658212c3101cd1c0d01dcc0be736e5b5159beaf6aa982115dd7546ff5425ed91e1688132a82a8f101bf8ad560245b97bb533f59
+  languageName: node
+  linkType: hard
+
 "@urql/exchange-auth@npm:^0.1.7":
   version: 0.1.7
   resolution: "@urql/exchange-auth@npm:0.1.7"
@@ -3011,6 +3035,18 @@ __metadata:
   peerDependencies:
     graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
   checksum: 36036f02d7873f9fd9385b16f1980a85918307cf23ffad83152bd67aa93b16a405c44f2e5c2b378fdef1837c33dfcc9b0db22143127a43a63da2c3c378c0600e
+  languageName: node
+  linkType: hard
+
+"@urql/exchange-graphcache@npm:^4.4.1":
+  version: 4.4.1
+  resolution: "@urql/exchange-graphcache@npm:4.4.1"
+  dependencies:
+    "@urql/core": ">=2.5.0"
+    wonka: ^4.0.14
+  peerDependencies:
+    graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
+  checksum: b73f3d3097948caf426fc9eda369df48013f4fa87ffe1adc12465ccd1903bb3027695a79364562c41df0cd4f378303a1136d31e3f82ef761c4919a55509f9217
   languageName: node
   linkType: hard
 
@@ -11867,7 +11903,9 @@ __metadata:
     "@types/jest": ^27.5.1
     "@types/prettier": ^2.6.1
     "@types/uuid": ^8.3.4
+    "@urql/devtools": ^2.0.3
     "@urql/exchange-auth": ^0.1.7
+    "@urql/exchange-graphcache": ^4.4.1
     "@urql/vue": ^0.6.2
     "@vue/eslint-config-prettier": ^7.0.0
     "@vue/eslint-config-typescript": ^10.0.0
@@ -14004,7 +14042,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"wonka@npm:^4.0.14":
+"wonka@npm:>= 4.0.9, wonka@npm:^4.0.14":
   version: 4.0.15
   resolution: "wonka@npm:4.0.15"
   checksum: afbee7359ed2d0a9146bf682f3953cb093f47d5f827e767e6ef33cb70ca6f30631afe5fe31dbb8d6c7eaed26c4ac6426e7c13568917c017ef6f42c71139b38f7
