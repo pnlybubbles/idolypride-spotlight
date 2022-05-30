@@ -36,12 +36,17 @@ export function useIntAsString(ref: Ref<number>) {
   })
 }
 
-export function useDebounce<T>(target: Ref<T>, ms: number, task: (value: T) => Promise<unknown>) {
+export function useDebounce<T>(defaultValue: T, ms: number, task: (value: T) => Promise<unknown>) {
   const /* mutable */ queue: T[] = []
-  let cached = target.value
+  let cached = defaultValue
+  let timer: NodeJS.Timeout | null = null
 
-  watch(target, (value, _, onCleanup) => {
-    const timer = setTimeout(async () => {
+  return (value: T) => {
+    if (timer !== null) {
+      clearTimeout(timer)
+    }
+    timer = setTimeout(async () => {
+      timer = null
       queue.push(value)
       // 非同期処理中に次の処理が来た場合はキューイングする
       if (queue.length > 1) {
@@ -55,6 +60,7 @@ export function useDebounce<T>(target: Ref<T>, ms: number, task: (value: T) => P
         }
         // shallow-equalityで重複除去
         if (head === cached) {
+          queue.shift()
           return
         }
         await task(head)
@@ -62,7 +68,5 @@ export function useDebounce<T>(target: Ref<T>, ms: number, task: (value: T) => P
         queue.shift()
       }
     }, ms)
-
-    onCleanup(() => clearTimeout(timer))
-  })
+  }
 }

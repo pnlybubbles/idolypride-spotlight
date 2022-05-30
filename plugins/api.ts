@@ -1,9 +1,9 @@
 import createAuth0Client, { Auth0Client, User } from '@auth0/auth0-spa-js'
 import { authExchange, AuthConfig } from '@urql/exchange-auth'
-import { cacheExchange } from '@urql/exchange-graphcache'
+// import { cacheExchange } from '@urql/exchange-graphcache'
 import { devtoolsExchange } from '@urql/devtools'
-import { makeOperation, createClient, dedupExchange, fetchExchange } from '@urql/vue'
-import schema from '../graphql.schema.json'
+import { makeOperation, createClient, dedupExchange, cacheExchange, fetchExchange } from '@urql/vue'
+// import schema from '../graphql.schema.json'
 
 export default defineNuxtPlugin((nuxtApp) => {
   const auth0 = reactive<{
@@ -85,8 +85,10 @@ export default defineNuxtPlugin((nuxtApp) => {
     exchanges: [
       devtoolsExchange,
       dedupExchange,
+      // normalize caching がうまくいかないので、いったんやめる
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
-      cacheExchange({ schema: schema as any }),
+      // cacheExchange({ schema: schema as any }),
+      cacheExchange,
       authExchange(authConfig),
       fetchExchange,
     ],

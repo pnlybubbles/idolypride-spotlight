@@ -1,5 +1,6 @@
 query isUserAllowed($id: String!) {
   user_by_pk(id: $id) {
     allow
+    __typename
   }
 }

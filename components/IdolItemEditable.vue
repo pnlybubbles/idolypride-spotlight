@@ -5,7 +5,7 @@
       <Section>
         <template #label>管理</template>
         <template #sub><OwnSettingBadge></OwnSettingBadge></template>
-        <Check v-model="isOwned" :disabled="idol.owned === null">保有している</Check>
+        <Check v-model="isOwned" :disabled="idol.owned === null" @update:model-value="mutate">保有している</Check>
       </Section>
       <Section>
         <template #label>データ</template>
@@ -45,13 +45,20 @@ const canEdit = computed(() => {
 
 const isOwned = ref(props.idol.owned ?? false)
 
+watchEffect(() => {
+  isOwned.value = props.idol.owned ?? false
+})
+
 const { executeMutation: executeAddMutation, error: errorAdding } = useMutation(AddOwnedIdolDocument)
 useError(errorAdding)
 
 const { executeMutation: executeRemoveMutation, error: errorRemoving } = useMutation(RemoveOwnedIdolDocument)
 useError(errorRemoving)
 
-useDebounce(isOwned, 500, async (value) => {
+const mutate = useDebounce(isOwned.value, 500, async (value) => {
+  if (props.idol.owned === undefined) {
+    return
+  }
   if (value) {
     await executeAddMutation({ idol_id: props.idol.id })
   } else {

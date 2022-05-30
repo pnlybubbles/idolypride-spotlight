@@ -44,7 +44,11 @@ import { deserializeIdolList } from '~~/utils/formatter'
 import { DEFAULT_META } from '~~/utils/meta'
 
 const { notAuthenticated, user } = useAuth()
-const { data, fetching, error } = useQuery({ query: GetIdolListDocument, pause: notAuthenticated })
+const { data, fetching, error } = useQuery({
+  query: GetIdolListDocument,
+  pause: notAuthenticated,
+  context: { additionalTypenames: ['owned_idol'] },
+})
 useError(error)
 
 const idolList = computed(() => (data.value ? deserializeIdolList(data.value) : []))
@@ -100,6 +104,9 @@ const handleSubmitSelectOwned = async () => {
     .filter(([, v]) => !v)
     .map(([id]) => id)
     .filter((id) => idolList.value.find((v) => v.id === id)?.owned === true)
+  if (diffAdd.length === 0 && diffRemove.length === 0) {
+    return
+  }
   await executeMutation({
     add: diffAdd.map((v) => ({ idol_id: v })),
     remove: diffRemove,
