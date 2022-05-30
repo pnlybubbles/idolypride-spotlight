@@ -2,11 +2,11 @@
   <IdolItem :idol="idol" @click="present = true"></IdolItem>
   <Sheet v-model:present="present">
     <VStack :spacing="16">
-      <IdolItem :idol="idol" variant="oneline"></IdolItem>
+      <IdolItem :idol="idol" variant="oneline" no-event></IdolItem>
       <Section>
         <template #label>管理</template>
         <template #sub><OwnSettingBadge></OwnSettingBadge></template>
-        <Check v-model="isOwned" :disabled="idol.owned === null" @update:model-value="mutate">保有している</Check>
+        <Check v-model="isOwned" :disabled="idol.owned === null" @update:model-value="mutate">加入している</Check>
       </Section>
       <Section>
         <template #label>データ</template>

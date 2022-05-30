@@ -3,7 +3,12 @@
     <template #heading>アイドル</template>
     <template #right>
       <Button v-show="selectOwnedMode" variant="mini" @click="handleSubmitSelectOwned">複数選択完了</Button>
-      <DotMenu v-show="!selectOwnedMode" :menu="menu"></DotMenu>
+      <DotMenu v-show="!selectOwnedMode" v-slot="{ label, arg }" :menu="menu">
+        <div class="dot-menu-item">
+          <span>{{ label }}</span>
+          <OwnSettingBadge v-if="arg.annotate"></OwnSettingBadge>
+        </div>
+      </DotMenu>
     </template>
     <div class="main">
       <div class="sticky">
@@ -72,8 +77,13 @@ const isAdmin = computed(() => {
 const selectOwnedMode = ref(false)
 
 const menu = [
-  { type: 'link', label: 'アイドルを追加する', to: '/idol/new' },
-  { type: 'button', label: '保有アイドルを複数選択する', action: () => (selectOwnedMode.value = true) },
+  { type: 'link', label: 'アイドルを追加する', arg: { annorate: false }, to: '/idol/new' },
+  {
+    type: 'button',
+    label: '加入済アイドルを複数選択する',
+    arg: { annotate: true },
+    action: () => (selectOwnedMode.value = true),
+  },
 ] as const
 
 const { executeMutation, error: addOwnedIdolListError } = useMutation(UpdateOwnedIdolListDocument)
@@ -210,5 +220,13 @@ useHead(DEFAULT_META)
 
 .checked .icon {
   opacity: 1;
+}
+
+.dot-menu-item {
+  display: grid;
+  grid: auto / auto-flow;
+  gap: 4px;
+  justify-content: start;
+  align-items: center;
 }
 </style>

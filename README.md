@@ -26,6 +26,16 @@ Start the development server on http://localhost:3000
 yarn dev
 ```
 
+Currently, Hasura environment is required individually. The description of hasura environment is inside `/hasura` directory.
+
+Rough steps for setup is below:
+
+- Create account and project on Hasura
+- Install Hasura CLI
+- Export environment variables `HASURA_GRAPHQL_ENDPOINT`, `HASURA_GRAPHQL_ADMIN_SECRET`
+- `cd hasura && hasura deploy`
+- Update `HASURA_GRAPHQL_JWT_SECRET` Env vars on Hasura cloud used for Auth0 (please contact me)
+
 ## Editor settings (Optional)
 
 Enable Take Over Mode for Volar extension integration. [How to enable](https://github.com/johnsoncodehk/volar/discussions/471).
@@ -42,6 +52,8 @@ yarn start
 ## Deployment
 
 Using github action to deploy on vercel.
+
+In case db migration is required, manually deploying schema and metadata on hasura before the application deployment.
 
 ## Structure
 

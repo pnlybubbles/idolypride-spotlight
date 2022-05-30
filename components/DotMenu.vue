@@ -4,11 +4,11 @@
     <Sheet v-model:present="open">
       <ul class="menu">
         <li v-for="item in menu" :key="item.label">
-          <NuxtLink v-if="item.type === 'link'" class="item" :to="item.to" @click="handleClickItem" @touchend="null">{{
-            item.label
-          }}</NuxtLink>
+          <NuxtLink v-if="item.type === 'link'" class="item" :to="item.to" @click="handleClickItem" @touchend="null">
+            <slot :label="item.label" :arg="item.arg">{{ item.label }}</slot>
+          </NuxtLink>
           <button v-else class="item" @click="handleClickItem(), item.action()" @touchend="null">
-            {{ item.label }}
+            <slot :label="item.label" :arg="item.arg">{{ item.label }}</slot>
           </button>
         </li>
       </ul>
@@ -17,7 +17,10 @@
 </template>
 <script setup lang="ts">
 interface Props {
-  menu: readonly ({ type: 'link'; label: string; to: string } | { type: 'button'; label: string; action: () => void })[]
+  menu: readonly (
+    | { type: 'link'; label: string; arg?: unknown; to: string }
+    | { type: 'button'; label: string; arg?: unknown; action: () => void }
+  )[]
 }
 defineProps<Props>()
 const handleClickItem = () => {
