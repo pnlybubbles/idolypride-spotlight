@@ -1,6 +1,6 @@
 <template>
   <div class="idol-item">
-    <button class="heading" @click="$emit('click')" @touchend="null">
+    <button class="heading" :class="{ event: !noEvent }" @click="!noEvent && $emit('click')" @touchend="null">
       <div class="type" :class="idol.type">
         <RoleIcon :role="idol.role" class="role"></RoleIcon>
       </div>
@@ -27,9 +27,10 @@ import { IdolData } from '~~/utils/types'
 
 interface Props {
   idol: IdolData
+  noEvent?: boolean
   variant?: 'default' | 'mini' | 'oneline'
 }
-withDefaults(defineProps<Props>(), { variant: 'default' })
+withDefaults(defineProps<Props>(), { variant: 'default', noEvent: false })
 
 interface Emits {
   (e: 'click'): void
@@ -48,13 +49,16 @@ defineEmits<Emits>()
 
 .heading {
   @include reset-button;
-  @include clickable;
   @include align;
   display: grid;
   grid: auto / auto-flow;
   justify-content: start;
   align-items: center;
   gap: 8px;
+
+  &.event {
+    @include clickable;
+  }
 }
 
 .title {
