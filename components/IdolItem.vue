@@ -9,7 +9,7 @@
         <span class="name">{{ idol.name }}</span>
       </div>
     </button>
-    <div class="status">
+    <div v-if="variant !== 'oneline'" class="status">
       <div class="skill-overview">
         <div v-for="skill in idol.skills" :key="skill.id" class="skill-tag">
           <div class="skill-type">{{ skill.type.toUpperCase() }}</div>
@@ -27,7 +27,7 @@ import { IdolData } from '~~/utils/types'
 
 interface Props {
   idol: IdolData
-  variant?: 'default' | 'mini'
+  variant?: 'default' | 'mini' | 'oneline'
 }
 withDefaults(defineProps<Props>(), { variant: 'default' })
 

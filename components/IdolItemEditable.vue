@@ -2,6 +2,7 @@
   <IdolItem :idol="idol" @click="present = true"></IdolItem>
   <Sheet v-model:present="present">
     <VStack :spacing="16">
+      <IdolItem :idol="idol" variant="oneline"></IdolItem>
       <Section>
         <template #label>管理</template>
         <template #sub><OwnSettingBadge></OwnSettingBadge></template>
