@@ -2976,7 +2976,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@urql/core@npm:>=2.5.0":
+"@urql/core@npm:>=2.5.0, @urql/core@npm:^2.5.0":
   version: 2.5.0
   resolution: "@urql/core@npm:2.5.0"
   dependencies:
@@ -11817,6 +11817,7 @@ __metadata:
     "@types/jest": ^27.5.1
     "@types/prettier": ^2.6.3
     "@types/uuid": ^8.3.4
+    "@urql/core": ^2.5.0
     "@urql/devtools": ^2.0.3
     "@urql/exchange-auth": ^0.1.7
     "@urql/exchange-graphcache": ^4.4.1
@@ -11841,6 +11842,7 @@ __metadata:
     uuid: ^8.3.2
     vercel: ^24.2.4
     vls: ^0.7.6
+    vue: ^3.2.36
     vue-tsc: ^0.35.2
   languageName: unknown
   linkType: soft
@@ -13806,7 +13808,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vue@npm:^3.2.34":
+"vue@npm:^3.2.34, vue@npm:^3.2.36":
   version: 3.2.36
   resolution: "vue@npm:3.2.36"
   dependencies:
