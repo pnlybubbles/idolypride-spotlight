@@ -73,7 +73,7 @@ const selectOwnedMode = ref(false)
 
 const menu = [
   { type: 'link', label: 'アイドルを追加する', to: '/idol/new' },
-  { type: 'button', label: '保有アイドルを複数選択する', action: () => (selectOwnedMode.value = true) },
+  { type: 'button', label: '加入済アイドルを複数選択する', action: () => (selectOwnedMode.value = true) },
 ] as const
 
 const { executeMutation, error: addOwnedIdolListError } = useMutation(UpdateOwnedIdolListDocument)
