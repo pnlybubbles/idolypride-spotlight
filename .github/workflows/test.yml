@@ -40,7 +40,7 @@ jobs:
 
       - name: GraphQL codegen
         env:
-          HASURA_ADMIN_SECRET: ${{ secrets.HASURA_ADMIN_SECRET }}
+          HASURA_GRAPHQL_ADMIN_SECRET: ${{ secrets.HASURA_GRAPHQL_ADMIN_SECRET }}
         run: |
           yarn build:graphql
 
