@@ -5,7 +5,7 @@
 </template>
 <script setup lang="ts">
 interface Props {
-  variant?: 'primary' | 'mini'
+  variant?: 'primary' | 'secondary' | 'mini'
   disabled?: boolean
 }
 interface Emits {
@@ -23,6 +23,10 @@ defineEmits<Emits>()
 
   &.primary {
     @include button-like;
+  }
+
+  &.secondary {
+    @include button-like('secondary');
   }
 
   &.mini {

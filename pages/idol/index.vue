@@ -28,7 +28,8 @@
         </li>
       </ul>
       <div class="add-button">
-        <ButtonLink to="/idol/new">アイドルを追加する</ButtonLink>
+        <Button v-if="selectOwnedMode" variant="secondary" @click="handleSubmitSelectOwned">複数選択完了</Button>
+        <ButtonLink v-else to="/idol/new">アイドルを追加する</ButtonLink>
       </div>
     </div>
   </Layout>
@@ -146,6 +147,7 @@ useHead(DEFAULT_META)
 
 .add-button {
   @include align;
+  display: grid;
 }
 
 .sticky {
