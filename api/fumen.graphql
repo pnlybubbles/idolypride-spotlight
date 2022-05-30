@@ -3,6 +3,7 @@ query getFumentList {
     id
     title
     unit
+    __typename
   }
 }
 
@@ -13,6 +14,7 @@ query getFumen($id: uuid!) {
     sp
     title
     unit
+    __typename
   }
 }
 
@@ -23,5 +25,6 @@ mutation createFumen($object: fumen_insert_input!) {
     beat
     a
     sp
+    __typename
   }
 }

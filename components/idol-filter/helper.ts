@@ -3,7 +3,7 @@ import { eraceArrayLiteralTypes, eraceObjectLiteralTypes, isUnique, mapArrayN, m
 import { UNIT_TO_IDOL_NAME } from '~~/utils/common'
 import { IdolData } from '~~/utils/types'
 
-export type FilterType = 'name' | 'unit' | 'type' | 'role' | 'ability' | 'formation'
+export type FilterType = 'name' | 'unit' | 'type' | 'role' | 'ability' | 'formation' | 'other'
 export type Filter = {
   type: FilterType
   label: string
@@ -30,6 +30,18 @@ const idolMatchFormation = (idol: IdolData, formation: string) => {
   }).every((v) => v)
 }
 
+const idolMatchOther = (idol: IdolData, other: string[]) => {
+  return (other as OtherFilterId[]).some((v) => {
+    if (v === 'owned') {
+      return idol.owned === true
+    } else if (v === 'not-owned') {
+      return idol.owned === false
+    } else {
+      return true
+    }
+  })
+}
+
 export const idolFilter = (idolList: IdolData[], filter: Filter[]) => {
   const nameList = filter.filter((v) => v.type === 'name').map((v) => v.value)
   const unitList = filter.filter((v) => v.type === 'unit').map((v) => v.value)
@@ -44,6 +56,7 @@ export const idolFilter = (idolList: IdolData[], filter: Filter[]) => {
   const roleList = filter.filter((v) => v.type === 'role').map((v) => v.value)
   const abilityList = filter.filter((v) => v.type === 'ability').map((v) => v.value)
   const formationList = filter.filter((v) => v.type === 'formation').map((v) => v.value)
+  const otherList = filter.filter((v) => v.type === 'other').map((v) => v.value)
 
   return idolList.filter(
     (idol) =>
@@ -51,7 +64,8 @@ export const idolFilter = (idolList: IdolData[], filter: Filter[]) => {
       (typeList.length === 0 ? true : typeList.includes(idol.type)) &&
       (roleList.length === 0 ? true : roleList.includes(idol.role)) &&
       (abilityList.length === 0 ? true : idolHasAllAbilities(idol, abilityList)) &&
-      (formationList.length === 0 ? true : formationList.some((v) => idolMatchFormation(idol, v)))
+      (formationList.length === 0 ? true : formationList.some((v) => idolMatchFormation(idol, v))) &&
+      (otherList.length === 0 ? true : idolMatchOther(idol, otherList))
   )
 }
 
@@ -75,3 +89,5 @@ const SKILL_FORMATION = {
   spa30p: ['SP', 'A30', 'P'],
 } as const
 export const FILTERABLE_SKILL_FORMATION = mapObject(SKILL_FORMATION, (v) => v.join('-'))
+
+export type OtherFilterId = 'owned' | 'not-owned'

@@ -54,6 +54,7 @@ const mockIdol = ({
     role: role ?? 'scorer',
     type: type ?? 'vocal',
     userId: 'mock_user',
+    owned: null,
     skills: skills ?? presetSkills,
   }
 }

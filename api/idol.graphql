@@ -6,6 +6,7 @@ query getIdolList {
     type
     role
     user_id
+    __typename
     skills(order_by: { index: asc }) {
       id
       name
@@ -16,6 +17,7 @@ query getIdolList {
       trigger_value
       ct
       user_id
+      __typename
       abilities {
         id
         type
@@ -27,7 +29,12 @@ query getIdolList {
         user_id
         enhance
         enhance_value
+        __typename
       }
+    }
+    owned_by {
+      id
+      __typename
     }
   }
 }
@@ -40,6 +47,7 @@ query getIdol($id: uuid!) {
     type
     role
     user_id
+    __typename
     skills(order_by: { index: asc }) {
       id
       name
@@ -50,6 +58,7 @@ query getIdol($id: uuid!) {
       trigger_value
       ct
       user_id
+      __typename
       abilities {
         id
         type
@@ -61,6 +70,7 @@ query getIdol($id: uuid!) {
         user_id
         enhance
         enhance_value
+        __typename
       }
     }
   }
@@ -73,6 +83,7 @@ mutation createIdol($object: idol_insert_input!) {
     title
     type
     role
+    __typename
     skills(order_by: { index: asc }) {
       id
       name
@@ -82,6 +93,7 @@ mutation createIdol($object: idol_insert_input!) {
       trigger
       trigger_value
       ct
+      __typename
       abilities {
         id
         type
@@ -92,6 +104,7 @@ mutation createIdol($object: idol_insert_input!) {
         condition_value
         enhance
         enhance_value
+        __typename
       }
     }
   }
@@ -100,6 +113,9 @@ mutation createIdol($object: idol_insert_input!) {
 mutation updateIdol($object: idol_insert_input!, $delete_ability_ids: [uuid!]!) {
   delete_ability(where: { id: { _in: $delete_ability_ids } }) {
     affected_rows
+    returning {
+      __typename
+    }
   }
   insert_idol_one(object: $object, on_conflict: { constraint: idol_pkey, update_columns: [name, title, type, role] }) {
     id
@@ -107,6 +123,7 @@ mutation updateIdol($object: idol_insert_input!, $delete_ability_ids: [uuid!]!) 
     title
     type
     role
+    __typename
     skills(order_by: { index: asc }) {
       id
       name
@@ -116,6 +133,7 @@ mutation updateIdol($object: idol_insert_input!, $delete_ability_ids: [uuid!]!) 
       trigger
       trigger_value
       ct
+      __typename
       abilities {
         id
         type
@@ -126,6 +144,7 @@ mutation updateIdol($object: idol_insert_input!, $delete_ability_ids: [uuid!]!) 
         condition_value
         enhance
         enhance_value
+        __typename
       }
     }
   }

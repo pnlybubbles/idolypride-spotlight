@@ -1,0 +1,4 @@
+table:
+  schema: public
+  name: idol_role
+is_enum: true

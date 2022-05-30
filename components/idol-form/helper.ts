@@ -60,7 +60,7 @@ export interface SkillInput {
 }
 
 export interface IdolInput {
-  id: string
+  id: string | null
   name: string | null
   title: string
   type: IdolType
@@ -69,7 +69,7 @@ export interface IdolInput {
 }
 
 export const defaultIdolInput = (): IdolInput => ({
-  id: '',
+  id: null,
   name: null,
   title: '',
   type: 'vocal',
@@ -154,9 +154,11 @@ export const defaultAbilityInput = (
 export const formatIdol = (v: IdolInput): IdolData => {
   return {
     ...v,
+    id: v.id ?? '', // nullの場合は空文字にする
     name: defined(v.name),
     userId: null,
     skills: mapArrayN(v.skills, formatSkill),
+    owned: null,
   }
 }
 
@@ -311,7 +313,9 @@ export const extractBuffTarget = (
 const ABILITY_TYPE_DISABLED_AMOUNT: Record<AbilityType, boolean> = {
   'cmb-continuous': true,
   'debuff-recovery': true,
+  'debuff-inverse': true,
   'shift-before-sp': true,
+  'shift-before-a': true,
   slump: true,
   'debuff-guard': true,
   'a-score': false,

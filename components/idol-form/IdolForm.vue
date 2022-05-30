@@ -2,20 +2,20 @@
   <VStack :spacing="16">
     <Section>
       <template #label>名前</template>
-      <Listbox v-model="idol.name" :options="nameOptions" required></Listbox>
+      <Listbox v-model="idolInput.name" :options="nameOptions" required></Listbox>
     </Section>
     <Section>
       <template #label>カード名</template>
-      <TextField v-model="idol.title" placeholder="夢の共演" required></TextField>
+      <IdolTitleField v-model="idolInput.title" :editing-idol-id="idolInput.id"></IdolTitleField>
     </Section>
     <Section>
       <template #label>属性</template>
       <HStack :spacing="8">
-        <Listbox v-model="idol.type" :options="typeOptions" required></Listbox>
-        <Listbox v-model="idol.role" :options="roleOptions" required></Listbox>
+        <Listbox v-model="idolInput.type" :options="typeOptions" required></Listbox>
+        <Listbox v-model="idolInput.role" :options="roleOptions" required></Listbox>
       </HStack>
     </Section>
-    <div v-for="skill in idol.skills" :key="skill.index">
+    <div v-for="skill in idolInput.skills" :key="skill.index">
       <div class="sub-heading">
         <div>スキル{{ skill.index + 1 }}</div>
         <div></div>
@@ -233,10 +233,10 @@ interface Emits {
 }
 const emit = defineEmits<Emits>()
 
-const idol = reactive<IdolInput>(props.idol ? deformatIdol(props.idol) : defaultIdolInput())
+const idolInput = reactive<IdolInput>(props.idol ? deformatIdol(props.idol) : defaultIdolInput())
 
 const handleAddAbility = (skill: SkillInput) => {
-  const currentSkill = defined(idol.skills.find((v) => v.index === skill.index))
+  const currentSkill = defined(idolInput.skills.find((v) => v.index === skill.index))
   const currentAbility = currentSkill.ability.slice(-1)[0]
   currentSkill.ability.push(
     defaultAbilityInput({
@@ -251,11 +251,11 @@ const handleRemoveAbility = (skill: SkillInput, abilityIndex: number) => {
   if (!confirm(`効果を削除します。よろしいですか？`)) {
     return
   }
-  idol.skills.find((v) => v.index === skill.index)?.ability.splice(abilityIndex, 1)
+  idolInput.skills.find((v) => v.index === skill.index)?.ability.splice(abilityIndex, 1)
 }
 
 const handleSubmit = () => {
-  emit('submit', formatIdol(idol))
+  emit('submit', formatIdol(idolInput))
 }
 
 const nameOptions: Option<string> = arrayToOption(IDOL_NAME)
@@ -353,6 +353,8 @@ const deriveUnitByBuffType = (type: BuffAbilityType | ActionAbilityType | null):
       return 'CT減少数'
     case 'stamina-recovery':
       return 'スタミナ回復量'
+    case 'stamina-recovery-percentage':
+      return 'スタミナ回復量(%)'
     default:
       return '段階'
   }

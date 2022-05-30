@@ -25,25 +25,30 @@
   display: block;
 }
 
-@mixin button-like {
+@mixin button-like($variant: 'primary') {
   font-size: $typography-m;
   font-weight: bold;
   padding: 0 16px;
   height: 40px;
   display: grid;
   align-items: center;
-  background-color: $primary;
   color: $text1;
   text-align: center;
 
-  @include bloom($primary);
   @include round-corner('MAX');
   @include clickable;
+
+  @if $variant == 'primary' {
+    background-color: $primary;
+    @include bloom($primary);
+  } @else if $variant == 'secondary' {
+    background-color: $surface1;
+  }
 }
 
 @mixin clickable {
   user-select: none;
-  transition: opacity 0.1s;
+  transition: all 0.1s;
 
   &:active {
     opacity: 0.64;

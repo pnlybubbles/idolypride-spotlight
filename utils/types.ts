@@ -30,7 +30,9 @@ export type ActionAbilityType =
   | 'stamina-recovery'
   | 'stamina-recovery-percentage'
   | 'debuff-recovery'
+  | 'debuff-inverse'
   | 'shift-before-sp'
+  | 'shift-before-a'
 export type AbilityType = BuffAbilityType | ActionAbilityType
 
 // target
@@ -190,12 +192,15 @@ export type IdolType = 'vocal' | 'dance' | 'visual'
 
 export interface IdolData {
   id: string
+  // nullの場合は新規
   userId: string | null
   name: string
   title: string
   role: IdolRole
   type: IdolType
   skills: ArrayN<SkillData, 3>
+  // nullの場合は未取得or新規
+  owned: boolean | null
 }
 
 // live

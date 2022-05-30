@@ -1,9 +1,12 @@
 <template>
   <div class="shell">
     <h1 v-if="busy || isAuthenticated" class="heading">
-      <slot name="heading"></slot>
+      <div><slot name="heading"></slot></div>
+      <div class="right"><slot name="right"></slot></div>
     </h1>
-    <h1 v-else class="heading">{{ TITLE }}<span class="badge">alpha</span></h1>
+    <h1 v-else class="heading">
+      <div>{{ TITLE }}<span class="badge">alpha</span></div>
+    </h1>
     <slot v-if="nonlogin || (!busy && isAuthenticated)"></slot>
     <NotLoggedIn v-else-if="!busy"></NotLoggedIn>
     <Menu v-if="isAuthenticated"></Menu>
@@ -50,6 +53,14 @@ watchEffect(() => {
 
 .heading {
   @include align;
+  display: grid;
+  grid: auto / 1fr auto;
+}
+
+.right {
+  height: 48px;
+  display: grid;
+  align-content: center;
 }
 
 .badge {

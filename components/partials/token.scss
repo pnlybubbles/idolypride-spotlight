@@ -12,9 +12,9 @@ $border-radius-map: (
   border-radius: map-get($border-radius-map, $variant);
 }
 
-@mixin background-blur {
+@mixin background-blur($variant: 'default') {
   backdrop-filter: blur(20px);
-  background-color: $surface1;
+  background-color: map-get($background-blur-color-map, $variant);
 }
 
 @mixin bloom($color, $alpha: 0.3) {
@@ -33,6 +33,7 @@ $text3: rgba(#fff, 0.4);
 $text4: rgba(#000, 0.6);
 $error: #da5019;
 $info: #0088ff;
+$warning: #ff8023;
 $background1: #0a0a0a;
 $surface1: rgba(#fff, 0.07);
 $surface2: rgba(#fff, 0.9);
@@ -48,3 +49,8 @@ $typography-l: 18px;
 $vocal: #d900ff;
 $visual: #ff8023;
 $dance: #0088ff;
+
+$background-blur-color-map: (
+  'default': $surface1,
+  'blend': rgba(#000, 0.2),
+);
