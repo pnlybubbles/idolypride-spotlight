@@ -177,7 +177,11 @@ export type SkillData = {
 )
 export type SkillTriggerType = SkillTriggerWithValue | SkillTriggerWithoutValue
 export type SkillTriggerWithValue = AbilityConditionWithValue
-export type SkillTriggerWithoutValue = 'sp' | 'a' | 'beat' | AbilityConditionWithoutValue
+export type SkillTriggerWithoutValue =
+  | 'sp'
+  | 'a'
+  | 'beat'
+  | Exclude<AbilityConditionWithoutValue, `in-${IdolType}-lane`>
 export type SkillTrigger =
   | {
       type: SkillTriggerWithValue

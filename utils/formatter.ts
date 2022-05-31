@@ -300,7 +300,7 @@ export const SKILL_TRIGGER_WITHOUT_VALUE: Record<SkillTriggerWithoutValue, strin
   sp: '誰かがSPスキル発動前',
   a: '誰かがAスキル発動前',
   beat: 'ビート時',
-  ...omit(ABILITY_CONDITION_WITHOUT_VALUE, ['none']),
+  ...omit(ABILITY_CONDITION_WITHOUT_VALUE, ['none', 'in-vocal-lane', 'in-dance-lane', 'in-visual-lane']),
 }
 export const isSkillTriggerWithoutValue = isKeyInObject(SKILL_TRIGGER_WITHOUT_VALUE)
 
