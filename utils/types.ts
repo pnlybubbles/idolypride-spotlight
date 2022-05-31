@@ -49,7 +49,8 @@ export type BuffTargetWithSuffix =
   | 'opponent-scorer'
   | 'lowstamina'
   | 'debuff'
-  | `${'high-' | ''}${IdolType}`
+  | `high-${IdolType}`
+  | `${IdolType}-lane`
   | IdolType
 export type BuffTargetCount = '1' | '2' | '3'
 export type ActiveBuffTarget = BuffTargetWithoutSuffix | `${BuffTargetWithSuffix}-${BuffTargetCount}`
