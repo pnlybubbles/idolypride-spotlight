@@ -96,10 +96,15 @@ export type AbilityEnhance =
         | 'audience-rate-less'
         | 'skill-activated'
         | IdolType
-        | 'a-score'
-        | 'eye-catch'
         | 'critical-rate'
+        | 'critical-score'
+        | 'score'
+        | 'beat-score'
+        | 'a-score'
+        | 'cmb-score'
         | 'stamina-saving'
+        | 'tension'
+        | 'eye-catch'
         | 'unknown'
     }
   | {
