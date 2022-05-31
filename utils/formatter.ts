@@ -371,7 +371,7 @@ export const BUFF_TARGET_WITH_SUFFIX: Record<BuffTargetWithSuffix, string> = {
   dance: 'ダンスタイプX人',
   visual: 'ビジュアルタイプX人',
   'vocal-lane': 'ボーカルレーンX人',
-  'dance-lane': 'ダンスレーン人',
+  'dance-lane': 'ダンスレーンX人',
   'visual-lane': 'ビジュアルレーンX人',
   'opponent-scorer': '相手のスコアラーX人 [バトルのみ]',
   lowstamina: 'スタミナが低いX人',
