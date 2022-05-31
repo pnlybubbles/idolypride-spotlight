@@ -300,7 +300,7 @@ export const SKILL_TRIGGER_WITHOUT_VALUE: Record<SkillTriggerWithoutValue, strin
   sp: '誰かがSPスキル発動前',
   a: '誰かがAスキル発動前',
   beat: 'ビート時',
-  ...omit(ABILITY_CONDITION_WITHOUT_VALUE, ['none']),
+  ...omit(ABILITY_CONDITION_WITHOUT_VALUE, ['none', 'in-vocal-lane', 'in-dance-lane', 'in-visual-lane']),
 }
 export const isSkillTriggerWithoutValue = isKeyInObject(SKILL_TRIGGER_WITHOUT_VALUE)
 
@@ -370,6 +370,9 @@ export const BUFF_TARGET_WITH_SUFFIX: Record<BuffTargetWithSuffix, string> = {
   vocal: 'ボーカルタイプX人',
   dance: 'ダンスタイプX人',
   visual: 'ビジュアルタイプX人',
+  'vocal-lane': 'ボーカルレーンX人',
+  'dance-lane': 'ダンスレーン人',
+  'visual-lane': 'ビジュアルレーンX人',
   'opponent-scorer': '相手のスコアラーX人 [バトルのみ]',
   lowstamina: 'スタミナが低いX人',
   debuff: '低下効果状態のX人',
