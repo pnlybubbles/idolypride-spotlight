@@ -94,7 +94,7 @@ export const IDOL_TYPE = {
   vocal: 'ボーカル',
   dance: 'ダンス',
   visual: 'ビジュアル',
-}
+} as const
 
 /**
  * アイドルのロール
@@ -103,7 +103,7 @@ export const IDOL_ROLE = {
   scorer: 'スコアラー',
   buffer: 'バッファー',
   supporter: 'サポーター',
-}
+} as const
 
 export const abilityEnhanceLabel = (enhance: AbilityEnhance, internal: boolean) =>
   internal
