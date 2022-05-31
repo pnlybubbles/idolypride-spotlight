@@ -6,7 +6,7 @@
       <DotMenu v-show="!selectOwnedMode" v-slot="{ label, arg }" :menu="menu">
         <div class="dot-menu-item">
           <span>{{ label }}</span>
-          <OwnSettingBadge v-if="arg.annotate"></OwnSettingBadge>
+          <OwnSettingBadge v-if="arg?.annotate"></OwnSettingBadge>
         </div>
       </DotMenu>
     </template>
@@ -37,6 +37,9 @@
         <ButtonLink v-else to="/idol/new">アイドルを追加する</ButtonLink>
       </div>
     </div>
+    <Sheet v-model:present="presentOwnedIdolChecker">
+      <OwnedIdolChecker :idol-list="idolList"></OwnedIdolChecker>
+    </Sheet>
   </Layout>
 </template>
 <script setup lang="ts">
@@ -75,14 +78,20 @@ const isAdmin = computed(() => {
 })
 
 const selectOwnedMode = ref(false)
+const presentOwnedIdolChecker = ref(false)
 
 const menu = [
-  { type: 'link', label: 'アイドルを追加する', arg: { annorate: false }, to: '/idol/new' },
+  { type: 'link', label: 'アイドルを追加する', to: '/idol/new' },
   {
     type: 'button',
     label: '加入済アイドルを複数選択する',
     arg: { annotate: true },
     action: () => (selectOwnedMode.value = true),
+  },
+  {
+    type: 'button',
+    label: '所持率チェッカー',
+    action: () => (presentOwnedIdolChecker.value = true),
   },
 ] as const
 

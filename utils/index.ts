@@ -71,8 +71,10 @@ export function mapArrayN<A extends readonly unknown[], U>(
   return array.map(map as any) as ArrayN<U, Length<A>>
 }
 
-export function mapObject<S extends string | number, T, U>(object: { [key in S]: T }, map: (domain: T) => U) {
-  return Object.fromEntries(Object.entries(object).map(([key, value]) => [key, map(value as T)])) as { [key in S]: U }
+export function mapObject<S extends string | number, T, U>(object: { [key in S]: T }, map: (domain: T, key: S) => U) {
+  return Object.fromEntries(Object.entries(object).map(([key, value]) => [key, map(value as T, key as S)])) as {
+    [key in S]: U
+  }
 }
 
 export function uid() {
