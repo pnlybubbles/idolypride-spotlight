@@ -26,7 +26,9 @@
       <div class="horizontal">
         <div v-for="(item, key) in notOwnedSummaryByType" :key="key" class="text">
           <div>{{ item.label }}</div>
-          <div class="em">{{ item.value }}</div>
+          <div class="em">{{ item.owned }}</div>
+          <div>/</div>
+          <div>{{ item.all }}</div>
         </div>
       </div>
     </Section>
@@ -35,7 +37,9 @@
       <div class="horizontal">
         <div v-for="(item, key) in notOwnedSummaryByRole" :key="key" class="text">
           <div>{{ item.label }}</div>
-          <div class="em">{{ item.value }}</div>
+          <div class="em">{{ item.owned }}</div>
+          <div>/</div>
+          <div>{{ item.all }}</div>
         </div>
       </div>
     </Section>
@@ -63,14 +67,16 @@ const ratio = computed(() => (Math.round((owned.value / all.value) * 1000) / 10)
 const notOwnedSummaryByType = computed(() =>
   mapObject(IDOL_TYPE, (v, k) => ({
     label: v,
-    value: props.idolList.filter((v) => v.owned === false).filter((v) => v.type === k).length,
+    owned: props.idolList.filter((v) => v.owned === false).filter((v) => v.type === k).length,
+    all: props.idolList.filter((v) => v.type === k).length,
   }))
 )
 
 const notOwnedSummaryByRole = computed(() =>
   mapObject(IDOL_ROLE, (v, k) => ({
     label: v,
-    value: props.idolList.filter((v) => v.owned === false).filter((v) => v.role === k).length,
+    owned: props.idolList.filter((v) => v.owned === false).filter((v) => v.role === k).length,
+    all: props.idolList.filter((v) => v.role === k).length,
   }))
 )
 
@@ -78,7 +84,7 @@ const tweetLink = computed(() => {
   const text = `アイドル加入率チェッカー
 ・加入済：${owned.value}/${all.value}（コンプリート率 ${ratio.value}%）
 ・未加入：${Object.values(notOwnedSummaryByType.value)
-    .map((v) => `${v.label} ${v.value}`)
+    .map((v) => `${v.label} ${v.owned}`)
     .join(', ')}
 ${BASE_URL}
 #アイプラ
