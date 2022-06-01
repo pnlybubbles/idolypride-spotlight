@@ -286,6 +286,11 @@ export const ABILITY_CONDITION_WITHOUT_VALUE: Record<AbilityConditionWithoutValu
   'anyone-debuff': '誰かが低下効果状態の時',
   'anyone-tension-up': '誰かがテンションアップ状態の時',
   'anyone-critical-up': '誰かがクリティカル率アップ状態の時',
+  'anyone-score-up': '誰かがスコアアップ時',
+  'anyone-a-score-up': '誰かがAスキルスコアアップ時',
+  'anyone-sp-score-up': '誰かがSPスキルスコアアップ時',
+  'anyone-beat-score-up': '誰かがビートスコアアップ時',
+  'anyone-cmb-score-up': '誰かがコンボスコアアップ時',
   unknown: '不明',
 }
 export const isAbilityConditionWithoutValue = isKeyInObject(ABILITY_CONDITION_WITHOUT_VALUE)

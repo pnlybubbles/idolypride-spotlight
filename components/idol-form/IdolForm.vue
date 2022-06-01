@@ -305,6 +305,9 @@ const triggerOptions: Option<ExcludeUnknown<SkillTriggerType>> = [
   ...objToOption(SKILL_TRIGGER_WITH_VALUE),
 ]
 
+/**
+ * バフのターゲットに発動対象の選択肢を出せるかどうか
+ */
 const AVAILAVLE_TRIGGER: Record<SkillTriggerType, boolean> = {
   none: false,
   sp: true,
@@ -330,6 +333,11 @@ const AVAILAVLE_TRIGGER: Record<SkillTriggerType, boolean> = {
   'anyone-debuff': true,
   'anyone-tension-up': true,
   'anyone-critical-up': true,
+  'anyone-score-up': true,
+  'anyone-a-score-up': true,
+  'anyone-sp-score-up': true,
+  'anyone-beat-score-up': true,
+  'anyone-cmb-score-up': true,
   unknown: false,
   combo: false,
   'stamina-greater-than': false,
