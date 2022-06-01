@@ -25,7 +25,7 @@
       <template #label>未加入 (タイプ別)</template>
       <div class="horizontal">
         <div v-for="(item, key) in notOwnedSummaryByType" :key="key" class="text">
-          <div>{{ item.label }}</div>
+          <div class="label">{{ item.label }}</div>
           <div class="em">{{ item.owned }}</div>
           <div>/</div>
           <div>{{ item.all }}</div>
@@ -36,7 +36,7 @@
       <template #label>未加入 (ロール別)</template>
       <div class="horizontal">
         <div v-for="(item, key) in notOwnedSummaryByRole" :key="key" class="text">
-          <div>{{ item.label }}</div>
+          <div class="label">{{ item.label }}</div>
           <div class="em">{{ item.owned }}</div>
           <div>/</div>
           <div>{{ item.all }}</div>
@@ -97,9 +97,8 @@ ${BASE_URL}
 
 .horizontal {
   display: grid;
-  grid: auto / auto-flow;
+  grid: auto / auto-flow 1fr;
   gap: 8px;
-  justify-content: start;
 }
 
 .text {
@@ -115,6 +114,12 @@ ${BASE_URL}
 .em {
   font-size: $typography-l;
   color: $text1;
+  font-weight: bold;
+}
+
+.label {
+  font-size: $typography-xs;
+  color: $text3;
   font-weight: bold;
 }
 </style>
