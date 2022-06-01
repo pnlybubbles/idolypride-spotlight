@@ -66,7 +66,7 @@ export type AbilityConditionWithoutValue =
   | 'critical'
   | `${IfAnyone}${IdolType}-up`
   | `in-${IdolType}-lane`
-  | `in-center`
+  | 'in-center'
   | `${IfAnyone}debuff`
   | `${IfAnyone}eye-catch`
   | `${IfAnyone}tension-up`
