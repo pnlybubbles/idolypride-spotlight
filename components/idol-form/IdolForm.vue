@@ -306,7 +306,7 @@ const triggerOptions: Option<ExcludeUnknown<SkillTriggerType>> = [
 ]
 
 /**
- * バフのターゲットに発動対象の選択肢を出せるかどうか
+ * バフ対象の選択肢に'発動トリガーの対象'を出すかどうか
  */
 const AVAILAVLE_TRIGGER: Record<SkillTriggerType, boolean> = {
   none: false,
