@@ -24,22 +24,26 @@
     <Section>
       <template #label>未加入 (タイプ別)</template>
       <div class="horizontal">
-        <div v-for="(item, key) in notOwnedSummaryByType" :key="key" class="text">
+        <div v-for="(item, key) in notOwnedSummaryByType" :key="key">
           <div class="label">{{ item.label }}</div>
-          <div class="em">{{ item.owned }}</div>
-          <div>/</div>
-          <div>{{ item.all }}</div>
+          <div class="text">
+            <div class="em">{{ item.owned }}</div>
+            <div>/</div>
+            <div>{{ item.all }}</div>
+          </div>
         </div>
       </div>
     </Section>
     <Section>
       <template #label>未加入 (ロール別)</template>
       <div class="horizontal">
-        <div v-for="(item, key) in notOwnedSummaryByRole" :key="key" class="text">
+        <div v-for="(item, key) in notOwnedSummaryByRole" :key="key">
           <div class="label">{{ item.label }}</div>
-          <div class="em">{{ item.owned }}</div>
-          <div>/</div>
-          <div>{{ item.all }}</div>
+          <div class="text">
+            <div class="em">{{ item.owned }}</div>
+            <div>/</div>
+            <div>{{ item.all }}</div>
+          </div>
         </div>
       </div>
     </Section>
