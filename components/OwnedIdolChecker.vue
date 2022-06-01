@@ -22,7 +22,7 @@
       </div>
     </Section>
     <Section>
-      <template #label>未加入 (タイプ別)</template>
+      <template #label>未加入の内訳</template>
       <div class="horizontal">
         <div v-for="(item, key) in notOwnedSummaryByType" :key="key">
           <div class="label">{{ item.label }}</div>
@@ -33,9 +33,6 @@
           </div>
         </div>
       </div>
-    </Section>
-    <Section>
-      <template #label>未加入 (ロール別)</template>
       <div class="horizontal">
         <div v-for="(item, key) in notOwnedSummaryByRole" :key="key">
           <div class="label">{{ item.label }}</div>
