@@ -66,6 +66,7 @@ export type AbilityConditionWithoutValue =
   | 'critical'
   | `${IfAnyone}${IdolType}-up`
   | `in-${IdolType}-lane`
+  | `in-center`
   | `${IfAnyone}debuff`
   | `${IfAnyone}eye-catch`
   | `${IfAnyone}tension-up`
@@ -186,7 +187,7 @@ export type SkillTriggerWithoutValue =
   | 'sp'
   | 'a'
   | 'beat'
-  | Exclude<AbilityConditionWithoutValue, `in-${IdolType}-lane`>
+  | Exclude<AbilityConditionWithoutValue, `in-${IdolType}-lane` | 'in-center'>
 export type SkillTrigger =
   | {
       type: SkillTriggerWithValue
