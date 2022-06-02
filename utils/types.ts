@@ -49,6 +49,7 @@ export type BuffTargetWithSuffix =
   | 'opponent-scorer'
   | 'lowstamina'
   | 'debuff'
+  | 'score-up'
   | `high-${IdolType}`
   | `${IdolType}-lane`
   | IdolType

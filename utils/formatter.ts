@@ -382,6 +382,7 @@ export const BUFF_TARGET_WITH_SUFFIX: Record<BuffTargetWithSuffix, string> = {
   'opponent-scorer': '相手のスコアラーX人 [バトルのみ]',
   lowstamina: 'スタミナが低いX人',
   debuff: '低下効果状態のX人',
+  'score-up': 'スコアアップ状態のX人',
 }
 export const isBuffTargetWithSuffix = isKeyInObject(BUFF_TARGET_WITH_SUFFIX)
 
