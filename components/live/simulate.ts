@@ -80,49 +80,6 @@ export function simulate(live: LiveData, idols: Idols) {
     produce((draft, currentBeat) => {
       //
       // 1パス目
-      // このビートで発動しているPスキルの判定
-      //
-
-      // eslint-disable-next-line no-constant-condition
-      while (true) {
-        const domain = { live, idols, state: draft.state, currentBeat }
-
-        // CT中のスキルを絞り込む
-        const ctState = extractCtState(domain)
-
-        // 現在のビートに効いている過去も含めたすべてのバフを取得
-        const availableBuff = extractAvailableBuffResult(draft.result, domain)
-
-        // Pスキルの発動チェック
-        const pState = derivePState({ ...domain, ctState, aState: [], spState: [], availableBuff })
-
-        const pResult = pState.map(({ lane, skill }) => ({
-          type: 'p' as const,
-          // とりあえず1個目の効果を優先
-          buff: skill.ability.map((v) => (v.div === 'buff' ? v : null)).filter(isNonNullable)[0]?.type ?? 'unknown',
-          lane,
-          index: skill.index,
-          beat: currentBeat,
-          id: uid(),
-        }))
-
-        // Pスキルによるバフ
-        const pBuffResult = derivePBuffResult({ pState, ...domain })
-
-        // 更新処理
-        const currentResult = [...pResult, ...pBuffResult.map((v) => ({ ...v, affected: false }))]
-
-        draft.result.push(...currentResult)
-        draft.state.push(...pState)
-
-        // すべてのトリガが発動しきったら1パス目終了
-        if (pState.length === 0) {
-          break
-        }
-      }
-
-      //
-      // 2パス目
       // A,SPスキルの発動チェック
       //
       let aState: AState
@@ -176,12 +133,12 @@ export function simulate(live: LiveData, idols: Idols) {
       }
 
       //
-      // 3パス目
+      // 2パス目
       // A,SPのバフをトリガとしたPスキルの発動チェック
       //
 
       // eslint-disable-next-line no-constant-condition
-      while (true) {
+      {
         const domain = { live, idols, state: draft.state, currentBeat }
 
         // CT中のスキルを絞り込む
@@ -211,15 +168,10 @@ export function simulate(live: LiveData, idols: Idols) {
 
         draft.result.push(...currentResult)
         draft.state.push(...pState)
-
-        // すべてのトリガが発動しきったら1パス目終了
-        if (pState.length === 0) {
-          break
-        }
       }
 
       //
-      // 4パス目
+      // 3パス目
       // このビートで変化した状態を含めて、過去から現在までに発生したバフの影響を導出する
       //
 
@@ -500,19 +452,25 @@ const derivePState = (
         .filter(isType('p'))
       const canTriggerSkills =
         idol?.skills.filter(isType('p')).filter((skill) => !ctSkills.map((v) => v.index).includes(skill.index)) ?? []
-      return canTriggerSkills
-        .map((skill) => {
-          const triggered = checkSkillTriggered(skill, lane, domain)
-          if (triggered === null) {
-            return null
-          }
-          return {
-            skill,
-            triggeredLane: triggered.triggeredLane,
-          }
-        })
-        .filter(isNonNullable)
-        .map((v) => ({ ...v, lane }))
+      return (
+        canTriggerSkills
+          .map((skill) => {
+            const triggered = checkSkillTriggered(skill, lane, domain)
+            if (triggered === null) {
+              return null
+            }
+            return {
+              skill,
+              triggeredLane: triggered.triggeredLane,
+            }
+          })
+          .filter(isNonNullable)
+          .map((v) => ({ ...v, lane }))
+          // pスキルは3番目が優先(?)
+          // TODO: "私に、決めたよ" 佐伯遙子 だけはなぜか3番目が先に発動するぽい...
+          .sort((a, b) => a.skill.index - b.skill.index)
+          .filter((_, i) => i === 0)
+      )
     })
     .map(appendBeat(currentBeat))
     .map(appendType('p'))

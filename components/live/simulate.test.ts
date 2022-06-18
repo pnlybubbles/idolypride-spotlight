@@ -30,12 +30,16 @@ const mockIdol = ({
   preset,
   a1,
   p1,
+  p2,
   p1Trigger,
+  p2Trigger,
 }: Partial<Pick<IdolData, 'role' | 'type' | 'skills'>> & {
   preset?: 'sp_a_a' | 'a_p_p'
   a1?: AbilityData
   p1?: PassiveAbilityData
+  p2?: PassiveAbilityData
   p1Trigger?: SkillTrigger
+  p2Trigger?: SkillTrigger
 }): IdolData => {
   const presetSkills: IdolData['skills'] =
     preset === 'sp_a_a' || preset === undefined
@@ -44,7 +48,7 @@ const mockIdol = ({
       ? [
           mockASkill(0, a1 ? [a1] : [], 30),
           mockPSkill(1, p1 ? [p1] : [], p1Trigger, 50),
-          mockPSkill(2, [], undefined, 50),
+          mockPSkill(2, p2 ? [p2] : [], p2Trigger, 50),
         ]
       : unreachable(preset)
   return {
@@ -392,6 +396,66 @@ test('無条件の場合、CTが終わった瞬間にPスキルが発動する',
   expect(
     simulate(mockLive({ beat: 70 }), [
       mockIdol({ preset: 'a_p_p', p1: mockAbility({ type: 'vocal', target: 'self' }), p1Trigger: { type: 'none' } }),
+      null,
+      null,
+      null,
+      null,
+    ]).result
+  ).toStrictEqual(expected)
+})
+
+test('無条件のPスキルが2つある場合には3番目が先に発動して次にビートで2番目が発動する', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 0,
+      buff: 'vocal',
+      lane: 0,
+      index: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 0,
+      buff: 'vocal',
+      lane: 0,
+      affected: false,
+      amount: 4,
+      span: 10,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 1,
+      buff: 'score',
+      lane: 0,
+      index: 2,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 1,
+      buff: 'score',
+      lane: 0,
+      affected: false,
+      amount: 4,
+      span: 10,
+    },
+  ]
+  expect(
+    simulate(mockLive({ beat: 20 }), [
+      mockIdol({
+        preset: 'a_p_p',
+        p1: mockAbility({ type: 'vocal', target: 'self' }),
+        p1Trigger: { type: 'none' },
+        p2: mockAbility({ type: 'score', target: 'self' }),
+        p2Trigger: { type: 'none' },
+      }),
       null,
       null,
       null,
