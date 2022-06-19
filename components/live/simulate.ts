@@ -134,8 +134,9 @@ export function simulate(live: LiveData, idols: Idols) {
           for (const effectAbility of deriveAffectedState([...aState, ...spState], state.lane, idols)) {
             if (effectAbility.div === 'action-buff') {
               // CT減少
-              if (effectAbility.type === 'ct-reduction') {
-                state.skill.ct = state.skill.ct - effectAbility.amount
+              // CT=0 はライブ中1回の特殊ケース
+              if (effectAbility.type === 'ct-reduction' && state.skill.ct !== 0) {
+                state.skill.ct = Math.max(state.skill.ct - effectAbility.amount, 1)
               }
             }
           }
@@ -184,8 +185,9 @@ export function simulate(live: LiveData, idols: Idols) {
           for (const effectAbility of deriveAffectedState(pState, state.lane, idols)) {
             if (effectAbility.div === 'action-buff') {
               // CT減少
-              if (effectAbility.type === 'ct-reduction') {
-                state.skill.ct = state.skill.ct - effectAbility.amount
+              // CT=0 はライブ中1回の特殊ケース
+              if (effectAbility.type === 'ct-reduction' && state.skill.ct !== 0) {
+                state.skill.ct = Math.max(state.skill.ct - effectAbility.amount, 1)
               }
             }
           }
