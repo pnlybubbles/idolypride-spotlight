@@ -14,5 +14,6 @@
     "**/node_modules": true,
     ".yarn": true
   },
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "jest.jestCommandLine": "yarn test"
 }

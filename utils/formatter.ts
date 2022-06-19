@@ -347,6 +347,7 @@ export const ACTION_ABILITY_TYPE: Record<ActionAbilityType, string> = {
   'ct-reduction': 'CT減少',
   'stamina-recovery': 'スタミナ回復',
   'stamina-recovery-percentage': 'スタミナX%回復',
+  'stamina-loss': 'スタミナ消費',
   'debuff-recovery': '低下効果回復',
   'debuff-inverse': '低下効果反転',
   'shift-before-sp': '強化効果をSPスキル前に移動',
