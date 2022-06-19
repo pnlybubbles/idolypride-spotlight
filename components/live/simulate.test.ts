@@ -784,3 +784,48 @@ test('AスキルによるCT減少してもなおCT中のAスキル発動は失�
   ])
   expect(result).toStrictEqual(expected)
 })
+
+test('AスキルによるCT減少によってPスキル発動が早まる', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 0,
+      buff: 'unknown',
+      lane: 2,
+      index: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 10,
+      buff: 'ct-reduction',
+      lane: 0,
+      index: 0,
+      fail: false,
+      activated: [],
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 40,
+      buff: 'unknown',
+      lane: 2,
+      index: 1,
+    },
+  ]
+  const { result } = simulate(mockLive({ a: [[10], [], [], [], []], beat: 60 }), [
+    mockIdol({
+      preset: 'a_p_p',
+      a1: mockAbility({ type: 'ct-reduction', target: 'center', amount: 10 }),
+    }),
+    null,
+    mockIdol({ preset: 'a_p_p', p1Trigger: { type: 'none' } }),
+    null,
+    null,
+  ])
+  expect(result).toStrictEqual(expected)
+})
