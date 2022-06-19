@@ -104,12 +104,14 @@ type MockAbility = {
     span?: number
     target: 'triggered'
     type: AbilityType | 'get-score'
+    amount?: number
   }): PassiveAbilityData
   (props: {
     condition?: AbilityCondition
     span?: number
     target?: ActiveBuffTarget
     type: AbilityType | 'get-score'
+    amount?: number
   }): AbilityData
 }
 const mockAbility: MockAbility = ({
@@ -117,11 +119,13 @@ const mockAbility: MockAbility = ({
   condition,
   span,
   target,
+  amount,
 }: {
   condition?: AbilityCondition
   span?: number
   target?: PassiveBuffTarget
   type: AbilityType | 'get-score'
+  amount?: number
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }): any =>
   type === 'get-score'
@@ -139,7 +143,7 @@ const mockAbility: MockAbility = ({
     : isBuffAbilityType(type)
     ? {
         div: 'buff',
-        amount: 4,
+        amount: amount ?? 4,
         target: target === undefined ? 'all' : target,
         type,
         condition: condition ?? {
@@ -151,7 +155,7 @@ const mockAbility: MockAbility = ({
     : isActionAbilityType(type)
     ? {
         div: 'action-buff',
-        amount: 7,
+        amount: amount ?? 7,
         target: target === undefined ? 'all' : target,
         type,
         condition: condition ?? {
@@ -632,4 +636,151 @@ test('誰かがテンションアップ状態の時にPスキルが発動する'
       null,
     ]).result
   ).toStrictEqual(expected)
+})
+
+test('AスキルによるCT減少によってCT間隔未満のAスキル発動が成功する', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 5,
+      buff: 'unknown',
+      lane: 2,
+      index: 0,
+      fail: false,
+      activated: [],
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 10,
+      buff: 'ct-reduction',
+      lane: 0,
+      index: 0,
+      fail: false,
+      activated: [],
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 30,
+      buff: 'unknown',
+      lane: 2,
+      index: 0,
+      fail: false,
+      activated: [],
+    },
+  ]
+  const { result } = simulate(mockLive({ a: [[10], [], [5, 30], [], []] }), [
+    mockIdol({
+      preset: 'a_p_p',
+      a1: mockAbility({ type: 'ct-reduction', target: 'center', amount: 10 }),
+    }),
+    null,
+    mockIdol({ preset: 'a_p_p' }),
+    null,
+    null,
+  ])
+  expect(result).toStrictEqual(expected)
+})
+
+test('AスキルによるCT減少によってピッタリCT間隔のAスキル発動が成功する', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 5,
+      buff: 'unknown',
+      lane: 2,
+      index: 0,
+      fail: false,
+      activated: [],
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 10,
+      buff: 'ct-reduction',
+      lane: 0,
+      index: 0,
+      fail: false,
+      activated: [],
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 30,
+      buff: 'unknown',
+      lane: 2,
+      index: 0,
+      fail: false,
+      activated: [],
+    },
+  ]
+  const { result } = simulate(mockLive({ a: [[10], [], [5, 30], [], []] }), [
+    mockIdol({
+      preset: 'a_p_p',
+      a1: mockAbility({ type: 'ct-reduction', target: 'center', amount: 5 }),
+    }),
+    null,
+    mockIdol({ preset: 'a_p_p' }),
+    null,
+    null,
+  ])
+  expect(result).toStrictEqual(expected)
+})
+
+test('AスキルによるCT減少してもなおCT中のAスキル発動は失敗する', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 5,
+      buff: 'unknown',
+      lane: 2,
+      index: 0,
+      fail: false,
+      activated: [],
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 10,
+      buff: 'ct-reduction',
+      lane: 0,
+      index: 0,
+      fail: false,
+      activated: [],
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 30,
+      buff: 'unknown',
+      lane: 2,
+      index: undefined,
+      fail: true,
+      activated: [],
+    },
+  ]
+  const { result } = simulate(mockLive({ a: [[10], [], [5, 30], [], []] }), [
+    mockIdol({
+      preset: 'a_p_p',
+      a1: mockAbility({ type: 'ct-reduction', target: 'center', amount: 4 }),
+    }),
+    null,
+    mockIdol({ preset: 'a_p_p' }),
+    null,
+    null,
+  ])
+  expect(result).toStrictEqual(expected)
 })

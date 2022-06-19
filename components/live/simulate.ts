@@ -95,7 +95,8 @@ export function simulate(live: LiveData, idols: Idols) {
 
         const aResult = aState.map(({ lane, skill }) => ({
           type: 'a' as const,
-          buff: skill?.ability.map((v) => (v.div === 'buff' ? v : null)).filter(isNonNullable)[0]?.type ?? 'unknown',
+          // とりあえず色付けだけにつかってるので、スコア獲得はunknownとして扱ってしまう
+          buff: skill?.ability.map((v) => (v.div !== 'score' ? v : null)).filter(isNonNullable)[0]?.type ?? 'unknown',
           lane,
           fail: skill === null,
           index: skill?.index,
@@ -111,7 +112,7 @@ export function simulate(live: LiveData, idols: Idols) {
 
         const spResult = spState.map(({ lane, skill }) => ({
           type: 'sp' as const,
-          buff: skill?.ability.map((v) => (v.div === 'buff' ? v : null)).filter(isNonNullable)[0]?.type ?? 'unknown',
+          buff: skill?.ability.map((v) => (v.div !== 'score' ? v : null)).filter(isNonNullable)[0]?.type ?? 'unknown',
           lane,
           fail: skill === null,
           index: skill?.index,
@@ -127,6 +128,18 @@ export function simulate(live: LiveData, idols: Idols) {
           ...[...aResult, ...spResult].map((v) => ({ ...v, activated: [] })),
           ...[...aBuffResult, ...spBuffResult].map((v) => ({ ...v, affected: false })),
         ]
+
+        // ミューテーション処理
+        for (const state of ctState) {
+          for (const effectAbility of deriveAffectedState([...aState, ...spState], state.lane, idols)) {
+            if (effectAbility.div === 'action-buff') {
+              // CT減少
+              if (effectAbility.type === 'ct-reduction') {
+                state.skill.ct = state.skill.ct - effectAbility.amount
+              }
+            }
+          }
+        }
 
         draft.result.push(...currentResult)
         draft.state.push(...aState, ...spState)
@@ -153,7 +166,7 @@ export function simulate(live: LiveData, idols: Idols) {
         const pResult = pState.map(({ lane, skill }) => ({
           type: 'p' as const,
           // とりあえず1個目の効果を優先
-          buff: skill.ability.map((v) => (v.div === 'buff' ? v : null)).filter(isNonNullable)[0]?.type ?? 'unknown',
+          buff: skill.ability.map((v) => (v.div !== 'score' ? v : null)).filter(isNonNullable)[0]?.type ?? 'unknown',
           lane,
           index: skill.index,
           beat: currentBeat,
@@ -270,6 +283,29 @@ function deriveBuffLanes(suffixedTarget: ActiveBuffTarget, selfLane: Lane, idol:
     // unreachable(target)
   }
 }
+
+const deriveAffectedState = (state: State, currentLane: Lane, idols: ArrayN<IdolData | null, 5>) =>
+  state
+    .flatMap((v) =>
+      v.skill === null
+        ? []
+        : v.type === 'p'
+        ? v.skill.ability.map((w) =>
+            w.div === 'score'
+              ? null
+              : w.target === 'triggered'
+              ? v.triggeredLane === currentLane
+                ? w
+                : null
+              : deriveBuffLanes(w.target, v.lane, idols).includes(currentLane)
+              ? w
+              : null
+          )
+        : v.skill.ability.map((w) =>
+            w.div !== 'score' && deriveBuffLanes(w.target, v.lane, idols).includes(currentLane) ? w : null
+          )
+    )
+    .filter(isNonNullable)
 
 const deriveNaiveBuffResult = (
   state: { lane: Lane; skill: Extract<SkillData, { type: 'sp' | 'a' }> | null }[],
