@@ -179,6 +179,18 @@ export function simulate(live: LiveData, idols: Idols) {
         // 更新処理
         const currentResult = [...pResult, ...pBuffResult.map((v) => ({ ...v, affected: false }))]
 
+        // ミューテーション処理
+        for (const state of ctState) {
+          for (const effectAbility of deriveAffectedState(pState, state.lane, idols)) {
+            if (effectAbility.div === 'action-buff') {
+              // CT減少
+              if (effectAbility.type === 'ct-reduction') {
+                state.skill.ct = state.skill.ct - effectAbility.amount
+              }
+            }
+          }
+        }
+
         draft.result.push(...currentResult)
         draft.state.push(...pState)
       }
