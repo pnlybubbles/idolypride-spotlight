@@ -37,6 +37,7 @@ export const theme: Theme = {
     score: colors[5],
     'stamina-recovery': colors[2],
     'stamina-recovery-percentage': colors[2],
+    'stamina-loss': colors[7],
     'stamina-saving': colors[2],
     'stamina-exhaust': colors[7],
     'ct-reduction': normal,

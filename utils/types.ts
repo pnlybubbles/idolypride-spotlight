@@ -29,6 +29,7 @@ export type ActionAbilityType =
   | 'ct-reduction'
   | 'stamina-recovery'
   | 'stamina-recovery-percentage'
+  | 'stamina-loss'
   | 'debuff-recovery'
   | 'debuff-inverse'
   | 'shift-before-sp'

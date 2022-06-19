@@ -332,6 +332,7 @@ const ABILITY_TYPE_DISABLED_AMOUNT: Record<AbilityType, boolean> = {
   'skill-success': false,
   'sp-score': false,
   'stamina-exhaust': false,
+  'stamina-loss': false,
   'stamina-recovery': false,
   'stamina-recovery-percentage': false,
   'stamina-saving': false,

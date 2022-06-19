@@ -360,6 +360,8 @@ const deriveUnitByBuffType = (type: BuffAbilityType | ActionAbilityType | null):
       return 'スタミナ回復量'
     case 'stamina-recovery-percentage':
       return 'スタミナ回復量(%)'
+    case 'stamina-loss':
+      return 'スタミナ消費量'
     default:
       return '段階'
   }
