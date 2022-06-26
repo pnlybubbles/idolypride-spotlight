@@ -28,6 +28,9 @@ export const theme: Theme = {
     vocal: colors[3],
     dance: colors[0],
     visual: colors[9],
+    'vocal-boost': colors[3],
+    'dance-boost': colors[0],
+    'visual-boost': colors[9],
     'critical-rate': colors[10],
     'critical-score': colors[6],
     'a-score': colors[1],
@@ -58,6 +61,7 @@ export const theme: Theme = {
     'debuff-recovery': normal,
     'debuff-guard': normal,
     'debuff-inverse': normal,
+    'buff-erase': normal,
     slump: normal,
   },
 }

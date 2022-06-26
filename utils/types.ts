@@ -23,6 +23,7 @@ export type BuffAbilityType =
   | 'debuff-guard'
   | 'unknown'
   | `${IdolType}-down`
+  | `${IdolType}-boost`
 export type ActionAbilityType =
   | 'buff-span'
   | 'buff-amount'
@@ -32,6 +33,7 @@ export type ActionAbilityType =
   | 'stamina-loss'
   | 'debuff-recovery'
   | 'debuff-inverse'
+  | 'buff-erase'
   | 'shift-before-sp'
   | 'shift-before-a'
 export type AbilityType = BuffAbilityType | ActionAbilityType

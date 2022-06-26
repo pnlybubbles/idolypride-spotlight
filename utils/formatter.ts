@@ -333,6 +333,9 @@ export const BUFF_ABILITY_TYPE: Record<BuffAbilityType, string> = {
   'vocal-down': 'ボーカル低下',
   'dance-down': 'ダンス低下',
   'visual-down': 'ビジュアル低下',
+  'vocal-boost': 'ボーカルブースト',
+  'dance-boost': 'ダンスブースト',
+  'visual-boost': 'ビジュアルブースト',
   'debuff-guard': '低下効果防止',
   slump: '不調',
   unknown: '不明',
@@ -350,6 +353,7 @@ export const ACTION_ABILITY_TYPE: Record<ActionAbilityType, string> = {
   'stamina-loss': 'スタミナ消費',
   'debuff-recovery': '低下効果回復',
   'debuff-inverse': '低下効果反転',
+  'buff-erase': '強化効果削除',
   'shift-before-sp': '強化効果をSPスキル前に移動',
   'shift-before-a': '強化効果をAスキル前に移動',
 }
