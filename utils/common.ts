@@ -53,6 +53,9 @@ export const IDOL_NAME = [
   '小美山愛',
   '赤崎こころ',
   '長瀬麻奈',
+  'fran',
+  'kana',
+  'miho',
 ] as const
 export type IdolName = typeof IDOL_NAME[number]
 
@@ -64,6 +67,7 @@ export const UNIT_NAME = [
   '月のテンペスト',
   'TRINITYAiLE',
   'LizNoir',
+  'ⅢX',
   'MACARON DONUTS',
   '長瀬麻奈',
   '川咲さくら',
@@ -80,6 +84,7 @@ export const UNIT_TO_IDOL_NAME: Record<UnitName, IdolName[]> = {
   TRINITYAiLE: ['天動瑠依', '鈴村優', '奥山すみれ'],
   LizNoir: ['神崎莉央', '井川葵', '小美山愛', '赤崎こころ', '長瀬麻奈'],
   'MACARON DONUTS': ['一ノ瀬怜', '早坂芽衣'],
+  ⅢX: ['fran', 'kana', 'miho'],
   長瀬麻奈: ['長瀬麻奈'],
   川咲さくら: ['川咲さくら'],
   '兵藤雫×天動瑠依': ['兵藤雫', '天動瑠依'],
