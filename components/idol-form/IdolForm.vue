@@ -348,7 +348,7 @@ const availableTrigger = (t: SkillTriggerType) => AVAILAVLE_TRIGGER[t]
 
 const SKILLS_NAME_PLACEHOLDER = ['太陽の光と共に', '大好きなあのキャラ', '人生の倍返し'] as const
 const SKILLS_CT_PLACEHOLDER = ['', '30', ''] as const
-const SKILL_LEVEL_MAX = [6, 5, 4] as const
+const SKILL_LEVEL_MAX = [6, 6, 4] as const
 
 const deriveUnitByBuffType = (type: BuffAbilityType | ActionAbilityType | null): string => {
   switch (type) {
