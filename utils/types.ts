@@ -64,7 +64,11 @@ export type BuffTargetPrefix = BuffTargetWithoutSuffix | BuffTargetWithSuffix | 
 
 // condition
 export type AbilityConditionType = AbilityConditionWithValue | AbilityConditionWithoutValue
-export type AbilityConditionWithValue = 'stamina-greater-than' | `${IfAnyone}stamina-less-than` | 'combo'
+export type AbilityConditionWithValue =
+  | 'stamina-greater-than'
+  | `${IfAnyone}stamina-less-than`
+  | 'combo'
+  | 'combo-less-than'
 export type AbilityConditionWithoutValue =
   | 'none'
   | 'critical'

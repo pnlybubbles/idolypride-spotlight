@@ -254,6 +254,7 @@ const serializeAbility = (v: PassiveAbilityData, upsert: boolean): RequiredSeria
 // 値ありの効果条件
 export const ABILITY_CONDITION_WITH_VALUE: Record<AbilityConditionWithValue, string> = {
   combo: 'Xコンボ以上時',
+  'combo-less-than': 'Xコンボ以下時',
   'stamina-greater-than': 'スタミナX%以上の時',
   'stamina-less-than': 'スタミナX%以下の時',
   'anyone-stamina-less-than': '誰かのスタミナがX%以下の時',
