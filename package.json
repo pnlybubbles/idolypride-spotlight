@@ -48,7 +48,7 @@
     "typescript": "^4.7.4",
     "vercel": "^25.2.3",
     "vls": "^0.7.6",
-    "vue-tsc": "^0.35.2"
+    "vue-tsc": "^0.38.2"
   },
   "dependencies": {
     "@auth0/auth0-spa-js": "^1.22.1",
