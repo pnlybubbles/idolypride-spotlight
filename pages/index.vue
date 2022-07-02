@@ -5,7 +5,7 @@
       <NuxtLink v-for="item in fumenList" :key="item.id" :to="`/fumen/${item.id}`" class="item" @touchend="null">
         <div class="title">{{ item.title }}</div>
         <div class="unit">
-          <UnitIcon class="unit-icon" :unit="item.rawUnit"></UnitIcon>
+          <UnitIcon class="unit-icon" :unit="item.unit"></UnitIcon>
           <span>{{ item.unit }}</span>
         </div>
       </NuxtLink>
@@ -41,7 +41,7 @@ const sortFumen = <T extends { title: string; unit: UnitName | undefined }>(fume
   })
 
 const fumenList = computed(() =>
-  sortFumen(data.value?.fumen.map((v) => ({ ...v, rawUnit: v.unit, unit: literal(v.unit, UNIT_NAME) })) ?? [])
+  sortFumen(data.value?.fumen.map((v) => ({ ...v, unit: literal(v.unit, UNIT_NAME) })) ?? [])
 )
 
 useHead(DEFAULT_META)
