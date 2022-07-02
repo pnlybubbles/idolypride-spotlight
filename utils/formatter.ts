@@ -353,7 +353,7 @@ export const ACTION_ABILITY_TYPE: Record<ActionAbilityType, string> = {
   'stamina-loss': 'スタミナ消費',
   'debuff-recovery': '低下効果回復',
   'debuff-inverse': '低下効果反転',
-  'buff-erase': '強化効果削除',
+  'buff-erase': '強化効果消去',
   'shift-before-sp': '強化効果をSPスキル前に移動',
   'shift-before-a': '強化効果をAスキル前に移動',
 }
