@@ -25,6 +25,7 @@ import {
   isActionAbilityType,
   isBuffAbilityType,
   isBuffTargetWithSuffix,
+  pickMaxLevelSkills,
 } from '~~/utils/formatter'
 
 export interface AbilityInput {
@@ -151,13 +152,16 @@ export const defaultAbilityInput = (
  * フォームが表示されてなかったとしても入力データは保持されているので、制御されていない値はnullなどの適切な値に上書きする必要がある。
  * 一部の値のフォーマットには、デシリアライズ時と同じ関数を再利用する (utils/formatter)
  */
-export const formatIdol = (v: IdolInput): IdolData => {
+export const formatIdol = (input: IdolInput, baseIdol: IdolData | undefined): IdolData => {
   return {
-    ...v,
-    id: v.id ?? '', // nullの場合は空文字にする
-    name: defined(v.name),
+    ...input,
+    id: input.id ?? '', // nullの場合は空文字にする
+    name: defined(input.name),
     userId: null,
-    skills: mapArrayN(v.skills, formatSkill),
+    skills: [
+      ...(baseIdol?.skills.filter((base) => !input.skills.map((v) => v.id).includes(base.id)) ?? []),
+      ...input.skills.map((v) => formatSkill(v)),
+    ],
     owned: null,
   }
 }
@@ -253,10 +257,10 @@ export const formatPassiveAbility = (v: AbilityInput): PassiveAbilityData => {
  */
 export const deformatIdol = (v: IdolData): IdolInput => ({
   ...v,
-  skills: [...mapArrayN(v.skills, deformatSkill)],
+  skills: mapArrayN(pickMaxLevelSkills(v.skills), (skill, i) => deformatSkill(skill, i)),
 })
 
-const deformatSkill = (w: SkillData, i: SkillIndex): SkillInput => {
+export const deformatSkill = (w: SkillData, i: SkillIndex): SkillInput => {
   const def = defaultIdolInput()
   return {
     ...w,

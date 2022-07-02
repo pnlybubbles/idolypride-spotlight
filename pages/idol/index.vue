@@ -6,7 +6,7 @@
       <DotMenu v-show="!selectOwnedMode" v-slot="{ label, arg }" :menu="menu">
         <div class="dot-menu-item">
           <span>{{ label }}</span>
-          <OwnSettingBadge v-if="arg?.annotate"></OwnSettingBadge>
+          <OwnSettingBadge v-if="(arg as any)?.annotate"></OwnSettingBadge>
         </div>
       </DotMenu>
     </template>

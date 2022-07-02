@@ -22,6 +22,7 @@ import {
   faStar,
   faCaretDown,
   faEllipsis,
+  faGun,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
@@ -47,7 +48,8 @@ library.add(
   faFilter,
   faStar,
   faCaretDown,
-  faEllipsis
+  faEllipsis,
+  faGun
 )
 
 export default defineNuxtPlugin((nuxtApp) => {

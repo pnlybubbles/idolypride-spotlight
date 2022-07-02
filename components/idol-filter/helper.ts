@@ -1,5 +1,5 @@
 import isNonNullable from 'is-non-nullable'
-import { eraceArrayLiteralTypes, eraceObjectLiteralTypes, isUnique, mapArrayN, mapObject, unreachable } from '~~/utils'
+import { eraceArrayLiteralTypes, eraceObjectLiteralTypes, isUnique, mapObject, unreachable } from '~~/utils'
 import { UNIT_TO_IDOL_NAME } from '~~/utils/common'
 import { IdolData } from '~~/utils/types'
 
@@ -22,12 +22,12 @@ const idolMatchFormation = (idol: IdolData, formation: string) => {
   if (formationDescriptor === undefined) {
     return false
   }
-  return mapArrayN(idol.skills, (skill, i) => {
-    const v = formationDescriptor[i]
+  return idol.skills.every((skill) => {
+    const v = formationDescriptor[skill.index]
     const type = v === 'SP' ? 'sp' : v === 'A' ? 'a' : v === 'P' ? 'p' : v === 'A30' ? 'a' : unreachable(v)
     const ct = v === 'A30' ? 30 : null
     return skill.type === type && (skill.type !== 'a' || ct === null || skill.ct <= ct)
-  }).every((v) => v)
+  })
 }
 
 const idolMatchOther = (idol: IdolData, other: string[]) => {
