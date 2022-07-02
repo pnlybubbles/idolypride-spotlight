@@ -406,6 +406,7 @@ export const ABILITY_ENHANCE_WITHOUT_VALUE: Record<AbilityEnhanceWithoutValue, s
   'stamina-rest': '残スタミナが多い程上昇',
   'stamina-rest-less': '残スタミナが少ない程上昇',
   'stamina-comsumed': '消費したスタミナが多い程上昇',
+  'stamina-consumed-on-current': 'このスキルで消費したスタミナが多い程上昇',
   'core-fan': 'コアファン率が多い程上昇',
   'audience-rate-less': '観客数割合が少ない程上昇',
   'skill-activated': '自身の発動したスキル数が多い程上昇',

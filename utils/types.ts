@@ -101,6 +101,7 @@ export type AbilityEnhance =
         | 'stamina-rest'
         | 'stamina-rest-less'
         | 'stamina-comsumed'
+        | 'stamina-consumed-on-current'
         | 'core-fan'
         | 'audience-rate-less'
         | 'skill-activated'
