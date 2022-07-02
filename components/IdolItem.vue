@@ -11,18 +11,19 @@
     </button>
     <div v-if="variant !== 'oneline'" class="status">
       <div class="skill-overview">
-        <div v-for="skill in idol.skills" :key="skill.id" class="skill-tag">
+        <div v-for="skill in skills" :key="skill.id" class="skill-tag">
           <div class="skill-type">{{ skill.type.toUpperCase() }}</div>
           <div v-if="skill.type !== 'sp'" class="skill-ct">{{ skill.ct === 0 ? '-' : skill.ct }}</div>
         </div>
       </div>
       <div v-if="variant === 'default'" class="skill-list">
-        <SkillText v-for="skill in idol.skills" :key="skill.id" :skill="skill" class="skill-item"></SkillText>
+        <SkillText v-for="skill in skills" :key="skill.id" :skill="skill" class="skill-item"></SkillText>
       </div>
     </div>
   </div>
 </template>
 <script setup lang="ts">
+import { pickMaxLevelSkills } from '~~/utils/formatter'
 import { IdolData } from '~~/utils/types'
 
 interface Props {
@@ -30,7 +31,9 @@ interface Props {
   noEvent?: boolean
   variant?: 'default' | 'mini' | 'oneline'
 }
-withDefaults(defineProps<Props>(), { variant: 'default', noEvent: false })
+const props = withDefaults(defineProps<Props>(), { variant: 'default', noEvent: false })
+
+const skills = computed(() => pickMaxLevelSkills(props.idol.skills))
 
 interface Emits {
   (e: 'click'): void

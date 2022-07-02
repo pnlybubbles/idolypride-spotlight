@@ -15,7 +15,10 @@
         <Listbox v-model="idolInput.role" :options="roleOptions" required></Listbox>
       </HStack>
     </Section>
-    <div v-for="skill in idolInput.skills" :key="skill.index">
+    <div
+      v-for="[skill, skillData] in idolInput.skills.map((v) => [v, idolSkill(v.index, skillLevel[v.index])] as const)"
+      :key="skill.index"
+    >
       <div class="sub-heading">
         <div>スキル{{ skill.index + 1 }}</div>
         <div></div>
@@ -25,15 +28,26 @@
             v-for="level in SKILL_LEVEL_MAX[skill.index]"
             :key="level"
             class="level-toggle-item"
-            :class="{ active: level === skill.level }"
-            @click="skill.level = level"
+            :class="{
+              active: level === skillLevel[skill.index],
+              marked: level === skill.level,
+            }"
+            @click="skillLevel[skill.index] = level"
             @touchend="null"
           >
             {{ level }}
           </button>
         </div>
       </div>
-      <VStack :spacing="16">
+      <Section v-if="skillLevel[skill.index] !== skill.level">
+        <SkillText v-if="skillData" :skill="skillData" delimiter="newline" :with-lv="false" with-ct></SkillText>
+        <NoteText v-else>データ無し</NoteText>
+        <Button variant="secondary" @click="handleStartEditingLevel(skill.index)">
+          <template v-if="skillData">レベル {{ skillLevel[skill.index] }} の編集を開始する</template>
+          <template v-else>レベル {{ skillLevel[skill.index] }} の入力を開始する</template>
+        </Button>
+      </Section>
+      <VStack v-show="skillLevel[skill.index] === skill.level" :spacing="16">
         <Section>
           <template #label>スキル名</template>
           <TextField v-model="skill.name" :placeholder="SKILLS_NAME_PLACEHOLDER[skill.index]" required></TextField>
@@ -185,6 +199,7 @@ import {
   BuffTargetPrefix,
   IdolData,
   SkillTriggerType,
+  SkillIndex,
 } from '~~/utils/types'
 import {
   ABILITY_CONDITION_WITHOUT_VALUE,
@@ -207,11 +222,12 @@ import {
   deriveDisabledAmount,
   defaultAbilityInput,
   deformatIdol,
+  deformatSkill,
   SkillInput,
   disableSpan,
   availableSkillOnce,
 } from './helper'
-import { defined, lift } from '~~/utils'
+import { defined, lift, mapArrayN } from '~~/utils'
 import {
   arrayToOption,
   ExcludeUnknown,
@@ -221,6 +237,7 @@ import {
   omitUnknownOption,
   Option,
 } from '~~/utils/common'
+import equal from 'deep-equal'
 
 interface Props {
   idol?: IdolData
@@ -233,7 +250,36 @@ interface Emits {
 }
 const emit = defineEmits<Emits>()
 
-const idolInput = reactive<IdolInput>(props.idol ? deformatIdol(props.idol) : defaultIdolInput())
+const initIdolInput = props.idol ? deformatIdol(props.idol) : defaultIdolInput()
+const idolInput = reactive<IdolInput>(initIdolInput)
+
+const skillLevel = reactive(mapArrayN(initIdolInput.skills, (v) => v.level))
+
+const handleStartEditingLevel = (index: SkillIndex) => {
+  const level = idolInput.skills[index].level
+  const newLevel = skillLevel[index]
+  const currentSkill = idolSkill(index, level)
+  const expected = currentSkill ? deformatSkill(currentSkill, index) : defaultIdolInput().skills[index]
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  if (equal(toRaw(idolInput.skills[index]), expected) === false) {
+    if (!confirm('編集中のスキルレベルのデータを破棄して新しいスキルレベルの編集を開始します')) {
+      return
+    }
+  }
+  const newSkill = idolSkill(index, newLevel)
+  if (newSkill) {
+    idolInput.skills[index] = deformatSkill(newSkill, index)
+  } else {
+    idolInput.skills[index].id = ''
+    idolInput.skills[index].level = newLevel
+    for (const ability of idolInput.skills[index].ability) {
+      ability.id = ''
+    }
+  }
+}
+
+const idolSkill = (index: SkillIndex, level: number) =>
+  props.idol?.skills.find((v) => v.index === index && v.level === level)
 
 const handleAddAbility = (skill: SkillInput) => {
   const currentSkill = defined(idolInput.skills.find((v) => v.index === skill.index))
@@ -248,14 +294,14 @@ const handleAddAbility = (skill: SkillInput) => {
 }
 
 const handleRemoveAbility = (skill: SkillInput, abilityIndex: number) => {
-  if (!confirm(`効果を削除します。よろしいですか？`)) {
+  if (!confirm('効果を削除します')) {
     return
   }
   idolInput.skills.find((v) => v.index === skill.index)?.ability.splice(abilityIndex, 1)
 }
 
 const handleSubmit = () => {
-  emit('submit', formatIdol(idolInput))
+  emit('submit', formatIdol(idolInput, props.idol))
 }
 
 const nameOptions: Option<string> = arrayToOption(IDOL_NAME)
@@ -413,11 +459,24 @@ const deriveUnitByBuffType = (type: BuffAbilityType | ActionAbilityType | null):
   justify-items: center;
   align-items: center;
   border: solid 1px $text3;
+  position: relative;
 
   &.active {
     color: $background1;
     background-color: $text1;
     border-color: $text1;
+  }
+
+  &.marked::before {
+    content: '';
+    position: absolute;
+    display: block;
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    background-color: $text1;
+    right: -3px;
+    top: -3px;
   }
 }
 

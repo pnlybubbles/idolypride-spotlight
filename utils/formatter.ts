@@ -6,7 +6,6 @@ import {
   Skill_Insert_Input,
 } from '~~/generated/graphql'
 import { defined, IntLike, isKeyInObject, mapArrayN, omit, safeParseInt, unreachable } from '.'
-import { SKILLS } from './common'
 import {
   AbilityCondition,
   AbilityData,
@@ -31,6 +30,7 @@ import {
   SkillTriggerWithoutValue,
 } from './types'
 import { v4 as uuid } from 'uuid'
+import { SKILLS } from './common'
 
 // Deserialize
 // デシリアライズはAPIから来た値を型にマッピングする
@@ -45,7 +45,7 @@ export const deserializeIdolList = (data: GetIdolListQuery): IdolData[] =>
     ...v,
     owned: v.owned_by.length > 0,
     userId: v.user_id,
-    skills: mapArrayN(SKILLS, (i) => deserializeSkill(defined(v.skills[i]))),
+    skills: v.skills.map(deserializeSkill),
   }))
 
 export const deserializeIdol = (data: GetIdolQuery): IdolData | null =>
@@ -54,7 +54,7 @@ export const deserializeIdol = (data: GetIdolQuery): IdolData | null =>
         ...data.idol_by_pk,
         owned: null,
         userId: data.idol_by_pk.user_id,
-        skills: sortSkills(mapArrayN(SKILLS, (i) => deserializeSkill(defined(data.idol_by_pk?.skills[i])))),
+        skills: data.idol_by_pk.skills.map(deserializeSkill),
       }
     : null
 
@@ -470,3 +470,8 @@ const sortAblities = <T extends { div: AbilityDiv; condition: AbilityCondition }
       ABILITY_CONDITION_ORDERING(a.condition.type) - ABILITY_CONDITION_ORDERING(b.condition.type)
     return conditionOrdering
   })
+
+export const pickMaxLevelSkills = (skills: SkillData[]) =>
+  mapArrayN(SKILLS, (i) =>
+    defined(skills.filter((v) => v.index === i).sort((a, b) => b.level - a.level)[0], 'skills are insufficient')
+  )

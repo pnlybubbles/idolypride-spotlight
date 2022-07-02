@@ -8,4 +8,10 @@ export default defineNuxtConfig({
     transpile: ['uuid'],
   },
   telemetry: false,
+  vite: {
+    define: {
+      // deep-equal で global 参照している部分があるので一時しのぎ
+      global: {},
+    },
+  },
 })

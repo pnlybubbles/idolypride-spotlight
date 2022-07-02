@@ -219,7 +219,7 @@ export interface IdolData {
   title: string
   role: IdolRole
   type: IdolType
-  skills: ArrayN<SkillData, 3>
+  skills: SkillData[]
   // nullの場合は未取得or新規
   owned: boolean | null
 }

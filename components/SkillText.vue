@@ -1,5 +1,5 @@
 <template>
-  <div class="skill-text">
+  <div class="skill-text" :class="{ [delimiter]: true }">
     <div v-if="withCt && skill.type !== 'sp'" class="ability">CT{{ skill.ct }}</div>
     <div v-if="skill.type === 'p'" class="ability">
       <font-awesome-icon icon="flag"></font-awesome-icon>
@@ -26,7 +26,7 @@
         <div v-if="ability.div === 'buff'">[{{ ability.span }}]</div>
       </template>
     </div>
-    <div class="ability">
+    <div v-if="withLv" class="ability">
       <div>lv.{{ skill.level }}</div>
     </div>
   </div>
@@ -47,8 +47,10 @@ import {
 interface Props {
   skill: SkillData
   withCt?: boolean
+  withLv?: boolean
+  delimiter?: 'dot' | 'newline'
 }
-defineProps<Props>()
+withDefaults(defineProps<Props>(), { delimiter: 'dot', withLv: true })
 
 const ABILITY_ORDERING: { [key in AbilityDiv]: number } = {
   score: 0,
@@ -66,9 +68,18 @@ const [internalLabel] = useInternalLabel()
 
 .skill-text {
   display: grid;
-  grid: auto / auto-flow;
-  justify-content: start;
-  gap: 16px;
+
+  &.dot {
+    grid: auto / auto-flow;
+    justify-content: start;
+    gap: 16px;
+  }
+
+  &.newline {
+    grid: auto-flow / auto;
+    justify-items: start;
+    gap: 2px;
+  }
 }
 
 .ability {
@@ -77,10 +88,17 @@ const [internalLabel] = useInternalLabel()
   gap: 4px;
   font-size: $typography-s;
   align-items: center;
+
+  & svg {
+    font-size: 10px;
+  }
+}
+
+.dot .ability {
   position: relative;
   white-space: nowrap;
 
-  & + & {
+  & + .ability {
     &::before {
       content: '';
       display: block;
@@ -93,10 +111,6 @@ const [internalLabel] = useInternalLabel()
       transform: translate(-50%, -50%);
       background-color: currentColor;
     }
-  }
-
-  & svg {
-    font-size: 10px;
   }
 }
 </style>
