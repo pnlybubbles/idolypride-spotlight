@@ -254,6 +254,7 @@ const serializeAbility = (v: PassiveAbilityData, upsert: boolean): RequiredSeria
 // 値ありの効果条件
 export const ABILITY_CONDITION_WITH_VALUE: Record<AbilityConditionWithValue, string> = {
   combo: 'Xコンボ以上時',
+  'combo-less-than': 'Xコンボ以下時',
   'stamina-greater-than': 'スタミナX%以上の時',
   'stamina-less-than': 'スタミナX%以下の時',
   'anyone-stamina-less-than': '誰かのスタミナがX%以下の時',
@@ -304,6 +305,7 @@ export const isSkillTriggerWithValue = isKeyInObject(SKILL_TRIGGER_WITH_VALUE)
 export const SKILL_TRIGGER_WITHOUT_VALUE: Record<SkillTriggerWithoutValue, string> = {
   none: '無条件',
   sp: '誰かがSPスキル発動前',
+  'self-sp': '自身がSPスキル発動前',
   a: '誰かがAスキル発動前',
   beat: 'ビート時',
   ...omit(ABILITY_CONDITION_WITHOUT_VALUE, ['none', 'in-vocal-lane', 'in-dance-lane', 'in-visual-lane', 'in-center']),
@@ -353,7 +355,7 @@ export const ACTION_ABILITY_TYPE: Record<ActionAbilityType, string> = {
   'stamina-loss': 'スタミナ消費',
   'debuff-recovery': '低下効果回復',
   'debuff-inverse': '低下効果反転',
-  'buff-erase': '強化効果削除',
+  'buff-erase': '強化効果消去',
   'shift-before-sp': '強化効果をSPスキル前に移動',
   'shift-before-a': '強化効果をAスキル前に移動',
 }
@@ -405,6 +407,7 @@ export const ABILITY_ENHANCE_WITHOUT_VALUE: Record<AbilityEnhanceWithoutValue, s
   'stamina-rest': '残スタミナが多い程上昇',
   'stamina-rest-less': '残スタミナが少ない程上昇',
   'stamina-comsumed': '消費したスタミナが多い程上昇',
+  'stamina-consumed-on-current': 'このスキルで消費したスタミナが多い程上昇',
   'core-fan': 'コアファン率が多い程上昇',
   'audience-rate-less': '観客数割合が少ない程上昇',
   'skill-activated': '自身の発動したスキル数が多い程上昇',

@@ -311,6 +311,7 @@ const triggerOptions: Option<ExcludeUnknown<SkillTriggerType>> = [
 const AVAILAVLE_TRIGGER: Record<SkillTriggerType, boolean> = {
   none: false,
   sp: true,
+  'self-sp': false,
   a: true,
   beat: false,
   critical: false,
@@ -340,6 +341,7 @@ const AVAILAVLE_TRIGGER: Record<SkillTriggerType, boolean> = {
   'anyone-cmb-score-up': true,
   unknown: false,
   combo: false,
+  'combo-less-than': false,
   'stamina-greater-than': false,
   'stamina-less-than': false,
   'anyone-stamina-less-than': true,

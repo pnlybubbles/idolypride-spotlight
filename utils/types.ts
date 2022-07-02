@@ -64,7 +64,11 @@ export type BuffTargetPrefix = BuffTargetWithoutSuffix | BuffTargetWithSuffix | 
 
 // condition
 export type AbilityConditionType = AbilityConditionWithValue | AbilityConditionWithoutValue
-export type AbilityConditionWithValue = 'stamina-greater-than' | `${IfAnyone}stamina-less-than` | 'combo'
+export type AbilityConditionWithValue =
+  | 'stamina-greater-than'
+  | `${IfAnyone}stamina-less-than`
+  | 'combo'
+  | 'combo-less-than'
 export type AbilityConditionWithoutValue =
   | 'none'
   | 'critical'
@@ -97,6 +101,7 @@ export type AbilityEnhance =
         | 'stamina-rest'
         | 'stamina-rest-less'
         | 'stamina-comsumed'
+        | 'stamina-consumed-on-current'
         | 'core-fan'
         | 'audience-rate-less'
         | 'skill-activated'
@@ -189,6 +194,7 @@ export type SkillTriggerType = SkillTriggerWithValue | SkillTriggerWithoutValue
 export type SkillTriggerWithValue = AbilityConditionWithValue
 export type SkillTriggerWithoutValue =
   | 'sp'
+  | 'self-sp'
   | 'a'
   | 'beat'
   | Exclude<AbilityConditionWithoutValue, `in-${IdolType}-lane` | 'in-center'>
