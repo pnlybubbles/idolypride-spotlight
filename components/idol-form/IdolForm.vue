@@ -311,6 +311,7 @@ const triggerOptions: Option<ExcludeUnknown<SkillTriggerType>> = [
 const AVAILAVLE_TRIGGER: Record<SkillTriggerType, boolean> = {
   none: false,
   sp: true,
+  'self-sp': false,
   a: true,
   beat: false,
   critical: false,

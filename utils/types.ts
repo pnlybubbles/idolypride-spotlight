@@ -194,6 +194,7 @@ export type SkillTriggerType = SkillTriggerWithValue | SkillTriggerWithoutValue
 export type SkillTriggerWithValue = AbilityConditionWithValue
 export type SkillTriggerWithoutValue =
   | 'sp'
+  | 'self-sp'
   | 'a'
   | 'beat'
   | Exclude<AbilityConditionWithoutValue, `in-${IdolType}-lane` | 'in-center'>
