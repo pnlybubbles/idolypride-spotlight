@@ -11,7 +11,11 @@ export default defineNuxtConfig({
   vite: {
     define: {
       // deep-equal で global 参照している部分があるので一時しのぎ
-      global: {},
+      // refs:
+      // https://github.com/nuxt/framework/issues/1922
+      // https://github.com/nuxt/framework/issues/4916
+      // https://github.com/nuxt/framework/discussions/2308#discussioncomment-2766426
+      'window.global': {},
     },
   },
 })
