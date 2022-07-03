@@ -48,6 +48,9 @@
       <!-- 編集中のときはshowで表示制御をしておいてインスタンスを保持しておく -->
       <!-- (入力途中のフォームはマウントしておくと`useForm`のバリデーションチェックが効く) -->
       <VStack v-show="skillLevel[skill.index] === skill.level" v-if="skill.level !== null" :spacing="16">
+        <Section v-if="copiedFromLevel[skill.index] !== null">
+          <NoteText variant="info">Level {{ copiedFromLevel[skill.index] }} からデータがコピーされました</NoteText>
+        </Section>
         <Section>
           <template #label>スキル名</template>
           <TextField v-model="skill.name" :placeholder="SKILLS_NAME_PLACEHOLDER[skill.index]" required></TextField>
@@ -268,6 +271,8 @@ const skillLevel = reactive(
   props.idol ? mapArrayN(pickMaxLevelSkills(props.idol.skills), (v) => v.level) : ([1, 1, 1] as ArrayN<number, 3>)
 )
 
+const copiedFromLevel = reactive([null, null, null] as ArrayN<null | number, 3>)
+
 const handleStartEditingLevel = (index: SkillIndex) => {
   const level = idolInput.skills[index].level
   // 編集中の場合は入力が破棄されるので確認を出す
@@ -286,6 +291,7 @@ const handleStartEditingLevel = (index: SkillIndex) => {
   if (newSkill) {
     // 編集の場合
     idolInput.skills[index] = deformatSkill(newSkill, index)
+    copiedFromLevel[index] = null
   } else {
     // 新規の場合
     // 近いレベルからデータを引っ張ってきてベースにする
@@ -298,8 +304,10 @@ const handleStartEditingLevel = (index: SkillIndex) => {
       })[0]
     if (nearestSkill) {
       idolInput.skills[index] = deformatSkill(nearestSkill, index)
+      copiedFromLevel[index] = nearestSkill.level
     } else {
       idolInput.skills[index] = defaultIdolInput().skills[index]
+      copiedFromLevel[index] = null
     }
     // 記入中のレベルを指定
     idolInput.skills[index].level = newLevel
