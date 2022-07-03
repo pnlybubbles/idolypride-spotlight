@@ -37,7 +37,10 @@
         </div>
       </div>
       <Section v-if="skillLevel[skill.index] !== skill.level">
-        <SkillText v-if="skillData" :skill="skillData" delimiter="newline" :with-lv="false" with-ct></SkillText>
+        <template v-if="skillData">
+          <NoteText>{{ skillData.type.toUpperCase() }} {{ skillData.name }}</NoteText>
+          <SkillText :skill="skillData" delimiter="newline" :with-lv="false" with-ct></SkillText>
+        </template>
         <NoteText v-else>データ無し</NoteText>
         <Button variant="secondary" @click="handleStartEditingLevel(skill.index)">
           <template v-if="skillData">レベル {{ skillLevel[skill.index] }} の編集を開始する</template>
