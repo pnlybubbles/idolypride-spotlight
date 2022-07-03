@@ -272,15 +272,13 @@ const skillLevel = reactive(
 )
 
 const copiedFromLevel = reactive([null, null, null] as ArrayN<null | number, 3>)
+const skillInputCache = [null, null, null] as ArrayN<null | SkillInput, 3>
 
 const handleStartEditingLevel = (index: SkillIndex) => {
   const level = idolInput.skills[index].level
   // 編集中の場合は入力が破棄されるので確認を出す
   if (level !== null) {
-    const currentSkill = idolSkill(index, level)
-    const expected = currentSkill ? deformatSkill(currentSkill, index) : defaultIdolInput().skills[index]
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    if (equal(toRaw(idolInput.skills[index]), expected) === false) {
+    if (!equal(toRaw(idolInput.skills[index]), skillInputCache[index])) {
       if (!confirm('編集中のスキルレベルのデータを破棄して新しいスキルレベルの編集を開始します')) {
         return
       }
@@ -317,6 +315,7 @@ const handleStartEditingLevel = (index: SkillIndex) => {
       ability.id = ''
     }
   }
+  skillInputCache[index] = structuredClone(toRaw(idolInput.skills[index])) as SkillInput
 }
 
 const idolSkill = (index: SkillIndex, level: number) =>
