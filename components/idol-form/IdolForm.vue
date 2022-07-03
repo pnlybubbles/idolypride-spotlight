@@ -15,10 +15,7 @@
         <Listbox v-model="idolInput.role" :options="roleOptions" required></Listbox>
       </HStack>
     </Section>
-    <div
-      v-for="[skill, skillData] in idolInput.skills.map((v) => [v, idolSkill(v.index, skillLevel[v.index])] as const)"
-      :key="skill.index"
-    >
+    <div v-for="[skill, skillData] in idolInput.skills.map(zipIdolSkill)" :key="skill.index">
       <div class="sub-heading">
         <div>スキル{{ skill.index + 1 }}</div>
         <div></div>
@@ -47,7 +44,10 @@
           <template v-else>レベル {{ skillLevel[skill.index] }} の入力を開始する</template>
         </Button>
       </Section>
-      <VStack v-show="skillLevel[skill.index] === skill.level" :spacing="16">
+      <!-- skill.level が null のときは編集中ではないのでアンマウント -->
+      <!-- 編集中のときはshowで表示制御をしておいてインスタンスを保持しておく -->
+      <!-- (入力途中のフォームはマウントしておくと`useForm`のバリデーションチェックが効く) -->
+      <VStack v-show="skillLevel[skill.index] === skill.level" v-if="skill.level !== null" :spacing="16">
         <Section>
           <template #label>スキル名</template>
           <TextField v-model="skill.name" :placeholder="SKILLS_NAME_PLACEHOLDER[skill.index]" required></TextField>
@@ -212,6 +212,7 @@ import {
   isAbilityEnhanceWithValue,
   isBuffTargetWithSuffix,
   isSkillTriggerWithValue,
+  pickMaxLevelSkills,
   SKILL_TRIGGER_WITHOUT_VALUE,
   SKILL_TRIGGER_WITH_VALUE,
 } from '~~/utils/formatter'
@@ -227,7 +228,7 @@ import {
   disableSpan,
   availableSkillOnce,
 } from './helper'
-import { defined, lift, mapArrayN } from '~~/utils'
+import { ArrayN, defined, lift, mapArrayN } from '~~/utils'
 import {
   arrayToOption,
   ExcludeUnknown,
@@ -236,8 +237,10 @@ import {
   omitOption,
   omitUnknownOption,
   Option,
+  SKILLS,
 } from '~~/utils/common'
 import equal from 'deep-equal'
+import { useFormComponent } from '~~/composable/form'
 
 interface Props {
   idol?: IdolData
@@ -252,26 +255,56 @@ const emit = defineEmits<Emits>()
 
 const initIdolInput = props.idol ? deformatIdol(props.idol) : defaultIdolInput()
 const idolInput = reactive<IdolInput>(initIdolInput)
+useFormComponent(
+  computed(() => ({
+    error: SKILLS.some(
+      // 必ず各スキルは一つ以上のレベルのデータが存在しなければならない
+      (i) => idolInput.skills[i].level === null && props.idol?.skills.find((v) => v.index === i) === undefined
+    ),
+  }))
+)
 
-const skillLevel = reactive(mapArrayN(initIdolInput.skills, (v) => v.level))
+const skillLevel = reactive(
+  props.idol ? mapArrayN(pickMaxLevelSkills(props.idol.skills), (v) => v.level) : ([1, 1, 1] as ArrayN<number, 3>)
+)
 
 const handleStartEditingLevel = (index: SkillIndex) => {
   const level = idolInput.skills[index].level
-  const newLevel = skillLevel[index]
-  const currentSkill = idolSkill(index, level)
-  const expected = currentSkill ? deformatSkill(currentSkill, index) : defaultIdolInput().skills[index]
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  if (equal(toRaw(idolInput.skills[index]), expected) === false) {
-    if (!confirm('編集中のスキルレベルのデータを破棄して新しいスキルレベルの編集を開始します')) {
-      return
+  // 編集中の場合は入力が破棄されるので確認を出す
+  if (level !== null) {
+    const currentSkill = idolSkill(index, level)
+    const expected = currentSkill ? deformatSkill(currentSkill, index) : defaultIdolInput().skills[index]
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    if (equal(toRaw(idolInput.skills[index]), expected) === false) {
+      if (!confirm('編集中のスキルレベルのデータを破棄して新しいスキルレベルの編集を開始します')) {
+        return
+      }
     }
   }
+  const newLevel = skillLevel[index]
   const newSkill = idolSkill(index, newLevel)
   if (newSkill) {
+    // 編集の場合
     idolInput.skills[index] = deformatSkill(newSkill, index)
   } else {
-    idolInput.skills[index].id = ''
+    // 新規の場合
+    // 近いレベルからデータを引っ張ってきてベースにする
+    const nearestSkill = props.idol?.skills
+      .filter((v) => v.index === index)
+      .sort((a, b) => {
+        const cmp = Math.abs(a.level - newLevel) - Math.abs(b.level - newLevel)
+        // 同率だった場合は下のレベルを優先
+        return cmp === 0 ? -1 : cmp
+      })[0]
+    if (nearestSkill) {
+      idolInput.skills[index] = deformatSkill(nearestSkill, index)
+    } else {
+      idolInput.skills[index] = defaultIdolInput().skills[index]
+    }
+    // 記入中のレベルを指定
     idolInput.skills[index].level = newLevel
+    // idを空文字にすることで新規追加を明示する (formatIdolの仕様)
+    idolInput.skills[index].id = ''
     for (const ability of idolInput.skills[index].ability) {
       ability.id = ''
     }
@@ -280,6 +313,11 @@ const handleStartEditingLevel = (index: SkillIndex) => {
 
 const idolSkill = (index: SkillIndex, level: number) =>
   props.idol?.skills.find((v) => v.index === index && v.level === level)
+
+const zipIdolSkill = (input: SkillInput) => {
+  const level = skillLevel[input.index]
+  return [input, level !== null ? idolSkill(input.index, level) : undefined] as const
+}
 
 const handleAddAbility = (skill: SkillInput) => {
   const currentSkill = defined(idolInput.skills.find((v) => v.index === skill.index))

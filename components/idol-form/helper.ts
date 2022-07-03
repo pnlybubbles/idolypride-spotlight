@@ -25,8 +25,9 @@ import {
   isActionAbilityType,
   isBuffAbilityType,
   isBuffTargetWithSuffix,
-  pickMaxLevelSkills,
 } from '~~/utils/formatter'
+import { SKILLS } from '~~/utils/common'
+import isNonNullable from 'is-non-nullable'
 
 export interface AbilityInput {
   id: string
@@ -51,7 +52,7 @@ export interface SkillInput {
   id: string
   index: SkillIndex
   name: string
-  level: number
+  level: number | null
   type: SkillType
   ct: string
   once: boolean
@@ -80,7 +81,7 @@ export const defaultIdolInput = (): IdolInput => ({
       id: '',
       index: 0,
       name: '',
-      level: 1,
+      level: null,
       type: 'sp',
       ct: '',
       once: false,
@@ -92,7 +93,7 @@ export const defaultIdolInput = (): IdolInput => ({
       id: '',
       index: 1,
       name: '',
-      level: 1,
+      level: null,
       type: 'a',
       ct: '',
       once: false,
@@ -104,7 +105,7 @@ export const defaultIdolInput = (): IdolInput => ({
       id: '',
       index: 2,
       name: '',
-      level: 1,
+      level: null,
       type: 'p',
       ct: '',
       once: false,
@@ -160,13 +161,16 @@ export const formatIdol = (input: IdolInput, baseIdol: IdolData | undefined): Id
     userId: null,
     skills: [
       ...(baseIdol?.skills.filter((base) => !input.skills.map((v) => v.id).includes(base.id)) ?? []),
-      ...input.skills.map((v) => formatSkill(v)),
+      ...input.skills.map((v) => formatSkill(v)).filter(isNonNullable),
     ],
     owned: null,
   }
 }
 
-const formatSkill = (v: SkillInput): SkillData => {
+const formatSkill = (v: SkillInput): SkillData | null => {
+  if (v.level === null) {
+    return null
+  }
   const common = {
     id: v.id,
     name: v.name,
@@ -257,7 +261,8 @@ export const formatPassiveAbility = (v: AbilityInput): PassiveAbilityData => {
  */
 export const deformatIdol = (v: IdolData): IdolInput => ({
   ...v,
-  skills: mapArrayN(pickMaxLevelSkills(v.skills), (skill, i) => deformatSkill(skill, i)),
+  // TODO: 指定したスキルレベルをデフォルトでパースするようにしてもよさそう
+  skills: mapArrayN(SKILLS, (i) => defaultIdolInput().skills[i]),
 })
 
 export const deformatSkill = (w: SkillData, i: SkillIndex): SkillInput => {
