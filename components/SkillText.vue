@@ -78,7 +78,7 @@ const [internalLabel] = useInternalLabel()
   &.newline {
     grid: auto-flow / auto;
     justify-items: start;
-    gap: 2px;
+    gap: 4px;
   }
 }
 
