@@ -83,9 +83,6 @@ const [internalLabel] = useInternalLabel()
 }
 
 .ability {
-  display: grid;
-  grid: auto / auto-flow;
-  gap: 4px;
   font-size: $typography-s;
   align-items: center;
 
@@ -95,6 +92,9 @@ const [internalLabel] = useInternalLabel()
 }
 
 .dot .ability {
+  display: grid;
+  grid: auto / auto-flow;
+  gap: 4px;
   position: relative;
   white-space: nowrap;
 
@@ -111,6 +111,15 @@ const [internalLabel] = useInternalLabel()
       transform: translate(-50%, -50%);
       background-color: currentColor;
     }
+  }
+}
+
+.newline .ability {
+  display: block;
+
+  & > * + * {
+    margin-left: 4px;
+    display: inline;
   }
 }
 </style>
