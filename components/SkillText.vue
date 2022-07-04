@@ -88,6 +88,10 @@ const [internalLabel] = useInternalLabel()
 
   & svg {
     font-size: 10px;
+
+    &:first-child {
+      margin-left: 2px;
+    }
   }
 }
 
