@@ -10,14 +10,26 @@
       </div>
     </button>
     <div v-if="variant !== 'oneline'" class="status">
-      <div class="skill-overview">
+      <div v-if="variant !== 'big'" class="skill-overview">
         <div v-for="skill in skills" :key="skill.id" class="skill-tag">
           <div class="skill-type">{{ skill.type.toUpperCase() }}</div>
           <div v-if="skill.type !== 'sp'" class="skill-ct">{{ skill.ct === 0 ? '-' : skill.ct }}</div>
         </div>
       </div>
-      <div v-if="variant === 'default'" class="skill-list">
+      <div v-if="variant === 'default'" class="skill-list default">
         <SkillText v-for="skill in skills" :key="skill.id" :skill="skill" class="skill-item"></SkillText>
+      </div>
+      <div v-else-if="variant === 'big'" class="skill-list big">
+        <div v-for="skill in skills" :key="skill.id" class="skill-item">
+          <div class="skill-title">
+            <div class="skill-tag mini">
+              <div class="skill-type">{{ skill.type.toUpperCase() }}</div>
+              <div v-if="skill.type !== 'sp'" class="skill-ct">{{ skill.ct === 0 ? '-' : skill.ct }}</div>
+            </div>
+            <div class="skill-name">{{ skill.name }}</div>
+          </div>
+          <SkillText :skill="skill" delimiter="newline" class="skill-detail" :with-lv="false"></SkillText>
+        </div>
       </div>
     </div>
   </div>
@@ -29,7 +41,7 @@ import { IdolData } from '~~/utils/types'
 interface Props {
   idol: IdolData
   noEvent?: boolean
-  variant?: 'default' | 'mini' | 'oneline'
+  variant?: 'default' | 'mini' | 'oneline' | 'big'
 }
 const props = withDefaults(defineProps<Props>(), { variant: 'default', noEvent: false })
 
@@ -107,7 +119,7 @@ defineEmits<Emits>()
 
 .status {
   display: grid;
-  grid: auto auto / auto;
+  grid: auto-flow / auto;
   gap: 10px;
 }
 
@@ -126,21 +138,33 @@ defineEmits<Emits>()
   display: grid;
   grid: auto / auto-flow;
   gap: 4px;
+
+  .skill-type {
+    font-size: $typography-s;
+    font-weight: bold;
+    color: $text1;
+  }
+
+  .skill-ct {
+    font-size: $typography-s;
+    font-weight: bold;
+    color: $text3;
+  }
+
+  &.mini {
+    padding: 3px 6px;
+
+    .skill-type {
+      font-size: $typography-xs;
+    }
+
+    .skill-ct {
+      font-size: $typography-xs;
+    }
+  }
 }
 
-.skill-type {
-  font-size: $typography-s;
-  font-weight: bold;
-  color: $text1;
-}
-
-.skill-ct {
-  font-size: $typography-s;
-  font-weight: bold;
-  color: $text3;
-}
-
-.skill-list {
+.skill-list.default {
   display: grid;
   grid: auto-flow / auto;
   gap: 8px;
@@ -148,10 +172,38 @@ defineEmits<Emits>()
   width: 100%;
   padding-bottom: 10px;
   margin-bottom: -10px;
+
+  .skill-item {
+    @include align;
+    color: $text3;
+  }
 }
 
-.skill-item {
+.skill-list.big {
   @include align;
-  color: $text3;
+  display: grid;
+  gap: 8px;
+
+  .skill-item {
+    display: grid;
+    gap: 4px;
+  }
+
+  .skill-title {
+    display: grid;
+    grid: auto / auto-flow;
+    justify-content: start;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .skill-name {
+    font-size: $typography-s;
+    color: $text1;
+  }
+
+  .skill-detail {
+    color: $text3;
+  }
 }
 </style>
