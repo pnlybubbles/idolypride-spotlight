@@ -4,15 +4,14 @@
     <VStack :spacing="16">
       <IdolItem :idol="idol" variant="big" no-event></IdolItem>
       <Section>
-        <template #label>管理</template>
-        <template #sub><OwnSettingBadge></OwnSettingBadge></template>
-        <Check v-model="isOwned" :disabled="idol.owned === null" @update:model-value="mutate">加入している</Check>
-      </Section>
-      <Section>
-        <template #label>データ</template>
         <ButtonLink :to="`/idol/${idol.id}/edit`" :disabled="!canEdit">アイドルを編集する</ButtonLink>
         <NoteText v-if="!canEdit">自分の追加したアイドルのみ編集できます</NoteText>
         <NoteText v-if="isAdmin">管理者権限によりすべてのアイドルを編集できます</NoteText>
+      </Section>
+      <Section>
+        <template #label>管理</template>
+        <template #sub><OwnSettingBadge></OwnSettingBadge></template>
+        <Check v-model="isOwned" :disabled="idol.owned === null" @update:model-value="mutate">加入している</Check>
       </Section>
     </VStack>
   </Sheet>
