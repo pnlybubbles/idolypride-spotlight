@@ -11,30 +11,23 @@
     </button>
     <div v-if="variant !== 'oneline'" class="status">
       <div v-if="variant !== 'big'" class="skill-overview">
-        <div v-for="skill in skills" :key="skill.id" class="skill-tag">
-          <div class="skill-type">{{ skill.type.toUpperCase() }}</div>
-          <div v-if="skill.type !== 'sp'" class="skill-ct">{{ skill.ct === 0 ? '-' : skill.ct }}</div>
-        </div>
+        <SkillTag v-for="skill in skills" :key="skill.id" :skill="skill"></SkillTag>
       </div>
       <div v-if="variant === 'default'" class="skill-list default">
         <SkillText v-for="skill in skills" :key="skill.id" :skill="skill" class="skill-item"></SkillText>
       </div>
       <div v-else-if="variant === 'big'" class="skill-list big">
-        <div v-for="skill in skills" :key="skill.id" class="skill-item">
+        <div v-for="i in SKILLS" :key="i" class="skill-item">
           <div class="skill-title">
             <div class="skill-left">
-              <div class="skill-tag mini">
-                <div class="skill-type">{{ skill.type.toUpperCase() }}</div>
-                <div v-if="skill.type !== 'sp'" class="skill-ct">{{ skill.ct === 0 ? '-' : skill.ct }}</div>
-              </div>
-              <div class="skill-name">{{ skill.name }}</div>
+              <SkillTag :skill="skills[i]" mini></SkillTag>
+              <div class="skill-name">{{ skills[i].name }}</div>
             </div>
             <div class="skill-right">
-              <InlineMenu v-model="selectedLevel[skill.index]" :options="levelOptions[skill.index]" class="skill-level">
-              </InlineMenu>
+              <InlineMenu v-model="selectedLevel[i]" :options="levelOptions[i]" class="skill-level"> </InlineMenu>
             </div>
           </div>
-          <SkillText :skill="skill" delimiter="newline" class="skill-detail" :with-lv="false"></SkillText>
+          <SkillText :skill="skills[i]" delimiter="newline" class="skill-detail" :with-lv="false"></SkillText>
         </div>
       </div>
     </div>
@@ -44,7 +37,7 @@
 import { pickSkillsByLevel } from '~~/utils/formatter'
 import { IdolData } from '~~/utils/types'
 import { mapArrayN, safeParseInt } from '~~/utils'
-import { SKILL_LEVEL_MAX } from '~~/utils/common'
+import { SKILL_LEVEL_MAX, SKILLS } from '~~/utils/common'
 
 interface Props {
   idol: IdolData
@@ -147,39 +140,6 @@ const selectedLevel = reactive(mapArrayN(pickSkillsByLevel(props.idol.skills), (
   grid: auto / auto-flow;
   gap: 8px;
   justify-content: start;
-}
-
-.skill-tag {
-  @include round-corner;
-  background-color: $surface1;
-  padding: 4px 8px;
-  display: grid;
-  grid: auto / auto-flow;
-  gap: 4px;
-
-  .skill-type {
-    font-size: $typography-s;
-    font-weight: bold;
-    color: $text1;
-  }
-
-  .skill-ct {
-    font-size: $typography-s;
-    font-weight: bold;
-    color: $text3;
-  }
-
-  &.mini {
-    padding: 3px 6px;
-
-    .skill-type {
-      font-size: $typography-xs;
-    }
-
-    .skill-ct {
-      font-size: $typography-xs;
-    }
-  }
 }
 
 .skill-list.default {
