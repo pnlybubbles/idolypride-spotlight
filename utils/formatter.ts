@@ -471,7 +471,7 @@ const sortAblities = <T extends { div: AbilityDiv; condition: AbilityCondition }
     return conditionOrdering
   })
 
-export const pickMaxLevelSkills = (skills: SkillData[]) =>
+export const pickSkillsByLevel = (skills: SkillData[]) =>
   mapArrayN(SKILLS, (i) =>
     defined(skills.filter((v) => v.index === i).sort((a, b) => b.level - a.level)[0], 'skills are insufficient')
   )

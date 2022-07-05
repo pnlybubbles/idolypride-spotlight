@@ -35,7 +35,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { pickMaxLevelSkills } from '~~/utils/formatter'
+import { pickSkillsByLevel } from '~~/utils/formatter'
 import { IdolData } from '~~/utils/types'
 
 interface Props {
@@ -45,7 +45,7 @@ interface Props {
 }
 const props = withDefaults(defineProps<Props>(), { variant: 'default', noEvent: false })
 
-const skills = computed(() => pickMaxLevelSkills(props.idol.skills))
+const skills = computed(() => pickSkillsByLevel(props.idol.skills))
 
 interface Emits {
   (e: 'click'): void

@@ -218,7 +218,7 @@ import {
   isAbilityEnhanceWithValue,
   isBuffTargetWithSuffix,
   isSkillTriggerWithValue,
-  pickMaxLevelSkills,
+  pickSkillsByLevel,
   SKILL_TRIGGER_WITHOUT_VALUE,
   SKILL_TRIGGER_WITH_VALUE,
 } from '~~/utils/formatter'
@@ -244,6 +244,7 @@ import {
   omitUnknownOption,
   Option,
   SKILLS,
+  SKILL_LEVEL_MAX,
 } from '~~/utils/common'
 import equal from 'deep-equal'
 import { useFormComponent } from '~~/composable/form'
@@ -271,7 +272,7 @@ useFormComponent(
 )
 
 const skillLevel = reactive(
-  props.idol ? mapArrayN(pickMaxLevelSkills(props.idol.skills), (v) => v.level) : ([1, 1, 1] as ArrayN<number, 3>)
+  props.idol ? mapArrayN(pickSkillsByLevel(props.idol.skills), (v) => v.level) : ([1, 1, 1] as ArrayN<number, 3>)
 )
 
 const copiedFromLevel = reactive([null, null, null] as ArrayN<null | number, 3>)
@@ -444,7 +445,6 @@ const availableTrigger = (t: SkillTriggerType) => AVAILAVLE_TRIGGER[t]
 
 const SKILLS_NAME_PLACEHOLDER = ['太陽の光と共に', '大好きなあのキャラ', '人生の倍返し'] as const
 const SKILLS_CT_PLACEHOLDER = ['', '30', ''] as const
-const SKILL_LEVEL_MAX = [6, 6, 4] as const
 
 const deriveUnitByBuffType = (type: BuffAbilityType | ActionAbilityType | null): string => {
   switch (type) {
