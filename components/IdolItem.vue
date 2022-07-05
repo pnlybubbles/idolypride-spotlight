@@ -22,11 +22,17 @@
       <div v-else-if="variant === 'big'" class="skill-list big">
         <div v-for="skill in skills" :key="skill.id" class="skill-item">
           <div class="skill-title">
-            <div class="skill-tag mini">
-              <div class="skill-type">{{ skill.type.toUpperCase() }}</div>
-              <div v-if="skill.type !== 'sp'" class="skill-ct">{{ skill.ct === 0 ? '-' : skill.ct }}</div>
+            <div class="skill-left">
+              <div class="skill-tag mini">
+                <div class="skill-type">{{ skill.type.toUpperCase() }}</div>
+                <div v-if="skill.type !== 'sp'" class="skill-ct">{{ skill.ct === 0 ? '-' : skill.ct }}</div>
+              </div>
+              <div class="skill-name">{{ skill.name }}</div>
             </div>
-            <div class="skill-name">{{ skill.name }}</div>
+            <div class="skill-right">
+              <InlineMenu v-model="selectedLevel[skill.index]" :options="levelOptions[skill.index]" class="skill-level">
+              </InlineMenu>
+            </div>
           </div>
           <SkillText :skill="skill" delimiter="newline" class="skill-detail" :with-lv="false"></SkillText>
         </div>
@@ -37,6 +43,8 @@
 <script setup lang="ts">
 import { pickSkillsByLevel } from '~~/utils/formatter'
 import { IdolData } from '~~/utils/types'
+import { mapArrayN, safeParseInt } from '~~/utils'
+import { SKILL_LEVEL_MAX } from '~~/utils/common'
 
 interface Props {
   idol: IdolData
@@ -45,12 +53,22 @@ interface Props {
 }
 const props = withDefaults(defineProps<Props>(), { variant: 'default', noEvent: false })
 
-const skills = computed(() => pickSkillsByLevel(props.idol.skills))
+const skills = computed(() => pickSkillsByLevel(props.idol.skills, mapArrayN(selectedLevel, safeParseInt)))
 
 interface Emits {
   (e: 'click'): void
 }
 defineEmits<Emits>()
+
+const levelOptions = mapArrayN(SKILL_LEVEL_MAX, (maxLevel) =>
+  Array.from({ length: maxLevel }).map((_, i) => ({
+    id: (i + 1).toString(),
+    label: `Lv. ${i + 1}`,
+    disabled: props.idol.skills.find((v) => v.level === i + 1) === undefined,
+  }))
+)
+
+const selectedLevel = reactive(mapArrayN(pickSkillsByLevel(props.idol.skills), (v) => v.level.toString()))
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
@@ -191,10 +209,16 @@ defineEmits<Emits>()
 
   .skill-title {
     display: grid;
-    grid: auto / auto-flow;
-    justify-content: start;
+    grid: auto / auto auto;
+    justify-content: space-between;
     align-items: center;
+  }
+
+  .skill-left {
+    display: grid;
+    grid: auto / auto-flow;
     gap: 8px;
+    align-items: center;
   }
 
   .skill-name {
@@ -204,6 +228,15 @@ defineEmits<Emits>()
 
   .skill-detail {
     color: $text3;
+  }
+
+  .skill-level {
+    display: grid;
+    grid: auto / auto auto;
+    gap: 4px;
+    align-items: center;
+    color: $text1;
+    font-size: $typography-s;
   }
 }
 </style>

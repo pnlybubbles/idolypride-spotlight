@@ -5,7 +5,7 @@ import {
   Idol_Insert_Input,
   Skill_Insert_Input,
 } from '~~/generated/graphql'
-import { defined, IntLike, isKeyInObject, mapArrayN, omit, safeParseInt, unreachable } from '.'
+import { ArrayN, defined, IntLike, isKeyInObject, mapArrayN, omit, safeParseInt, unreachable } from '.'
 import {
   AbilityCondition,
   AbilityData,
@@ -471,7 +471,9 @@ const sortAblities = <T extends { div: AbilityDiv; condition: AbilityCondition }
     return conditionOrdering
   })
 
-export const pickSkillsByLevel = (skills: SkillData[]) =>
-  mapArrayN(SKILLS, (i) =>
-    defined(skills.filter((v) => v.index === i).sort((a, b) => b.level - a.level)[0], 'skills are insufficient')
-  )
+export const pickSkillsByLevel = (skills: SkillData[], levels?: ArrayN<number | undefined, 3>) =>
+  mapArrayN(SKILLS, (i) => {
+    const filtered = skills.filter((v) => v.index === i)
+    const specifiedByLevel = levels && levels[i] !== undefined ? filtered.find((v) => v.level === levels[i]) : undefined
+    return defined(specifiedByLevel ?? filtered.sort((a, b) => b.level - a.level)[0], 'skills are insufficient')
+  })
