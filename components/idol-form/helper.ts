@@ -181,7 +181,7 @@ const formatSkill = (v: SkillInput): SkillData | null => {
     return {
       type: 'p',
       ability: v.ability.map((w) => formatPassiveAbility(w)),
-      ct: availableSkillOnce(v.type) && v.once ? 0 : safeParseInt(v.ct),
+      ct: availableSkillOnce(v.type) && v.once ? 0 : safeParseInt(v.ct) ?? 0,
       trigger: formatSkillTrigger(v.trigger, v.triggerValue),
       ...common,
     }
@@ -191,7 +191,7 @@ const formatSkill = (v: SkillInput): SkillData | null => {
     return {
       type: 'a',
       ability,
-      ct: availableSkillOnce(v.type) && v.once ? 0 : safeParseInt(v.ct),
+      ct: availableSkillOnce(v.type) && v.once ? 0 : safeParseInt(v.ct) ?? 0,
       ...common,
     }
   }
@@ -220,7 +220,7 @@ const formatAbility = (v: AbilityInput): AbilityData => {
 export const formatPassiveAbility = (v: AbilityInput): PassiveAbilityData => {
   const id = v.id
   // 段階など変数が存在しない効果の場合は0で埋めておく
-  const amount = lift(deriveDisabledAmount)(v.type) ?? false ? 0 : safeParseInt(v.amount)
+  const amount = lift(deriveDisabledAmount)(v.type) ?? false ? 0 : safeParseInt(v.amount) ?? 0
   // 以下の特殊な条件があるが、入力制限を行うと複雑化するため制限していない
   // - A,SPの場合はスコア獲得スキルが必ず1つ以上は発動しなくてはいけない
   // - Pの場合は発動トリガーの条件をクリアした場合には必ず1つ以上の効果が発動しなくてはいけない
@@ -241,7 +241,7 @@ export const formatPassiveAbility = (v: AbilityInput): PassiveAbilityData => {
     return { div: 'action-buff', id, type, target, amount, condition }
   }
   // SP発動前などのケースで[持続ビート数]が書いてない場合、1ビートとして扱う
-  const span = lift(disableSpan)(v.type) ?? false ? 1 : safeParseInt(v.span)
+  const span = lift(disableSpan)(v.type) ?? false ? 1 : safeParseInt(v.span) ?? 0
   if (v.div === 'buff') {
     if (!isBuffAbilityType(type)) {
       throw new Error(`div is "buff", type "${type}" is invalid`)

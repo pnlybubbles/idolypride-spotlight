@@ -18,16 +18,16 @@ export function isDefined<T>(value: T | null | undefined): value is T {
 }
 
 export type IntLike = string | number | undefined | null
-export function safeParseInt(value: IntLike, fallback = 0): number {
+export function safeParseInt(value: IntLike): number | undefined {
   // 明示的に文字列か数値でない場合はパースを試みない
   if (typeof value !== 'number' && typeof value !== 'string') {
-    return fallback
+    return undefined
   }
   const number = typeof value === 'string' ? parseInt(value, 10) : value
   if (Number.isSafeInteger(number)) {
     return number
   } else {
-    return fallback
+    return undefined
   }
 }
 

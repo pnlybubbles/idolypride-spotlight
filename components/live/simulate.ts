@@ -256,7 +256,7 @@ type DomainState = {
 
 function deriveBuffLanes(suffixedTarget: ActiveBuffTarget, selfLane: Lane, idol: ArrayN<IdolData | null, 5>): Lane[] {
   const { target, targetSuffix } = extractBuffTarget(suffixedTarget)
-  const suffix = safeParseInt(targetSuffix)
+  const suffix = safeParseInt(targetSuffix) ?? 0
   switch (target) {
     case 'all':
       return [0, 1, 2, 3, 4]
