@@ -18,8 +18,9 @@ interface Props {
 withDefaults(defineProps<Props>(), { disabled: false })
 
 interface Emits {
-  (e: 'click'): void
-  (e: 'longPress'): void
+  // TODO: こっちもTouchEventにする
+  (e: 'click', event: MouseEvent): void
+  (e: 'longPress', event: TouchEvent): void
 }
 const emit = defineEmits<Emits>()
 
@@ -28,10 +29,11 @@ const handleContextMenu = (e: MouseEvent) => e.preventDefault()
 let touchTimer: NodeJS.Timeout | null = null
 let isLongPress = false
 
-const handleTouchStart = () => {
+const handleTouchStart = (e: TouchEvent) => {
   isLongPress = false
   touchTimer = setTimeout(() => {
-    emit('longPress')
+    // NOTE: 非同期でemitしてるのでもしかしたら longPress.stop の修飾子は意味ない感じになるかも
+    emit('longPress', e)
     isLongPress = true
   }, LONG_PRESS_THREASHOLD)
   // iOSで長押し中にテキストの選択が起こる問題を抑制する
@@ -45,9 +47,9 @@ const handleTouchEnd = () => {
   if (touchTimer) clearTimeout(touchTimer)
 }
 
-const handleClick = () => {
+const handleClick = (e: MouseEvent) => {
   if (isLongPress) return
-  emit('click')
+  emit('click', e)
 }
 
 const cleanup = () => {

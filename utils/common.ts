@@ -23,6 +23,7 @@ import {
 
 export const LANES = [0, 1, 2, 3, 4] as const
 export const SKILLS = [0, 1, 2] as const
+export const SKILL_LEVEL_MAX = [6, 6, 4] as const
 
 export const px = (value: number) => `${value}px`
 

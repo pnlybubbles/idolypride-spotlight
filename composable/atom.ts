@@ -32,7 +32,7 @@ export function useBeforeUnload(callback: () => boolean) {
 export function useIntAsString(ref: Ref<number>) {
   return computed({
     get: () => ref.value.toString(),
-    set: (value) => (ref.value = safeParseInt(value)),
+    set: (value) => (ref.value = safeParseInt(value) ?? 0),
   })
 }
 

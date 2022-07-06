@@ -5,7 +5,7 @@ import {
   Idol_Insert_Input,
   Skill_Insert_Input,
 } from '~~/generated/graphql'
-import { defined, IntLike, isKeyInObject, mapArrayN, omit, safeParseInt, unreachable } from '.'
+import { ArrayN, defined, IntLike, isKeyInObject, mapArrayN, omit, safeParseInt, unreachable } from '.'
 import {
   AbilityCondition,
   AbilityData,
@@ -90,7 +90,7 @@ const deserializeSkill = ({ type, ...rest }: TmpSkill): SkillData => {
 
 export function formatSkillTrigger(skill: string, value: IntLike): SkillTrigger {
   if (isSkillTriggerWithValue(skill)) {
-    return { type: skill, amount: safeParseInt(value) }
+    return { type: skill, amount: safeParseInt(value) ?? 0 }
   } else if (isSkillTriggerWithoutValue(skill)) {
     return { type: skill }
   }
@@ -152,7 +152,7 @@ const deserializeAbility = ({ type, ...rest }: TmpAbility): AbilityData => {
 
 export function formatAbilityCondition(condition: string, value: IntLike): AbilityCondition {
   if (isAbilityConditionWithValue(condition)) {
-    return { type: condition, amount: safeParseInt(value) }
+    return { type: condition, amount: safeParseInt(value) ?? 0 }
   } else if (isAbilityConditionWithoutValue(condition)) {
     return { type: condition }
   }
@@ -161,7 +161,7 @@ export function formatAbilityCondition(condition: string, value: IntLike): Abili
 
 export function formatAbilityEnhance(enhance: string, value: IntLike): AbilityEnhance {
   if (isAbilityEnhanceWithValue(enhance)) {
-    return { type: enhance, value: safeParseInt(value) }
+    return { type: enhance, value: safeParseInt(value) ?? 0 }
   } else if (isAbilityEnhanceWithoutValue(enhance)) {
     return { type: enhance }
   }
@@ -471,7 +471,9 @@ const sortAblities = <T extends { div: AbilityDiv; condition: AbilityCondition }
     return conditionOrdering
   })
 
-export const pickMaxLevelSkills = (skills: SkillData[]) =>
-  mapArrayN(SKILLS, (i) =>
-    defined(skills.filter((v) => v.index === i).sort((a, b) => b.level - a.level)[0], 'skills are insufficient')
-  )
+export const pickSkillsByLevel = (skills: SkillData[], levels?: ArrayN<number | undefined, 3>) =>
+  mapArrayN(SKILLS, (i) => {
+    const filtered = skills.filter((v) => v.index === i)
+    const specifiedByLevel = levels && levels[i] !== undefined ? filtered.find((v) => v.level === levels[i]) : undefined
+    return defined(specifiedByLevel ?? filtered.sort((a, b) => b.level - a.level)[0], 'skills are insufficient')
+  })

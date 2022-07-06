@@ -10,7 +10,7 @@ import {
 } from '~/utils/types'
 import isNonNullable from 'is-non-nullable'
 import { ArrayN, indexed, mapArrayN, PartiallyNonNullable, safeParseInt, uid, unreachable } from '~~/utils'
-import { isBuffAbilityType, pickMaxLevelSkills } from '~~/utils/formatter'
+import { isBuffAbilityType, pickSkillsByLevel } from '~~/utils/formatter'
 import { produce } from 'immer'
 import { extractBuffTarget } from '../idol-form/helper'
 
@@ -70,7 +70,7 @@ type Idols = ArrayN<IdolData | null, 5>
 
 export function simulate(live: LiveData, rawIdols: Idols) {
   // TODO: 指定したレベルのスキルをpickする
-  const idols = mapArrayN(rawIdols, (idol) => (idol ? { ...idol, skills: pickMaxLevelSkills(idol.skills) } : null))
+  const idols = mapArrayN(rawIdols, (idol) => (idol ? { ...idol, skills: pickSkillsByLevel(idol.skills) } : null))
   // 無条件のPスキルは0ビート目で発動扱いになるので、実質的に0ビート目を追加で処理する
   // 無条件PスキルCT50,持続20ビートの場合:
   // - 1ビート目通過後に残りCT49表示
@@ -256,7 +256,7 @@ type DomainState = {
 
 function deriveBuffLanes(suffixedTarget: ActiveBuffTarget, selfLane: Lane, idol: ArrayN<IdolData | null, 5>): Lane[] {
   const { target, targetSuffix } = extractBuffTarget(suffixedTarget)
-  const suffix = safeParseInt(targetSuffix)
+  const suffix = safeParseInt(targetSuffix) ?? 0
   switch (target) {
     case 'all':
       return [0, 1, 2, 3, 4]

@@ -78,23 +78,27 @@ const [internalLabel] = useInternalLabel()
   &.newline {
     grid: auto-flow / auto;
     justify-items: start;
-    gap: 2px;
+    gap: 4px;
   }
 }
 
 .ability {
-  display: grid;
-  grid: auto / auto-flow;
-  gap: 4px;
   font-size: $typography-s;
   align-items: center;
 
   & svg {
     font-size: 10px;
+
+    &:first-child {
+      margin-left: 2px;
+    }
   }
 }
 
 .dot .ability {
+  display: grid;
+  grid: auto / auto-flow;
+  gap: 4px;
   position: relative;
   white-space: nowrap;
 
@@ -111,6 +115,15 @@ const [internalLabel] = useInternalLabel()
       transform: translate(-50%, -50%);
       background-color: currentColor;
     }
+  }
+}
+
+.newline .ability {
+  display: block;
+
+  & > * + * {
+    margin-left: 4px;
+    display: inline;
   }
 }
 </style>
