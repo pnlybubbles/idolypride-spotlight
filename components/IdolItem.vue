@@ -53,11 +53,11 @@ interface Emits {
 }
 defineEmits<Emits>()
 
-const levelOptions = mapArrayN(SKILL_LEVEL_MAX, (maxLevel) =>
+const levelOptions = mapArrayN(SKILL_LEVEL_MAX, (maxLevel, index) =>
   Array.from({ length: maxLevel }).map((_, i) => ({
     id: (i + 1).toString(),
     label: `Lv. ${i + 1}`,
-    disabled: props.idol.skills.find((v) => v.level === i + 1) === undefined,
+    disabled: props.idol.skills.find((v) => v.index === index && v.level === i + 1) === undefined,
   }))
 )
 
