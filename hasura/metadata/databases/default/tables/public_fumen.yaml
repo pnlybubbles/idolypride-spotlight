@@ -34,7 +34,6 @@ insert_permissions:
         - sp
         - title
         - unit
-      backend_only: false
 select_permissions:
   - role: user
     permission:
@@ -83,6 +82,7 @@ update_permissions:
 delete_permissions:
   - role: user
     permission:
+      backend_only: false
       filter:
         _or:
           - user_id:

@@ -11,13 +11,14 @@ insert_permissions:
         user_id: x-hasura-User-Id
       columns:
         - idol_id
-      backend_only: false
+        - skill_levels
 select_permissions:
   - role: user
     permission:
       columns:
         - id
         - idol_id
+        - skill_levels
         - user_id
       filter:
         user_id:
@@ -27,6 +28,7 @@ update_permissions:
     permission:
       columns:
         - idol_id
+        - skill_levels
       filter:
         user_id:
           _eq: X-Hasura-User-Id
@@ -34,6 +36,7 @@ update_permissions:
 delete_permissions:
   - role: user
     permission:
+      backend_only: false
       filter:
         user_id:
           _eq: X-Hasura-User-Id
