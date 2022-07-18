@@ -1,5 +1,8 @@
-mutation addOwnedIdol($idol_id: uuid!) {
-  insert_owned_idol_one(object: { idol_id: $idol_id }) {
+mutation addOwnedIdol($idol_id: uuid!, $skill_levels: jsonb) {
+  insert_owned_idol_one(
+    object: { idol_id: $idol_id, skill_levels: $skill_levels }
+    on_conflict: { constraint: owned_idol_idol_id_user_id_key, update_columns: [skill_levels] }
+  ) {
     id
     idol_id
     user_id
