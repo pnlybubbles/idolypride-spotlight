@@ -222,7 +222,8 @@ export interface IdolData {
   skills: SkillData[]
   // nullの場合は未保有
   owned: {
-    skillLevels: ArrayN<number, 3>
+    // nullの場合はデータなし
+    skillLevels: ArrayN<number, 3> | null
   } | null
 }
 

@@ -47,7 +47,7 @@ export const deserializeIdolList = (data: GetIdolListQuery): IdolData[] =>
       v.owned_by.length > 0
         ? {
             // (idol_id, user_id) のペアでユニークだが、permissionで自分のuser_id以外取れないようにしているのでユニーク
-            skillLevels: (v.owned_by[0]?.skill_levels as ArrayN<number, 3>) ?? [1, 1, 1],
+            skillLevels: v.owned_by[0]?.skill_levels as ArrayN<number, 3> | null,
           }
         : null,
     userId: v.user_id,

@@ -34,6 +34,7 @@
   align-items: center;
   color: $text1;
   text-align: center;
+  justify-content: center;
 
   @include round-corner('MAX');
   @include clickable;

@@ -10,5 +10,6 @@
   padding: 2px 8px;
   background-color: rgba($warning, 0.1);
   color: $warning;
+  font-weight: normal;
 }
 </style>
