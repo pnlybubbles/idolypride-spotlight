@@ -24,7 +24,7 @@
               <div class="skill-name">{{ skills[i].name }}</div>
             </div>
             <div class="skill-right">
-              <InlineMenu v-model="selectedLevel[i]" :options="levelOptions[i]" class="skill-level"> </InlineMenu>
+              <InlineMenu v-model="selectedLevels[i]" :options="levelOptions[i]" class="skill-level"></InlineMenu>
             </div>
           </div>
           <SkillText :skill="skills[i]" delimiter="newline" class="skill-detail" :with-lv="false"></SkillText>
@@ -36,22 +36,29 @@
 <script setup lang="ts">
 import { pickSkillsByLevel } from '~~/utils/formatter'
 import { IdolData } from '~~/utils/types'
-import { mapArrayN, safeParseInt } from '~~/utils'
+import { ArrayN, mapArrayN, safeParseInt } from '~~/utils'
 import { SKILL_LEVEL_MAX, SKILLS } from '~~/utils/common'
+import { useBinding } from '~~/composable/atom'
 
 interface Props {
   idol: IdolData
   noEvent?: boolean
   variant?: 'default' | 'mini' | 'oneline' | 'big'
+  skillLevels?: ArrayN<number, 3>
 }
-const props = withDefaults(defineProps<Props>(), { variant: 'default', noEvent: false })
+const props = withDefaults(defineProps<Props>(), {
+  variant: 'default',
+  noEvent: false,
+  skillLevels: (p) => mapArrayN(pickSkillsByLevel(p.idol.skills), (v) => v.level),
+})
 
-const skills = computed(() => pickSkillsByLevel(props.idol.skills, mapArrayN(selectedLevel, safeParseInt)))
+const skills = computed(() => pickSkillsByLevel(props.idol.skills, props.skillLevels))
 
 interface Emits {
   (e: 'click'): void
+  (e: 'update:skillLevels', value: ArrayN<number, 3>): void
 }
-defineEmits<Emits>()
+const emit = defineEmits<Emits>()
 
 const levelOptions = mapArrayN(SKILL_LEVEL_MAX, (maxLevel, index) =>
   Array.from({ length: maxLevel }).map((_, i) => ({
@@ -61,7 +68,10 @@ const levelOptions = mapArrayN(SKILL_LEVEL_MAX, (maxLevel, index) =>
   }))
 )
 
-const selectedLevel = reactive(mapArrayN(pickSkillsByLevel(props.idol.skills), (v) => v.level.toString()))
+const selectedLevels = useBinding(props, emit, 'skillLevels', {
+  into: (value) => mapArrayN(value, (v) => v.toString()),
+  from: (value) => mapArrayN(value, (v) => safeParseInt(v) ?? 1),
+})
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';

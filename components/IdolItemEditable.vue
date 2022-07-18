@@ -2,7 +2,7 @@
   <IdolItem :idol="idol" @click="present = true"></IdolItem>
   <Sheet v-model:present="present">
     <VStack :spacing="16">
-      <IdolItem :idol="idol" variant="big" no-event></IdolItem>
+      <IdolItem v-model:skill-levels="selectedLevels" :idol="idol" variant="big" no-event></IdolItem>
       <Section>
         <ButtonLink :to="`/idol/${idol.id}/edit`" :disabled="!canEdit">アイドルを編集する</ButtonLink>
         <NoteText v-if="!canEdit">自分の追加したアイドルのみ編集できます</NoteText>
@@ -23,6 +23,8 @@ import { useError } from '~~/composable/error'
 import { useDebounce } from '~~/composable/atom'
 import { AddOwnedIdolDocument, RemoveOwnedIdolDocument } from '~~/generated/graphql'
 import { IdolData } from '~~/utils/types'
+import { pickSkillsByLevel } from '~~/utils/formatter'
+import { mapArrayN } from '~~/utils'
 
 interface Props {
   idol: IdolData
@@ -65,4 +67,7 @@ const mutate = useDebounce(isOwned.value, 500, async (value) => {
     await executeRemoveMutation({ idol_id: props.idol.id })
   }
 })
+
+const skillLevels = mapArrayN(pickSkillsByLevel(props.idol.skills), (v) => v.level)
+const selectedLevels = ref(skillLevels)
 </script>

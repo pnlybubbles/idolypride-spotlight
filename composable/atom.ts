@@ -70,3 +70,26 @@ export function useDebounce<T>(defaultValue: T, ms: number, task: (value: T) => 
     }, ms)
   }
 }
+
+export function useBinding<P extends object, K extends Extract<keyof P, string>, T = P[K]>(
+  props: P,
+  emit: (e: `update:${K}`, value: P[K]) => void,
+  key: K,
+  mapper: {
+    into: (value: P[K]) => T
+    from: (value: T) => P[K]
+  } = {
+    into: (v) => v as unknown as T,
+    from: (v) => v as unknown as P[K],
+  }
+) {
+  const binding = ref(mapper.into(props[key])) as Ref<T>
+  let cache = toRaw(props[key])
+  watch(
+    () => props[key],
+    (value) => toRaw(value) !== cache && (binding.value = mapper.into(value)),
+    { deep: true }
+  )
+  watch(binding, (value) => emit(`update:${key}`, (cache = mapper.from(value))), { deep: true })
+  return binding
+}
