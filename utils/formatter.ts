@@ -43,7 +43,13 @@ import { SKILLS } from './common'
 export const deserializeIdolList = (data: GetIdolListQuery): IdolData[] =>
   data.idol.map((v) => ({
     ...v,
-    owned: v.owned_by.length > 0,
+    owned:
+      v.owned_by.length > 0
+        ? {
+            // (idol_id, user_id) のペアでユニークだが、permissionで自分のuser_id以外取れないようにしているのでユニーク
+            skillLevels: (v.owned_by[0]?.skill_levels as ArrayN<number, 3>) ?? [1, 1, 1],
+          }
+        : null,
     userId: v.user_id,
     skills: v.skills.map(deserializeSkill),
   }))

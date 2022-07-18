@@ -33,9 +33,9 @@ const idolMatchFormation = (idol: IdolData, formation: string) => {
 const idolMatchOther = (idol: IdolData, other: string[]) => {
   return (other as OtherFilterId[]).some((v) => {
     if (v === 'owned') {
-      return idol.owned === true
+      return idol.owned !== null
     } else if (v === 'not-owned') {
-      return idol.owned === false
+      return idol.owned === null
     } else {
       return true
     }

@@ -45,10 +45,10 @@ const canEdit = computed(() => {
   return isManaged.value || props.isAdmin
 })
 
-const isOwned = ref(props.idol.owned ?? false)
+const isOwned = ref(props.idol.owned !== null)
 
 watchEffect(() => {
-  isOwned.value = props.idol.owned ?? false
+  isOwned.value = props.idol.owned !== null
 })
 
 const { executeMutation: executeAddMutation, error: errorAdding } = useMutation(AddOwnedIdolDocument)

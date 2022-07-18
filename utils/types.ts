@@ -220,8 +220,10 @@ export interface IdolData {
   role: IdolRole
   type: IdolType
   skills: SkillData[]
-  // nullの場合は未取得or新規
-  owned: boolean | null
+  // nullの場合は未保有
+  owned: {
+    skillLevels: ArrayN<number, 3>
+  } | null
 }
 
 // live
