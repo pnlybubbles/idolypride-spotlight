@@ -74,7 +74,8 @@ const skills = computed(() => pickSkillsByLevel(props.idol.skills, skillLevels.v
 const mappedSkillLevels = mapArrayN(SKILLS, (i) =>
   computed({
     get: () => skillLevels.value[i].toString(),
-    set: (value) => (skillLevels.value[i] = safeParseInt(value) ?? 1),
+    set: (value) =>
+      (skillLevels.value = mapArrayN(skillLevels.value, (v, j) => (i === j ? safeParseInt(value) ?? 1 : v))),
   })
 )
 
