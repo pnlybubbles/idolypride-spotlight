@@ -44,7 +44,6 @@
 </template>
 <script setup lang="ts">
 import { useMutation, useQuery } from '@urql/vue'
-import isNonNullable from 'is-non-nullable'
 import { GetIdolListDocument, IsUserAllowedDocument, UpdateOwnedIdolListDocument } from '~/generated/graphql'
 import { Filter, idolFilter, idolSort } from '~~/components/idol-filter/helper'
 import { useAuth } from '~~/composable/auth0'
@@ -109,9 +108,7 @@ const toggleIsOwnedList = (id: string) => {
 }
 
 watchEffect(() => {
-  isOwnedList.value = Object.fromEntries(
-    idolList.value.map((v) => (v.owned === null ? null : ([v.id, v.owned] as const))).filter(isNonNullable)
-  )
+  isOwnedList.value = Object.fromEntries(idolList.value.map((v) => [v.id, v.owned !== null] as const))
 })
 
 const handleSubmitSelectOwned = async () => {
@@ -119,11 +116,11 @@ const handleSubmitSelectOwned = async () => {
   const diffAdd = Object.entries(isOwnedList.value)
     .filter(([, v]) => v)
     .map(([id]) => id)
-    .filter((id) => idolList.value.find((v) => v.id === id)?.owned === false)
+    .filter((id) => idolList.value.find((v) => v.id === id)?.owned === null)
   const diffRemove = Object.entries(isOwnedList.value)
     .filter(([, v]) => !v)
     .map(([id]) => id)
-    .filter((id) => idolList.value.find((v) => v.id === id)?.owned === true)
+    .filter((id) => idolList.value.find((v) => v.id === id)?.owned !== null)
   if (diffAdd.length === 0 && diffRemove.length === 0) {
     return
   }

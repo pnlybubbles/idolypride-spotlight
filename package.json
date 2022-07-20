@@ -6,10 +6,10 @@
   "scripts": {
     "dev": "run-p 'dev:*'",
     "dev:nuxt": "nuxi dev",
-    "dev:graphql": "graphql-codegen --watch",
+    "dev:graphql": "graphql-codegen --watch --config graphql.config.js",
     "build": "run-s build:graphql build:nuxt",
     "build:nuxt": "nuxi build",
-    "build:graphql": "graphql-codegen",
+    "build:graphql": "graphql-codegen --config graphql.config.js",
     "start": "cross-env NODE_ENV=production node .output/server/index.mjs",
     "deploy": "vercel",
     "fmt": "run-p 'fmt:*'",

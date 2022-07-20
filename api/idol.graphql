@@ -34,6 +34,7 @@ query getIdolList {
     }
     owned_by {
       id
+      skill_levels
       __typename
     }
   }

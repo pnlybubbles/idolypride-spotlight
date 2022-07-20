@@ -24,7 +24,11 @@
               <div class="skill-name">{{ skills[i].name }}</div>
             </div>
             <div class="skill-right">
-              <InlineMenu v-model="selectedLevel[i]" :options="levelOptions[i]" class="skill-level"> </InlineMenu>
+              <InlineMenu
+                v-model="mappedSkillLevels[i].value"
+                :options="levelOptions[i]"
+                class="skill-level"
+              ></InlineMenu>
             </div>
           </div>
           <SkillText :skill="skills[i]" delimiter="newline" class="skill-detail" :with-lv="false"></SkillText>
@@ -36,22 +40,48 @@
 <script setup lang="ts">
 import { pickSkillsByLevel } from '~~/utils/formatter'
 import { IdolData } from '~~/utils/types'
-import { mapArrayN, safeParseInt } from '~~/utils'
+import { ArrayN, mapArrayN, safeParseInt } from '~~/utils'
 import { SKILL_LEVEL_MAX, SKILLS } from '~~/utils/common'
 
 interface Props {
   idol: IdolData
   noEvent?: boolean
   variant?: 'default' | 'mini' | 'oneline' | 'big'
+  // eslint-disable-next-line vue/require-default-prop
+  skillLevels?: ArrayN<number, 3>
 }
-const props = withDefaults(defineProps<Props>(), { variant: 'default', noEvent: false })
+const props = withDefaults(defineProps<Props>(), {
+  variant: 'default',
+  noEvent: false,
+})
 
-const skills = computed(() => pickSkillsByLevel(props.idol.skills, mapArrayN(selectedLevel, safeParseInt)))
+const uncontrolledSelectedLevels = ref<ArrayN<number | null, 3>>([null, null, null])
+const skillLevels = computed({
+  get: () =>
+    props.skillLevels ??
+    mapArrayN(
+      pickSkillsByLevel(props.idol.skills),
+      (max, i) => uncontrolledSelectedLevels.value[i] ?? props.idol.owned?.skillLevels?.[i] ?? max.level
+    ),
+  set: (value) => {
+    uncontrolledSelectedLevels.value = value
+    emit('update:skillLevels', value)
+  },
+})
+const skills = computed(() => pickSkillsByLevel(props.idol.skills, skillLevels.value))
+
+const mappedSkillLevels = mapArrayN(SKILLS, (i) =>
+  computed({
+    get: () => skillLevels.value[i].toString(),
+    set: (value) => (skillLevels.value[i] = safeParseInt(value) ?? 1),
+  })
+)
 
 interface Emits {
   (e: 'click'): void
+  (e: 'update:skillLevels', value: ArrayN<number, 3>): void
 }
-defineEmits<Emits>()
+const emit = defineEmits<Emits>()
 
 const levelOptions = mapArrayN(SKILL_LEVEL_MAX, (maxLevel, index) =>
   Array.from({ length: maxLevel }).map((_, i) => ({
@@ -60,8 +90,6 @@ const levelOptions = mapArrayN(SKILL_LEVEL_MAX, (maxLevel, index) =>
     disabled: props.idol.skills.find((v) => v.index === index && v.level === i + 1) === undefined,
   }))
 )
-
-const selectedLevel = reactive(mapArrayN(pickSkillsByLevel(props.idol.skills), (v) => v.level.toString()))
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';

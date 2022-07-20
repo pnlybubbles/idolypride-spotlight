@@ -68,7 +68,7 @@ const ratio = computed(() => (Math.round((owned.value / all.value) * 1000) / 10)
 const notOwnedSummaryByType = computed(() =>
   mapObject(IDOL_TYPE, (v, k) => ({
     label: v,
-    owned: props.idolList.filter((v) => v.owned === false).filter((v) => v.type === k).length,
+    owned: props.idolList.filter((v) => v.owned === null).filter((v) => v.type === k).length,
     all: props.idolList.filter((v) => v.type === k).length,
   }))
 )
@@ -76,7 +76,7 @@ const notOwnedSummaryByType = computed(() =>
 const notOwnedSummaryByRole = computed(() =>
   mapObject(IDOL_ROLE, (v, k) => ({
     label: v,
-    owned: props.idolList.filter((v) => v.owned === false).filter((v) => v.role === k).length,
+    owned: props.idolList.filter((v) => v.owned === null).filter((v) => v.role === k).length,
     all: props.idolList.filter((v) => v.role === k).length,
   }))
 )
