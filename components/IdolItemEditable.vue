@@ -12,7 +12,7 @@
         </Check>
         <Button :disabled="disableUpdateSkillLevels" variant="secondary" @click="updateSkillLevels">
           <with-symbol>
-            スキルレベルを変更する
+            スキルレベルを保存する
             <template #symbol><OwnSettingBadge></OwnSettingBadge></template>
           </with-symbol>
         </Button>

@@ -24,6 +24,7 @@
               <div class="skill-name">{{ skills[i].name }}</div>
             </div>
             <div class="skill-right">
+              <Badge v-if="editing[i].value" warning>未保存</Badge>
               <InlineMenu
                 v-model="mappedSkillLevels[i].value"
                 :options="levelOptions[i]"
@@ -89,6 +90,10 @@ const levelOptions = mapArrayN(SKILL_LEVEL_MAX, (maxLevel, index) =>
     label: `Lv. ${i + 1}`,
     disabled: props.idol.skills.find((v) => v.index === index && v.level === i + 1) === undefined,
   }))
+)
+
+const editing = mapArrayN(SKILLS, (i) =>
+  computed(() => props.idol.owned !== null && skillLevels.value[i] !== props.idol.owned.skillLevels?.[i])
 )
 </script>
 <style lang="scss" scoped>
@@ -203,6 +208,13 @@ const levelOptions = mapArrayN(SKILL_LEVEL_MAX, (maxLevel, index) =>
   }
 
   .skill-left {
+    display: grid;
+    grid: auto / auto-flow;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .skill-right {
     display: grid;
     grid: auto / auto-flow;
     gap: 8px;
