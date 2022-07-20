@@ -80,7 +80,8 @@ const mutate = useDebounce(isOwned.value, 500, async (value) => {
 })
 
 const maxSkillLevels = mapArrayN(pickSkillsByLevel(props.idol.skills), (v) => v.level)
-const selectedLevels = ref(props.idol.owned?.skillLevels ?? maxSkillLevels)
+// propsから直でrefに流すと参照が同一で書き換わってしまうので、値としてコピーする
+const selectedLevels = ref(mapArrayN(props.idol.owned?.skillLevels ?? maxSkillLevels, (v) => v))
 
 const updateSkillLevels = async () => {
   await executeAddMutation({ idol_id: props.idol.id, skill_levels: selectedLevels.value })
