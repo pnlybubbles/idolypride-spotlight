@@ -12,7 +12,7 @@
         </Check>
         <Button :disabled="disableUpdateSkillLevels" variant="secondary" @click="updateSkillLevels">
           <with-symbol>
-            スキルレベルを保存する
+            {{ skillLevelsApplying ? 'スキルレベルを保存中...' : 'スキルレベルを保存する' }}
             <template #symbol><OwnSettingBadge></OwnSettingBadge></template>
           </with-symbol>
         </Button>
@@ -84,14 +84,26 @@ const maxSkillLevels = mapArrayN(pickSkillsByLevel(props.idol.skills), (v) => v.
 const selectedLevels = ref(mapArrayN(props.idol.owned?.skillLevels ?? maxSkillLevels, (v) => v))
 
 const updateSkillLevels = async () => {
+  skillLevelsApplying.value = true
   await executeAddMutation({ idol_id: props.idol.id, skill_levels: selectedLevels.value })
 }
 
-const disableUpdateSkillLevels = computed(
+const skillLevelsUpToDate = computed(
   () =>
-    updatingSkillLevels.value ||
+    // 加入していない場合は変更点はなし
     props.idol.owned === null ||
+    // 未設定は変更点あり
     (props.idol.owned.skillLevels !== null &&
       mapArrayN(props.idol.owned.skillLevels, (v, i) => selectedLevels.value[i] === v).every((v) => v))
 )
+const disableUpdateSkillLevels = computed(
+  () => updatingSkillLevels.value || skillLevelsApplying.value || skillLevelsUpToDate.value
+)
+
+const skillLevelsApplying = ref(false)
+watchEffect(() => {
+  if (skillLevelsUpToDate.value) {
+    skillLevelsApplying.value = false
+  }
+})
 </script>
