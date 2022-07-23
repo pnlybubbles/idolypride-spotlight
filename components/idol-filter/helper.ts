@@ -1,6 +1,6 @@
 import isNonNullable from 'is-non-nullable'
 import { eraceArrayLiteralTypes, eraceObjectLiteralTypes, isUnique, mapObject, unreachable } from '~~/utils'
-import { UNIT_TO_IDOL_NAME } from '~~/utils/common'
+import { IdolName, IDOL_NAME, UNIT_TO_IDOL_NAME } from '~~/utils/common'
 import { IdolData } from '~~/utils/types'
 
 export type FilterType = 'name' | 'unit' | 'type' | 'role' | 'ability' | 'formation' | 'other'
@@ -71,7 +71,7 @@ export const idolFilter = (idolList: IdolData[], filter: Filter[]) => {
 
 export const idolSort = (idolList: IdolData[]) => {
   return [...idolList].sort((a, b) => {
-    const nameOrdering = a.name.localeCompare(b.name, 'ja')
+    const nameOrdering = IDOL_NAME.indexOf(a.name as IdolName) - IDOL_NAME.indexOf(b.name as IdolName)
     if (nameOrdering !== 0) {
       return nameOrdering
     }
