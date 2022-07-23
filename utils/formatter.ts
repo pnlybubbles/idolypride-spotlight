@@ -42,7 +42,11 @@ import { SKILLS } from './common'
 
 export const deserializeIdolList = (data: GetIdolListQuery): IdolData[] =>
   data.idol.map((v) => ({
-    ...v,
+    id: v.id as string,
+    name: v.name,
+    title: v.title,
+    role: v.role,
+    type: v.type,
     owned:
       v.owned_by.length > 0
         ? {
@@ -477,7 +481,7 @@ const sortAblities = <T extends { div: AbilityDiv; condition: AbilityCondition }
     return conditionOrdering
   })
 
-export const pickSkillsByLevel = (skills: SkillData[], levels?: ArrayN<number | undefined, 3>) =>
+export const pickSkillsByLevel = (skills: SkillData[], levels?: ArrayN<number | null, 3>) =>
   mapArrayN(SKILLS, (i) => {
     const filtered = skills.filter((v) => v.index === i)
     const specifiedByLevel = levels && levels[i] !== undefined ? filtered.find((v) => v.level === levels[i]) : undefined

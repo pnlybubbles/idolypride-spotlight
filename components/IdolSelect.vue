@@ -23,7 +23,12 @@
   </Sheet>
   <Sheet v-model:present="detailPresent">
     <VStack :spacing="16">
-      <IdolItem v-if="modelValue !== null" :idol="modelValue"></IdolItem>
+      <IdolItem
+        v-if="originalIdol !== null"
+        v-model:skill-levels="selectedLevels"
+        :idol="originalIdol"
+        variant="big"
+      ></IdolItem>
       <Section>
         <Button @click="handleReset">未選択に戻す</Button>
       </Section>
@@ -38,6 +43,7 @@ import { deserializeIdolList } from '~~/utils/formatter'
 import { IdolData } from '~~/utils/types'
 import { Filter, idolFilter, idolSort } from './idol-filter/helper'
 import { useError } from '~~/composable/error'
+import { ArrayN } from '~~/utils'
 
 interface Props {
   modelValue: null | IdolData
@@ -51,11 +57,12 @@ const emit = defineEmits<Emits>()
 const { notAuthenticated } = useAuth()
 const { data, fetching, error } = useQuery({
   query: GetIdolListDocument,
-  pause: computed(() => notAuthenticated.value || !present.value),
+  pause: notAuthenticated,
 })
 useError(error)
 const idolList = computed(() => (data.value ? deserializeIdolList(data.value) : []))
 const filteredIdolList = computed(() => idolSort(idolFilter(idolList.value, filter.value)))
+const originalIdol = computed(() => idolList.value.find((v) => v.id === props.modelValue?.id) ?? null)
 
 const present = ref(false)
 
@@ -71,14 +78,35 @@ const handleLongPress = () => {
 const handleReset = () => {
   emit('update:modelValue', null)
   detailPresent.value = false
+  selectedLevels.value = null
 }
 
 const handleClick = (item: IdolData) => {
-  emit('update:modelValue', item)
   present.value = false
+  // 無駄な描画更新をトリガしない
+  if (item.id === props.modelValue?.id) {
+    return
+  }
+  emit('update:modelValue', item)
+  selectedLevels.value = null
 }
 
 const filter = ref<Filter[]>([])
+
+const selectedLevels = ref<ArrayN<number, 3> | null>(null)
+
+// 擬似的にownedの中身を書き換えてモックする
+const overrideOwnedSkillLevels = (idol: IdolData, levels: ArrayN<number, 3>): IdolData => ({
+  ...idol,
+  owned: { skillLevels: levels },
+})
+
+watch(selectedLevels, (v) => {
+  if (props.modelValue === null || v === null) {
+    return
+  }
+  emit('update:modelValue', overrideOwnedSkillLevels(props.modelValue, v))
+})
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
