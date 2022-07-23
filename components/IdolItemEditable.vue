@@ -10,12 +10,7 @@
             <template #symbol><OwnSettingBadge></OwnSettingBadge></template>
           </with-symbol>
         </Check>
-        <Button :disabled="disableUpdateSkillLevels" variant="secondary" @click="updateSkillLevels">
-          <with-symbol>
-            {{ skillLevelsApplying ? 'スキルレベルを保存中...' : 'スキルレベルを保存する' }}
-            <template #symbol><OwnSettingBadge></OwnSettingBadge></template>
-          </with-symbol>
-        </Button>
+        <IdolItemSkillLevelsSaveButton :idol="idol" :skill-levels="selectedLevels"></IdolItemSkillLevelsSaveButton>
         <ButtonLink :to="`/idol/${idol.id}/edit`" :disabled="!canEdit">アイドルを編集する</ButtonLink>
         <NoteText v-if="!canEdit">自分の追加したアイドルのみ編集できます</NoteText>
         <NoteText v-if="isAdmin">管理者権限によりすべてのアイドルを編集できます</NoteText>
@@ -30,8 +25,6 @@ import { useError } from '~~/composable/error'
 import { useDebounce } from '~~/composable/atom'
 import { AddOwnedIdolDocument, RemoveOwnedIdolDocument } from '~~/generated/graphql'
 import { IdolData } from '~~/utils/types'
-import { pickSkillsByLevel } from '~~/utils/formatter'
-import { mapArrayN } from '~~/utils'
 
 interface Props {
   idol: IdolData
@@ -58,11 +51,7 @@ watchEffect(() => {
   isOwned.value = props.idol.owned !== null
 })
 
-const {
-  executeMutation: executeAddMutation,
-  error: errorAdding,
-  fetching: updatingSkillLevels,
-} = useMutation(AddOwnedIdolDocument)
+const { executeMutation: executeAddMutation, error: errorAdding } = useMutation(AddOwnedIdolDocument)
 useError(errorAdding)
 
 const { executeMutation: executeRemoveMutation, error: errorRemoving } = useMutation(RemoveOwnedIdolDocument)
@@ -79,30 +68,5 @@ const mutate = useDebounce(isOwned.value, 500, async (value) => {
   }
 })
 
-const maxSkillLevels = mapArrayN(pickSkillsByLevel(props.idol.skills), (v) => v.level)
-const selectedLevels = ref(props.idol.owned?.skillLevels ?? maxSkillLevels)
-
-const updateSkillLevels = async () => {
-  skillLevelsApplying.value = true
-  await executeAddMutation({ idol_id: props.idol.id, skill_levels: selectedLevels.value })
-}
-
-const skillLevelsUpToDate = computed(
-  () =>
-    // 加入していない場合は変更点はなし
-    props.idol.owned === null ||
-    // 未設定は変更点あり
-    (props.idol.owned.skillLevels !== null &&
-      mapArrayN(props.idol.owned.skillLevels, (v, i) => selectedLevels.value[i] === v).every((v) => v))
-)
-const disableUpdateSkillLevels = computed(
-  () => updatingSkillLevels.value || skillLevelsApplying.value || skillLevelsUpToDate.value
-)
-
-const skillLevelsApplying = ref(false)
-watchEffect(() => {
-  if (skillLevelsUpToDate.value) {
-    skillLevelsApplying.value = false
-  }
-})
+const selectedLevels = ref(props.idol.owned?.skillLevels ?? null)
 </script>
