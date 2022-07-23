@@ -41,28 +41,32 @@
 <script setup lang="ts">
 import { pickSkillsByLevel } from '~~/utils/formatter'
 import { IdolData } from '~~/utils/types'
-import { ArrayN, mapArrayN, safeParseInt } from '~~/utils'
+import { ArrayN, mapArrayN, safeParseInt, unitArrayN } from '~~/utils'
 import { SKILL_LEVEL_MAX, SKILLS } from '~~/utils/common'
 
 interface Props {
   idol: IdolData
   noEvent?: boolean
   variant?: 'default' | 'mini' | 'oneline' | 'big'
-  // eslint-disable-next-line vue/require-default-prop
-  skillLevels?: ArrayN<number, 3>
+  skillLevels?: ArrayN<number, 3> | null
 }
 const props = withDefaults(defineProps<Props>(), {
   variant: 'default',
   noEvent: false,
+  skillLevels: null,
 })
 
-const uncontrolledSelectedLevels = ref<ArrayN<number | null, 3>>([null, null, null])
+const uncontrolledSelectedLevels = ref(unitArrayN(3, null as null | number))
+const maxSkillLevels = computed(() => mapArrayN(pickSkillsByLevel(props.idol.skills), (v) => v.level))
 const skillLevels = computed({
   get: () =>
-    props.skillLevels ??
     mapArrayN(
-      pickSkillsByLevel(props.idol.skills),
-      (max, i) => uncontrolledSelectedLevels.value[i] ?? props.idol.owned?.skillLevels?.[i] ?? max.level
+      SKILLS,
+      (i) =>
+        props.skillLevels?.[i] ??
+        uncontrolledSelectedLevels.value[i] ??
+        props.idol.owned?.skillLevels?.[i] ??
+        maxSkillLevels.value[i]
     ),
   set: (value) => {
     uncontrolledSelectedLevels.value = value
