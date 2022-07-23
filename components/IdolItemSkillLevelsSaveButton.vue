@@ -12,6 +12,7 @@ import { AddOwnedIdolDocument } from '~~/generated/graphql'
 import { ArrayN, mapArrayN } from '~~/utils'
 import { IdolData } from '~~/utils/types'
 import { useError } from '~~/composable/error'
+import { pickSkillsByLevel } from '~~/utils/formatter'
 
 interface Props {
   idol: IdolData
@@ -27,31 +28,31 @@ const {
 } = useMutation(AddOwnedIdolDocument)
 useError(errorAdding)
 
+const maxSkillLevels = computed(() => mapArrayN(pickSkillsByLevel(props.idol.skills), (v) => v.level))
+
 const updateSkillLevels = async () => {
   skillLevelsApplying.value = true
-  await executeAddMutation({ idol_id: props.idol.id, skill_levels: props.skillLevels })
+  await executeAddMutation({ idol_id: props.idol.id, skill_levels: props.skillLevels ?? maxSkillLevels.value })
 }
 
-const skillLevelsUpToDate = (idol: IdolData, levels: ArrayN<number, 3>) =>
+const skillLevelsUpToDate = computed(() => {
+  const skillLevels = props.skillLevels ?? maxSkillLevels.value
   // 加入していない場合は変更点はなし
-  idol.owned === null ||
-  // 未設定は変更点あり
-  (idol.owned.skillLevels !== null && mapArrayN(idol.owned.skillLevels, (v, i) => levels[i] === v).every((v) => v))
+  return (
+    props.idol.owned === null ||
+    // 未設定は変更点あり
+    (props.idol.owned.skillLevels !== null &&
+      mapArrayN(props.idol.owned.skillLevels, (v, i) => skillLevels[i] === v).every((v) => v))
+  )
+})
 
 const disableUpdateSkillLevels = computed(
-  () =>
-    updatingSkillLevels.value ||
-    skillLevelsApplying.value ||
-    props.skillLevels === null ||
-    skillLevelsUpToDate(props.idol, props.skillLevels)
+  () => updatingSkillLevels.value || skillLevelsApplying.value || skillLevelsUpToDate.value
 )
 
 const skillLevelsApplying = ref(false)
 watchEffect(() => {
-  if (props.skillLevels === null) {
-    return
-  }
-  if (skillLevelsUpToDate(props.idol, props.skillLevels)) {
+  if (skillLevelsUpToDate.value) {
     skillLevelsApplying.value = false
   }
 })
