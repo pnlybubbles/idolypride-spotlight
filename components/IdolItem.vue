@@ -24,6 +24,7 @@
               <div class="skill-name">{{ skills[i].name }}</div>
             </div>
             <div class="skill-right">
+              <Badge v-if="editing[i].value" warning>未保存</Badge>
               <InlineMenu
                 v-model="mappedSkillLevels[i].value"
                 :options="levelOptions[i]"
@@ -40,28 +41,32 @@
 <script setup lang="ts">
 import { pickSkillsByLevel } from '~~/utils/formatter'
 import { IdolData } from '~~/utils/types'
-import { ArrayN, mapArrayN, safeParseInt } from '~~/utils'
+import { ArrayN, mapArrayN, safeParseInt, unitArrayN } from '~~/utils'
 import { SKILL_LEVEL_MAX, SKILLS } from '~~/utils/common'
 
 interface Props {
   idol: IdolData
   noEvent?: boolean
   variant?: 'default' | 'mini' | 'oneline' | 'big'
-  // eslint-disable-next-line vue/require-default-prop
-  skillLevels?: ArrayN<number, 3>
+  skillLevels?: ArrayN<number, 3> | null
 }
 const props = withDefaults(defineProps<Props>(), {
   variant: 'default',
   noEvent: false,
+  skillLevels: null,
 })
 
-const uncontrolledSelectedLevels = ref<ArrayN<number | null, 3>>([null, null, null])
+const uncontrolledSelectedLevels = ref(unitArrayN(3, null as null | number))
+const maxSkillLevels = computed(() => mapArrayN(pickSkillsByLevel(props.idol.skills), (v) => v.level))
 const skillLevels = computed({
   get: () =>
-    props.skillLevels ??
     mapArrayN(
-      pickSkillsByLevel(props.idol.skills),
-      (max, i) => uncontrolledSelectedLevels.value[i] ?? props.idol.owned?.skillLevels?.[i] ?? max.level
+      SKILLS,
+      (i) =>
+        props.skillLevels?.[i] ??
+        uncontrolledSelectedLevels.value[i] ??
+        props.idol.owned?.skillLevels?.[i] ??
+        maxSkillLevels.value[i]
     ),
   set: (value) => {
     uncontrolledSelectedLevels.value = value
@@ -73,7 +78,8 @@ const skills = computed(() => pickSkillsByLevel(props.idol.skills, skillLevels.v
 const mappedSkillLevels = mapArrayN(SKILLS, (i) =>
   computed({
     get: () => skillLevels.value[i].toString(),
-    set: (value) => (skillLevels.value[i] = safeParseInt(value) ?? 1),
+    set: (value) =>
+      (skillLevels.value = mapArrayN(skillLevels.value, (v, j) => (i === j ? safeParseInt(value) ?? 1 : v))),
   })
 )
 
@@ -89,6 +95,10 @@ const levelOptions = mapArrayN(SKILL_LEVEL_MAX, (maxLevel, index) =>
     label: `Lv. ${i + 1}`,
     disabled: props.idol.skills.find((v) => v.index === index && v.level === i + 1) === undefined,
   }))
+)
+
+const editing = mapArrayN(SKILLS, (i) =>
+  computed(() => props.idol.owned !== null && skillLevels.value[i] !== props.idol.owned.skillLevels?.[i])
 )
 </script>
 <style lang="scss" scoped>
@@ -203,6 +213,13 @@ const levelOptions = mapArrayN(SKILL_LEVEL_MAX, (maxLevel, index) =>
   }
 
   .skill-left {
+    display: grid;
+    grid: auto / auto-flow;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .skill-right {
     display: grid;
     grid: auto / auto-flow;
     gap: 8px;

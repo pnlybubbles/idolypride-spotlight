@@ -4,10 +4,10 @@
     <div class="idol">
       <div></div>
       <template v-for="i in LANES" :key="i">
-        <IdolSelect v-model="selectedIdols[i]"></IdolSelect>
+        <IdolSelect v-model="selectedIdols[i].value"></IdolSelect>
       </template>
     </div>
-    <Live v-if="live" :live="live" :idols="selectedIdols"></Live>
+    <Live v-if="live" :live="live" :idols="mapArrayN(selectedIdols, (v) => v.value)"></Live>
     <div v-if="!noIdolSelected" class="footer">
       <Callout>
         <template #title>注意</template>
@@ -20,11 +20,12 @@
 </template>
 <script setup lang="ts">
 import { useQuery } from '@urql/vue'
+import produce from 'immer'
 import { useAuth } from '~~/composable/auth0'
 import { useError } from '~~/composable/error'
 import { useLiveIdolSelectRecent } from '~~/composable/localstorage-descriptors'
 import { GetFumenDocument, GetIdolListDocument } from '~~/generated/graphql'
-import { ArrayN, indexed, mapArrayN } from '~~/utils'
+import { ArrayN, mapArrayN, unitArrayN } from '~~/utils'
 import { LANES } from '~~/utils/common'
 import { deserializeIdolList } from '~~/utils/formatter'
 import { DEFAULT_META } from '~~/utils/meta'
@@ -54,8 +55,6 @@ const live = computed(() => {
   return formatted
 })
 
-const selectedIdols = reactive<ArrayN<IdolData | null, 5>>([null, null, null, null, null])
-
 const {
   data: idolData,
   error: idolError,
@@ -64,42 +63,29 @@ const {
 useError(idolError)
 const idolList = computed(() => (idolData.value ? deserializeIdolList(idolData.value) : []))
 
-const [selectedIdolsRecent, readySelectedIdolsRecent] = useLiveIdolSelectRecent()
-const selectedIdolsCurrentLive = computed(() => selectedIdolsRecent.value[id])
+const [selectedIdolsRecent] = useLiveIdolSelectRecent()
 
-const restored = ref(false)
-// ローカルストレージにアイドル選択状態が保持されていたら、復元する
-watchEffect(() => {
-  // ローカルストレージを読込中, アイドルデータを取得中は待機
-  if (!readySelectedIdolsRecent.value || idolFetch.value || restored.value) {
-    return
-  }
-
-  restored.value = true
-
-  if (selectedIdolsCurrentLive.value === undefined) {
-    return
-  }
-
-  for (const [idolId, index] of indexed(selectedIdolsCurrentLive.value)) {
-    const idol = idolList.value.find((v) => v.id === idolId)
-    selectedIdols[index] = idol ?? null
-  }
-})
+const uncontrolledSelectedIdols = reactive(unitArrayN(5, null as null | IdolData))
+const selectedIdols = mapArrayN(unitArrayN(5), (i) =>
+  computed({
+    get: () =>
+      // オンメモリ優先、その次にローカルストレージ
+      // オンメモリを併用している理由はスキルレベル選択で具体的なアイドルデータも書き換わるため (ローカルストレージにはidしか保存されてない)
+      uncontrolledSelectedIdols[i] ?? idolList.value.find((v) => v.id === selectedIdolsRecent.value[id]?.[i]) ?? null,
+    set: (value) => {
+      uncontrolledSelectedIdols[i] = value
+      // アイドルが選択されたらローカルストレージに保存する
+      // immerのProxyと干渉するので生オブジェクトに戻す
+      selectedIdolsRecent.value = produce(toRaw(selectedIdolsRecent.value), (draft) => {
+        draft[id] ??= unitArrayN(5, null)
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        draft[id]![i] = value?.id ?? null
+      })
+    },
+  })
+)
 
 const noIdolSelected = computed(() => selectedIdols.every((v) => v === null))
-
-// アイドルが選択されたらローカルストレージに保存する
-watchEffect(() => {
-  if (noIdolSelected.value) {
-    return
-  }
-  // なんか[id]に代入するとreactiveがうまく発火しないのでrefのルートに代入している
-  selectedIdolsRecent.value = {
-    ...selectedIdolsRecent.value,
-    [id]: mapArrayN(selectedIdols, (v) => v?.id ?? null),
-  }
-})
 
 useHead(DEFAULT_META)
 </script>

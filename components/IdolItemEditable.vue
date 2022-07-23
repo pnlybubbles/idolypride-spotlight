@@ -10,12 +10,7 @@
             <template #symbol><OwnSettingBadge></OwnSettingBadge></template>
           </with-symbol>
         </Check>
-        <Button :disabled="disableUpdateSkillLevels" variant="secondary" @click="updateSkillLevels">
-          <with-symbol>
-            スキルレベルを変更する
-            <template #symbol><OwnSettingBadge></OwnSettingBadge></template>
-          </with-symbol>
-        </Button>
+        <IdolItemSkillLevelsSaveButton :idol="idol" :skill-levels="selectedLevels"></IdolItemSkillLevelsSaveButton>
         <ButtonLink :to="`/idol/${idol.id}/edit`" :disabled="!canEdit">アイドルを編集する</ButtonLink>
         <NoteText v-if="!canEdit">自分の追加したアイドルのみ編集できます</NoteText>
         <NoteText v-if="isAdmin">管理者権限によりすべてのアイドルを編集できます</NoteText>
@@ -30,8 +25,6 @@ import { useError } from '~~/composable/error'
 import { useDebounce } from '~~/composable/atom'
 import { AddOwnedIdolDocument, RemoveOwnedIdolDocument } from '~~/generated/graphql'
 import { IdolData } from '~~/utils/types'
-import { pickSkillsByLevel } from '~~/utils/formatter'
-import { mapArrayN } from '~~/utils'
 
 interface Props {
   idol: IdolData
@@ -58,11 +51,7 @@ watchEffect(() => {
   isOwned.value = props.idol.owned !== null
 })
 
-const {
-  executeMutation: executeAddMutation,
-  error: errorAdding,
-  fetching: updatingSkillLevels,
-} = useMutation(AddOwnedIdolDocument)
+const { executeMutation: executeAddMutation, error: errorAdding } = useMutation(AddOwnedIdolDocument)
 useError(errorAdding)
 
 const { executeMutation: executeRemoveMutation, error: errorRemoving } = useMutation(RemoveOwnedIdolDocument)
@@ -79,19 +68,5 @@ const mutate = useDebounce(isOwned.value, 500, async (value) => {
   }
 })
 
-const maxSkillLevels = mapArrayN(pickSkillsByLevel(props.idol.skills), (v) => v.level)
-// propsから直でrefに流すと参照が同一で書き換わってしまうので、値としてコピーする
-const selectedLevels = ref(mapArrayN(props.idol.owned?.skillLevels ?? maxSkillLevels, (v) => v))
-
-const updateSkillLevels = async () => {
-  await executeAddMutation({ idol_id: props.idol.id, skill_levels: selectedLevels.value })
-}
-
-const disableUpdateSkillLevels = computed(
-  () =>
-    updatingSkillLevels.value ||
-    props.idol.owned === null ||
-    (props.idol.owned.skillLevels !== null &&
-      mapArrayN(props.idol.owned.skillLevels, (v, i) => selectedLevels.value[i] === v).every((v) => v))
-)
+const selectedLevels = ref(props.idol.owned?.skillLevels ?? null)
 </script>

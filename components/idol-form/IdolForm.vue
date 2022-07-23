@@ -38,8 +38,11 @@
       </div>
       <Section v-if="skillLevel[skill.index] !== skill.level">
         <template v-if="skillData">
-          <NoteText>{{ skillData.type.toUpperCase() }} {{ skillData.name }}</NoteText>
-          <SkillText :skill="skillData" delimiter="newline" :with-lv="false" with-ct></SkillText>
+          <div class="skill-header">
+            <SkillTag :skill="skillData" mini></SkillTag>
+            <div class="skill-name">{{ skillData.name }}</div>
+          </div>
+          <SkillText class="skill-text" :skill="skillData" delimiter="newline" :with-lv="false"></SkillText>
         </template>
         <NoteText v-else>データ無し</NoteText>
         <Button variant="secondary" @click="handleStartEditingLevel(skill.index)">
@@ -580,5 +583,22 @@ const deriveUnitByBuffType = (type: BuffAbilityType | ActionAbilityType | null):
   align-items: center;
   justify-content: center;
   height: 40px;
+}
+
+.skill-header {
+  display: grid;
+  grid: auto / auto auto;
+  gap: 8px;
+  align-items: center;
+  width: max-content;
+}
+
+.skill-name {
+  font-size: $typography-s;
+  color: $text1;
+}
+
+.skill-text {
+  color: $text3;
 }
 </style>

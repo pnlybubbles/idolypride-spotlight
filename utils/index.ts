@@ -77,6 +77,10 @@ export function mapObject<S extends string | number, T, U>(object: { [key in S]:
   }
 }
 
+export function unitArrayN<T extends number, V = number>(length: T, fill?: V) {
+  return Array.from({ length }).map((_, i) => (fill !== undefined ? fill : i)) as ArrayN<V, T>
+}
+
 export function uid() {
   return Math.random().toString(36).substr(2, 9)
 }
