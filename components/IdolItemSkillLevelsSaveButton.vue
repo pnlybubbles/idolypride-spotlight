@@ -1,5 +1,10 @@
 <template>
-  <Button :disabled="disableUpdateSkillLevels" variant="secondary" @click="updateSkillLevels">
+  <Button
+    v-if="idol.owned !== null"
+    :disabled="disableUpdateSkillLevels"
+    variant="secondary"
+    @click="updateSkillLevels"
+  >
     <with-symbol>
       {{ skillLevelsApplying ? 'スキルレベルを保存中...' : 'スキルレベルを保存する' }}
       <template #symbol><OwnSettingBadge></OwnSettingBadge></template>
