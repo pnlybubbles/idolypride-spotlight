@@ -28,6 +28,7 @@
         v-model:skill-levels="selectedLevels"
         :idol="originalIdol"
         variant="big"
+        no-event
       ></IdolItem>
       <Section>
         <IdolItemSkillLevelsSaveButton
