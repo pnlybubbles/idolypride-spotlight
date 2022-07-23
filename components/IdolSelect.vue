@@ -30,6 +30,11 @@
         variant="big"
       ></IdolItem>
       <Section>
+        <IdolItemSkillLevelsSaveButton
+          v-if="originalIdol !== null"
+          :idol="originalIdol"
+          :skill-levels="selectedLevels"
+        ></IdolItemSkillLevelsSaveButton>
         <Button @click="handleReset">未選択に戻す</Button>
       </Section>
     </VStack>
