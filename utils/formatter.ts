@@ -338,6 +338,7 @@ export const BUFF_ABILITY_TYPE: Record<BuffAbilityType, string> = {
   'critical-score': 'クリティカル係数上昇',
   'stamina-exhaust': 'スタミナ消費増加',
   'stamina-saving': 'スタミナ消費低下',
+  'stamina-continuous-recovery': 'スタミナ継続回復',
   steruss: 'ステルス',
   tension: 'テンションUP',
   'eye-catch': '集目効果',
@@ -349,6 +350,7 @@ export const BUFF_ABILITY_TYPE: Record<BuffAbilityType, string> = {
   'dance-boost': 'ダンスブースト',
   'visual-boost': 'ビジュアルブースト',
   'debuff-guard': '低下効果防止',
+  'a-score-add': 'Aスキルスコア追加',
   slump: '不調',
   unknown: '不明',
 }

@@ -1,14 +1,6 @@
 {
   "editor.formatOnSave": true,
-  "[json]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[jsonc]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[vue]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": {
     "source.fixAll": true
   },
