@@ -37,17 +37,25 @@ const maxSkillLevels = computed(() => mapArrayN(pickSkillsByLevel(props.idol.ski
 
 const updateSkillLevels = async () => {
   skillLevelsApplying.value = true
-  await executeAddMutation({ idol_id: props.idol.id, skill_levels: props.skillLevels ?? maxSkillLevels.value })
+  await executeAddMutation({
+    idol_id: props.idol.id,
+    skill_levels: props.skillLevels ?? props.idol.owned?.skillLevels ?? maxSkillLevels.value,
+  })
 }
 
 const skillLevelsUpToDate = computed(() => {
-  const skillLevels = props.skillLevels ?? maxSkillLevels.value
-  // 加入していない場合は変更点はなし
+  const skillLevels = props.skillLevels
   return (
+    // 加入していない場合は変更点はなしなので最新
     props.idol.owned === null ||
-    // 未設定は変更点あり
-    (props.idol.owned.skillLevels !== null &&
-      mapArrayN(props.idol.owned.skillLevels, (v, i) => skillLevels[i] === v).every((v) => v))
+    // 保存済みデータがある、かつ変更がある場合は、データが全部一致していたら最新
+    (props.idol.owned.skillLevels !== null
+      ? skillLevels !== null
+        ? mapArrayN(props.idol.owned.skillLevels, (v, i) => skillLevels[i] === v).every((v) => v)
+        : // 保存済みデータがある、かつ変更がない場合は最新
+          true
+      : // 保存済みデータがない場合は、すべて最新ではない (MAXがデフォルト表示)
+        false)
   )
 })
 
