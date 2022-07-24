@@ -39,6 +39,7 @@ export const theme: Theme = {
     'beat-score': colors[4],
     score: colors[5],
     'stamina-recovery': colors[2],
+    'stamina-continuous-recovery': colors[2],
     'stamina-recovery-percentage': colors[2],
     'stamina-loss': colors[7],
     'stamina-saving': colors[2],
@@ -63,5 +64,6 @@ export const theme: Theme = {
     'debuff-inverse': normal,
     'buff-erase': normal,
     slump: normal,
+    'a-score-add': colors[1],
   },
 }

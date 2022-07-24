@@ -14,6 +14,7 @@ export type BuffAbilityType =
   | 'cmb-score'
   | 'stamina-saving'
   | 'stamina-exhaust'
+  | 'stamina-continuous-recovery'
   | 'steruss'
   | 'cmb-continuous'
   | 'tension'
@@ -21,6 +22,7 @@ export type BuffAbilityType =
   | 'skill-success'
   | 'slump'
   | 'debuff-guard'
+  | 'a-score-add'
   | 'unknown'
   | `${IdolType}-down`
   | `${IdolType}-boost`
