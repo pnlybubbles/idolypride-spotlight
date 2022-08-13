@@ -13,6 +13,7 @@ import { ArrayN, indexed, mapArrayN, PartiallyNonNullable, safeParseInt, uid, un
 import { isBuffAbilityType, pickSkillsByLevel } from '~~/utils/formatter'
 import { produce } from 'immer'
 import { extractBuffTarget } from '../idol-form/helper'
+import { isLane } from '~~/utils/common'
 
 export type Result = ({
   id: string
@@ -317,6 +318,8 @@ function deriveBuffLanes(suffixedTarget: ActiveBuffTarget, selfLane: Lane, idol:
       return [selfLane]
     case 'center':
       return [2]
+    case 'neighbor':
+      return [selfLane - 1, selfLane + 1].filter(isLane)
     case 'scorer': {
       const candidate = indexed(idol)
         .filter(([v]) => v?.role === 'scorer')

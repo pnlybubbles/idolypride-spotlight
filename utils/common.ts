@@ -17,6 +17,7 @@ import {
   AbilityEnhance,
   ActionAbilityType,
   BuffAbilityType,
+  Lane,
   PassiveBuffTarget,
   SkillTrigger,
 } from '~~/utils/types'
@@ -31,6 +32,8 @@ export const arrayToOrdering = <T>(array: readonly T[]) => {
   const map = array.reduce((acc, v, i) => acc.set(v, i), new Map<T, number>())
   return (key: T) => map.get(key) ?? 9999
 }
+
+export const isLane = (lane: number): lane is Lane => LANES.includes(lane as Lane)
 
 /**
  * アイドルの名前
