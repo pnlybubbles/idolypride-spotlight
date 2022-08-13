@@ -255,6 +255,9 @@ type DomainState = {
   availableBuff: BuffResult
 }
 
+/**
+ * `suffixedTarget`をパースして対象となるレーンを返す
+ */
 function deriveBuffLanes(suffixedTarget: ActiveBuffTarget, selfLane: Lane, idol: ArrayN<IdolData | null, 5>): Lane[] {
   const { target, targetSuffix } = extractBuffTarget(suffixedTarget)
   const suffix = safeParseInt(targetSuffix) ?? 0
@@ -301,6 +304,9 @@ function deriveBuffLanes(suffixedTarget: ActiveBuffTarget, selfLane: Lane, idol:
   }
 }
 
+/**
+ * `state`の中から`currentLane`が対象になっているスキルの効果のみを抽出する
+ */
 const deriveAffectedState = (state: State, currentLane: Lane, idols: ArrayN<IdolData | null, 5>) =>
   state
     .flatMap((v) =>
