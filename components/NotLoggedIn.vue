@@ -1,5 +1,6 @@
 <template>
   <div class="signin-view">
+    <NoteText>アイドルのスキルを見たり譜面を見たりするマネージャーのためのアプリ</NoteText>
     <NoteText>非公式のファンサイトです。公式とは一切関係ありませんので、迷惑をかけないようお願いします。</NoteText>
     <NoteText><HelpText /></NoteText>
     <NoteText
