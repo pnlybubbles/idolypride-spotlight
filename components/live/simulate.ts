@@ -616,6 +616,15 @@ function second<T>([, value]: readonly [unknown, T]) {
   return value
 }
 
+/**
+ * 対象が曖昧な場合に適用されるレーンの優先順序を生成するためのヘルパ
+ *
+ * センター,センター左,センター右,左端,右端 の順序になる
+ *
+ * @example
+ * [0, 1, 2, 3, 4].sort(comparebyCenter)
+ * // => [ 2, 1, 3, 0, 4 ]
+ */
 function comparebyCenter(a: number, b: number) {
-  return Math.abs(2.1 - a) - Math.abs(2.1 - b)
+  return Math.abs(1.9 - a) - Math.abs(1.9 - b)
 }
