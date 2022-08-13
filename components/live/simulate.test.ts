@@ -192,6 +192,125 @@ test('Aスキルが発動する', () => {
   ).toStrictEqual(expected)
 })
 
+test('センターにバフが乗る', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 1,
+      buff: 'score',
+      lane: 0,
+      index: 0,
+      fail: false,
+      activated: [],
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 1,
+      buff: 'score',
+      lane: 2,
+      affected: false,
+      amount: 4,
+      span: 1,
+    },
+  ]
+  expect(
+    simulate(mockLive({ a: [[1], [], [], [], []] }), [
+      mockIdol({ preset: 'a_p_p', a1: mockAbility({ type: 'score', target: 'center' }) }),
+      null,
+      null,
+      null,
+      null,
+    ]).result
+  ).toStrictEqual(expected)
+})
+
+test('隣接にバフが乗る', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 1,
+      buff: 'score',
+      lane: 1,
+      index: 0,
+      fail: false,
+      activated: [],
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 1,
+      buff: 'score',
+      lane: 0,
+      affected: false,
+      amount: 4,
+      span: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 1,
+      buff: 'score',
+      lane: 2,
+      affected: false,
+      amount: 4,
+      span: 1,
+    },
+  ]
+  expect(
+    simulate(mockLive({ a: [[], [1], [], [], []] }), [
+      null,
+      mockIdol({ preset: 'a_p_p', a1: mockAbility({ type: 'score', target: 'neighbor' }) }),
+      null,
+      null,
+      null,
+    ]).result
+  ).toStrictEqual(expected)
+})
+
+test('端の場合には隣接1人にバフが乗る', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 1,
+      buff: 'score',
+      lane: 0,
+      index: 0,
+      fail: false,
+      activated: [],
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 1,
+      buff: 'score',
+      lane: 1,
+      affected: false,
+      amount: 4,
+      span: 1,
+    },
+  ]
+  expect(
+    simulate(mockLive({ a: [[1], [], [], [], []] }), [
+      mockIdol({ preset: 'a_p_p', a1: mockAbility({ type: 'score', target: 'neighbor' }) }),
+      null,
+      null,
+      null,
+      null,
+    ]).result
+  ).toStrictEqual(expected)
+})
+
 test('CT中の場合はAスキルが失敗する', () => {
   const expected: Result = [
     {
