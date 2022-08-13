@@ -585,12 +585,12 @@ const isBuffedFor = (availableBuff: BuffResult, buff: AbilityType, lane?: Lane) 
   availableBuff.find((v) => (lane === undefined || v.lane === lane) && v.buff === buff)
 
 const extractAvailableBuffResult = (result: Result, { currentBeat }: Pick<DomainState, 'currentBeat'>) =>
-  result.filter(isType('buff')).filter(
-    (v) =>
-      // スキルが発動したビートからバフがかかる
-      // バフがかかる最後のビートは、発動ビート + 持続ビート数 - 1
-      currentBeat >= v.beat && currentBeat <= v.beat + v.span - 1
-  )
+  result.filter(isType('buff')).filter((v) => isBuffAvailable(currentBeat, v.beat, v.span))
+
+const isBuffAvailable = (currentBeat: number, beat: number, span: number) =>
+  // スキルが発動したビートからバフがかかる
+  // バフがかかる最後のビートは、発動ビート + 持続ビート数 - 1
+  currentBeat >= beat && currentBeat <= beat + span - 1
 
 const appendBeat =
   (currentBeat: number) =>
