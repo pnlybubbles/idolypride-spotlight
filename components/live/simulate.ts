@@ -599,6 +599,16 @@ const checkSkillTriggered = (
       // 無条件
       return { triggeredLane: null }
     }
+    case 'beat': {
+      // 確率10%だが、乱数が絡むので無条件と同等にする
+      // TODO: RNGのシードを変えて試せるようにする
+      return { triggeredLane: null }
+    }
+    case 'critical': {
+      // 乱数が絡むので無条件と同等にする
+      // TODO: RNGのシードを変えて試せるようにする
+      return { triggeredLane: null }
+    }
     case 'sp': {
       // 誰かがSPスキルは発動時
       const spLane = spState.find((v) => v.skill != null)?.lane
@@ -620,9 +630,18 @@ const checkSkillTriggered = (
       // 自身がスコアアップ状態の時
       return isBuffedFor(availableBuff, 'score', lane) ? { triggeredLane: null } : null
     }
+    case 'critical-up': {
+      // 自身がクリティカルアップ状態の時
+      return isBuffedFor(availableBuff, 'critical-rate', lane) ? { triggeredLane: null } : null
+    }
     case 'anyone-tension-up': {
       // 誰かがテンションアップ状態の時
       const hit = isBuffedFor(availableBuff, 'tension')
+      return hit ? { triggeredLane: hit.lane } : null
+    }
+    case 'anyone-score-up': {
+      // 誰かがスコアアップ状態の時
+      const hit = isBuffedFor(availableBuff, 'score')
       return hit ? { triggeredLane: hit.lane } : null
     }
     default:
