@@ -66,6 +66,13 @@ type State = ({
     }
 ))[]
 
+// 未処理のシフト効果を保持する
+type ShiftState = {
+  type: 'a' | 'sp'
+  buff: BuffResult[number]
+  activated: boolean
+}[]
+
 type Idols = ArrayN<IdolData | null, 5>
 
 export function simulate(live: LiveData, rawIdols: Idols) {
@@ -79,7 +86,7 @@ export function simulate(live: LiveData, rawIdols: Idols) {
   // - 0ビート目発動扱いで19ビート目までバフ持続
   const BEATS = new Array(live.beat + 1).fill(0).map((_, i) => i)
   // 1ビートづつシミュレーションしていく
-  return BEATS.reduce<{ result: Result; state: State }>(
+  return BEATS.reduce<{ result: Result; state: State; shift: ShiftState }>(
     produce((draft, currentBeat) => {
       //
       // 1パス目
@@ -153,8 +160,7 @@ export function simulate(live: LiveData, rawIdols: Idols) {
       // 2パス目
       // A,SPのバフをトリガとしたPスキルの発動チェック
       //
-
-      // eslint-disable-next-line no-constant-condition
+      let pState: PState
       {
         const domain = { live, idols, state: draft.state, currentBeat }
 
@@ -165,7 +171,7 @@ export function simulate(live: LiveData, rawIdols: Idols) {
         const availableBuff = extractAvailableBuffResult(draft.result, domain)
 
         // Pスキルの発動チェック
-        const pState = derivePState({ ...domain, ctState, aState, spState, availableBuff })
+        pState = derivePState({ ...domain, ctState, aState, spState, availableBuff })
 
         const pResult = pState.map(({ lane, skill }) => ({
           type: 'p' as const,
@@ -202,6 +208,49 @@ export function simulate(live: LiveData, rawIdols: Idols) {
 
       //
       // 3パス目
+      // SPシフトの発動処理 (TODO: Aシフト)
+      //
+      {
+        // 現在のビートに効いている過去も含めたすべてのバフを取得
+        const availableBuff = extractAvailableBuffResult(draft.result, { currentBeat })
+
+        // ミューテーション処理
+        // SPシフトの効果が発動可能な場合は、効いているバフを取り除いて保持する
+        for (const buffResult of availableBuff) {
+          for (const effectAbility of deriveAffectedState([...aState, ...spState, ...pState], buffResult.lane, idols)) {
+            if (effectAbility.div === 'action-buff' && effectAbility.type === 'shift-before-sp') {
+              // SPシフト
+              const currentSpan = currentBeat - buffResult.beat
+              // シフト処理待ちとして保持する
+              draft.shift.push({
+                type: 'sp',
+                buff: { ...buffResult, span: buffResult.span - currentSpan },
+                activated: false,
+              })
+              // 現在効いているバフの効果を消す
+              buffResult.span = currentSpan
+            }
+          }
+        }
+
+        // このビートでSPスキルが発動している場合に、保持されているシフト待ちのバフを展開する
+        for (const state of spState) {
+          for (const shiftState of draft.shift) {
+            if (!shiftState.activated && state.lane === shiftState.buff.lane) {
+              // シフトしたバフを記録
+              draft.result.push({
+                ...shiftState.buff,
+                id: uid(),
+                beat: currentBeat,
+              })
+              shiftState.activated = true
+            }
+          }
+        }
+      }
+
+      //
+      // 4パス目
       // このビートで変化した状態を含めて、過去から現在までに発生したバフの影響を導出する
       //
 
@@ -239,7 +288,7 @@ export function simulate(live: LiveData, rawIdols: Idols) {
           .filter(isNonNullable)
       }
     }),
-    { result: [], state: [] }
+    { result: [], state: [], shift: [] }
   )
 }
 
