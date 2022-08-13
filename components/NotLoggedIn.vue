@@ -7,7 +7,7 @@
         >ソースコード (GitHub)</a
       ></NoteText
     >
-    <Button @click="signIn">サインイン</Button>
+    <Button @click="signIn">サインイン ・ 新規登録</Button>
   </div>
 </template>
 <script setup lang="ts">
