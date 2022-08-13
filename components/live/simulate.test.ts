@@ -1281,3 +1281,78 @@ test('SPシフトがPスキル起因で発動する', () => {
     ]).result
   ).toStrictEqual(expected)
 })
+
+test('SPシフトで移動したバフがライブの終端で終わる', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 1,
+      buff: 'dance',
+      lane: 2,
+      index: 1,
+      fail: false,
+      activated: [{ type: 'dance', amount: 4 }],
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 1,
+      buff: 'dance',
+      lane: 2,
+      affected: true,
+      amount: 4,
+      span: 4,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 5,
+      buff: 'shift-before-sp',
+      lane: 0,
+      index: 0,
+      fail: false,
+      activated: [],
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'sp',
+      beat: 20,
+      buff: 'unknown',
+      lane: 2,
+      index: 0,
+      fail: false,
+      activated: [{ type: 'dance', amount: 4 }],
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 20,
+      buff: 'dance',
+      lane: 2,
+      affected: true,
+      amount: 4,
+      span: 11,
+    },
+  ]
+  expect(
+    simulate(mockLive({ a: [[5], [], [1], [], []], sp: [[], [], [20], [], []], beat: 30 }), [
+      mockIdol({
+        preset: 'a_p_p',
+        a1: mockAbility({ type: 'shift-before-sp', target: 'center' }),
+      }),
+      null,
+      mockIdol({
+        preset: 'sp_a_a',
+        a1: mockAbility({ type: 'dance', target: 'self', span: 30 }),
+      }),
+      null,
+      null,
+    ]).result
+  ).toStrictEqual(expected)
+})

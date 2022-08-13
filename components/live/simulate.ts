@@ -243,6 +243,7 @@ export function simulate(live: LiveData, rawIdols: Idols) {
                 ...shiftState.buff,
                 id: uid(),
                 beat: currentBeat,
+                span: clampSpan(shiftState.buff.span, live.beat, currentBeat),
               })
               shiftState.activated = true
             }
