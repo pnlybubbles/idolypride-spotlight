@@ -11,7 +11,7 @@
     <div v-if="!noIdolSelected" class="footer">
       <Callout>
         <template #title>注意</template>
-        一部のPスキルの発動条件,SPシフトなど再現できていない部分が多々あります
+        一部のPスキルの発動条件、スキルの対象、乱数が絡んだ条件、Aシフトなど再現できていない部分があります
       </Callout>
     </div>
     <Loading :busy="fetching">譜面を読み込んでいます...</Loading>
