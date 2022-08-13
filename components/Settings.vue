@@ -22,6 +22,7 @@
     <div class="section">
       <div class="section-headding">このページについて</div>
       <NoteText><HelpText /></NoteText>
+      <NoteText><SourceCodeLink /></NoteText>
     </div>
     <div class="section">
       <div class="section-headding">ユーザー情報</div>
