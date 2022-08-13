@@ -13,6 +13,7 @@ import { ArrayN, indexed, mapArrayN, PartiallyNonNullable, safeParseInt, uid, un
 import { isBuffAbilityType, pickSkillsByLevel } from '~~/utils/formatter'
 import { produce } from 'immer'
 import { extractBuffTarget } from '../idol-form/helper'
+import { isLane } from '~~/utils/common'
 
 export type Result = ({
   id: string
@@ -66,6 +67,13 @@ type State = ({
     }
 ))[]
 
+// 未処理のシフト効果を保持する
+type ShiftState = {
+  type: 'a' | 'sp'
+  buff: BuffResult[number]
+  activated: boolean
+}[]
+
 type Idols = ArrayN<IdolData | null, 5>
 
 export function simulate(live: LiveData, rawIdols: Idols) {
@@ -79,7 +87,7 @@ export function simulate(live: LiveData, rawIdols: Idols) {
   // - 0ビート目発動扱いで19ビート目までバフ持続
   const BEATS = new Array(live.beat + 1).fill(0).map((_, i) => i)
   // 1ビートづつシミュレーションしていく
-  return BEATS.reduce<{ result: Result; state: State }>(
+  return BEATS.reduce<{ result: Result; state: State; shift: ShiftState }>(
     produce((draft, currentBeat) => {
       //
       // 1パス目
@@ -153,8 +161,7 @@ export function simulate(live: LiveData, rawIdols: Idols) {
       // 2パス目
       // A,SPのバフをトリガとしたPスキルの発動チェック
       //
-
-      // eslint-disable-next-line no-constant-condition
+      let pState: PState
       {
         const domain = { live, idols, state: draft.state, currentBeat }
 
@@ -165,7 +172,7 @@ export function simulate(live: LiveData, rawIdols: Idols) {
         const availableBuff = extractAvailableBuffResult(draft.result, domain)
 
         // Pスキルの発動チェック
-        const pState = derivePState({ ...domain, ctState, aState, spState, availableBuff })
+        pState = derivePState({ ...domain, ctState, aState, spState, availableBuff })
 
         const pResult = pState.map(({ lane, skill }) => ({
           type: 'p' as const,
@@ -202,6 +209,50 @@ export function simulate(live: LiveData, rawIdols: Idols) {
 
       //
       // 3パス目
+      // SPシフトの発動処理 (TODO: Aシフト)
+      //
+      {
+        // 現在のビートに効いている過去も含めたすべてのバフを取得
+        const availableBuff = extractAvailableBuffResult(draft.result, { currentBeat })
+
+        // ミューテーション処理
+        // SPシフトの効果が発動可能な場合は、効いているバフを取り除いて保持する
+        for (const buffResult of availableBuff) {
+          for (const effectAbility of deriveAffectedState([...aState, ...spState, ...pState], buffResult.lane, idols)) {
+            if (effectAbility.div === 'action-buff' && effectAbility.type === 'shift-before-sp') {
+              // SPシフト
+              const currentSpan = currentBeat - buffResult.beat
+              // シフト処理待ちとして保持する
+              draft.shift.push({
+                type: 'sp',
+                buff: { ...buffResult, span: buffResult.span - currentSpan },
+                activated: false,
+              })
+              // 現在効いているバフの効果を消す
+              buffResult.span = currentSpan
+            }
+          }
+        }
+
+        // このビートでSPスキルが発動している場合に、保持されているシフト待ちのバフを展開する
+        for (const state of spState) {
+          for (const shiftState of draft.shift) {
+            if (!shiftState.activated && state.lane === shiftState.buff.lane) {
+              // シフトしたバフを記録
+              draft.result.push({
+                ...shiftState.buff,
+                id: uid(),
+                beat: currentBeat,
+                span: clampSpan(shiftState.buff.span, live.beat, currentBeat),
+              })
+              shiftState.activated = true
+            }
+          }
+        }
+      }
+
+      //
+      // 4パス目
       // このビートで変化した状態を含めて、過去から現在までに発生したバフの影響を導出する
       //
 
@@ -239,7 +290,7 @@ export function simulate(live: LiveData, rawIdols: Idols) {
           .filter(isNonNullable)
       }
     }),
-    { result: [], state: [] }
+    { result: [], state: [], shift: [] }
   )
 }
 
@@ -255,6 +306,9 @@ type DomainState = {
   availableBuff: BuffResult
 }
 
+/**
+ * `suffixedTarget`をパースして対象となるレーンを返す
+ */
 function deriveBuffLanes(suffixedTarget: ActiveBuffTarget, selfLane: Lane, idol: ArrayN<IdolData | null, 5>): Lane[] {
   const { target, targetSuffix } = extractBuffTarget(suffixedTarget)
   const suffix = safeParseInt(targetSuffix) ?? 0
@@ -265,6 +319,8 @@ function deriveBuffLanes(suffixedTarget: ActiveBuffTarget, selfLane: Lane, idol:
       return [selfLane]
     case 'center':
       return [2]
+    case 'neighbor':
+      return [selfLane - 1, selfLane + 1].filter(isLane)
     case 'scorer': {
       const candidate = indexed(idol)
         .filter(([v]) => v?.role === 'scorer')
@@ -301,6 +357,9 @@ function deriveBuffLanes(suffixedTarget: ActiveBuffTarget, selfLane: Lane, idol:
   }
 }
 
+/**
+ * `state`の中から`currentLane`が対象になっているスキルの効果のみを抽出する
+ */
 const deriveAffectedState = (state: State, currentLane: Lane, idols: ArrayN<IdolData | null, 5>) =>
   state
     .flatMap((v) =>
@@ -520,7 +579,7 @@ const derivePState = (
           .filter(isNonNullable)
           .map((v) => ({ ...v, lane }))
           // pスキルは3番目が優先(?)
-          // TODO: "私に、決めたよ" 佐伯遙子 だけはなぜか3番目が先に発動するぽい...
+          // TODO: "私に、決めたよ" 佐伯遙子 だけはなぜか2番目が先に発動するぽい...
           .sort((a, b) => a.skill.index - b.skill.index)
           .filter((_, i) => i === 0)
       )
@@ -544,6 +603,16 @@ const checkSkillTriggered = (
       // 無条件
       return { triggeredLane: null }
     }
+    case 'beat': {
+      // 確率10%だが、乱数が絡むので無条件と同等にする
+      // TODO: RNGのシードを変えて試せるようにする
+      return { triggeredLane: null }
+    }
+    case 'critical': {
+      // 乱数が絡むので無条件と同等にする
+      // TODO: RNGのシードを変えて試せるようにする
+      return { triggeredLane: null }
+    }
     case 'sp': {
       // 誰かがSPスキルは発動時
       const spLane = spState.find((v) => v.skill != null)?.lane
@@ -565,9 +634,18 @@ const checkSkillTriggered = (
       // 自身がスコアアップ状態の時
       return isBuffedFor(availableBuff, 'score', lane) ? { triggeredLane: null } : null
     }
+    case 'critical-up': {
+      // 自身がクリティカルアップ状態の時
+      return isBuffedFor(availableBuff, 'critical-rate', lane) ? { triggeredLane: null } : null
+    }
     case 'anyone-tension-up': {
       // 誰かがテンションアップ状態の時
       const hit = isBuffedFor(availableBuff, 'tension')
+      return hit ? { triggeredLane: hit.lane } : null
+    }
+    case 'anyone-score-up': {
+      // 誰かがスコアアップ状態の時
+      const hit = isBuffedFor(availableBuff, 'score')
       return hit ? { triggeredLane: hit.lane } : null
     }
     default:
@@ -579,12 +657,12 @@ const isBuffedFor = (availableBuff: BuffResult, buff: AbilityType, lane?: Lane) 
   availableBuff.find((v) => (lane === undefined || v.lane === lane) && v.buff === buff)
 
 const extractAvailableBuffResult = (result: Result, { currentBeat }: Pick<DomainState, 'currentBeat'>) =>
-  result.filter(isType('buff')).filter(
-    (v) =>
-      // スキルが発動したビートからバフがかかる
-      // バフがかかる最後のビートは、発動ビート + 持続ビート数 - 1
-      currentBeat >= v.beat && currentBeat <= v.beat + v.span - 1
-  )
+  result.filter(isType('buff')).filter((v) => isBuffAvailable(currentBeat, v.beat, v.span))
+
+const isBuffAvailable = (currentBeat: number, beat: number, span: number) =>
+  // スキルが発動したビートからバフがかかる
+  // バフがかかる最後のビートは、発動ビート + 持続ビート数 - 1
+  currentBeat >= beat && currentBeat <= beat + span - 1
 
 const appendBeat =
   (currentBeat: number) =>
@@ -610,6 +688,15 @@ function second<T>([, value]: readonly [unknown, T]) {
   return value
 }
 
+/**
+ * 対象が曖昧な場合に適用されるレーンの優先順序を生成するためのヘルパ
+ *
+ * センター,センター左,センター右,左端,右端 の順序になる
+ *
+ * @example
+ * [0, 1, 2, 3, 4].sort(comparebyCenter)
+ * // => [ 2, 1, 3, 0, 4 ]
+ */
 function comparebyCenter(a: number, b: number) {
-  return Math.abs(2.1 - a) - Math.abs(2.1 - b)
+  return Math.abs(1.9 - a) - Math.abs(1.9 - b)
 }

@@ -1,13 +1,10 @@
 <template>
   <div class="signin-view">
+    <NoteText>アイドルのスキルを見たり譜面を見たりするマネージャーのためのアプリ</NoteText>
     <NoteText>非公式のファンサイトです。公式とは一切関係ありませんので、迷惑をかけないようお願いします。</NoteText>
     <NoteText><HelpText /></NoteText>
-    <NoteText
-      ><a href="https://github.com/pnlybubbles/idolypride-spotlight" target="_blank" rel="noreferrer"
-        >ソースコード (GitHub)</a
-      ></NoteText
-    >
-    <Button @click="signIn">サインイン</Button>
+    <NoteText><SourceCodeLink /></NoteText>
+    <Button @click="signIn">サインイン ・ 新規登録</Button>
   </div>
 </template>
 <script setup lang="ts">

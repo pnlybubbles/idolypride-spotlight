@@ -25,7 +25,8 @@ import {
   faGun,
   faCircleInfo,
 } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { FontAwesomeIcon, FontAwesomeIconProps } from '@fortawesome/vue-fontawesome'
+import { DefineComponent } from 'vue'
 
 library.add(
   faUserGroup,
@@ -55,5 +56,5 @@ library.add(
 )
 
 export default defineNuxtPlugin((nuxtApp) => {
-  nuxtApp.vueApp.component('font-awesome-icon', FontAwesomeIcon)
+  nuxtApp.vueApp.component('font-awesome-icon', FontAwesomeIcon as unknown as DefineComponent<FontAwesomeIconProps>)
 })

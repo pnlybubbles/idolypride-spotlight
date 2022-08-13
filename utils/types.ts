@@ -123,6 +123,10 @@ export type AbilityEnhance =
       type: 'combo-more-than-80'
       value: number
     }
+  | {
+      type: `in-${IdolType}-lane`
+      value: number
+    }
 export type AbilityEnhanceType = AbilityEnhance['type']
 
 // ability

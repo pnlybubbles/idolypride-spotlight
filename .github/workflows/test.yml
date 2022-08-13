@@ -38,15 +38,15 @@ jobs:
         run: |
           yarn install --immutable --inline-builds
 
+      - name: Prepare nuxt
+        run: |
+          yarn prepare
+
       - name: GraphQL codegen
         env:
           HASURA_GRAPHQL_ADMIN_SECRET: ${{ secrets.HASURA_GRAPHQL_ADMIN_SECRET }}
         run: |
           yarn build:graphql
-
-      - name: Prepare nuxt
-        run: |
-          yarn nuxi prepare
 
       - name: Test
         run: |

@@ -18,4 +18,7 @@ export default defineNuxtConfig({
       'window.global': {},
     },
   },
+  typescript: {
+    strict: true,
+  },
 })
