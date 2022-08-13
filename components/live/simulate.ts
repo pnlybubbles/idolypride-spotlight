@@ -520,7 +520,7 @@ const derivePState = (
           .filter(isNonNullable)
           .map((v) => ({ ...v, lane }))
           // pスキルは3番目が優先(?)
-          // TODO: "私に、決めたよ" 佐伯遙子 だけはなぜか3番目が先に発動するぽい...
+          // TODO: "私に、決めたよ" 佐伯遙子 だけはなぜか2番目が先に発動するぽい...
           .sort((a, b) => a.skill.index - b.skill.index)
           .filter((_, i) => i === 0)
       )
