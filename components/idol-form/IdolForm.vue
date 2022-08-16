@@ -374,17 +374,11 @@ const handleSubmit = () => {
   isPresentConfirm.value = false
 }
 
-const formattedIdol = ref<IdolData | null>(null)
-const isPresentConfirm = computed({
-  get: () => formattedIdol.value !== null,
-  set: (value) => {
-    if (value) {
-      formattedIdol.value = formatIdol(idolInput, props.idol)
-    } else {
-      formattedIdol.value = null
-    }
-  },
+const formattedIdol = computed({
+  get: () => (isPresentConfirm.value ? formatIdol(idolInput, props.idol) : null),
+  set: (value) => (isPresentConfirm.value = value !== null),
 })
+const isPresentConfirm = ref(false)
 
 const nameOptions: Option<string> = arrayToOption(IDOL_NAME)
 const typeOptions: Option<IdolType> = [
