@@ -191,8 +191,16 @@
       </VStack>
     </div>
     <Section>
-      <Button :disabled="disabled" @click="handleSubmit">{{ submitLabel }}</Button>
+      <Button :disabled="disabled" @click="handleConfirm">{{ confirmAndSubmitLabel }}</Button>
     </Section>
+    <Sheet v-model:present="isPresentConfirm">
+      <VStack :spacing="16">
+        <IdolItem v-if="formattedIdol" :idol="formattedIdol" variant="big" no-event></IdolItem>
+        <Section>
+          <Button :disabled="disabled" @click="handleSubmit">{{ submitLabel }}</Button>
+        </Section>
+      </VStack>
+    </Sheet>
   </VStack>
 </template>
 <script setup lang="ts">
@@ -255,6 +263,7 @@ import { useFormComponent } from '~~/composable/form'
 interface Props {
   idol?: IdolData
   disabled: boolean
+  confirmAndSubmitLabel: string
   submitLabel: string
 }
 const props = defineProps<Props>()
@@ -352,9 +361,30 @@ const handleRemoveAbility = (skill: SkillInput, abilityIndex: number) => {
   idolInput.skills.find((v) => v.index === skill.index)?.ability.splice(abilityIndex, 1)
 }
 
-const handleSubmit = () => {
-  emit('submit', formatIdol(idolInput, props.idol))
+const handleConfirm = () => {
+  isPresentConfirm.value = true
 }
+
+const handleSubmit = () => {
+  if (!formattedIdol.value) {
+    isPresentConfirm.value = false
+    return
+  }
+  emit('submit', formattedIdol.value)
+  isPresentConfirm.value = false
+}
+
+const formattedIdol = ref<IdolData | null>(null)
+const isPresentConfirm = computed({
+  get: () => formattedIdol.value !== null,
+  set: (value) => {
+    if (value) {
+      formattedIdol.value = formatIdol(idolInput, props.idol)
+    } else {
+      formattedIdol.value = null
+    }
+  },
+})
 
 const nameOptions: Option<string> = arrayToOption(IDOL_NAME)
 const typeOptions: Option<IdolType> = [
