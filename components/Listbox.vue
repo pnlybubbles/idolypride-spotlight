@@ -148,6 +148,7 @@ useFormComponent(computed(() => ({ error: requiredError.value })))
   width: 100%;
   text-align: start;
   user-select: none;
+  transition: all 0.1s;
   display: grid;
   grid: auto / auto 1fr;
   align-items: center;
