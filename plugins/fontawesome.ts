@@ -1,4 +1,4 @@
-import { library } from '@fortawesome/fontawesome-svg-core'
+import { library, config } from '@fortawesome/fontawesome-svg-core'
 import {
   faUserGroup,
   faMusic,
@@ -54,6 +54,9 @@ library.add(
   faGun,
   faCircleInfo
 )
+
+// https://github.com/FortAwesome/react-fontawesome/issues/134#issuecomment-471940596
+config.autoAddCss = false
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.vueApp.component('font-awesome-icon', FontAwesomeIcon as unknown as DefineComponent<FontAwesomeIconProps>)

@@ -17,19 +17,21 @@
       <div v-if="fetching" class="loading"><Spinner></Spinner></div>
       <ul v-else class="list">
         <li v-for="idol in filteredIdolList" :key="idol.id" class="item">
-          <template v-if="selectOwnedMode">
-            <IdolItem :idol="idol" @click="toggleIsOwnedList(idol.id)"></IdolItem>
-            <div
-              class="box"
-              :class="{ checked: isOwnedList[idol.id] }"
-              :aria-disabled="isOwnedList[idol.id] === undefined"
-              @click="toggleIsOwnedList(idol.id)"
-              @touchend="null"
-            >
-              <font-awesome-icon class="icon" icon="check"></font-awesome-icon>
-            </div>
-          </template>
-          <IdolItemEditable v-else :idol="idol" :is-admin="isAdmin"></IdolItemEditable>
+          <Virtualize>
+            <template v-if="selectOwnedMode">
+              <IdolItem :idol="idol" @click="toggleIsOwnedList(idol.id)"></IdolItem>
+              <div
+                class="box"
+                :class="{ checked: isOwnedList[idol.id] }"
+                :aria-disabled="isOwnedList[idol.id] === undefined"
+                @click="toggleIsOwnedList(idol.id)"
+                @touchend="null"
+              >
+                <font-awesome-icon class="icon" icon="check"></font-awesome-icon>
+              </div>
+            </template>
+            <IdolItemEditable v-else :idol="idol" :is-admin="isAdmin"></IdolItemEditable>
+          </Virtualize>
         </li>
       </ul>
       <div class="add-button">
