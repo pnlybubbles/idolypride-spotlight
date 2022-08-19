@@ -7,6 +7,12 @@
 
 ## Setup
 
+Enable yarn (requirement: Node.js >=16.10)
+
+```bash
+corepack enable
+```
+
 Make sure to install the dependencies
 
 ```bash
