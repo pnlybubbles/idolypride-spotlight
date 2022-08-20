@@ -31,7 +31,7 @@ module.exports = {
     '@typescript-eslint/unbound-method': 'error',
     // User override
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', ignoreRestSiblings: true }],
-    '@typescript-eslint/strict-boolean-expressions': 'error',
+    '@typescript-eslint/strict-boolean-expressions': ['error', { allowString: false, allowNumber: false }],
     '@typescript-eslint/no-misused-promises': [
       'error',
       {
