@@ -426,7 +426,7 @@ const derivePBuffResult = ({
         .flatMap((ability) => {
           const lanes =
             ability.target === 'triggered'
-              ? triggeredLane
+              ? triggeredLane !== null
                 ? [triggeredLane]
                 : []
               : deriveBuffLanes(ability.target, lane, idols)
