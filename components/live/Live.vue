@@ -36,6 +36,7 @@ import { AbilityType, BuffAbilityType, IdolData, Lane, LiveData, SkillIndex } fr
 import { LANES, px } from '~~/utils/common'
 import { useFumenScaleFactor } from '~~/composable/localstorage-descriptors'
 import cloneDeep from 'clone-deep'
+import { pickSkillsByLevel } from '~~/utils/formatter'
 
 interface Props {
   live: LiveData
@@ -93,8 +94,13 @@ const updateGuide = (beat: number) => {
   }
 }
 
-const getSkill = (lane: Lane, skillIndex: SkillIndex | undefined) =>
-  props.idols[lane]?.skills.find((v) => v.index === skillIndex)
+const getSkill = (lane: Lane, skillIndex: SkillIndex | undefined) => {
+  const idol = props.idols[lane]
+  if (!idol) {
+    return undefined
+  }
+  return pickSkillsByLevel(idol.skills, idol.owned?.skillLevels ?? undefined).find((v) => v.index === skillIndex)
+}
 
 // immerのProxyと干渉するので生objectに戻す
 // toRawではネストが深くて戻しきれないのでcloneDeepで無理やり再帰的に戻す
