@@ -1,10 +1,10 @@
 <template>
-  <div class="guide-root" @click.self="addGuide" @touchend="null">
-    <div v-for="item in beatGuides" :key="item.id" class="guide line" :style="lineStyle(item.beat)">
+  <div class="guide" @click.self="addGuide" @touchend="null">
+    <div v-for="item in beatGuides" :key="item.id" class="line" :style="lineStyle(item.beat)">
       <GuideHandle v-model:beat="item.beat" :max-beat="maxBeat"></GuideHandle>
     </div>
-    <div v-for="(interval, i) in intervals" :key="i" class="guide interval" :style="interval.style">
-      <div class="interval-annotation">{{ interval.num }}</div>
+    <div v-for="(interval, i) in intervals" :key="i" class="interval-annotation" :style="interval.style">
+      {{ interval.num }}
     </div>
   </div>
 </template>
@@ -54,19 +54,16 @@ const clampBeat = (beat: number) => Math.min(Math.max(beat, 0), props.maxBeat)
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
 
-.guide-root {
+.guide {
   position: relative;
 }
 
-.guide {
+.line {
   position: absolute;
   width: 100vw;
   display: flex;
   pointer-events: none;
-
-  &.line {
-    border-top: solid 1px rgba(white, 0.2);
-  }
+  border-top: solid 1px rgba(white, 0.2);
 }
 
 .handle {
@@ -86,6 +83,7 @@ const clampBeat = (beat: number) => Math.min(Math.max(beat, 0), props.maxBeat)
 
 .interval-annotation {
   z-index: 1;
+  position: absolute;
   padding: 4px;
   transform: translateY(-50%);
   color: $text3;
