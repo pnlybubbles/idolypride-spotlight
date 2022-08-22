@@ -2,7 +2,15 @@
   <div class="sheet">
     <div class="lane guide-lane">
       <div v-for="(guide, i) in guides" :key="i" class="guide" :class="[guide.type]" :style="guide.style">
-        <div v-if="guide.type === 'line'" class="handle">{{ guide.num }}</div>
+        <div
+          v-if="guide.type === 'line'"
+          class="handle"
+          @touchstart="handleGuideDragStart($event, guide.num)"
+          @touchmove="handleGuideDragMove"
+          @touchend="handleGuideDragEnd"
+        >
+          {{ guide.num }}
+        </div>
         <div v-else-if="guide.type === 'interval'" class="interval-annotation">{{ guide.num }}</div>
       </div>
     </div>
@@ -92,6 +100,39 @@ const updateGuide = (beat: number) => {
   } else {
     beatGuides.value.push(beat)
   }
+}
+
+let guideDragState: {
+  startScreenY: number
+  startNum: number
+  guideIndex: number
+} | null = null
+
+const handleGuideDragStart = (e: TouchEvent, beat: number) => {
+  const guideIndex = beatGuides.value.findIndex((v) => v === beat)
+  const startScreenY = e.touches[0]?.screenY
+  const startNum = beatGuides.value[guideIndex]
+  if (startScreenY === undefined || startNum === undefined) {
+    return
+  }
+  guideDragState = { startScreenY, startNum, guideIndex }
+}
+
+const handleGuideDragMove = (e: TouchEvent) => {
+  e.preventDefault()
+  const screenY = e.touches[0]?.screenY
+  if (guideDragState === null || screenY === undefined) {
+    return null
+  }
+  const delta = guideDragState.startScreenY - screenY
+  const num = guideDragState.startNum - Math.round(delta / scaleFactor.value)
+  if (beatGuides.value.indexOf(num) === -1) {
+    beatGuides.value[guideDragState.guideIndex] = num
+  }
+}
+
+const handleGuideDragEnd = () => {
+  guideDragState = null
 }
 
 const getSkill = (lane: Lane, skillIndex: SkillIndex | undefined) => {
