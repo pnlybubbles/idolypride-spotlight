@@ -1,20 +1,7 @@
 <template>
   <div class="sheet">
-    <div class="lane guide-lane">
-      <div v-for="(guide, i) in guides" :key="i" class="guide" :class="[guide.type]" :style="guide.style">
-        <div
-          v-if="guide.type === 'line'"
-          class="handle"
-          @touchstart="handleGuideDragStart($event, guide.num)"
-          @touchmove="handleGuideDragMove"
-          @touchend="handleGuideDragEnd"
-        >
-          {{ guide.num }}
-        </div>
-        <div v-else-if="guide.type === 'interval'" class="interval-annotation">{{ guide.num }}</div>
-      </div>
-    </div>
-    <div v-for="i in LANES" :key="i" class="lane">
+    <LiveGuide class="lane guide-lane" :max-beat="beat"></LiveGuide>
+    <div v-for="i in LANES" :key="i" class="lane live-lane">
       <template v-for="item in lanes[i]" :key="item.id">
         <LiveSkill
           v-if="item.type === 'sp' || item.type === 'a' || item.type === 'p'"
@@ -22,7 +9,6 @@
           v-bind="item"
           :skill="getSkill(i, item.index)"
           :lane="i"
-          @long-press="updateGuide(item.beat)"
         ></LiveSkill>
         <LiveBuff
           v-else-if="item.type === 'buff'"
@@ -39,7 +25,6 @@
 <script setup lang="ts">
 import { isType, simulate } from './simulate'
 import { ArrayN } from '~~/utils'
-import isNonNullable from 'is-non-nullable'
 import { AbilityType, BuffAbilityType, IdolData, Lane, LiveData, SkillIndex } from '~~/utils/types'
 import { LANES, px } from '~~/utils/common'
 import { useFumenScaleFactor } from '~~/composable/localstorage-descriptors'
@@ -55,85 +40,6 @@ const props = defineProps<Props>()
 
 const [scaleFactor] = useFumenScaleFactor()
 const beat = computed(() => props.live.beat)
-const beatGuides = ref<number[]>([])
-type GuideProps = {
-  style: { top: string }
-} & (
-  | {
-      type: 'line'
-      num: number
-    }
-  | {
-      type: 'interval'
-      num: number
-    }
-)
-const guides = computed<GuideProps[]>(() => {
-  const lines = [
-    ...beatGuides.value.map((beat) => ({
-      type: 'line' as const,
-      num: beat,
-      style: { top: `${beat * scaleFactor.value}px` },
-    })),
-  ].sort((a, b) => a.num - b.num)
-  const intervals = lines
-    .reduce((acc, v) => {
-      const prev = acc[acc.length - 1]
-      return prev
-        ? [...acc, { prevBeat: v.num, interval: v.num - prev.prevBeat }]
-        : [...acc, { prevBeat: v.num, interval: null }]
-    }, [] as { interval: number | null; prevBeat: number }[])
-    .map(({ interval, ...v }) => (interval != null ? { ...v, interval } : null))
-    .filter(isNonNullable)
-    .map(({ interval, prevBeat }) => ({
-      type: 'interval' as const,
-      num: interval,
-      style: { top: `${(prevBeat - interval / 2) * scaleFactor.value}px` },
-    }))
-  return [...lines, ...intervals]
-})
-
-const updateGuide = (beat: number) => {
-  const index = beatGuides.value.findIndex((v) => v === beat)
-  if (index !== -1) {
-    beatGuides.value.splice(index, 1)
-  } else {
-    beatGuides.value.push(beat)
-  }
-}
-
-let guideDragState: {
-  startScreenY: number
-  startNum: number
-  guideIndex: number
-} | null = null
-
-const handleGuideDragStart = (e: TouchEvent, beat: number) => {
-  const guideIndex = beatGuides.value.findIndex((v) => v === beat)
-  const startScreenY = e.touches[0]?.screenY
-  const startNum = beatGuides.value[guideIndex]
-  if (startScreenY === undefined || startNum === undefined) {
-    return
-  }
-  guideDragState = { startScreenY, startNum, guideIndex }
-}
-
-const handleGuideDragMove = (e: TouchEvent) => {
-  e.preventDefault()
-  const screenY = e.touches[0]?.screenY
-  if (guideDragState === null || screenY === undefined) {
-    return null
-  }
-  const delta = guideDragState.startScreenY - screenY
-  const num = guideDragState.startNum - Math.round(delta / scaleFactor.value)
-  if (beatGuides.value.indexOf(num) === -1) {
-    beatGuides.value[guideDragState.guideIndex] = num
-  }
-}
-
-const handleGuideDragEnd = () => {
-  guideDragState = null
-}
 
 const getSkill = (lane: Lane, skillIndex: SkillIndex | undefined) => {
   const idol = props.idols[lane]
@@ -217,47 +123,11 @@ const height = computed(() => px(beat.value * scaleFactor.value))
   border-left: 1px solid rgba(white, 0.1);
 }
 
-.lane {
+.live-lane {
   position: relative;
 }
 
 .guide-lane {
   z-index: 1;
-}
-
-.guide {
-  position: absolute;
-  width: 100vw;
-  display: flex;
-  pointer-events: none;
-
-  &.line {
-    border-top: solid 1px rgba(white, 0.2);
-  }
-}
-
-.handle {
-  box-sizing: border-box;
-  padding: 5px 6px 4px 3px;
-  transform: translateY(-50%);
-  z-index: 1;
-  background-color: black;
-  border: solid 1px $text3;
-  border-left: none;
-  font-weight: bold;
-  color: $text3;
-  pointer-events: auto;
-  border-radius: 0 50% 50% 0;
-  font-size: $typography-m;
-}
-
-.interval-annotation {
-  z-index: 1;
-  padding: 4px;
-  transform: translateY(-50%);
-  color: $text3;
-  font-weight: bold;
-  font-size: $typography-s;
-  pointer-events: auto;
 }
 </style>
