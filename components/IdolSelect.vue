@@ -1,12 +1,14 @@
 <template>
-  <Interactive class="idol-select" @click="present = true" @long-press="handleLongPress">
-    <div v-if="modelValue" class="selected">
-      <div class="title">{{ modelValue.title }}</div>
-      <div class="name">{{ modelValue.name }}</div>
-      <div class="type" :class="modelValue.type"></div>
-    </div>
-    <div v-else class="not-selected">未選択</div>
-  </Interactive>
+  <Dropdown v-model:present="dropdownPresent" :options="options" @select="handleDropdownSelect">
+    <Interactive class="idol-select" @click.stop="handleClick" @long-press="handleLongPress">
+      <div v-if="modelValue" class="selected">
+        <div class="title">{{ modelValue.title }}</div>
+        <div class="name">{{ modelValue.name }}</div>
+        <div class="type" :class="modelValue.type"></div>
+      </div>
+      <div v-else class="not-selected">未選択</div>
+    </Interactive>
+  </Dropdown>
   <Sheet v-model:present="present" fixed no-padding>
     <div class="container">
       <div class="controlls">
@@ -17,7 +19,7 @@
           <li v-if="fetching" class="loading"><Spinner></Spinner></li>
           <li v-for="item in filteredIdolList" :key="item.id">
             <Virtualize>
-              <IdolItem :idol="item" @click="handleClick(item)"></IdolItem>
+              <IdolItem :idol="item" @click="handleSelect(item)"></IdolItem>
             </Virtualize>
           </li>
         </ul>
@@ -39,7 +41,6 @@
           :idol="originalIdol"
           :skill-levels="selectedLevels"
         ></IdolItemSkillLevelsSaveButton>
-        <Button @click="handleReset">未選択に戻す</Button>
       </Section>
     </VStack>
   </Sheet>
@@ -52,7 +53,7 @@ import { deserializeIdolList } from '~~/utils/formatter'
 import { IdolData } from '~~/utils/types'
 import { Filter, idolFilter, idolSort } from './idol-filter/helper'
 import { useError } from '~~/composable/error'
-import { ArrayN } from '~~/utils'
+import { ArrayN, unreachable } from '~~/utils'
 
 interface Props {
   modelValue: null | IdolData
@@ -74,8 +75,20 @@ const filteredIdolList = computed(() => idolSort(idolFilter(idolList.value, filt
 const originalIdol = computed(() => idolList.value.find((v) => v.id === props.modelValue?.id) ?? null)
 
 const present = ref(false)
-
+const dropdownPresent = ref(false)
 const detailPresent = ref(false)
+
+const handleClick = () => {
+  if (dropdownPresent.value) {
+    dropdownPresent.value = false
+    return
+  }
+  if (props.modelValue === null) {
+    present.value = true
+  } else {
+    dropdownPresent.value = true
+  }
+}
 
 const handleLongPress = () => {
   if (props.modelValue === null) {
@@ -90,7 +103,7 @@ const handleReset = () => {
   selectedLevels.value = null
 }
 
-const handleClick = (item: IdolData) => {
+const handleSelect = (item: IdolData) => {
   present.value = false
   // 無駄な描画更新をトリガしない
   if (item.id === props.modelValue?.id) {
@@ -116,6 +129,26 @@ watch(selectedLevels, (v) => {
   }
   emit('update:modelValue', overrideOwnedSkillLevels(props.modelValue, v))
 })
+
+const options = [
+  { label: '詳細...', value: 'detail' },
+  { label: '変更する', value: 'change' },
+  { label: '未選択に戻す', value: 'unselect' },
+  // { label: 'レーンの属性を変更する', value: 'type' },
+] as const
+
+const handleDropdownSelect = (value: string) => {
+  const action = value as typeof options[number]['value']
+  if (action === 'detail') {
+    detailPresent.value = true
+  } else if (action === 'change') {
+    present.value = true
+  } else if (action === 'unselect') {
+    handleReset()
+  } else {
+    unreachable(action)
+  }
+}
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
@@ -125,6 +158,7 @@ watch(selectedLevels, (v) => {
   display: grid;
   align-content: center;
   padding-top: 8px;
+  width: 100%;
 }
 
 .not-selected {
