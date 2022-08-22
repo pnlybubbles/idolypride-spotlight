@@ -253,6 +253,24 @@ export function simulate(live: LiveData, rawIdols: Idols) {
 
       //
       // 4パス目
+      // 強化延長の発動処理
+      //
+      {
+        // 現在のビートに効いている過去も含めたすべてのバフを取得
+        const availableBuff = extractAvailableBuffResult(draft.result, { currentBeat })
+
+        for (const buffResult of availableBuff) {
+          for (const effectAbility of deriveAffectedState([...aState, ...spState, ...pState], buffResult.lane, idols)) {
+            if (effectAbility.div === 'action-buff' && effectAbility.type === 'buff-span') {
+              // 効果を延長する
+              buffResult.span = clampSpan(buffResult.span + effectAbility.amount, live.beat, buffResult.beat)
+            }
+          }
+        }
+      }
+
+      //
+      // 5パス目
       // このビートで変化した状態を含めて、過去から現在までに発生したバフの影響を導出する
       //
 
@@ -668,7 +686,8 @@ const appendBeat =
   (currentBeat: number) =>
   <T>(v: T) => ({ ...v, beat: currentBeat })
 
-const clampSpan = (span: number, liveBeat: number, currentBeat: number) => Math.min(span, liveBeat - currentBeat + 1)
+const clampSpan = (span: number, liveBeat: number, spanStartBeat: number) =>
+  Math.min(span, liveBeat - spanStartBeat + 1)
 
 export const isType =
   <Type extends string>(type: Type) =>
