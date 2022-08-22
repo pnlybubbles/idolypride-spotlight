@@ -105,7 +105,7 @@ const clampBeat = (beat: number) => Math.min(Math.max(beat, 0), props.maxBeat)
   height: 100%;
   line-height: 100%;
   width: 100%;
-  background-color: darken($error, 32%);
+  background-color: darken($error, 35%);
   color: $text1;
   font-size: $typography-s;
   display: grid;
