@@ -1,7 +1,7 @@
 <template>
   <div class="guide" @click.self="addGuide" @touchend="null">
     <div v-for="item in beatGuides" :key="item.id" class="line" :style="lineStyle(item.beat)">
-      <GuideHandle v-model:beat="item.beat" :max-beat="maxBeat"></GuideHandle>
+      <GuideHandle v-model:beat="item.beat" :max-beat="maxBeat" @delete="deleteGuide(item.id)"></GuideHandle>
     </div>
     <div v-for="(interval, i) in intervals" :key="i" class="interval-annotation" :style="interval.style">
       {{ interval.num }}
@@ -49,6 +49,13 @@ const addGuide = (e: MouseEvent) => {
   beatGuides.value.push({ id: uid(), beat })
 }
 
+const deleteGuide = (id: string) => {
+  const index = beatGuides.value.findIndex((v) => v.id === id)
+  if (index !== -1) {
+    beatGuides.value.splice(index, 1)
+  }
+}
+
 const clampBeat = (beat: number) => Math.min(Math.max(beat, 0), props.maxBeat)
 </script>
 <style lang="scss" scoped>
@@ -64,21 +71,6 @@ const clampBeat = (beat: number) => Math.min(Math.max(beat, 0), props.maxBeat)
   display: flex;
   pointer-events: none;
   border-top: solid 1px rgba(white, 0.2);
-}
-
-.handle {
-  box-sizing: border-box;
-  padding: 5px 6px 4px 3px;
-  transform: translateY(-50%);
-  z-index: 1;
-  background-color: black;
-  border: solid 1px $text3;
-  border-left: none;
-  font-weight: bold;
-  color: $text3;
-  pointer-events: auto;
-  border-radius: 0 50% 50% 0;
-  font-size: $typography-m;
 }
 
 .interval-annotation {
