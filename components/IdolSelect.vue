@@ -3,6 +3,7 @@
     <div v-if="modelValue" class="selected">
       <div class="title">{{ modelValue.title }}</div>
       <div class="name">{{ modelValue.name }}</div>
+      <div class="type" :class="modelValue.type"></div>
     </div>
     <div v-else class="not-selected">未選択</div>
   </Interactive>
@@ -123,7 +124,7 @@ watch(selectedLevels, (v) => {
 .idol-select {
   display: grid;
   align-content: center;
-  height: 56px;
+  padding-top: 8px;
 }
 
 .not-selected {
@@ -151,6 +152,24 @@ watch(selectedLevels, (v) => {
   width: 100%;
   overflow: hidden;
   white-space: nowrap;
+}
+
+.type {
+  margin-top: 4px;
+  width: 100%;
+  height: 2px;
+
+  &.vocal {
+    background-color: $vocal;
+  }
+
+  &.dance {
+    background-color: $dance;
+  }
+
+  &.visual {
+    background-color: $visual;
+  }
 }
 
 .options {
