@@ -1,22 +1,18 @@
 <template>
   <div class="guide-root" @click.self="addGuide" @touchend="null">
-    <div v-for="(guide, i) in guides" :key="i" class="guide" :class="[guide.type]" :style="guide.style">
-      <div
-        v-if="guide.type === 'line'"
-        class="handle"
-        @touchstart="handleGuideDragStart($event, guide.num)"
-        @touchmove="handleGuideDragMove"
-        @touchend="handleGuideDragEnd"
-      >
-        {{ guide.num }}
-      </div>
-      <div v-else-if="guide.type === 'interval'" class="interval-annotation">{{ guide.num }}</div>
+    <div v-for="item in beatGuides" :key="item.id" class="guide line" :style="lineStyle(item.beat)">
+      <GuideHandle v-model:beat="item.beat" :max-beat="maxBeat"></GuideHandle>
+    </div>
+    <div v-for="(interval, i) in intervals" :key="i" class="guide interval" :style="interval.style">
+      <div class="interval-annotation">{{ interval.num }}</div>
     </div>
   </div>
 </template>
 <script setup lang="ts">
 import isNonNullable from 'is-non-nullable'
 import { useFumenScaleFactor } from '~~/composable/localstorage-descriptors'
+import { uid } from '~~/utils'
+import GuideHandle from './GuideHandle.vue'
 
 interface Props {
   maxBeat: number
@@ -25,84 +21,32 @@ interface Props {
 const props = defineProps<Props>()
 
 const [scaleFactor] = useFumenScaleFactor()
-const beatGuides = ref<number[]>([])
+const beatGuides = ref<{ beat: number; id: string }[]>([])
 
-type GuideProps = {
-  style: { top: string }
-} & (
-  | {
-      type: 'line'
-      num: number
-    }
-  | {
-      type: 'interval'
-      num: number
-    }
-)
+const lineStyle = (beat: number) => ({
+  top: `${beat * scaleFactor.value}px`,
+})
 
-const guides = computed<GuideProps[]>(() => {
-  const lines = [
-    ...beatGuides.value.map((beat) => ({
-      type: 'line' as const,
-      num: beat,
-      style: { top: `${beat * scaleFactor.value}px` },
-    })),
-  ].sort((a, b) => a.num - b.num)
-  const intervals = lines
+const intervals = computed(() =>
+  [...beatGuides.value]
+    .sort((a, b) => a.beat - b.beat)
     .reduce((acc, v) => {
       const prev = acc[acc.length - 1]
       return prev
-        ? [...acc, { prevBeat: v.num, interval: v.num - prev.prevBeat }]
-        : [...acc, { prevBeat: v.num, interval: null }]
+        ? [...acc, { prevBeat: v.beat, interval: v.beat - prev.prevBeat }]
+        : [...acc, { prevBeat: v.beat, interval: null }]
     }, [] as { interval: number | null; prevBeat: number }[])
     .map(({ interval, ...v }) => (interval != null ? { ...v, interval } : null))
     .filter(isNonNullable)
     .map(({ interval, prevBeat }) => ({
-      type: 'interval' as const,
       num: interval,
       style: { top: `${(prevBeat - interval / 2) * scaleFactor.value}px` },
     }))
-  return [...lines, ...intervals]
-})
+)
 
 const addGuide = (e: MouseEvent) => {
-  const num = clampBeat(Math.round(e.offsetY / scaleFactor.value))
-  if (beatGuides.value.indexOf(num) === -1) {
-    beatGuides.value.push(num)
-  }
-}
-
-let guideDragState: {
-  startScreenY: number
-  startNum: number
-  guideIndex: number
-} | null = null
-
-const handleGuideDragStart = (e: TouchEvent, beat: number) => {
-  const guideIndex = beatGuides.value.findIndex((v) => v === beat)
-  const startScreenY = e.touches[0]?.screenY
-  const startNum = beatGuides.value[guideIndex]
-  if (startScreenY === undefined || startNum === undefined) {
-    return
-  }
-  guideDragState = { startScreenY, startNum, guideIndex }
-}
-
-const handleGuideDragMove = (e: TouchEvent) => {
-  e.preventDefault()
-  const screenY = e.touches[0]?.screenY
-  if (guideDragState === null || screenY === undefined) {
-    return null
-  }
-  const delta = guideDragState.startScreenY - screenY
-  const num = clampBeat(guideDragState.startNum - Math.round(delta / scaleFactor.value))
-  if (beatGuides.value.indexOf(num) === -1) {
-    beatGuides.value[guideDragState.guideIndex] = num
-  }
-}
-
-const handleGuideDragEnd = () => {
-  guideDragState = null
+  const beat = clampBeat(Math.round(e.offsetY / scaleFactor.value))
+  beatGuides.value.push({ id: uid(), beat })
 }
 
 const clampBeat = (beat: number) => Math.min(Math.max(beat, 0), props.maxBeat)
@@ -147,6 +91,6 @@ const clampBeat = (beat: number) => Math.min(Math.max(beat, 0), props.maxBeat)
   color: $text3;
   font-weight: bold;
   font-size: $typography-xs;
-  pointer-events: auto;
+  pointer-events: none;
 }
 </style>
