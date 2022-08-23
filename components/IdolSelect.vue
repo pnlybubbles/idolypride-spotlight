@@ -173,10 +173,8 @@ const mismatch = computed(
 @import '~~/components/partials/utils.scss';
 
 .idol-select {
-  display: grid;
-  align-content: center;
-  padding-top: 8px;
   width: 100%;
+  height: 56px;
 }
 
 .not-selected {
@@ -187,6 +185,8 @@ const mismatch = computed(
 .selected {
   display: grid;
   grid: auto auto / auto;
+  align-content: end;
+  height: 100%;
 }
 
 .title {
