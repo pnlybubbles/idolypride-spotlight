@@ -422,17 +422,19 @@ const deriveAffectedState = (state: State, currentLane: Lane, domain: Pick<Domai
       v.skill === null
         ? []
         : v.type === 'p'
-        ? v.skill.ability.map((w) =>
-            w.div === 'score'
-              ? null
-              : w.target === 'triggered'
-              ? v.triggeredLane === currentLane
+        ? v.skill.ability
+            .filter((w) => filterCondition(w.condition, v.lane, domain))
+            .map((w) =>
+              w.div === 'score'
+                ? null
+                : w.target === 'triggered'
+                ? v.triggeredLane === currentLane
+                  ? w
+                  : null
+                : deriveBuffLanes(w.target, v.lane, idols, laneConfig).includes(currentLane)
                 ? w
                 : null
-              : deriveBuffLanes(w.target, v.lane, idols, laneConfig).includes(currentLane)
-              ? w
-              : null
-          )
+            )
         : v.skill.ability.map((w) =>
             w.div !== 'score' && deriveBuffLanes(w.target, v.lane, idols, laneConfig).includes(currentLane) ? w : null
           )
