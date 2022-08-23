@@ -5,13 +5,14 @@ import {
   AbilityType,
   ActiveBuffTarget,
   IdolData,
+  IdolType,
   LiveData,
   PassiveAbilityData,
   PassiveBuffTarget,
   SkillData,
   SkillTrigger,
 } from '~~/utils/types'
-import { mapArrayN, unitArrayN, unreachable } from '~~/utils'
+import { ArrayN, mapArrayN, unitArrayN, unreachable } from '~~/utils'
 import { isActionAbilityType, isBuffAbilityType } from '~~/utils/formatter'
 
 const mockLive = ({ sp, a, beat }: { sp?: LiveData['sp']; a?: LiveData['a']; beat?: number }): LiveData => ({
@@ -63,7 +64,8 @@ const mockIdol = ({
   }
 }
 
-const mockLane = () => mapArrayN(unitArrayN(5), () => ({ type: null }))
+const mockLane = ({ type }: { type?: ArrayN<IdolType | null, 5> } = {}) =>
+  mapArrayN(unitArrayN(5), (i) => ({ type: type?.[i] ?? null }))
 
 const mockSPSkill = (index: 0 | 1 | 2, ability: AbilityData[]): Extract<SkillData, { type: 'sp' }> => ({
   id: `skill_${index}`,
@@ -306,6 +308,115 @@ test('端の場合には隣接1人にバフが乗る', () => {
     simulate(
       mockLive({ a: [[1], [], [], [], []] }),
       [mockIdol({ preset: 'a_p_p', a1: mockAbility({ type: 'score', target: 'neighbor' }) }), null, null, null, null],
+      mockLane()
+    ).result
+  ).toStrictEqual(expected)
+})
+
+test('ダンスレーンにバフが乗る', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 1,
+      buff: 'score',
+      lane: 0,
+      index: 0,
+      fail: false,
+      activated: [],
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 1,
+      buff: 'score',
+      lane: 1,
+      affected: false,
+      amount: 4,
+      span: 1,
+    },
+  ]
+  expect(
+    simulate(
+      mockLive({ a: [[1], [], [], [], []] }),
+      [
+        mockIdol({ preset: 'a_p_p', a1: mockAbility({ type: 'score', target: 'dance-lane-1' }) }),
+        mockIdol({}),
+        mockIdol({}),
+        null,
+        null,
+      ],
+      mockLane({ type: [null, 'dance', 'visual', null, null] })
+    ).result
+  ).toStrictEqual(expected)
+})
+
+test('ダンスレーンにバフが乗る', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 1,
+      buff: 'score',
+      lane: 0,
+      index: 0,
+      fail: false,
+      activated: [],
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 1,
+      buff: 'score',
+      lane: 1,
+      affected: false,
+      amount: 4,
+      span: 1,
+    },
+  ]
+  expect(
+    simulate(
+      mockLive({ a: [[1], [], [], [], []] }),
+      [
+        mockIdol({ preset: 'a_p_p', type: 'vocal', a1: mockAbility({ type: 'score', target: 'dance-lane-1' }) }),
+        mockIdol({ type: 'vocal' }),
+        mockIdol({ type: 'vocal' }),
+        null,
+        null,
+      ],
+      mockLane({ type: [null, 'dance', 'visual', null, null] })
+    ).result
+  ).toStrictEqual(expected)
+})
+
+test('レーン情報がない場合にダンスレーンでバフが乗らない', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 1,
+      buff: 'score',
+      lane: 0,
+      index: 0,
+      fail: false,
+      activated: [],
+    },
+  ]
+  expect(
+    simulate(
+      mockLive({ a: [[1], [], [], [], []] }),
+      [
+        mockIdol({ preset: 'a_p_p', type: 'vocal', a1: mockAbility({ type: 'score', target: 'dance-lane-1' }) }),
+        mockIdol({ type: 'vocal' }),
+        mockIdol({ type: 'vocal' }),
+        null,
+        null,
+      ],
       mockLane()
     ).result
   ).toStrictEqual(expected)
