@@ -207,7 +207,7 @@ const mismatch = computed(
 }
 
 .type {
-  margin-top: 4px;
+  margin-top: 2px;
   width: 100%;
   height: 2px;
 
