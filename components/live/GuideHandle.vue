@@ -44,6 +44,8 @@ let guideDragState: {
 } | null = null
 
 const handleGuideDragStart = (e: TouchEvent) => {
+  // 画面の左端部分の操作になるのでiOSのスワイプで戻る操作を無効化する
+  e.preventDefault()
   const startScreenY = e.touches[0]?.screenY
   const startScreenX = e.touches[0]?.screenX
   if (startScreenY === undefined || startScreenX === undefined) {
@@ -53,6 +55,7 @@ const handleGuideDragStart = (e: TouchEvent) => {
 }
 
 const handleGuideDragMove = (e: TouchEvent) => {
+  // スワイプでのスクロール操作を無効化する
   e.preventDefault()
   const screenY = e.touches[0]?.screenY
   const screenX = e.touches[0]?.screenX
