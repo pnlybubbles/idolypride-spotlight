@@ -1627,3 +1627,58 @@ test('SPシフトで移動したバフがライブの終端で終わる', () => 
     ).result
   ).toStrictEqual(expected)
 })
+
+test('ダンスレーンの時の条件が満たされる効果のみ適用される', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 0,
+      buff: 'score',
+      lane: 0,
+      index: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 0,
+      buff: 'score',
+      lane: 1,
+      index: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 0,
+      buff: 'score',
+      lane: 0,
+      affected: false,
+      amount: 4,
+      span: 10,
+    },
+  ]
+  expect(
+    simulate(
+      mockLive({ beat: 20 }),
+      [
+        mockIdol({
+          preset: 'a_p_p',
+          p1: mockAbility({ type: 'score', target: 'self', condition: { type: 'in-dance-lane' } }),
+          p1Trigger: { type: 'none' },
+        }),
+        mockIdol({
+          preset: 'a_p_p',
+          p1: mockAbility({ type: 'score', target: 'self', condition: { type: 'in-dance-lane' } }),
+          p1Trigger: { type: 'none' },
+        }),
+        null,
+        null,
+        null,
+      ],
+      mockLane({ type: ['dance', 'visual', null, null, null] })
+    ).result
+  ).toStrictEqual(expected)
+})

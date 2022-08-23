@@ -8,6 +8,7 @@ import {
   BuffAbilityType,
   SkillIndex,
   LaneConfig,
+  AbilityCondition,
 } from '~/utils/types'
 import isNonNullable from 'is-non-nullable'
 import { ArrayN, indexed, mapArrayN, PartiallyNonNullable, safeParseInt, uid, unreachable } from '~~/utils'
@@ -442,64 +443,81 @@ const deriveAffectedState = (
 
 const deriveNaiveBuffResult = (
   state: { lane: Lane; skill: Extract<SkillData, { type: 'sp' | 'a' }> | null }[],
-  { idols, live, currentBeat, laneConfig }: Pick<DomainState, 'idols' | 'live' | 'currentBeat' | 'laneConfig'>
+  domain: Pick<DomainState, 'idols' | 'live' | 'currentBeat' | 'laneConfig'>
 ) => {
+  const { idols, live, currentBeat, laneConfig } = domain
   return state.flatMap(({ lane, skill }) => {
     // nullのときはスキル失敗なので、バフの計算はしない
     if (skill === null) {
       return []
     }
-    return (
-      skill.ability
-        .filter(isDiv('buff'))
-        // TODO: conditionチェック
-        .flatMap((ability) => {
-          const lanes = deriveBuffLanes(ability.target, lane, idols, laneConfig)
-          return lanes.map((lane) => ({
-            type: 'buff' as const,
-            buff: ability.type,
-            lane,
-            span: clampSpan(ability.span, live.beat, currentBeat),
-            amount: ability.amount,
-            beat: currentBeat,
-            id: uid(),
-          }))
-        })
-    )
+    return skill.ability
+      .filter(isDiv('buff'))
+      .filter((ability) => filterCondition(ability.condition, lane, domain))
+      .flatMap((ability) => {
+        const lanes = deriveBuffLanes(ability.target, lane, idols, laneConfig)
+        return lanes.map((lane) => ({
+          type: 'buff' as const,
+          buff: ability.type,
+          lane,
+          span: clampSpan(ability.span, live.beat, currentBeat),
+          amount: ability.amount,
+          beat: currentBeat,
+          id: uid(),
+        }))
+      })
   })
 }
 
-const derivePBuffResult = ({
-  pState,
-  live,
-  idols,
-  currentBeat,
-  laneConfig,
-}: Pick<DomainState, 'pState' | 'idols' | 'live' | 'currentBeat' | 'laneConfig'>) => {
+const derivePBuffResult = (domain: Pick<DomainState, 'pState' | 'idols' | 'live' | 'currentBeat' | 'laneConfig'>) => {
+  const { pState, idols, live, currentBeat, laneConfig } = domain
   return pState.flatMap(({ lane, skill, triggeredLane }) => {
-    return (
-      skill.ability
-        .filter(isDiv('buff'))
-        // TODO: conditionチェック
-        .flatMap((ability) => {
-          const lanes =
-            ability.target === 'triggered'
-              ? triggeredLane !== null
-                ? [triggeredLane]
-                : []
-              : deriveBuffLanes(ability.target, lane, idols, laneConfig)
-          return lanes.map((lane) => ({
-            type: 'buff' as const,
-            buff: ability.type,
-            lane,
-            span: clampSpan(ability.span, live.beat, currentBeat),
-            amount: ability.amount,
-            beat: currentBeat,
-            id: uid(),
-          }))
-        })
-    )
+    return skill.ability
+      .filter(isDiv('buff'))
+      .filter((ability) => filterCondition(ability.condition, lane, domain))
+      .flatMap((ability) => {
+        const lanes =
+          ability.target === 'triggered'
+            ? triggeredLane !== null
+              ? [triggeredLane]
+              : []
+            : deriveBuffLanes(ability.target, lane, idols, laneConfig)
+        return lanes.map((lane) => ({
+          type: 'buff' as const,
+          buff: ability.type,
+          lane,
+          span: clampSpan(ability.span, live.beat, currentBeat),
+          amount: ability.amount,
+          beat: currentBeat,
+          id: uid(),
+        }))
+      })
   })
+}
+
+const filterCondition = (
+  condition: AbilityCondition,
+  lane: Lane,
+  { laneConfig }: Pick<DomainState, 'idols' | 'laneConfig'>
+) => {
+  switch (condition.type) {
+    case 'in-vocal-lane':
+    case 'in-visual-lane':
+    case 'in-dance-lane': {
+      const type =
+        condition.type === 'in-vocal-lane'
+          ? 'vocal'
+          : condition.type === 'in-visual-lane'
+          ? 'visual'
+          : condition.type === 'in-dance-lane'
+          ? 'dance'
+          : unreachable(condition.type)
+      return laneConfig[lane].type === type
+    }
+    default:
+      // TODO: とりあえずケースが多すぎるので理想状態を目指すと仮定して素通りさせる
+      return true
+  }
 }
 
 type APStateItem = Extract<State[number], { type: 'a' | 'p' }>
