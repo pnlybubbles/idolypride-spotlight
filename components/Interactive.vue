@@ -37,9 +37,12 @@ const handleTouchStart = (e: TouchEvent) => {
     isLongPress = true
   }, LONG_PRESS_THREASHOLD)
   // iOSで長押し中にテキストの選択が起こる問題を抑制する
+  // `-webkit-` prefix は iOS16 においてもまだ必要
   document.body.style.webkitUserSelect = 'none'
   // macOSで長押しで右クリックメニューが表示される問題を抑制する
   document.addEventListener('contextmenu', handleContextMenu)
+  // スワイプしてスクロールする操作では長押し判定にしない
+  document.addEventListener('scroll', handleTouchEnd, { passive: true })
 }
 
 const handleTouchEnd = () => {

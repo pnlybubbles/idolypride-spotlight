@@ -11,7 +11,7 @@
       <div class="divider"></div>
       <div class="buff">
         <div v-for="(value, key) in aggregatedActivated" :key="key" class="item">
-          {{ value }} {{ buffAbilityTypeLabel(key, internalLabel) }}
+          {{ value && value > 20 ? `20 (${value})` : value }} {{ buffAbilityTypeLabel(key, internalLabel) }}
         </div>
       </div>
     </template>

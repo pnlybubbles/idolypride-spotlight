@@ -12,20 +12,12 @@
       </div>
       <font-awesome-icon icon="angle-down" class="icon"></font-awesome-icon>
     </button>
-    <Sheet v-model:present="present">
-      <ul class="options">
-        <li v-for="item in options" :key="item.id" class="item">
-          <button class="button" @click="handleClick(item.id)" @touchend="null">
-            <font-awesome-icon
-              class="check"
-              icon="check"
-              :class="{ checked: item.id === modelValue }"
-            ></font-awesome-icon>
-            <div>{{ item.label }}</div>
-          </button>
-        </li>
-      </ul>
-    </Sheet>
+    <ListboxSheet
+      v-model:present="present"
+      :options="options"
+      :model-value="modelValue"
+      @update:model-value="$emit('update:modelValue', $event)"
+    ></ListboxSheet>
     <template #error>選択肢が変化したため再選択が必要です</template>
   </AssistiveText>
 </template>
@@ -50,17 +42,12 @@ interface Emits {
   (e: 'update:modelValue', value: string): void
 }
 const props = withDefaults(defineProps<Props>(), { disabled: false, error: false, required: false })
-const emit = defineEmits<Emits>()
+defineEmits<Emits>()
 
 const selectedLabel = computed(() => props.options.find((v) => v.id === props.modelValue)?.label)
 
 const present = ref(false)
 const oncePresent = ref(false)
-
-const handleClick = (item: string) => {
-  emit('update:modelValue', item)
-  present.value = false
-}
 
 const handleOpen = () => {
   present.value = true
@@ -89,7 +76,7 @@ watchEffect(() => {
   const error = requiredErrorOnEditing.value ? 'required' : changeRequiredError.value ? 'validation' : null
   // 一貫してフォーカス中にエラーが表示されないようにする
   // エラーを消す処理は即時に行う
-  if (present.value && showError.value == null && error !== null) {
+  if (present.value && showError.value == null && error) {
     return
   }
   showError.value = error
@@ -132,39 +119,6 @@ useFormComponent(computed(() => ({ error: requiredError.value })))
 
 .icon {
   color: $text3;
-}
-
-.options {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.button {
-  @include reset-button;
-  @include align;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  width: 100%;
-  text-align: start;
-  user-select: none;
-  transition: all 0.1s;
-  display: grid;
-  grid: auto / auto 1fr;
-  align-items: center;
-  gap: 12px;
-
-  &:active {
-    background-color: $surface1;
-  }
-}
-
-.check {
-  opacity: 0;
-
-  &.checked {
-    opacity: 1;
-  }
 }
 
 .current {

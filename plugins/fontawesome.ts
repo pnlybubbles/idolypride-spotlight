@@ -24,6 +24,7 @@ import {
   faEllipsis,
   faGun,
   faCircleInfo,
+  faTrash,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon, FontAwesomeIconProps } from '@fortawesome/vue-fontawesome'
 import { DefineComponent } from 'vue'
@@ -52,7 +53,8 @@ library.add(
   faCaretDown,
   faEllipsis,
   faGun,
-  faCircleInfo
+  faCircleInfo,
+  faTrash
 )
 
 // https://github.com/FortAwesome/react-fontawesome/issues/134#issuecomment-471940596

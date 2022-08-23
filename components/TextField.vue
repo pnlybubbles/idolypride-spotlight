@@ -106,7 +106,7 @@ watchEffect(() => {
   const error = validationError.value ? 'validation' : requiredErrorOnEditing.value ? 'required' : null
   // 一貫してフォーカス中にエラーが表示されないようにする
   // エラーを消す処理は即時に行う
-  if (focusing.value && showError.value == null && error !== null) {
+  if (focusing.value && showError.value == null && error) {
     return
   }
   showError.value = error

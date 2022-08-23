@@ -4,10 +4,10 @@
     <div class="idol">
       <div></div>
       <template v-for="i in LANES" :key="i">
-        <IdolSelect v-model="selectedIdols[i].value"></IdolSelect>
+        <IdolSelect v-model="selectedIdols[i].value" v-model:lane-type="selectedLaneType[i].value"></IdolSelect>
       </template>
     </div>
-    <Live v-if="live" :live="live" :idols="mapArrayN(selectedIdols, (v) => v.value)"></Live>
+    <Live v-if="live" :live="live" :idols="mapArrayN(selectedIdols, (v) => v.value)" :lane-config="laneConfig"></Live>
     <div v-if="!noIdolSelected" class="footer">
       <Callout>
         <template #title>注意</template>
@@ -29,7 +29,7 @@ import { ArrayN, mapArrayN, unitArrayN } from '~~/utils'
 import { LANES } from '~~/utils/common'
 import { deserializeIdolList } from '~~/utils/formatter'
 import { DEFAULT_META } from '~~/utils/meta'
-import { IdolData, LiveData } from '~~/utils/types'
+import { IdolData, IdolType, LiveData } from '~~/utils/types'
 
 const route = useRoute()
 
@@ -87,6 +87,16 @@ const selectedIdols = mapArrayN(unitArrayN(5), (i) =>
 
 const noIdolSelected = computed(() => selectedIdols.every((v) => v === null))
 
+const inputSelectedLaneType = reactive(unitArrayN(5, null as null | IdolType))
+const selectedLaneType = mapArrayN(unitArrayN(5), (i) =>
+  computed({
+    // 選択されてない場合にはアイドルのタイプと一致するようにフォールバック
+    get: () => inputSelectedLaneType[i] ?? selectedIdols[i]?.value?.type ?? null,
+    set: (value) => (inputSelectedLaneType[i] = value),
+  })
+)
+const laneConfig = computed(() => mapArrayN(selectedLaneType, (v) => ({ type: v.value })))
+
 useHead(DEFAULT_META)
 </script>
 <style lang="scss" scoped>
@@ -97,7 +107,7 @@ useHead(DEFAULT_META)
   top: 0;
   z-index: 1;
   background-color: $background1;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 
 .root {

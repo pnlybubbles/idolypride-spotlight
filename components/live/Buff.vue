@@ -46,7 +46,7 @@ $shift-scale: 7px;
   position: absolute;
   top: v-bind(top);
   left: calc(50% + v-bind(shift) * $shift-scale);
-  height: v-bind(height);
+  height: calc(v-bind(height) + $size * 2);
   width: calc($size * 2);
   transform: translate(-50%, calc($size * -1));
   border-radius: 999999999px;

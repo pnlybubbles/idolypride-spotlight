@@ -1,11 +1,15 @@
 <template>
-  <Interactive class="idol-select" @click="present = true" @long-press="handleLongPress">
-    <div v-if="modelValue" class="selected">
-      <div class="title">{{ modelValue.title }}</div>
-      <div class="name">{{ modelValue.name }}</div>
-    </div>
-    <div v-else class="not-selected">未選択</div>
-  </Interactive>
+  <Dropdown v-model:present="dropdownPresent" :options="options" @select="handleDropdownSelect">
+    <Interactive class="idol-select" @click.stop="handleClick" @long-press="handleLongPress">
+      <div v-if="modelValue" class="selected">
+        <div class="title">{{ modelValue.title }}</div>
+        <div class="name">{{ modelValue.name }}</div>
+        <div class="type" :class="[modelValue.type, { mismatch }]"></div>
+        <div class="type" :class="[laneType, { mismatch }]"></div>
+      </div>
+      <div v-else class="not-selected">未選択</div>
+    </Interactive>
+  </Dropdown>
   <Sheet v-model:present="present" fixed no-padding>
     <div class="container">
       <div class="controlls">
@@ -16,7 +20,7 @@
           <li v-if="fetching" class="loading"><Spinner></Spinner></li>
           <li v-for="item in filteredIdolList" :key="item.id">
             <Virtualize>
-              <IdolItem :idol="item" @click="handleClick(item)"></IdolItem>
+              <IdolItem :idol="item" @click="handleSelect(item)"></IdolItem>
             </Virtualize>
           </li>
         </ul>
@@ -38,27 +42,35 @@
           :idol="originalIdol"
           :skill-levels="selectedLevels"
         ></IdolItemSkillLevelsSaveButton>
-        <Button @click="handleReset">未選択に戻す</Button>
       </Section>
     </VStack>
   </Sheet>
+  <ListboxSheet
+    v-model:present="laneTypePresent"
+    :model-value="laneType ?? modelValue?.type ?? null"
+    :options="laneTypeOptions"
+    @update:model-value="$emit('update:laneType', $event as IdolType)"
+  ></ListboxSheet>
 </template>
 <script setup lang="ts">
 import { useQuery } from '@urql/vue'
 import { useAuth } from '~~/composable/auth0'
 import { GetIdolListDocument } from '~~/generated/graphql'
 import { deserializeIdolList } from '~~/utils/formatter'
-import { IdolData } from '~~/utils/types'
+import { IdolData, IdolType } from '~~/utils/types'
 import { Filter, idolFilter, idolSort } from './idol-filter/helper'
 import { useError } from '~~/composable/error'
-import { ArrayN } from '~~/utils'
+import { ArrayN, unreachable } from '~~/utils'
+import { IDOL_TYPE, objToOption } from '~~/utils/common'
 
 interface Props {
   modelValue: null | IdolData
+  laneType: null | IdolType
 }
 const props = defineProps<Props>()
 interface Emits {
   (e: 'update:modelValue', value: null | IdolData): void
+  (e: 'update:laneType', value: IdolType): void
 }
 const emit = defineEmits<Emits>()
 
@@ -73,8 +85,21 @@ const filteredIdolList = computed(() => idolSort(idolFilter(idolList.value, filt
 const originalIdol = computed(() => idolList.value.find((v) => v.id === props.modelValue?.id) ?? null)
 
 const present = ref(false)
-
+const dropdownPresent = ref(false)
 const detailPresent = ref(false)
+const laneTypePresent = ref(false)
+
+const handleClick = () => {
+  if (dropdownPresent.value) {
+    dropdownPresent.value = false
+    return
+  }
+  if (props.modelValue === null) {
+    present.value = true
+  } else {
+    dropdownPresent.value = true
+  }
+}
 
 const handleLongPress = () => {
   if (props.modelValue === null) {
@@ -89,7 +114,7 @@ const handleReset = () => {
   selectedLevels.value = null
 }
 
-const handleClick = (item: IdolData) => {
+const handleSelect = (item: IdolData) => {
   present.value = false
   // 無駄な描画更新をトリガしない
   if (item.id === props.modelValue?.id) {
@@ -115,14 +140,40 @@ watch(selectedLevels, (v) => {
   }
   emit('update:modelValue', overrideOwnedSkillLevels(props.modelValue, v))
 })
+
+const options = [
+  { label: '詳細...', value: 'detail' },
+  { label: '変更する', value: 'change' },
+  { label: '未選択に戻す', value: 'unselect' },
+  { label: 'レーンタイプを変更する', value: 'type' },
+] as const
+
+const handleDropdownSelect = (value: string) => {
+  const action = value as typeof options[number]['value']
+  if (action === 'detail') {
+    detailPresent.value = true
+  } else if (action === 'change') {
+    present.value = true
+  } else if (action === 'unselect') {
+    handleReset()
+  } else if (action === 'type') {
+    laneTypePresent.value = true
+  } else {
+    unreachable(action)
+  }
+}
+
+const laneTypeOptions = objToOption(IDOL_TYPE)
+const mismatch = computed(
+  () => props.laneType !== null && props.modelValue !== null && props.laneType !== props.modelValue.type
+)
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
 @import '~~/components/partials/utils.scss';
 
 .idol-select {
-  display: grid;
-  align-content: center;
+  width: 100%;
   height: 56px;
 }
 
@@ -134,6 +185,8 @@ watch(selectedLevels, (v) => {
 .selected {
   display: grid;
   grid: auto auto / auto;
+  align-content: end;
+  height: 100%;
 }
 
 .title {
@@ -151,6 +204,30 @@ watch(selectedLevels, (v) => {
   width: 100%;
   overflow: hidden;
   white-space: nowrap;
+}
+
+.type {
+  margin-top: 2px;
+  width: 100%;
+  height: 2px;
+
+  &.vocal {
+    --color: #{$vocal};
+  }
+
+  &.dance {
+    --color: #{$dance};
+  }
+
+  &.visual {
+    --color: #{$visual};
+  }
+
+  background-color: var(--color);
+
+  &.mismatch {
+    background: repeating-linear-gradient(45deg, var(--color), var(--color) 2px, transparent 2px, transparent 4px);
+  }
 }
 
 .options {

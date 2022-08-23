@@ -5,13 +5,14 @@ import {
   AbilityType,
   ActiveBuffTarget,
   IdolData,
+  IdolType,
   LiveData,
   PassiveAbilityData,
   PassiveBuffTarget,
   SkillData,
   SkillTrigger,
 } from '~~/utils/types'
-import { unreachable } from '~~/utils'
+import { ArrayN, mapArrayN, unitArrayN, unreachable } from '~~/utils'
 import { isActionAbilityType, isBuffAbilityType } from '~~/utils/formatter'
 
 const mockLive = ({ sp, a, beat }: { sp?: LiveData['sp']; a?: LiveData['a']; beat?: number }): LiveData => ({
@@ -62,6 +63,9 @@ const mockIdol = ({
     skills: skills ?? presetSkills,
   }
 }
+
+const mockLane = ({ type }: { type?: ArrayN<IdolType | null, 5> } = {}) =>
+  mapArrayN(unitArrayN(5), (i) => ({ type: type?.[i] ?? null }))
 
 const mockSPSkill = (index: 0 | 1 | 2, ability: AbilityData[]): Extract<SkillData, { type: 'sp' }> => ({
   id: `skill_${index}`,
@@ -166,7 +170,7 @@ const mockAbility: MockAbility = ({
     : unreachable(type)
 
 test('単純なサンプル', () => {
-  expect(simulate(mockLive({}), [null, null, null, null, null])).toStrictEqual({
+  expect(simulate(mockLive({}), [null, null, null, null, null], mockLane())).toStrictEqual({
     result: [],
     state: [],
     shift: [],
@@ -188,7 +192,11 @@ test('Aスキルが発動する', () => {
     },
   ]
   expect(
-    simulate(mockLive({ a: [[1], [], [], [], []] }), [mockIdol({ preset: 'a_p_p' }), null, null, null, null]).result
+    simulate(
+      mockLive({ a: [[1], [], [], [], []] }),
+      [mockIdol({ preset: 'a_p_p' }), null, null, null, null],
+      mockLane()
+    ).result
   ).toStrictEqual(expected)
 })
 
@@ -218,13 +226,11 @@ test('センターにバフが乗る', () => {
     },
   ]
   expect(
-    simulate(mockLive({ a: [[1], [], [], [], []] }), [
-      mockIdol({ preset: 'a_p_p', a1: mockAbility({ type: 'score', target: 'center' }) }),
-      null,
-      null,
-      null,
-      null,
-    ]).result
+    simulate(
+      mockLive({ a: [[1], [], [], [], []] }),
+      [mockIdol({ preset: 'a_p_p', a1: mockAbility({ type: 'score', target: 'center' }) }), null, null, null, null],
+      mockLane()
+    ).result
   ).toStrictEqual(expected)
 })
 
@@ -265,13 +271,11 @@ test('隣接にバフが乗る', () => {
     },
   ]
   expect(
-    simulate(mockLive({ a: [[], [1], [], [], []] }), [
-      null,
-      mockIdol({ preset: 'a_p_p', a1: mockAbility({ type: 'score', target: 'neighbor' }) }),
-      null,
-      null,
-      null,
-    ]).result
+    simulate(
+      mockLive({ a: [[], [1], [], [], []] }),
+      [null, mockIdol({ preset: 'a_p_p', a1: mockAbility({ type: 'score', target: 'neighbor' }) }), null, null, null],
+      mockLane()
+    ).result
   ).toStrictEqual(expected)
 })
 
@@ -301,13 +305,149 @@ test('端の場合には隣接1人にバフが乗る', () => {
     },
   ]
   expect(
-    simulate(mockLive({ a: [[1], [], [], [], []] }), [
-      mockIdol({ preset: 'a_p_p', a1: mockAbility({ type: 'score', target: 'neighbor' }) }),
-      null,
-      null,
-      null,
-      null,
-    ]).result
+    simulate(
+      mockLive({ a: [[1], [], [], [], []] }),
+      [mockIdol({ preset: 'a_p_p', a1: mockAbility({ type: 'score', target: 'neighbor' }) }), null, null, null, null],
+      mockLane()
+    ).result
+  ).toStrictEqual(expected)
+})
+
+test('ダンスタイプにバフが乗る', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 1,
+      buff: 'score',
+      lane: 0,
+      index: 0,
+      fail: false,
+      activated: [],
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 1,
+      buff: 'score',
+      lane: 1,
+      affected: false,
+      amount: 4,
+      span: 1,
+    },
+  ]
+  expect(
+    simulate(
+      mockLive({ a: [[1], [], [], [], []] }),
+      [
+        mockIdol({ preset: 'a_p_p', type: 'visual', a1: mockAbility({ type: 'score', target: 'dance-1' }) }),
+        mockIdol({ type: 'dance' }),
+        mockIdol({ type: 'visual' }),
+        null,
+        null,
+      ],
+      mockLane()
+    ).result
+  ).toStrictEqual(expected)
+})
+
+test('一致するタイプがない場合はバフが乗らない', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 1,
+      buff: 'score',
+      lane: 0,
+      index: 0,
+      fail: false,
+      activated: [],
+    },
+  ]
+  expect(
+    simulate(
+      mockLive({ a: [[1], [], [], [], []] }),
+      [
+        mockIdol({ preset: 'a_p_p', type: 'visual', a1: mockAbility({ type: 'score', target: 'dance-1' }) }),
+        mockIdol({ type: 'visual' }),
+        mockIdol({ type: 'visual' }),
+        null,
+        null,
+      ],
+      mockLane()
+    ).result
+  ).toStrictEqual(expected)
+})
+
+test('ダンスレーンにバフが乗る', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 1,
+      buff: 'score',
+      lane: 0,
+      index: 0,
+      fail: false,
+      activated: [],
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 1,
+      buff: 'score',
+      lane: 1,
+      affected: false,
+      amount: 4,
+      span: 1,
+    },
+  ]
+  expect(
+    simulate(
+      mockLive({ a: [[1], [], [], [], []] }),
+      [
+        mockIdol({ preset: 'a_p_p', a1: mockAbility({ type: 'score', target: 'dance-lane-1' }) }),
+        mockIdol({}),
+        mockIdol({}),
+        null,
+        null,
+      ],
+      mockLane({ type: [null, 'dance', 'visual', null, null] })
+    ).result
+  ).toStrictEqual(expected)
+})
+
+test('レーン情報がない場合にダンスレーンでバフが乗らない', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 1,
+      buff: 'score',
+      lane: 0,
+      index: 0,
+      fail: false,
+      activated: [],
+    },
+  ]
+  expect(
+    simulate(
+      mockLive({ a: [[1], [], [], [], []] }),
+      [
+        mockIdol({ preset: 'a_p_p', type: 'vocal', a1: mockAbility({ type: 'score', target: 'dance-lane-1' }) }),
+        mockIdol({ type: 'vocal' }),
+        mockIdol({ type: 'vocal' }),
+        null,
+        null,
+      ],
+      mockLane()
+    ).result
   ).toStrictEqual(expected)
 })
 
@@ -337,7 +477,11 @@ test('CT中の場合はAスキルが失敗する', () => {
     },
   ]
   expect(
-    simulate(mockLive({ a: [[1, 5], [], [], [], []] }), [mockIdol({ preset: 'a_p_p' }), null, null, null, null]).result
+    simulate(
+      mockLive({ a: [[1, 5], [], [], [], []] }),
+      [mockIdol({ preset: 'a_p_p' }), null, null, null, null],
+      mockLane()
+    ).result
   ).toStrictEqual(expected)
 })
 
@@ -367,8 +511,11 @@ test('CTピッタリのギャップの場合はAスキルが発動する', () =>
     },
   ]
   expect(
-    simulate(mockLive({ a: [[20, 50], [], [], [], []] }), [mockIdol({ preset: 'a_p_p' }), null, null, null, null])
-      .result
+    simulate(
+      mockLive({ a: [[20, 50], [], [], [], []] }),
+      [mockIdol({ preset: 'a_p_p' }), null, null, null, null],
+      mockLane()
+    ).result
   ).toStrictEqual(expected)
 })
 
@@ -398,7 +545,11 @@ test('CT中の場合は2番目のAスキルが発動する', () => {
     },
   ]
   expect(
-    simulate(mockLive({ a: [[1, 5], [], [], [], []] }), [mockIdol({ preset: 'sp_a_a' }), null, null, null, null]).result
+    simulate(
+      mockLive({ a: [[1, 5], [], [], [], []] }),
+      [mockIdol({ preset: 'sp_a_a' }), null, null, null, null],
+      mockLane()
+    ).result
   ).toStrictEqual(expected)
 })
 
@@ -417,7 +568,11 @@ test('SPスキルが発動する', () => {
     },
   ]
   expect(
-    simulate(mockLive({ sp: [[1], [], [], [], []] }), [mockIdol({ preset: 'sp_a_a' }), null, null, null, null]).result
+    simulate(
+      mockLive({ sp: [[1], [], [], [], []] }),
+      [mockIdol({ preset: 'sp_a_a' }), null, null, null, null],
+      mockLane()
+    ).result
   ).toStrictEqual(expected)
 })
 
@@ -436,7 +591,11 @@ test('SPを持っていない場合には失敗する', () => {
     },
   ]
   expect(
-    simulate(mockLive({ sp: [[1], [], [], [], []] }), [mockIdol({ preset: 'a_p_p' }), null, null, null, null]).result
+    simulate(
+      mockLive({ sp: [[1], [], [], [], []] }),
+      [mockIdol({ preset: 'a_p_p' }), null, null, null, null],
+      mockLane()
+    ).result
   ).toStrictEqual(expected)
 })
 
@@ -464,13 +623,17 @@ test('Pスキルが発動する', () => {
     },
   ]
   expect(
-    simulate(mockLive({ beat: 20 }), [
-      mockIdol({ preset: 'a_p_p', p1: mockAbility({ type: 'vocal', target: 'self' }), p1Trigger: { type: 'none' } }),
-      null,
-      null,
-      null,
-      null,
-    ]).result
+    simulate(
+      mockLive({ beat: 20 }),
+      [
+        mockIdol({ preset: 'a_p_p', p1: mockAbility({ type: 'vocal', target: 'self' }), p1Trigger: { type: 'none' } }),
+        null,
+        null,
+        null,
+        null,
+      ],
+      mockLane()
+    ).result
   ).toStrictEqual(expected)
 })
 
@@ -518,13 +681,17 @@ test('無条件の場合、CTが終わった瞬間にPスキルが発動する',
     },
   ]
   expect(
-    simulate(mockLive({ beat: 70 }), [
-      mockIdol({ preset: 'a_p_p', p1: mockAbility({ type: 'vocal', target: 'self' }), p1Trigger: { type: 'none' } }),
-      null,
-      null,
-      null,
-      null,
-    ]).result
+    simulate(
+      mockLive({ beat: 70 }),
+      [
+        mockIdol({ preset: 'a_p_p', p1: mockAbility({ type: 'vocal', target: 'self' }), p1Trigger: { type: 'none' } }),
+        null,
+        null,
+        null,
+        null,
+      ],
+      mockLane()
+    ).result
   ).toStrictEqual(expected)
 })
 
@@ -572,19 +739,23 @@ test('無条件のPスキルが2つある場合には3番目が先に発動し�
     },
   ]
   expect(
-    simulate(mockLive({ beat: 20 }), [
-      mockIdol({
-        preset: 'a_p_p',
-        p1: mockAbility({ type: 'vocal', target: 'self' }),
-        p1Trigger: { type: 'none' },
-        p2: mockAbility({ type: 'score', target: 'self' }),
-        p2Trigger: { type: 'none' },
-      }),
-      null,
-      null,
-      null,
-      null,
-    ]).result
+    simulate(
+      mockLive({ beat: 20 }),
+      [
+        mockIdol({
+          preset: 'a_p_p',
+          p1: mockAbility({ type: 'vocal', target: 'self' }),
+          p1Trigger: { type: 'none' },
+          p2: mockAbility({ type: 'score', target: 'self' }),
+          p2Trigger: { type: 'none' },
+        }),
+        null,
+        null,
+        null,
+        null,
+      ],
+      mockLane()
+    ).result
   ).toStrictEqual(expected)
 })
 
@@ -623,13 +794,21 @@ test('Aスキル発動前の条件でPスキルが発動する', () => {
     },
   ]
   expect(
-    simulate(mockLive({ a: [[], [5], [], [], []] }), [
-      mockIdol({ preset: 'a_p_p', p1: mockAbility({ type: 'vocal', target: 'triggered' }), p1Trigger: { type: 'a' } }),
-      mockIdol({ preset: 'a_p_p', a1: mockAbility({ type: 'get-score' }) }),
-      null,
-      null,
-      null,
-    ]).result
+    simulate(
+      mockLive({ a: [[], [5], [], [], []] }),
+      [
+        mockIdol({
+          preset: 'a_p_p',
+          p1: mockAbility({ type: 'vocal', target: 'triggered' }),
+          p1Trigger: { type: 'a' },
+        }),
+        mockIdol({ preset: 'a_p_p', a1: mockAbility({ type: 'get-score' }) }),
+        null,
+        null,
+        null,
+      ],
+      mockLane()
+    ).result
   ).toStrictEqual(expected)
 })
 
@@ -682,18 +861,22 @@ test('スコアアップ状態の時にPスキルが発動する', () => {
     },
   ]
   expect(
-    simulate(mockLive({ a: [[5], [], [], [], []] }), [
-      mockIdol({
-        preset: 'a_p_p',
-        a1: mockAbility({ type: 'score', target: 'self' }),
-        p1: mockAbility({ type: 'vocal', target: 'self' }),
-        p1Trigger: { type: 'score-up' },
-      }),
-      null,
-      null,
-      null,
-      null,
-    ]).result
+    simulate(
+      mockLive({ a: [[5], [], [], [], []] }),
+      [
+        mockIdol({
+          preset: 'a_p_p',
+          a1: mockAbility({ type: 'score', target: 'self' }),
+          p1: mockAbility({ type: 'vocal', target: 'self' }),
+          p1Trigger: { type: 'score-up' },
+        }),
+        null,
+        null,
+        null,
+        null,
+      ],
+      mockLane()
+    ).result
   ).toStrictEqual(expected)
 })
 
@@ -743,18 +926,22 @@ test('誰かがテンションアップ状態の時にPスキルが発動する'
     },
   ]
   expect(
-    simulate(mockLive({ a: [[5], [], [], [], []] }), [
-      mockIdol({
-        preset: 'a_p_p',
-        a1: mockAbility({ type: 'tension', target: 'center' }),
-        p1: mockAbility({ type: 'dance', target: 'center' }),
-        p1Trigger: { type: 'anyone-tension-up' },
-      }),
-      null,
-      null,
-      null,
-      null,
-    ]).result
+    simulate(
+      mockLive({ a: [[5], [], [], [], []] }),
+      [
+        mockIdol({
+          preset: 'a_p_p',
+          a1: mockAbility({ type: 'tension', target: 'center' }),
+          p1: mockAbility({ type: 'dance', target: 'center' }),
+          p1Trigger: { type: 'anyone-tension-up' },
+        }),
+        null,
+        null,
+        null,
+        null,
+      ],
+      mockLane()
+    ).result
   ).toStrictEqual(expected)
 })
 
@@ -794,16 +981,20 @@ test('AスキルによるCT減少によってCT間隔未満のAスキル発動�
       activated: [],
     },
   ]
-  const { result } = simulate(mockLive({ a: [[10], [], [5, 30], [], []] }), [
-    mockIdol({
-      preset: 'a_p_p',
-      a1: mockAbility({ type: 'ct-reduction', target: 'center', amount: 10 }),
-    }),
-    null,
-    mockIdol({ preset: 'a_p_p' }),
-    null,
-    null,
-  ])
+  const { result } = simulate(
+    mockLive({ a: [[10], [], [5, 30], [], []] }),
+    [
+      mockIdol({
+        preset: 'a_p_p',
+        a1: mockAbility({ type: 'ct-reduction', target: 'center', amount: 10 }),
+      }),
+      null,
+      mockIdol({ preset: 'a_p_p' }),
+      null,
+      null,
+    ],
+    mockLane()
+  )
   expect(result).toStrictEqual(expected)
 })
 
@@ -843,16 +1034,20 @@ test('AスキルによるCT減少によってピッタリCT間隔のAスキル�
       activated: [],
     },
   ]
-  const { result } = simulate(mockLive({ a: [[10], [], [5, 30], [], []] }), [
-    mockIdol({
-      preset: 'a_p_p',
-      a1: mockAbility({ type: 'ct-reduction', target: 'center', amount: 5 }),
-    }),
-    null,
-    mockIdol({ preset: 'a_p_p' }),
-    null,
-    null,
-  ])
+  const { result } = simulate(
+    mockLive({ a: [[10], [], [5, 30], [], []] }),
+    [
+      mockIdol({
+        preset: 'a_p_p',
+        a1: mockAbility({ type: 'ct-reduction', target: 'center', amount: 5 }),
+      }),
+      null,
+      mockIdol({ preset: 'a_p_p' }),
+      null,
+      null,
+    ],
+    mockLane()
+  )
   expect(result).toStrictEqual(expected)
 })
 
@@ -892,16 +1087,20 @@ test('AスキルによるCT減少してもなおCT中のAスキル発動は失�
       activated: [],
     },
   ]
-  const { result } = simulate(mockLive({ a: [[10], [], [5, 30], [], []] }), [
-    mockIdol({
-      preset: 'a_p_p',
-      a1: mockAbility({ type: 'ct-reduction', target: 'center', amount: 4 }),
-    }),
-    null,
-    mockIdol({ preset: 'a_p_p' }),
-    null,
-    null,
-  ])
+  const { result } = simulate(
+    mockLive({ a: [[10], [], [5, 30], [], []] }),
+    [
+      mockIdol({
+        preset: 'a_p_p',
+        a1: mockAbility({ type: 'ct-reduction', target: 'center', amount: 4 }),
+      }),
+      null,
+      mockIdol({ preset: 'a_p_p' }),
+      null,
+      null,
+    ],
+    mockLane()
+  )
   expect(result).toStrictEqual(expected)
 })
 
@@ -937,16 +1136,20 @@ test('AスキルによるCT減少によってPスキル発動が早まる', () =
       index: 1,
     },
   ]
-  const { result } = simulate(mockLive({ a: [[10], [], [], [], []], beat: 60 }), [
-    mockIdol({
-      preset: 'a_p_p',
-      a1: mockAbility({ type: 'ct-reduction', target: 'center', amount: 10 }),
-    }),
-    null,
-    mockIdol({ preset: 'a_p_p', p1Trigger: { type: 'none' } }),
-    null,
-    null,
-  ])
+  const { result } = simulate(
+    mockLive({ a: [[10], [], [], [], []], beat: 60 }),
+    [
+      mockIdol({
+        preset: 'a_p_p',
+        a1: mockAbility({ type: 'ct-reduction', target: 'center', amount: 10 }),
+      }),
+      null,
+      mockIdol({ preset: 'a_p_p', p1Trigger: { type: 'none' } }),
+      null,
+      null,
+    ],
+    mockLane()
+  )
   expect(result).toStrictEqual(expected)
 })
 
@@ -984,17 +1187,21 @@ test('PスキルによるCT減少によってCT間隔未満のAスキル発動�
       activated: [],
     },
   ]
-  const { result } = simulate(mockLive({ a: [[], [], [5, 30], [], []] }), [
-    mockIdol({
-      preset: 'a_p_p',
-      p1: mockAbility({ type: 'ct-reduction', target: 'center', amount: 10 }),
-      p1Trigger: { type: 'combo', amount: 10 },
-    }),
-    null,
-    mockIdol({ preset: 'a_p_p' }),
-    null,
-    null,
-  ])
+  const { result } = simulate(
+    mockLive({ a: [[], [], [5, 30], [], []] }),
+    [
+      mockIdol({
+        preset: 'a_p_p',
+        p1: mockAbility({ type: 'ct-reduction', target: 'center', amount: 10 }),
+        p1Trigger: { type: 'combo', amount: 10 },
+      }),
+      null,
+      mockIdol({ preset: 'a_p_p' }),
+      null,
+      null,
+    ],
+    mockLane()
+  )
   expect(result).toStrictEqual(expected)
 })
 
@@ -1028,17 +1235,21 @@ test('PスキルによるCT減少によってPスキル発動が早まる', () =
       index: 1,
     },
   ]
-  const { result } = simulate(mockLive({ beat: 55 }), [
-    mockIdol({
-      preset: 'a_p_p',
-      p1: mockAbility({ type: 'ct-reduction', target: 'center', amount: 10 }),
-      p1Trigger: { type: 'combo', amount: 10 },
-    }),
-    null,
-    mockIdol({ preset: 'a_p_p', p1Trigger: { type: 'none' } }),
-    null,
-    null,
-  ])
+  const { result } = simulate(
+    mockLive({ beat: 55 }),
+    [
+      mockIdol({
+        preset: 'a_p_p',
+        p1: mockAbility({ type: 'ct-reduction', target: 'center', amount: 10 }),
+        p1Trigger: { type: 'combo', amount: 10 },
+      }),
+      null,
+      mockIdol({ preset: 'a_p_p', p1Trigger: { type: 'none' } }),
+      null,
+      null,
+    ],
+    mockLane()
+  )
   expect(result).toStrictEqual(expected)
 })
 
@@ -1063,17 +1274,21 @@ test('PスキルによるCT減少によってそのPスキル自体のCTは短�
       index: 1,
     },
   ]
-  const { result } = simulate(mockLive({ beat: 70 }), [
-    mockIdol({
-      preset: 'a_p_p',
-      p1: mockAbility({ type: 'ct-reduction', target: 'center', amount: 10 }),
-      p1Trigger: { type: 'combo', amount: 10 },
-    }),
-    null,
-    null,
-    null,
-    null,
-  ])
+  const { result } = simulate(
+    mockLive({ beat: 70 }),
+    [
+      mockIdol({
+        preset: 'a_p_p',
+        p1: mockAbility({ type: 'ct-reduction', target: 'center', amount: 10 }),
+        p1Trigger: { type: 'combo', amount: 10 },
+      }),
+      null,
+      null,
+      null,
+      null,
+    ],
+    mockLane()
+  )
   expect(result).toStrictEqual(expected)
 })
 
@@ -1116,20 +1331,24 @@ test('PスキルによるCT減少によって同ビートで発動しているP�
       index: 1,
     },
   ]
-  const { result } = simulate(mockLive({ beat: 70 }), [
-    mockIdol({
-      preset: 'a_p_p',
-      p1: mockAbility({ type: 'ct-reduction', target: 'center', amount: 10 }),
-      p1Trigger: { type: 'combo', amount: 10 },
-    }),
-    mockIdol({
-      preset: 'a_p_p',
-      p1Trigger: { type: 'combo', amount: 10 },
-    }),
-    null,
-    null,
-    null,
-  ])
+  const { result } = simulate(
+    mockLive({ beat: 70 }),
+    [
+      mockIdol({
+        preset: 'a_p_p',
+        p1: mockAbility({ type: 'ct-reduction', target: 'center', amount: 10 }),
+        p1Trigger: { type: 'combo', amount: 10 },
+      }),
+      mockIdol({
+        preset: 'a_p_p',
+        p1Trigger: { type: 'combo', amount: 10 },
+      }),
+      null,
+      null,
+      null,
+    ],
+    mockLane()
+  )
   expect(result).toStrictEqual(expected)
 })
 
@@ -1192,19 +1411,23 @@ test('SPシフトがAスキル起因で発動する', () => {
     },
   ]
   expect(
-    simulate(mockLive({ a: [[5], [], [1], [], []], sp: [[], [], [20], [], []], beat: 50 }), [
-      mockIdol({
-        preset: 'a_p_p',
-        a1: mockAbility({ type: 'shift-before-sp', target: 'center' }),
-      }),
-      null,
-      mockIdol({
-        preset: 'sp_a_a',
-        a1: mockAbility({ type: 'dance', target: 'self' }),
-      }),
-      null,
-      null,
-    ]).result
+    simulate(
+      mockLive({ a: [[5], [], [1], [], []], sp: [[], [], [20], [], []], beat: 50 }),
+      [
+        mockIdol({
+          preset: 'a_p_p',
+          a1: mockAbility({ type: 'shift-before-sp', target: 'center' }),
+        }),
+        null,
+        mockIdol({
+          preset: 'sp_a_a',
+          a1: mockAbility({ type: 'dance', target: 'self' }),
+        }),
+        null,
+        null,
+      ],
+      mockLane()
+    ).result
   ).toStrictEqual(expected)
 })
 
@@ -1265,20 +1488,24 @@ test('SPシフトがPスキル起因で発動する', () => {
     },
   ]
   expect(
-    simulate(mockLive({ a: [[5], [], [], [], []], sp: [[], [], [20], [], []], beat: 50 }), [
-      mockIdol({
-        preset: 'a_p_p',
-        a1: mockAbility({ type: 'tension', target: 'center' }),
-        p1: mockAbility({ type: 'shift-before-sp', target: 'center' }),
-        p1Trigger: { type: 'anyone-tension-up' },
-      }),
-      null,
-      mockIdol({
-        preset: 'sp_a_a',
-      }),
-      null,
-      null,
-    ]).result
+    simulate(
+      mockLive({ a: [[5], [], [], [], []], sp: [[], [], [20], [], []], beat: 50 }),
+      [
+        mockIdol({
+          preset: 'a_p_p',
+          a1: mockAbility({ type: 'tension', target: 'center' }),
+          p1: mockAbility({ type: 'shift-before-sp', target: 'center' }),
+          p1Trigger: { type: 'anyone-tension-up' },
+        }),
+        null,
+        mockIdol({
+          preset: 'sp_a_a',
+        }),
+        null,
+        null,
+      ],
+      mockLane()
+    ).result
   ).toStrictEqual(expected)
 })
 
@@ -1341,18 +1568,300 @@ test('SPシフトで移動したバフがライブの終端で終わる', () => 
     },
   ]
   expect(
-    simulate(mockLive({ a: [[5], [], [1], [], []], sp: [[], [], [20], [], []], beat: 30 }), [
-      mockIdol({
-        preset: 'a_p_p',
-        a1: mockAbility({ type: 'shift-before-sp', target: 'center' }),
-      }),
-      null,
-      mockIdol({
-        preset: 'sp_a_a',
-        a1: mockAbility({ type: 'dance', target: 'self', span: 30 }),
-      }),
-      null,
-      null,
-    ]).result
+    simulate(
+      mockLive({ a: [[5], [], [1], [], []], sp: [[], [], [20], [], []], beat: 30 }),
+      [
+        mockIdol({
+          preset: 'a_p_p',
+          a1: mockAbility({ type: 'shift-before-sp', target: 'center' }),
+        }),
+        null,
+        mockIdol({
+          preset: 'sp_a_a',
+          a1: mockAbility({ type: 'dance', target: 'self', span: 30 }),
+        }),
+        null,
+        null,
+      ],
+      mockLane()
+    ).result
+  ).toStrictEqual(expected)
+})
+
+test('ダンスレーンの時の条件が満たされる効果のみ適用される', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 0,
+      buff: 'score',
+      lane: 0,
+      index: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 0,
+      buff: 'score',
+      lane: 1,
+      index: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 0,
+      buff: 'score',
+      lane: 0,
+      affected: false,
+      amount: 4,
+      span: 10,
+    },
+  ]
+  expect(
+    simulate(
+      mockLive({ beat: 20 }),
+      [
+        mockIdol({
+          preset: 'a_p_p',
+          p1: mockAbility({ type: 'score', target: 'self', condition: { type: 'in-dance-lane' } }),
+          p1Trigger: { type: 'none' },
+        }),
+        mockIdol({
+          preset: 'a_p_p',
+          p1: mockAbility({ type: 'score', target: 'self', condition: { type: 'in-dance-lane' } }),
+          p1Trigger: { type: 'none' },
+        }),
+        null,
+        null,
+        null,
+      ],
+      mockLane({ type: ['dance', 'visual', null, null, null] })
+    ).result
+  ).toStrictEqual(expected)
+})
+
+test('ダンスレーンの時の条件が満たされる効果のみ適用される (CT減などミューテーション系)', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 0,
+      buff: 'unknown',
+      lane: 2,
+      index: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 5,
+      buff: 'ct-reduction',
+      lane: 0,
+      index: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 10,
+      buff: 'ct-reduction',
+      lane: 1,
+      index: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 20,
+      buff: 'unknown',
+      lane: 2,
+      index: 1,
+    },
+  ]
+  expect(
+    simulate(
+      mockLive({ beat: 40 }),
+      [
+        mockIdol({
+          preset: 'a_p_p',
+          p1: mockAbility({ type: 'ct-reduction', amount: 30, target: 'center', condition: { type: 'in-dance-lane' } }),
+          p1Trigger: { type: 'combo', amount: 5 },
+        }),
+        mockIdol({
+          preset: 'a_p_p',
+          p1: mockAbility({ type: 'ct-reduction', amount: 5, target: 'center', condition: { type: 'in-dance-lane' } }),
+          p1Trigger: { type: 'combo', amount: 10 },
+        }),
+        mockIdol({
+          preset: 'a_p_p',
+          p1: mockAbility({ type: 'get-score' }),
+          p1Trigger: { type: 'none' },
+        }),
+        null,
+        null,
+      ],
+      mockLane({ type: ['dance', 'visual', null, null, null] })
+    ).result
+  ).toStrictEqual(expected)
+})
+
+test('センターの時の条件が満たされる効果のみ適用される', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 0,
+      buff: 'score',
+      lane: 0,
+      index: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 0,
+      buff: 'score',
+      lane: 2,
+      index: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 0,
+      buff: 'score',
+      lane: 2,
+      affected: false,
+      amount: 4,
+      span: 10,
+    },
+  ]
+  expect(
+    simulate(
+      mockLive({ beat: 20 }),
+      [
+        mockIdol({
+          preset: 'a_p_p',
+          p1: mockAbility({ type: 'score', target: 'self', condition: { type: 'in-center' } }),
+          p1Trigger: { type: 'none' },
+        }),
+        null,
+        mockIdol({
+          preset: 'a_p_p',
+          p1: mockAbility({ type: 'score', target: 'self', condition: { type: 'in-center' } }),
+          p1Trigger: { type: 'none' },
+        }),
+        null,
+        null,
+      ],
+      mockLane()
+    ).result
+  ).toStrictEqual(expected)
+})
+
+test('Xコンボ以上時の条件が満たされる効果のみ適用される', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 0,
+      buff: 'score',
+      lane: 0,
+      index: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 50,
+      buff: 'score',
+      lane: 0,
+      index: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 50,
+      buff: 'score',
+      lane: 0,
+      affected: false,
+      amount: 4,
+      span: 10,
+    },
+  ]
+  expect(
+    simulate(
+      mockLive({ beat: 60 }),
+      [
+        mockIdol({
+          preset: 'a_p_p',
+          p1: mockAbility({ type: 'score', target: 'self', condition: { type: 'combo', amount: 40 } }),
+          p1Trigger: { type: 'none' },
+        }),
+        null,
+        null,
+        null,
+        null,
+      ],
+      mockLane({ type: ['dance', 'visual', null, null, null] })
+    ).result
+  ).toStrictEqual(expected)
+})
+
+test('Xコンボ以下時の条件が満たされる効果のみ適用される', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 0,
+      buff: 'score',
+      lane: 0,
+      index: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 0,
+      buff: 'score',
+      lane: 0,
+      affected: false,
+      amount: 4,
+      span: 10,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 50,
+      buff: 'score',
+      lane: 0,
+      index: 1,
+    },
+  ]
+  expect(
+    simulate(
+      mockLive({ beat: 60 }),
+      [
+        mockIdol({
+          preset: 'a_p_p',
+          p1: mockAbility({ type: 'score', target: 'self', condition: { type: 'combo-less-than', amount: 40 } }),
+          p1Trigger: { type: 'none' },
+        }),
+        null,
+        null,
+        null,
+        null,
+      ],
+      mockLane({ type: ['dance', 'visual', null, null, null] })
+    ).result
   ).toStrictEqual(expected)
 })

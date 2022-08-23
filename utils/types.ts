@@ -244,3 +244,5 @@ export interface LiveData {
   readonly sp: ArrayN<readonly number[], 5>
   readonly beat: number
 }
+
+export type LaneConfig = ArrayN<{ type: IdolType | null }, 5>
