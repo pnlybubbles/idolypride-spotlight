@@ -25,7 +25,7 @@
 <script setup lang="ts">
 import { isType, simulate } from './simulate'
 import { ArrayN } from '~~/utils'
-import { AbilityType, BuffAbilityType, IdolData, Lane, LiveData, SkillIndex, LaneData } from '~~/utils/types'
+import { AbilityType, BuffAbilityType, IdolData, Lane, LiveData, SkillIndex, LaneConfig } from '~~/utils/types'
 import { LANES, px } from '~~/utils/common'
 import { useFumenScaleFactor } from '~~/composable/localstorage-descriptors'
 import cloneDeep from 'clone-deep'
@@ -33,7 +33,7 @@ import { pickSkillsByLevel } from '~~/utils/formatter'
 
 interface Props {
   live: LiveData
-  lane: LaneData
+  laneConfig: LaneConfig
   idols: ArrayN<IdolData | null, 5>
 }
 
@@ -52,7 +52,7 @@ const getSkill = (lane: Lane, skillIndex: SkillIndex | undefined) => {
 
 // immerのProxyと干渉するので生objectに戻す
 // toRawではネストが深くて戻しきれないのでcloneDeepで無理やり再帰的に戻す
-const simulated = computed(() => simulate(props.live, cloneDeep(props.idols)))
+const simulated = computed(() => simulate(props.live, cloneDeep(props.idols), props.laneConfig))
 
 type Item = {
   id: string

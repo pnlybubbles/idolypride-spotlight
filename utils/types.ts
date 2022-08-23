@@ -245,4 +245,4 @@ export interface LiveData {
   readonly beat: number
 }
 
-export type LaneData = ArrayN<{ type: IdolType | null }, 5>
+export type LaneConfig = ArrayN<{ type: IdolType | null }, 5>

@@ -7,7 +7,7 @@
         <IdolSelect v-model="selectedIdols[i].value" v-model:lane-type="selectedLaneType[i].value"></IdolSelect>
       </template>
     </div>
-    <Live v-if="live" :live="live" :idols="mapArrayN(selectedIdols, (v) => v.value)" :lane="laneData"></Live>
+    <Live v-if="live" :live="live" :idols="mapArrayN(selectedIdols, (v) => v.value)" :lane-config="laneConfig"></Live>
     <div v-if="!noIdolSelected" class="footer">
       <Callout>
         <template #title>注意</template>
@@ -95,7 +95,7 @@ const selectedLaneType = mapArrayN(unitArrayN(5), (i) =>
     set: (value) => (inputSelectedLaneType[i] = value),
   })
 )
-const laneData = computed(() => mapArrayN(selectedLaneType, (v) => ({ type: v.value })))
+const laneConfig = computed(() => mapArrayN(selectedLaneType, (v) => ({ type: v.value })))
 
 useHead(DEFAULT_META)
 </script>
