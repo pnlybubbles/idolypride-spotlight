@@ -1708,3 +1708,160 @@ test('ダンスレーンの時の条件が満たされる効果のみ適用さ�
     ).result
   ).toStrictEqual(expected)
 })
+
+test('センターの時の条件が満たされる効果のみ適用される', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 0,
+      buff: 'score',
+      lane: 0,
+      index: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 0,
+      buff: 'score',
+      lane: 2,
+      index: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 0,
+      buff: 'score',
+      lane: 2,
+      affected: false,
+      amount: 4,
+      span: 10,
+    },
+  ]
+  expect(
+    simulate(
+      mockLive({ beat: 20 }),
+      [
+        mockIdol({
+          preset: 'a_p_p',
+          p1: mockAbility({ type: 'score', target: 'self', condition: { type: 'in-center' } }),
+          p1Trigger: { type: 'none' },
+        }),
+        null,
+        mockIdol({
+          preset: 'a_p_p',
+          p1: mockAbility({ type: 'score', target: 'self', condition: { type: 'in-center' } }),
+          p1Trigger: { type: 'none' },
+        }),
+        null,
+        null,
+      ],
+      mockLane()
+    ).result
+  ).toStrictEqual(expected)
+})
+
+test('Xコンボ以上時の条件が満たされる効果のみ適用される', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 0,
+      buff: 'score',
+      lane: 0,
+      index: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 50,
+      buff: 'score',
+      lane: 0,
+      index: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 50,
+      buff: 'score',
+      lane: 0,
+      affected: false,
+      amount: 4,
+      span: 10,
+    },
+  ]
+  expect(
+    simulate(
+      mockLive({ beat: 60 }),
+      [
+        mockIdol({
+          preset: 'a_p_p',
+          p1: mockAbility({ type: 'score', target: 'self', condition: { type: 'combo', amount: 40 } }),
+          p1Trigger: { type: 'none' },
+        }),
+        null,
+        null,
+        null,
+        null,
+      ],
+      mockLane({ type: ['dance', 'visual', null, null, null] })
+    ).result
+  ).toStrictEqual(expected)
+})
+
+test('Xコンボ以下時の条件が満たされる効果のみ適用される', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 0,
+      buff: 'score',
+      lane: 0,
+      index: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 0,
+      buff: 'score',
+      lane: 0,
+      affected: false,
+      amount: 4,
+      span: 10,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 50,
+      buff: 'score',
+      lane: 0,
+      index: 1,
+    },
+  ]
+  expect(
+    simulate(
+      mockLive({ beat: 60 }),
+      [
+        mockIdol({
+          preset: 'a_p_p',
+          p1: mockAbility({ type: 'score', target: 'self', condition: { type: 'combo-less-than', amount: 40 } }),
+          p1Trigger: { type: 'none' },
+        }),
+        null,
+        null,
+        null,
+        null,
+      ],
+      mockLane({ type: ['dance', 'visual', null, null, null] })
+    ).result
+  ).toStrictEqual(expected)
+})

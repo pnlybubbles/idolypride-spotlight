@@ -423,7 +423,7 @@ const deriveAffectedState = (state: State, currentLane: Lane, domain: Pick<Domai
         ? []
         : v.type === 'p'
         ? v.skill.ability
-            .filter((w) => filterCondition(w.condition, v.lane, domain))
+            .filter((w) => filterCondition(w.condition, v.lane, v.beat, domain))
             .map((w) =>
               w.div === 'score'
                 ? null
@@ -443,18 +443,18 @@ const deriveAffectedState = (state: State, currentLane: Lane, domain: Pick<Domai
 }
 
 const deriveNaiveBuffResult = (
-  state: { lane: Lane; skill: Extract<SkillData, { type: 'sp' | 'a' }> | null }[],
+  state: { lane: Lane; beat: number; skill: Extract<SkillData, { type: 'sp' | 'a' }> | null }[],
   domain: Pick<DomainState, 'idols' | 'live' | 'currentBeat' | 'laneConfig'>
 ) => {
   const { idols, live, currentBeat, laneConfig } = domain
-  return state.flatMap(({ lane, skill }) => {
+  return state.flatMap(({ lane, beat, skill }) => {
     // nullのときはスキル失敗なので、バフの計算はしない
     if (skill === null) {
       return []
     }
     return skill.ability
       .filter(isDiv('buff'))
-      .filter((ability) => filterCondition(ability.condition, lane, domain))
+      .filter((ability) => filterCondition(ability.condition, lane, beat, domain))
       .flatMap((ability) => {
         const lanes = deriveBuffLanes(ability.target, lane, idols, laneConfig)
         return lanes.map((lane) => ({
@@ -472,10 +472,10 @@ const deriveNaiveBuffResult = (
 
 const derivePBuffResult = (domain: Pick<DomainState, 'pState' | 'idols' | 'live' | 'currentBeat' | 'laneConfig'>) => {
   const { pState, idols, live, currentBeat, laneConfig } = domain
-  return pState.flatMap(({ lane, skill, triggeredLane }) => {
+  return pState.flatMap(({ lane, beat, skill, triggeredLane }) => {
     return skill.ability
       .filter(isDiv('buff'))
-      .filter((ability) => filterCondition(ability.condition, lane, domain))
+      .filter((ability) => filterCondition(ability.condition, lane, beat, domain))
       .flatMap((ability) => {
         const lanes =
           ability.target === 'triggered'
@@ -499,12 +499,14 @@ const derivePBuffResult = (domain: Pick<DomainState, 'pState' | 'idols' | 'live'
 const filterCondition = (
   condition: AbilityCondition,
   lane: Lane,
+  beatOnAbility: number,
   { laneConfig }: Pick<DomainState, 'idols' | 'laneConfig'>
 ) => {
   switch (condition.type) {
     case 'in-vocal-lane':
     case 'in-visual-lane':
     case 'in-dance-lane': {
+      // Xレーンの時
       const type =
         condition.type === 'in-vocal-lane'
           ? 'vocal'
@@ -515,6 +517,15 @@ const filterCondition = (
           : unreachable(condition.type)
       return laneConfig[lane].type === type
     }
+    case 'in-center':
+      // 自身がセンター時
+      return lane === 2
+    case 'combo':
+      // Xコンボ以上時
+      return beatOnAbility >= condition.amount
+    case 'combo-less-than':
+      // Xコンボ以下時
+      return beatOnAbility <= condition.amount
     default:
       // TODO: とりあえずケースが多すぎるので理想状態を目指すと仮定して素通りさせる
       return true
