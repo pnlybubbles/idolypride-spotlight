@@ -144,7 +144,7 @@ export function simulate(live: LiveData, rawIdols: Idols, laneConfig: LaneConfig
 
         // ミューテーション処理
         for (const state of ctState) {
-          for (const effectAbility of deriveAffectedState([...aState, ...spState], state.lane, idols, laneConfig)) {
+          for (const effectAbility of deriveAffectedState([...aState, ...spState], state.lane, domain)) {
             if (effectAbility.div === 'action-buff') {
               // CT減少
               // CT=0 はライブ中1回の特殊ケース
@@ -194,7 +194,7 @@ export function simulate(live: LiveData, rawIdols: Idols, laneConfig: LaneConfig
 
         // ミューテーション処理
         for (const state of ctState) {
-          for (const effectAbility of deriveAffectedState(pState, state.lane, idols, laneConfig)) {
+          for (const effectAbility of deriveAffectedState(pState, state.lane, domain)) {
             if (effectAbility.div === 'action-buff') {
               // CT減少
               // CT=0 はライブ中1回の特殊ケース
@@ -214,6 +214,8 @@ export function simulate(live: LiveData, rawIdols: Idols, laneConfig: LaneConfig
       // SPシフトの発動処理 (TODO: Aシフト)
       //
       {
+        const domain = { live, idols, state: draft.state, currentBeat, laneConfig }
+
         // 現在のビートに効いている過去も含めたすべてのバフを取得
         const availableBuff = extractAvailableBuffResult(draft.result, { currentBeat })
 
@@ -223,8 +225,7 @@ export function simulate(live: LiveData, rawIdols: Idols, laneConfig: LaneConfig
           for (const effectAbility of deriveAffectedState(
             [...aState, ...spState, ...pState],
             buffResult.lane,
-            idols,
-            laneConfig
+            domain
           )) {
             if (effectAbility.div === 'action-buff' && effectAbility.type === 'shift-before-sp') {
               // SPシフト
@@ -263,6 +264,8 @@ export function simulate(live: LiveData, rawIdols: Idols, laneConfig: LaneConfig
       // 強化延長の発動処理
       //
       {
+        const domain = { live, idols, state: draft.state, currentBeat, laneConfig }
+
         // 現在のビートに効いている過去も含めたすべてのバフを取得
         const availableBuff = extractAvailableBuffResult(draft.result, { currentBeat })
 
@@ -270,8 +273,7 @@ export function simulate(live: LiveData, rawIdols: Idols, laneConfig: LaneConfig
           for (const effectAbility of deriveAffectedState(
             [...aState, ...spState, ...pState],
             buffResult.lane,
-            idols,
-            laneConfig
+            domain
           )) {
             if (effectAbility.div === 'action-buff' && effectAbility.type === 'buff-span') {
               // 効果を延長する
@@ -413,13 +415,9 @@ function deriveBuffLanes(
 /**
  * `state`の中から`currentLane`が対象になっているスキルの効果のみを抽出する
  */
-const deriveAffectedState = (
-  state: State,
-  currentLane: Lane,
-  idols: ArrayN<IdolData | null, 5>,
-  laneConfig: LaneConfig
-) =>
-  state
+const deriveAffectedState = (state: State, currentLane: Lane, domain: Pick<DomainState, 'idols' | 'laneConfig'>) => {
+  const { idols, laneConfig } = domain
+  return state
     .flatMap((v) =>
       v.skill === null
         ? []
@@ -440,6 +438,7 @@ const deriveAffectedState = (
           )
     )
     .filter(isNonNullable)
+}
 
 const deriveNaiveBuffResult = (
   state: { lane: Lane; skill: Extract<SkillData, { type: 'sp' | 'a' }> | null }[],
