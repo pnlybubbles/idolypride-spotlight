@@ -4,7 +4,7 @@
     <div class="idol">
       <div></div>
       <template v-for="i in LANES" :key="i">
-        <IdolSelect v-model="selectedIdols[i].value"></IdolSelect>
+        <IdolSelect v-model="selectedIdols[i].value" v-model:lane-type="selectedLaneType[i]"></IdolSelect>
       </template>
     </div>
     <Live v-if="live" :live="live" :idols="mapArrayN(selectedIdols, (v) => v.value)"></Live>
@@ -29,7 +29,7 @@ import { ArrayN, mapArrayN, unitArrayN } from '~~/utils'
 import { LANES } from '~~/utils/common'
 import { deserializeIdolList } from '~~/utils/formatter'
 import { DEFAULT_META } from '~~/utils/meta'
-import { IdolData, LiveData } from '~~/utils/types'
+import { IdolData, IdolType, LiveData } from '~~/utils/types'
 
 const route = useRoute()
 
@@ -86,6 +86,8 @@ const selectedIdols = mapArrayN(unitArrayN(5), (i) =>
 )
 
 const noIdolSelected = computed(() => selectedIdols.every((v) => v === null))
+
+const selectedLaneType = reactive(unitArrayN(5, null as null | IdolType))
 
 useHead(DEFAULT_META)
 </script>

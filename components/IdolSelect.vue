@@ -4,7 +4,8 @@
       <div v-if="modelValue" class="selected">
         <div class="title">{{ modelValue.title }}</div>
         <div class="name">{{ modelValue.name }}</div>
-        <div class="type" :class="modelValue.type"></div>
+        <div class="type" :class="[modelValue.type, { mismatch }]"></div>
+        <div class="type" :class="[laneType ?? modelValue.type, { mismatch }]"></div>
       </div>
       <div v-else class="not-selected">未選択</div>
     </Interactive>
@@ -44,23 +45,32 @@
       </Section>
     </VStack>
   </Sheet>
+  <ListboxSheet
+    v-model:present="laneTypePresent"
+    :model-value="laneType ?? modelValue?.type ?? null"
+    :options="laneTypeOptions"
+    @update:model-value="$emit('update:laneType', $event as IdolType)"
+  ></ListboxSheet>
 </template>
 <script setup lang="ts">
 import { useQuery } from '@urql/vue'
 import { useAuth } from '~~/composable/auth0'
 import { GetIdolListDocument } from '~~/generated/graphql'
 import { deserializeIdolList } from '~~/utils/formatter'
-import { IdolData } from '~~/utils/types'
+import { IdolData, IdolType } from '~~/utils/types'
 import { Filter, idolFilter, idolSort } from './idol-filter/helper'
 import { useError } from '~~/composable/error'
 import { ArrayN, unreachable } from '~~/utils'
+import { IDOL_TYPE, objToOption } from '~~/utils/common'
 
 interface Props {
   modelValue: null | IdolData
+  laneType: null | IdolType
 }
 const props = defineProps<Props>()
 interface Emits {
   (e: 'update:modelValue', value: null | IdolData): void
+  (e: 'update:laneType', value: IdolType): void
 }
 const emit = defineEmits<Emits>()
 
@@ -77,6 +87,7 @@ const originalIdol = computed(() => idolList.value.find((v) => v.id === props.mo
 const present = ref(false)
 const dropdownPresent = ref(false)
 const detailPresent = ref(false)
+const laneTypePresent = ref(false)
 
 const handleClick = () => {
   if (dropdownPresent.value) {
@@ -134,7 +145,7 @@ const options = [
   { label: '詳細...', value: 'detail' },
   { label: '変更する', value: 'change' },
   { label: '未選択に戻す', value: 'unselect' },
-  // { label: 'レーンの属性を変更する', value: 'type' },
+  { label: 'レーンタイプを変更する', value: 'type' },
 ] as const
 
 const handleDropdownSelect = (value: string) => {
@@ -145,10 +156,17 @@ const handleDropdownSelect = (value: string) => {
     present.value = true
   } else if (action === 'unselect') {
     handleReset()
+  } else if (action === 'type') {
+    laneTypePresent.value = true
   } else {
     unreachable(action)
   }
 }
+
+const laneTypeOptions = objToOption(IDOL_TYPE)
+const mismatch = computed(
+  () => props.laneType !== null && props.modelValue !== null && props.laneType !== props.modelValue.type
+)
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
@@ -194,15 +212,21 @@ const handleDropdownSelect = (value: string) => {
   height: 2px;
 
   &.vocal {
-    background-color: $vocal;
+    --color: #{$vocal};
   }
 
   &.dance {
-    background-color: $dance;
+    --color: #{$dance};
   }
 
   &.visual {
-    background-color: $visual;
+    --color: #{$visual};
+  }
+
+  background-color: var(--color);
+
+  &.mismatch {
+    background: repeating-linear-gradient(45deg, var(--color), var(--color) 2px, transparent 2px, transparent 4px);
   }
 }
 
