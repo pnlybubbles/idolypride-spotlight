@@ -25,7 +25,7 @@
 <script setup lang="ts">
 import { isType, simulate } from './simulate'
 import { ArrayN } from '~~/utils'
-import { AbilityType, BuffAbilityType, IdolData, Lane, LiveData, SkillIndex } from '~~/utils/types'
+import { AbilityType, BuffAbilityType, IdolData, Lane, LiveData, SkillIndex, LaneData } from '~~/utils/types'
 import { LANES, px } from '~~/utils/common'
 import { useFumenScaleFactor } from '~~/composable/localstorage-descriptors'
 import cloneDeep from 'clone-deep'
@@ -33,6 +33,7 @@ import { pickSkillsByLevel } from '~~/utils/formatter'
 
 interface Props {
   live: LiveData
+  lane: LaneData
   idols: ArrayN<IdolData | null, 5>
 }
 

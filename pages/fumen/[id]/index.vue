@@ -4,10 +4,10 @@
     <div class="idol">
       <div></div>
       <template v-for="i in LANES" :key="i">
-        <IdolSelect v-model="selectedIdols[i].value" v-model:lane-type="selectedLaneType[i]"></IdolSelect>
+        <IdolSelect v-model="selectedIdols[i].value" v-model:lane-type="selectedLaneType[i].value"></IdolSelect>
       </template>
     </div>
-    <Live v-if="live" :live="live" :idols="mapArrayN(selectedIdols, (v) => v.value)"></Live>
+    <Live v-if="live" :live="live" :idols="mapArrayN(selectedIdols, (v) => v.value)" :lane="laneData"></Live>
     <div v-if="!noIdolSelected" class="footer">
       <Callout>
         <template #title>注意</template>
@@ -87,7 +87,15 @@ const selectedIdols = mapArrayN(unitArrayN(5), (i) =>
 
 const noIdolSelected = computed(() => selectedIdols.every((v) => v === null))
 
-const selectedLaneType = reactive(unitArrayN(5, null as null | IdolType))
+const inputSelectedLaneType = reactive(unitArrayN(5, null as null | IdolType))
+const selectedLaneType = mapArrayN(unitArrayN(5), (i) =>
+  computed({
+    // 選択されてない場合にはアイドルのタイプと一致するようにフォールバック
+    get: () => inputSelectedLaneType[i] ?? selectedIdols[i]?.value?.type ?? null,
+    set: (value) => (inputSelectedLaneType[i] = value),
+  })
+)
+const laneData = computed(() => mapArrayN(selectedLaneType, (v) => ({ type: v.value })))
 
 useHead(DEFAULT_META)
 </script>

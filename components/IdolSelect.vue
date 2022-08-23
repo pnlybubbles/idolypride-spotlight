@@ -5,7 +5,7 @@
         <div class="title">{{ modelValue.title }}</div>
         <div class="name">{{ modelValue.name }}</div>
         <div class="type" :class="[modelValue.type, { mismatch }]"></div>
-        <div class="type" :class="[laneType ?? modelValue.type, { mismatch }]"></div>
+        <div class="type" :class="[laneType, { mismatch }]"></div>
       </div>
       <div v-else class="not-selected">未選択</div>
     </Interactive>
