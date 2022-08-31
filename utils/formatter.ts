@@ -236,7 +236,7 @@ const serializeSkill = (v: SkillData, upsert: boolean): RequiredSerialized<Skill
               'amount',
               'type',
               'span',
-              'type',
+              'target',
               'condition',
               'condition_value',
               'enhance',
