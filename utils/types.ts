@@ -118,6 +118,7 @@ export type AbilityEnhance =
         | 'stamina-saving'
         | 'tension'
         | 'eye-catch'
+        | 'skill-success'
         | 'unknown'
     }
   | {

@@ -435,6 +435,7 @@ export const ABILITY_ENHANCE_WITHOUT_VALUE: Record<AbilityEnhanceWithoutValue, s
   'critical-score': 'クリティカル係数アップが多い程上昇',
   tension: 'テンションアップが多い程上昇',
   'eye-catch': '集目効果が多い程上昇',
+  'skill-success': 'スキル成功率が多い程上昇',
   'stamina-saving': 'スタミナ消費低減が多い程上昇',
   unknown: '不明',
 }
