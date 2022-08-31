@@ -370,6 +370,7 @@ export const ACTION_ABILITY_TYPE: Record<ActionAbilityType, string> = {
   'buff-erase': '強化効果消去',
   'shift-before-sp': '強化効果をSPスキル前に移動',
   'shift-before-a': '強化効果をAスキル前に移動',
+  'delegate-buff-center': 'センターに強化効果譲渡',
 }
 export const isActionAbilityType = isKeyInObject(ACTION_ABILITY_TYPE)
 
