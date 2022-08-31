@@ -65,6 +65,6 @@ export const theme: Theme = {
     'buff-erase': normal,
     slump: normal,
     'a-score-add': colors[1],
-    'delegate-buff-center': normal,
+    'delegate-buff': normal,
   },
 }

@@ -38,7 +38,7 @@ export type ActionAbilityType =
   | 'buff-erase'
   | 'shift-before-sp'
   | 'shift-before-a'
-  | 'delegate-buff-center'
+  | 'delegate-buff'
 export type AbilityType = BuffAbilityType | ActionAbilityType
 
 // target
