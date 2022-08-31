@@ -285,6 +285,45 @@ export function simulate(live: LiveData, rawIdols: Idols, laneConfig: LaneConfig
 
       //
       // 5パス目
+      // 強化効果譲渡
+      // TODO: 譲渡効果が発動したそのスキル自身のスコアにはバフが影響しない？(不明なのでいったん影響なしにした)
+      //
+      {
+        const domain = { live, idols, state: draft.state, currentBeat, laneConfig }
+
+        // 現在のビートに効いている過去も含めたすべてのバフを取得
+        const availableBuff = extractAvailableBuffResult(draft.result, { currentBeat })
+
+        for (const { ability, beat, lane, targetLanes } of activatedAbilities(
+          [...aState, ...spState, ...pState],
+          domain
+        )) {
+          if (ability.div === 'action-buff' && ability.type === 'delegate-buff') {
+            // NOTE: 譲渡先が複数あるケースはおそらく無いので、対象が複数ある場合は1つ目のみを参照する
+            const delegatedToLane = targetLanes.sort(comparebyCenter)[0]
+            if (delegatedToLane === undefined) {
+              continue
+            }
+
+            for (const buffResult of availableBuff) {
+              if (buffResult.lane === lane) {
+                // スキルが発動した自身のレーンの効果を対象のレーンに移動する
+                draft.result.push({
+                  ...buffResult,
+                  id: uid(),
+                  lane: delegatedToLane,
+                  beat,
+                  span: buffResult.span - (beat - buffResult.beat),
+                })
+                buffResult.span = beat - buffResult.beat
+              }
+            }
+          }
+        }
+      }
+
+      //
+      // 5パス目
       // このビートで変化した状態を含めて、過去から現在までに発生したバフの影響を導出する
       //
 
@@ -441,6 +480,32 @@ const deriveAffectedState = (state: State, currentLane: Lane, domain: Pick<Domai
     )
     .filter(isNonNullable)
 }
+
+/**
+ * 発動済みスキルの状態から、有効な効果のみを抽出する
+ */
+const activatedAbilities = (state: State, { idols, laneConfig }: Pick<DomainState, 'idols' | 'laneConfig'>) =>
+  state.flatMap((v) =>
+    (v.type === 'p'
+      ? v.skill.ability.map((ability) => ({
+          ability,
+          targetLanes:
+            ability.div === 'score'
+              ? []
+              : ability.target === 'triggered'
+              ? v.triggeredLane !== null
+                ? [v.triggeredLane]
+                : []
+              : deriveBuffLanes(ability.target, v.lane, idols, laneConfig),
+        }))
+      : (v.skill?.ability ?? []).map((ability) => ({
+          ability,
+          targetLanes: ability.div === 'score' ? [] : deriveBuffLanes(ability.target, v.lane, idols, laneConfig),
+        }))
+    )
+      .filter(({ ability }) => filterCondition(ability.condition, v.lane, v.beat, { idols, laneConfig }))
+      .map((w) => ({ ...w, beat: v.beat, lane: v.lane }))
+  )
 
 const deriveNaiveBuffResult = (
   state: { lane: Lane; beat: number; skill: Extract<SkillData, { type: 'sp' | 'a' }> | null }[],
