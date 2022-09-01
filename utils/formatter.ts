@@ -236,7 +236,7 @@ const serializeSkill = (v: SkillData, upsert: boolean): RequiredSerialized<Skill
               'amount',
               'type',
               'span',
-              'type',
+              'target',
               'condition',
               'condition_value',
               'enhance',
@@ -370,6 +370,7 @@ export const ACTION_ABILITY_TYPE: Record<ActionAbilityType, string> = {
   'buff-erase': '強化効果消去',
   'shift-before-sp': '強化効果をSPスキル前に移動',
   'shift-before-a': '強化効果をAスキル前に移動',
+  'delegate-buff': '<対象>へ強化効果譲渡',
 }
 export const isActionAbilityType = isKeyInObject(ACTION_ABILITY_TYPE)
 
@@ -434,6 +435,7 @@ export const ABILITY_ENHANCE_WITHOUT_VALUE: Record<AbilityEnhanceWithoutValue, s
   'critical-score': 'クリティカル係数アップが多い程上昇',
   tension: 'テンションアップが多い程上昇',
   'eye-catch': '集目効果が多い程上昇',
+  'skill-success': 'スキル成功率が多い程上昇',
   'stamina-saving': 'スタミナ消費低減が多い程上昇',
   unknown: '不明',
 }

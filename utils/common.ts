@@ -60,6 +60,7 @@ export const IDOL_NAME = [
   'fran',
   'kana',
   'miho',
+  '初音ミク',
 ] as const
 export type IdolName = typeof IDOL_NAME[number]
 
@@ -75,6 +76,7 @@ export const UNIT_NAME = [
   'MACARON DONUTS',
   '長瀬麻奈',
   '川咲さくら',
+  '初音ミク',
   '兵藤雫×天動瑠依',
   '白石沙季×白石千紗',
   '星見プロダクション',
@@ -91,6 +93,7 @@ export const UNIT_TO_IDOL_NAME: Record<UnitName, IdolName[]> = {
   ⅢX: ['fran', 'kana', 'miho'],
   長瀬麻奈: ['長瀬麻奈'],
   川咲さくら: ['川咲さくら'],
+  初音ミク: ['初音ミク'],
   '兵藤雫×天動瑠依': ['兵藤雫', '天動瑠依'],
   '白石沙季×白石千紗': ['白石沙季', '白石千紗'],
   星見プロダクション: [],

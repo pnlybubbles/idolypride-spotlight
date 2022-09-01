@@ -142,7 +142,13 @@ export function simulate(live: LiveData, rawIdols: Idols, laneConfig: LaneConfig
           ...[...aBuffResult, ...spBuffResult].map((v) => ({ ...v, affected: false })),
         ]
 
-        // ミューテーション処理
+        draft.result.push(...currentResult)
+        draft.state.push(...aState, ...spState)
+
+        //
+        // CT中ステートのミューテーション処理
+        //
+
         for (const state of ctState) {
           for (const effectAbility of deriveAffectedState([...aState, ...spState], state.lane, domain)) {
             if (effectAbility.div === 'action-buff') {
@@ -155,8 +161,38 @@ export function simulate(live: LiveData, rawIdols: Idols, laneConfig: LaneConfig
           }
         }
 
-        draft.result.push(...currentResult)
-        draft.state.push(...aState, ...spState)
+        //
+        // バフ表示のミューテーション処理
+        //
+
+        // 現在のビートに効いている過去も含めたすべてのバフを取得
+        const availableBuff = extractAvailableBuffResult(draft.result, { currentBeat })
+
+        for (const { ability, beat, lane, targetLanes } of activatedAbilities([...aState, ...spState], domain)) {
+          // 強化効果譲渡
+          // TODO: 譲渡効果が発動したそのスキル自身のスコアにはバフが影響しない？(不明なのでいったん影響なしにした)
+          if (ability.div === 'action-buff' && ability.type === 'delegate-buff') {
+            // NOTE: 譲渡先が複数あるケースはおそらく無いので、対象が複数ある場合は1つ目のみを参照する
+            const delegatedToLane = targetLanes.sort(comparebyCenter)[0]
+            if (delegatedToLane === undefined) {
+              continue
+            }
+
+            for (const buffResult of availableBuff) {
+              if (buffResult.lane === lane) {
+                // スキルが発動した自身のレーンの効果を対象のレーンに移動する
+                draft.result.push({
+                  ...buffResult,
+                  id: uid(),
+                  lane: delegatedToLane,
+                  beat,
+                  span: buffResult.span - (beat - buffResult.beat),
+                })
+                buffResult.span = beat - buffResult.beat
+              }
+            }
+          }
+        }
       }
 
       //
@@ -171,10 +207,10 @@ export function simulate(live: LiveData, rawIdols: Idols, laneConfig: LaneConfig
         const ctState = extractCtState(domain)
 
         // 現在のビートに効いている過去も含めたすべてのバフを取得
-        const availableBuff = extractAvailableBuffResult(draft.result, domain)
+        const availableBuffBeforeP = extractAvailableBuffResult(draft.result, domain)
 
         // Pスキルの発動チェック
-        pState = derivePState({ ...domain, ctState, aState, spState, availableBuff })
+        pState = derivePState({ ...domain, ctState, aState, spState, availableBuff: availableBuffBeforeP })
 
         const pResult = pState.map(({ lane, skill }) => ({
           type: 'p' as const,
@@ -192,7 +228,14 @@ export function simulate(live: LiveData, rawIdols: Idols, laneConfig: LaneConfig
         // 更新処理
         const currentResult = [...pResult, ...pBuffResult.map((v) => ({ ...v, affected: false }))]
 
-        // ミューテーション処理
+        draft.result.push(...currentResult)
+        draft.state.push(...pState)
+
+        //
+        // CT中ステートのミューテーション処理
+        // TODO: DRY
+        //
+
         for (const state of ctState) {
           for (const effectAbility of deriveAffectedState(pState, state.lane, domain)) {
             if (effectAbility.div === 'action-buff') {
@@ -205,8 +248,39 @@ export function simulate(live: LiveData, rawIdols: Idols, laneConfig: LaneConfig
           }
         }
 
-        draft.result.push(...currentResult)
-        draft.state.push(...pState)
+        //
+        // バフ表示のミューテーション処理
+        // TODO: DRY
+        //
+
+        // 現在のビートに効いている過去も含めたすべてのバフを取得
+        const availableBuff = extractAvailableBuffResult(draft.result, { currentBeat })
+
+        for (const { ability, beat, lane, targetLanes } of activatedAbilities(pState, domain)) {
+          // 強化効果譲渡
+          // TODO: 譲渡効果が発動したそのスキル自身のスコアにはバフが影響しない？(不明なのでいったん影響なしにした)
+          if (ability.div === 'action-buff' && ability.type === 'delegate-buff') {
+            // NOTE: 譲渡先が複数あるケースはおそらく無いので、対象が複数ある場合は1つ目のみを参照する
+            const delegatedToLane = targetLanes.sort(comparebyCenter)[0]
+            if (delegatedToLane === undefined) {
+              continue
+            }
+
+            for (const buffResult of availableBuff) {
+              if (buffResult.lane === lane) {
+                // スキルが発動した自身のレーンの効果を対象のレーンに移動する
+                draft.result.push({
+                  ...buffResult,
+                  id: uid(),
+                  lane: delegatedToLane,
+                  beat,
+                  span: buffResult.span - (beat - buffResult.beat),
+                })
+                buffResult.span = beat - buffResult.beat
+              }
+            }
+          }
+        }
       }
 
       //
@@ -441,6 +515,32 @@ const deriveAffectedState = (state: State, currentLane: Lane, domain: Pick<Domai
     )
     .filter(isNonNullable)
 }
+
+/**
+ * 発動済みスキルの状態から、有効な効果のみを抽出する
+ */
+const activatedAbilities = (state: State, { idols, laneConfig }: Pick<DomainState, 'idols' | 'laneConfig'>) =>
+  state.flatMap((v) =>
+    (v.type === 'p'
+      ? v.skill.ability.map((ability) => ({
+          ability,
+          targetLanes:
+            ability.div === 'score'
+              ? []
+              : ability.target === 'triggered'
+              ? v.triggeredLane !== null
+                ? [v.triggeredLane]
+                : []
+              : deriveBuffLanes(ability.target, v.lane, idols, laneConfig),
+        }))
+      : (v.skill?.ability ?? []).map((ability) => ({
+          ability,
+          targetLanes: ability.div === 'score' ? [] : deriveBuffLanes(ability.target, v.lane, idols, laneConfig),
+        }))
+    )
+      .filter(({ ability }) => filterCondition(ability.condition, v.lane, v.beat, { idols, laneConfig }))
+      .map((w) => ({ ...w, beat: v.beat, lane: v.lane }))
+  )
 
 const deriveNaiveBuffResult = (
   state: { lane: Lane; beat: number; skill: Extract<SkillData, { type: 'sp' | 'a' }> | null }[],

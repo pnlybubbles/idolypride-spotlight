@@ -22,6 +22,9 @@
   /* Remove the margin in Firefox and Safari. */
   margin: 0;
 
+  /* Remove shade on tap in iOS Safari */
+  -webkit-tap-highlight-color: transparent;
+
   display: block;
 }
 

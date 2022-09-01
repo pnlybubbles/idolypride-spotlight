@@ -1352,6 +1352,70 @@ test('PスキルによるCT減少によって同ビートで発動しているP�
   expect(result).toStrictEqual(expected)
 })
 
+test('強化効果が譲渡される', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 0,
+      buff: 'score',
+      lane: 0,
+      index: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 0,
+      buff: 'score',
+      lane: 0,
+      affected: false,
+      amount: 10,
+      span: 10,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'a',
+      beat: 10,
+      buff: 'delegate-buff',
+      lane: 0,
+      index: 0,
+      activated: [],
+      fail: false,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 10,
+      buff: 'score',
+      lane: 2,
+      affected: false,
+      amount: 10,
+      span: 20,
+    },
+  ]
+  const { result } = simulate(
+    mockLive({ a: [[10], [], [], [], []], beat: 40 }),
+    [
+      mockIdol({
+        preset: 'a_p_p',
+        a1: mockAbility({ type: 'delegate-buff', target: 'center' }),
+        p1: mockAbility({ type: 'score', target: 'self', amount: 10, span: 30 }),
+        p1Trigger: { type: 'none' },
+      }),
+      null,
+      null,
+      null,
+      null,
+    ],
+    mockLane()
+  )
+  expect(result).toStrictEqual(expected)
+})
+
 test('SPシフトがAスキル起因で発動する', () => {
   const expected: Result = [
     {

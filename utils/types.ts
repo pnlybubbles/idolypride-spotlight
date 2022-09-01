@@ -38,6 +38,7 @@ export type ActionAbilityType =
   | 'buff-erase'
   | 'shift-before-sp'
   | 'shift-before-a'
+  | 'delegate-buff'
 export type AbilityType = BuffAbilityType | ActionAbilityType
 
 // target
@@ -117,6 +118,7 @@ export type AbilityEnhance =
         | 'stamina-saving'
         | 'tension'
         | 'eye-catch'
+        | 'skill-success'
         | 'unknown'
     }
   | {

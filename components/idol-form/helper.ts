@@ -326,6 +326,7 @@ const ABILITY_TYPE_DISABLED_AMOUNT: Record<AbilityType, boolean> = {
   'buff-erase': true,
   'shift-before-sp': true,
   'shift-before-a': true,
+  'delegate-buff': true,
   slump: true,
   'debuff-guard': true,
   'a-score': false,
