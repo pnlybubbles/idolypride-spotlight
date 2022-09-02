@@ -695,7 +695,7 @@ test('無条件の場合、CTが終わった瞬間にPスキルが発動する',
   ).toStrictEqual(expected)
 })
 
-test('無条件のPスキルが2つある場合には3番目が先に発動して次にビートで2番目が発動する', () => {
+test('同一ビートで発動可能なPスキルが2つある場合には2番目が先に発動して次にビートで3番目が発動する', () => {
   const expected: Result = [
     {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -755,6 +755,134 @@ test('無条件のPスキルが2つある場合には3番目が先に発動し�
         null,
       ],
       mockLane()
+    ).result
+  ).toStrictEqual(expected)
+})
+
+test('同一ビートで発動可能なPスキルが2つある場合かつ、2番目のスキルの発動トリガが無条件ではない場合は3番目の発動が優先される', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 0,
+      buff: 'score',
+      lane: 0,
+      index: 2,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 0,
+      buff: 'score',
+      lane: 0,
+      affected: false,
+      amount: 4,
+      span: 10,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 1,
+      buff: 'vocal',
+      lane: 0,
+      index: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 1,
+      buff: 'vocal',
+      lane: 0,
+      affected: false,
+      amount: 4,
+      span: 10,
+    },
+  ]
+  expect(
+    simulate(
+      mockLive({ beat: 20 }),
+      [
+        mockIdol({
+          preset: 'a_p_p',
+          p1: mockAbility({ type: 'vocal', target: 'self' }),
+          p1Trigger: { type: 'stamina-greater-than', amount: 80 },
+          p2: mockAbility({ type: 'score', target: 'self' }),
+          p2Trigger: { type: 'none' },
+        }),
+        null,
+        null,
+        null,
+        null,
+      ],
+      mockLane()
+    ).result
+  ).toStrictEqual(expected)
+})
+
+test('同一ビートで発動可能なPスキルが2つある場合かつ、2番目のスキルのトリガが無条件であっても効果の発動条件がすべて無条件ではない場合は3番目の発動が優先される', () => {
+  const expected: Result = [
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 0,
+      buff: 'score',
+      lane: 0,
+      index: 2,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 0,
+      buff: 'score',
+      lane: 0,
+      affected: false,
+      amount: 4,
+      span: 10,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'p',
+      beat: 1,
+      buff: 'vocal',
+      lane: 0,
+      index: 1,
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      id: expect.any(String),
+      type: 'buff',
+      beat: 1,
+      buff: 'vocal',
+      lane: 0,
+      affected: false,
+      amount: 4,
+      span: 10,
+    },
+  ]
+  expect(
+    simulate(
+      mockLive({ beat: 20 }),
+      [
+        mockIdol({
+          preset: 'a_p_p',
+          p1: mockAbility({ type: 'vocal', target: 'self', condition: { type: 'in-vocal-lane' } }),
+          p1Trigger: { type: 'none' },
+          p2: mockAbility({ type: 'score', target: 'self' }),
+          p2Trigger: { type: 'none' },
+        }),
+        null,
+        null,
+        null,
+        null,
+      ],
+      mockLane({ type: ['vocal', null, null, null, null] })
     ).result
   ).toStrictEqual(expected)
 })
