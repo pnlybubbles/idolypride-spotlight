@@ -750,27 +750,37 @@ const derivePState = (
         .filter((v) => v.lane === lane)
         .map((v) => v.skill)
         .filter(isType('p'))
-      const canTriggerSkills =
-        idol?.skills.filter(isType('p')).filter((skill) => !ctSkills.map((v) => v.index).includes(skill.index)) ?? []
-      return (
-        canTriggerSkills
-          .map((skill) => {
-            const triggered = checkSkillTriggered(skill, lane, domain)
-            if (triggered === null) {
-              return null
-            }
-            return {
-              skill,
-              triggeredLane: triggered.triggeredLane,
-            }
-          })
-          .filter(isNonNullable)
-          .map((v) => ({ ...v, lane }))
-          // pスキルは3番目が優先(?)
-          // TODO: "私に、決めたよ" 佐伯遙子 だけはなぜか2番目が先に発動するぽい...
-          .sort((a, b) => a.skill.index - b.skill.index)
-          .filter((_, i) => i === 0)
-      )
+      const canTriggerSkills = idol?.skills
+        .filter(isType('p'))
+        .filter((skill) => !ctSkills.map((v) => v.index).includes(skill.index))
+      return (canTriggerSkills ?? [])
+        .map((skill) => {
+          const triggered = checkSkillTriggered(skill, lane, domain)
+          if (triggered === null) {
+            return null
+          }
+          return {
+            skill,
+            triggeredLane: triggered.triggeredLane,
+          }
+        })
+        .filter(isNonNullable)
+        .map((v) => ({ ...v, lane }))
+        .sort((a, b) => {
+          // pスキルは基本的に2番目が優先。ただし発動条件がついている場合はその他の無条件よりも優先度は下がる
+          // 例:
+          // - "私に、決めたよ" 佐伯遙子 は2番目のスキルに"自身がボーカルレーンの時"の条件がついているので3番目が優先
+          // - "a piece of cake" kana は2番目のスキルに"自身がダンスレーンの時"の条件がついているので3番目が優先
+          // - "メイクアップタ〜イム" 早坂芽衣 は2番目のスキルに"スタミナが80%以上の時"の条件がついているので3番目が優先
+          const hasConditionOrdering =
+            (a.skill.trigger.type === 'none' && a.skill.ability.every((v) => v.condition.type === 'none') ? 0 : 1) -
+            (b.skill.trigger.type === 'none' && b.skill.ability.every((v) => v.condition.type === 'none') ? 0 : 1)
+          if (hasConditionOrdering !== 0) {
+            return hasConditionOrdering
+          }
+          return a.skill.index - b.skill.index
+        })
+        .filter((_, i) => i === 0)
     })
     .map(appendBeat(currentBeat))
     .map(appendType('p'))
@@ -835,6 +845,11 @@ const checkSkillTriggered = (
       // 誰かがスコアアップ状態の時
       const hit = isBuffedFor(availableBuff, 'score')
       return hit ? { triggeredLane: hit.lane } : null
+    }
+    case 'stamina-greater-than': {
+      // スタミナがX以上のときは無条件発動にする
+      // TODO: 発動タイミングをずらせるUIを追加する
+      return { triggeredLane: null }
     }
     default:
       return null
