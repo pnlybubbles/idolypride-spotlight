@@ -11,11 +11,11 @@ import {
   AbilityCondition,
 } from '~/utils/types'
 import isNonNullable from 'is-non-nullable'
-import { ArrayN, indexed, mapArrayN, PartiallyNonNullable, safeParseInt, uid, unreachable } from '~~/utils'
+import { ArrayN, indexed, isUnique, mapArrayN, PartiallyNonNullable, safeParseInt, uid, unreachable } from '~~/utils'
 import { isBuffAbilityType, pickSkillsByLevel } from '~~/utils/formatter'
 import { produce } from 'immer'
 import { extractBuffTarget } from '../idol-form/helper'
-import { isLane } from '~~/utils/common'
+import { isLane, LANES } from '~~/utils/common'
 
 export type Result = ({
   id: string
@@ -460,7 +460,13 @@ function deriveBuffLanes(
         .filter(([v]) => v?.type === transformedTarget)
         .map(second)
         .sort(comparebyCenter)
-      return candidate.slice(0, suffix)
+      // ~~が高いX人の場合は属性が一致していなくても中心から優先的にX人選ばれるようにする
+      // TODO: 特定のタイプが高いアイドルを選択できるようにする
+      const naiveCandidate =
+        target === 'high-vocal' || target === 'high-visual' || target === 'high-dance'
+          ? [...LANES].sort(comparebyCenter)
+          : []
+      return [...candidate, ...naiveCandidate].filter(isUnique).slice(0, suffix)
     }
     case 'vocal-lane':
     case 'visual-lane':
@@ -472,7 +478,7 @@ function deriveBuffLanes(
           ? 'visual'
           : target === 'dance-lane'
           ? 'dance'
-          : target
+          : unreachable(target)
       const candidate = indexed(laneConfig)
         .filter(([v]) => v.type === transformedTarget)
         .map(second)
