@@ -10,8 +10,8 @@
     </Interactive>
     <div v-if="variant !== 'p'" class="beat" :class="variant">{{ beat }}</div>
     <LiveTooltip v-show="showTooltip" :skill="skill" :position="position" :affected="affected"></LiveTooltip>
-    <Popover v-show="showGap" class="tooltip" :position="position">
-      <div v-if="gap !== null" class="heading">{{ gap }} ビート</div>
+    <Popover v-show="showGap" v-if="gap !== null || activated.length > 0" class="tooltip" :position="position">
+      <div v-if="gap !== null" class="gap">{{ gap }} ビート</div>
       <div v-if="gap !== null && activated.length > 0" class="divider"></div>
       <div v-if="activated.length > 0" class="ability">
         <div v-for="item in activated" :key="item.abilityId">
@@ -143,7 +143,7 @@ $p-size: 8px;
   padding: 0 8px;
 }
 
-.heading {
+.gap {
   @include padder;
 }
 
