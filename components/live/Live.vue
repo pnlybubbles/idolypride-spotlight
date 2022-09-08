@@ -9,14 +9,17 @@
           v-bind="item"
           :skill="getSkill(i, item.index)"
           :lane="i"
+          @long-press="handleLongPress(item.id)"
+          @release="handleRelease"
         ></LiveSkill>
         <LiveBuff
           v-else-if="item.type === 'buff'"
           :beat="item.beat"
           :buff="item.buff"
-          :affected="item.affected"
+          :affected="item.affecting"
           :span="item.span"
           :shift="item.shift"
+          :highlighted="highlighted === item.activatedBy"
         ></LiveBuff>
       </template>
     </div>
@@ -63,7 +66,7 @@ type Item = {
       type: 'sp' | 'a'
       index: SkillIndex | undefined
       fail: boolean
-      activated: { type: BuffAbilityType; amount: number }[]
+      affected: { id: string; type: BuffAbilityType; amount: number }[]
     }
   | {
       type: 'p'
@@ -71,7 +74,8 @@ type Item = {
     }
   | {
       type: 'buff'
-      affected: boolean
+      affecting: boolean
+      activatedBy: string
       span: number
       shift: number
     }
@@ -106,6 +110,13 @@ const lanes = computed(() =>
       }, [] as Item[])
   )
 )
+
+const highlighted = ref<string | null>(null)
+
+const handleLongPress = (id: string) =>
+  (highlighted.value = simulated.value.result.find((v) => v.id === id)?.id ?? null)
+
+const handleRelease = () => (highlighted.value = null)
 
 const height = computed(() => px(beat.value * scaleFactor.value))
 </script>

@@ -21,6 +21,7 @@ interface Emits {
   // TODO: こっちもTouchEventにする
   (e: 'click', event: MouseEvent): void
   (e: 'longPress', event: TouchEvent): void
+  (e: 'release', event: TouchEvent): void
 }
 const emit = defineEmits<Emits>()
 
@@ -42,11 +43,17 @@ const handleTouchStart = (e: TouchEvent) => {
   // macOSで長押しで右クリックメニューが表示される問題を抑制する
   document.addEventListener('contextmenu', handleContextMenu)
   // スワイプしてスクロールする操作では長押し判定にしない
-  document.addEventListener('scroll', handleTouchEnd, { passive: true })
+  document.addEventListener('scroll', handleScroll, { passive: true })
 }
 
-const handleTouchEnd = () => {
+const handleScroll = () => {
   cleanup()
+  if (touchTimer) clearTimeout(touchTimer)
+}
+
+const handleTouchEnd = (e: TouchEvent) => {
+  cleanup()
+  if (isLongPress) emit('release', e)
   if (touchTimer) clearTimeout(touchTimer)
 }
 

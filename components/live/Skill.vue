@@ -1,6 +1,11 @@
 <template>
   <div class="skill">
-    <Interactive class="hit" @long-press="$emit('long-press')" @click="showTooltip = !showTooltip">
+    <Interactive
+      class="hit"
+      @long-press="$emit('longPress')"
+      @release="$emit('release')"
+      @click="showTooltip = !showTooltip"
+    >
       <div class="marker" :class="{ fail, [variant]: true }"></div>
     </Interactive>
     <div v-if="variant !== 'p'" class="beat" :class="variant">{{ beat }}</div>
@@ -32,7 +37,8 @@ interface Props {
 const props = defineProps<Props>()
 
 interface Emits {
-  (e: 'long-press'): void
+  (e: 'longPress'): void
+  (e: 'release'): void
 }
 
 defineEmits<Emits>()

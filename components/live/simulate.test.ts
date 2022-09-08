@@ -102,6 +102,22 @@ const mockPSkill = (
   trigger: trigger ?? { type: 'unknown' },
 })
 
+const buffResult = <T>(obj: T) => ({
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  id: expect.any(String),
+  type: 'buff' as const,
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  activatedBy: expect.any(String),
+  ...obj,
+})
+
+const affected = <T>(obj: T[]) =>
+  obj.map((v) => ({
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    id: expect.any(String),
+    ...v,
+  }))
+
 type MockAbility = {
   (props: {
     condition?: AbilityCondition
@@ -188,7 +204,7 @@ test('Aスキルが発動する', () => {
       lane: 0,
       index: 0,
       fail: false,
-      activated: [],
+      affected: [],
     },
   ]
   expect(
@@ -211,19 +227,16 @@ test('センターにバフが乗る', () => {
       lane: 0,
       index: 0,
       fail: false,
-      activated: [],
+      affected: [],
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 1,
       buff: 'score',
       lane: 2,
-      affected: false,
+      affecting: false,
       amount: 4,
       span: 1,
-    },
+    }),
   ]
   expect(
     simulate(
@@ -245,30 +258,24 @@ test('隣接にバフが乗る', () => {
       lane: 1,
       index: 0,
       fail: false,
-      activated: [],
+      affected: [],
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 1,
       buff: 'score',
       lane: 0,
-      affected: false,
+      affecting: false,
       amount: 4,
       span: 1,
-    },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    }),
+    buffResult({
       beat: 1,
       buff: 'score',
       lane: 2,
-      affected: false,
+      affecting: false,
       amount: 4,
       span: 1,
-    },
+    }),
   ]
   expect(
     simulate(
@@ -290,19 +297,16 @@ test('端の場合には隣接1人にバフが乗る', () => {
       lane: 0,
       index: 0,
       fail: false,
-      activated: [],
+      affected: [],
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 1,
       buff: 'score',
       lane: 1,
-      affected: false,
+      affecting: false,
       amount: 4,
       span: 1,
-    },
+    }),
   ]
   expect(
     simulate(
@@ -324,19 +328,16 @@ test('ダンスタイプにバフが乗る', () => {
       lane: 0,
       index: 0,
       fail: false,
-      activated: [],
+      affected: [],
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 1,
       buff: 'score',
       lane: 1,
-      affected: false,
+      affecting: false,
       amount: 4,
       span: 1,
-    },
+    }),
   ]
   expect(
     simulate(
@@ -364,7 +365,7 @@ test('一致するタイプがない場合はバフが乗らない', () => {
       lane: 0,
       index: 0,
       fail: false,
-      activated: [],
+      affected: [],
     },
   ]
   expect(
@@ -393,19 +394,16 @@ test('ダンスレーンにバフが乗る', () => {
       lane: 0,
       index: 0,
       fail: false,
-      activated: [],
+      affected: [],
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 1,
       buff: 'score',
       lane: 1,
-      affected: false,
+      affecting: false,
       amount: 4,
       span: 1,
-    },
+    }),
   ]
   expect(
     simulate(
@@ -433,7 +431,7 @@ test('レーン情報がない場合にダンスレーンでバフが乗らな�
       lane: 0,
       index: 0,
       fail: false,
-      activated: [],
+      affected: [],
     },
   ]
   expect(
@@ -462,7 +460,7 @@ test('CT中の場合はAスキルが失敗する', () => {
       lane: 0,
       index: 0,
       fail: false,
-      activated: [],
+      affected: [],
     },
     {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -473,7 +471,7 @@ test('CT中の場合はAスキルが失敗する', () => {
       lane: 0,
       index: undefined,
       fail: true,
-      activated: [],
+      affected: [],
     },
   ]
   expect(
@@ -496,7 +494,7 @@ test('CTピッタリのギャップの場合はAスキルが発動する', () =>
       lane: 0,
       index: 0,
       fail: false,
-      activated: [],
+      affected: [],
     },
     {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -507,7 +505,7 @@ test('CTピッタリのギャップの場合はAスキルが発動する', () =>
       lane: 0,
       index: 0,
       fail: false,
-      activated: [],
+      affected: [],
     },
   ]
   expect(
@@ -530,7 +528,7 @@ test('CT中の場合は2番目のAスキルが発動する', () => {
       lane: 0,
       index: 1,
       fail: false,
-      activated: [],
+      affected: [],
     },
     {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -541,7 +539,7 @@ test('CT中の場合は2番目のAスキルが発動する', () => {
       lane: 0,
       index: 2,
       fail: false,
-      activated: [],
+      affected: [],
     },
   ]
   expect(
@@ -564,7 +562,7 @@ test('SPスキルが発動する', () => {
       lane: 0,
       index: 0,
       fail: false,
-      activated: [],
+      affected: [],
     },
   ]
   expect(
@@ -587,7 +585,7 @@ test('SPを持っていない場合には失敗する', () => {
       lane: 0,
       index: undefined,
       fail: true,
-      activated: [],
+      affected: [],
     },
   ]
   expect(
@@ -610,17 +608,14 @@ test('Pスキルが発動する', () => {
       lane: 0,
       index: 1,
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 0,
       buff: 'vocal',
       lane: 0,
-      affected: false,
+      affecting: false,
       amount: 4,
       span: 10,
-    },
+    }),
   ]
   expect(
     simulate(
@@ -648,17 +643,14 @@ test('無条件の場合、CTが終わった瞬間にPスキルが発動する',
       lane: 0,
       index: 1,
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 0,
       buff: 'vocal',
       lane: 0,
-      affected: false,
+      affecting: false,
       amount: 4,
       span: 10,
-    },
+    }),
     {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       id: expect.any(String),
@@ -668,17 +660,14 @@ test('無条件の場合、CTが終わった瞬間にPスキルが発動する',
       lane: 0,
       index: 1,
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 50,
       buff: 'vocal',
       lane: 0,
-      affected: false,
+      affecting: false,
       amount: 4,
       span: 10,
-    },
+    }),
   ]
   expect(
     simulate(
@@ -706,17 +695,14 @@ test('同一ビートで発動可能なPスキルが2つある場合には2番�
       lane: 0,
       index: 1,
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 0,
       buff: 'vocal',
       lane: 0,
-      affected: false,
+      affecting: false,
       amount: 4,
       span: 10,
-    },
+    }),
     {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       id: expect.any(String),
@@ -726,17 +712,14 @@ test('同一ビートで発動可能なPスキルが2つある場合には2番�
       lane: 0,
       index: 2,
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 1,
       buff: 'score',
       lane: 0,
-      affected: false,
+      affecting: false,
       amount: 4,
       span: 10,
-    },
+    }),
   ]
   expect(
     simulate(
@@ -770,17 +753,14 @@ test('同一ビートで発動可能なPスキルが2つある場合かつ、2�
       lane: 0,
       index: 2,
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 0,
       buff: 'score',
       lane: 0,
-      affected: false,
+      affecting: false,
       amount: 4,
       span: 10,
-    },
+    }),
     {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       id: expect.any(String),
@@ -790,17 +770,14 @@ test('同一ビートで発動可能なPスキルが2つある場合かつ、2�
       lane: 0,
       index: 1,
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 1,
       buff: 'vocal',
       lane: 0,
-      affected: false,
+      affecting: false,
       amount: 4,
       span: 10,
-    },
+    }),
   ]
   expect(
     simulate(
@@ -834,17 +811,14 @@ test('同一ビートで発動可能なPスキルが2つある場合かつ、2�
       lane: 0,
       index: 2,
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 0,
       buff: 'score',
       lane: 0,
-      affected: false,
+      affecting: false,
       amount: 4,
       span: 10,
-    },
+    }),
     {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       id: expect.any(String),
@@ -854,17 +828,14 @@ test('同一ビートで発動可能なPスキルが2つある場合かつ、2�
       lane: 0,
       index: 1,
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 1,
       buff: 'vocal',
       lane: 0,
-      affected: false,
+      affecting: false,
       amount: 4,
       span: 10,
-    },
+    }),
   ]
   expect(
     simulate(
@@ -898,7 +869,7 @@ test('Aスキル発動前の条件でPスキルが発動する', () => {
       lane: 1,
       index: 0,
       fail: false,
-      activated: [{ type: 'vocal', amount: 4 }],
+      affected: affected([{ type: 'vocal', amount: 4 }]),
     },
     {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -909,17 +880,14 @@ test('Aスキル発動前の条件でPスキルが発動する', () => {
       lane: 0,
       index: 1,
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 5,
       buff: 'vocal',
       lane: 1,
-      affected: true,
+      affecting: true,
       amount: 4,
       span: 1,
-    },
+    }),
   ]
   expect(
     simulate(
@@ -951,22 +919,19 @@ test('スコアアップ状態の時にPスキルが発動する', () => {
       lane: 0,
       index: 0,
       fail: false,
-      activated: [
+      affected: affected([
         { type: 'score', amount: 4 },
         { type: 'vocal', amount: 4 },
-      ],
+      ]),
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 5,
       buff: 'score',
       lane: 0,
-      affected: true,
+      affecting: true,
       amount: 4,
       span: 1,
-    },
+    }),
     {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       id: expect.any(String),
@@ -976,17 +941,14 @@ test('スコアアップ状態の時にPスキルが発動する', () => {
       lane: 0,
       index: 1,
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 5,
       buff: 'vocal',
       lane: 0,
-      affected: true,
+      affecting: true,
       amount: 4,
       span: 1,
-    },
+    }),
   ]
   expect(
     simulate(
@@ -1019,19 +981,16 @@ test('誰かがテンションアップ状態の時にPスキルが発動する'
       lane: 0,
       index: 0,
       fail: false,
-      activated: [],
+      affected: [],
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 5,
       buff: 'tension',
       lane: 2,
-      affected: false,
+      affecting: false,
       amount: 4,
       span: 1,
-    },
+    }),
     {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       id: expect.any(String),
@@ -1041,17 +1000,14 @@ test('誰かがテンションアップ状態の時にPスキルが発動する'
       lane: 0,
       index: 1,
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 5,
       buff: 'dance',
       lane: 2,
-      affected: false,
+      affecting: false,
       amount: 4,
       span: 1,
-    },
+    }),
   ]
   expect(
     simulate(
@@ -1084,7 +1040,7 @@ test('AスキルによるCT減少によってCT間隔未満のAスキル発動�
       lane: 2,
       index: 0,
       fail: false,
-      activated: [],
+      affected: [],
     },
     {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -1095,7 +1051,7 @@ test('AスキルによるCT減少によってCT間隔未満のAスキル発動�
       lane: 0,
       index: 0,
       fail: false,
-      activated: [],
+      affected: [],
     },
     {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -1106,7 +1062,7 @@ test('AスキルによるCT減少によってCT間隔未満のAスキル発動�
       lane: 2,
       index: 0,
       fail: false,
-      activated: [],
+      affected: [],
     },
   ]
   const { result } = simulate(
@@ -1137,7 +1093,7 @@ test('AスキルによるCT減少によってピッタリCT間隔のAスキル�
       lane: 2,
       index: 0,
       fail: false,
-      activated: [],
+      affected: [],
     },
     {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -1148,7 +1104,7 @@ test('AスキルによるCT減少によってピッタリCT間隔のAスキル�
       lane: 0,
       index: 0,
       fail: false,
-      activated: [],
+      affected: [],
     },
     {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -1159,7 +1115,7 @@ test('AスキルによるCT減少によってピッタリCT間隔のAスキル�
       lane: 2,
       index: 0,
       fail: false,
-      activated: [],
+      affected: [],
     },
   ]
   const { result } = simulate(
@@ -1190,7 +1146,7 @@ test('AスキルによるCT減少してもなおCT中のAスキル発動は失�
       lane: 2,
       index: 0,
       fail: false,
-      activated: [],
+      affected: [],
     },
     {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -1201,7 +1157,7 @@ test('AスキルによるCT減少してもなおCT中のAスキル発動は失�
       lane: 0,
       index: 0,
       fail: false,
-      activated: [],
+      affected: [],
     },
     {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -1212,7 +1168,7 @@ test('AスキルによるCT減少してもなおCT中のAスキル発動は失�
       lane: 2,
       index: undefined,
       fail: true,
-      activated: [],
+      affected: [],
     },
   ]
   const { result } = simulate(
@@ -1252,7 +1208,7 @@ test('AスキルによるCT減少によってPスキル発動が早まる', () =
       lane: 0,
       index: 0,
       fail: false,
-      activated: [],
+      affected: [],
     },
     {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -1292,7 +1248,7 @@ test('PスキルによるCT減少によってCT間隔未満のAスキル発動�
       lane: 2,
       index: 0,
       fail: false,
-      activated: [],
+      affected: [],
     },
     {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -1312,7 +1268,7 @@ test('PスキルによるCT減少によってCT間隔未満のAスキル発動�
       lane: 2,
       index: 0,
       fail: false,
-      activated: [],
+      affected: [],
     },
   ]
   const { result } = simulate(
@@ -1491,17 +1447,14 @@ test('強化効果が譲渡される', () => {
       lane: 0,
       index: 1,
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 0,
       buff: 'score',
       lane: 0,
-      affected: false,
+      affecting: false,
       amount: 10,
       span: 10,
-    },
+    }),
     {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       id: expect.any(String),
@@ -1510,20 +1463,17 @@ test('強化効果が譲渡される', () => {
       buff: 'delegate-buff',
       lane: 0,
       index: 0,
-      activated: [],
+      affected: [],
       fail: false,
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 10,
       buff: 'score',
       lane: 2,
-      affected: false,
+      affecting: false,
       amount: 10,
       span: 20,
-    },
+    }),
   ]
   const { result } = simulate(
     mockLive({ a: [[10], [], [], [], []], beat: 40 }),
@@ -1555,19 +1505,16 @@ test('SPシフトがAスキル起因で発動する', () => {
       lane: 2,
       index: 1,
       fail: false,
-      activated: [{ type: 'dance', amount: 4 }],
+      affected: affected([{ type: 'dance', amount: 4 }]),
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 1,
       buff: 'dance',
       lane: 2,
-      affected: true,
+      affecting: true,
       amount: 4,
       span: 4,
-    },
+    }),
     {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       id: expect.any(String),
@@ -1577,7 +1524,7 @@ test('SPシフトがAスキル起因で発動する', () => {
       lane: 0,
       index: 0,
       fail: false,
-      activated: [],
+      affected: [],
     },
     {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -1588,19 +1535,16 @@ test('SPシフトがAスキル起因で発動する', () => {
       lane: 2,
       index: 0,
       fail: false,
-      activated: [{ type: 'dance', amount: 4 }],
+      affected: affected([{ type: 'dance', amount: 4 }]),
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 20,
       buff: 'dance',
       lane: 2,
-      affected: true,
+      affecting: true,
       amount: 4,
       span: 6,
-    },
+    }),
   ]
   expect(
     simulate(
@@ -1634,19 +1578,16 @@ test('SPシフトがPスキル起因で発動する', () => {
       lane: 0,
       index: 0,
       fail: false,
-      activated: [],
+      affected: [],
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 5,
       buff: 'tension',
       lane: 2,
-      affected: false,
+      affecting: false,
       amount: 4,
       span: 0,
-    },
+    }),
     {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       id: expect.any(String),
@@ -1665,19 +1606,16 @@ test('SPシフトがPスキル起因で発動する', () => {
       lane: 2,
       index: 0,
       fail: false,
-      activated: [{ type: 'tension', amount: 4 }],
+      affected: affected([{ type: 'tension', amount: 4 }]),
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 20,
       buff: 'tension',
       lane: 2,
-      affected: true,
+      affecting: true,
       amount: 4,
       span: 10,
-    },
+    }),
   ]
   expect(
     simulate(
@@ -1712,19 +1650,16 @@ test('SPシフトで移動したバフがライブの終端で終わる', () => 
       lane: 2,
       index: 1,
       fail: false,
-      activated: [{ type: 'dance', amount: 4 }],
+      affected: affected([{ type: 'dance', amount: 4 }]),
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 1,
       buff: 'dance',
       lane: 2,
-      affected: true,
+      affecting: true,
       amount: 4,
       span: 4,
-    },
+    }),
     {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       id: expect.any(String),
@@ -1734,7 +1669,7 @@ test('SPシフトで移動したバフがライブの終端で終わる', () => 
       lane: 0,
       index: 0,
       fail: false,
-      activated: [],
+      affected: [],
     },
     {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -1745,19 +1680,16 @@ test('SPシフトで移動したバフがライブの終端で終わる', () => 
       lane: 2,
       index: 0,
       fail: false,
-      activated: [{ type: 'dance', amount: 4 }],
+      affected: affected([{ type: 'dance', amount: 4 }]),
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 20,
       buff: 'dance',
       lane: 2,
-      affected: true,
+      affecting: true,
       amount: 4,
       span: 11,
-    },
+    }),
   ]
   expect(
     simulate(
@@ -1800,17 +1732,14 @@ test('ダンスレーンの時の条件が満たされる効果のみ適用さ�
       lane: 1,
       index: 1,
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 0,
       buff: 'score',
       lane: 0,
-      affected: false,
+      affecting: false,
       amount: 4,
       span: 10,
-    },
+    }),
   ]
   expect(
     simulate(
@@ -1921,17 +1850,14 @@ test('センターの時の条件が満たされる効果のみ適用される',
       lane: 2,
       index: 1,
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 0,
       buff: 'score',
       lane: 2,
-      affected: false,
+      affecting: false,
       amount: 4,
       span: 10,
-    },
+    }),
   ]
   expect(
     simulate(
@@ -1976,17 +1902,14 @@ test('Xコンボ以上時の条件が満たされる効果のみ適用される'
       lane: 0,
       index: 1,
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 50,
       buff: 'score',
       lane: 0,
-      affected: false,
+      affecting: false,
       amount: 4,
       span: 10,
-    },
+    }),
   ]
   expect(
     simulate(
@@ -2018,17 +1941,14 @@ test('Xコンボ以下時の条件が満たされる効果のみ適用される'
       lane: 0,
       index: 1,
     },
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: expect.any(String),
-      type: 'buff',
+    buffResult({
       beat: 0,
       buff: 'score',
       lane: 0,
-      affected: false,
+      affecting: false,
       amount: 4,
       span: 10,
-    },
+    }),
     {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       id: expect.any(String),
