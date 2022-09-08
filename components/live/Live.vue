@@ -10,6 +10,7 @@
           :skill="getSkill(i, item.index)"
           :lane="i"
           :gap="item.type === 'sp' || item.type === 'a' ? item.gap : null"
+          :affected="item.type === 'sp' || item.type === 'a' ? item.affected : []"
           @long-press="handleLongPress(item.id)"
           @release="handleRelease"
         ></LiveSkill>

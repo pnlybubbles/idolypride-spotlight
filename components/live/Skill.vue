@@ -9,15 +9,7 @@
       <div class="marker" :class="{ fail, [variant]: true }"></div>
     </Interactive>
     <div v-if="variant !== 'p'" class="beat" :class="variant">{{ beat }}</div>
-    <LiveTooltip
-      v-if="activated !== undefined"
-      v-show="showTooltip"
-      :activated="activated"
-      :skill="skill"
-      :position="position"
-    ></LiveTooltip>
-    <LiveTooltip v-else v-show="showTooltip" :skill="skill" :position="position"></LiveTooltip>
-    <Popover v-if="gap !== null" v-show="showGap" :position="position">{{ gap }} ビート</Popover>
+    <LiveTooltip v-show="showTooltip" :skill="skill" :position="position" :affected="affected"></LiveTooltip>
   </div>
 </template>
 <script setup lang="ts">
@@ -30,7 +22,7 @@ interface Props {
   fail?: boolean
   beat: number
   buff: AbilityType
-  activated?: { type: BuffAbilityType; amount: number }[]
+  affected: { type: BuffAbilityType; amount: number }[]
   skill: SkillData | undefined
   lane: Lane
   gap: number | null
