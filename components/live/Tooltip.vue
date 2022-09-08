@@ -1,5 +1,5 @@
 <template>
-  <div class="tooltip" :class="[position]" @touchstart.stop @touchend.stop>
+  <Popover class="tooltip" :position="position">
     <div v-if="skill" class="heading">
       <div class="name">{{ skill.name }}</div>
       <div class="detail">
@@ -15,7 +15,7 @@
         </div>
       </div>
     </template>
-  </div>
+  </Popover>
 </template>
 <script setup lang="ts">
 import { useInternalLabel } from '~~/composable/localstorage-descriptors'
@@ -47,13 +47,7 @@ const [internalLabel] = useInternalLabel()
 }
 
 .tooltip {
-  @include round-corner;
-  @include background-blur;
-  position: absolute;
   z-index: 2;
-  top: 50%;
-  background-color: $surface2;
-  color: $text4;
   padding: 6px 0;
   font-size: $typography-s;
   text-align: left;
@@ -61,16 +55,6 @@ const [internalLabel] = useInternalLabel()
   max-width: 120px;
   display: grid;
   gap: 4px;
-
-  &.left {
-    right: 50%;
-    transform: translate(-4px, 4px);
-  }
-
-  &.right {
-    left: 50%;
-    transform: translate(4px, 4px);
-  }
 }
 
 .heading {
