@@ -38,7 +38,6 @@ const showBuff = computed(() => props.affected.length > 0)
 .tooltip {
   z-index: 2;
   padding: 6px 0;
-  text-align: left;
   max-width: 120px;
   display: grid;
   gap: 4px;

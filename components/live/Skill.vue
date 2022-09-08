@@ -10,10 +10,20 @@
     </Interactive>
     <div v-if="variant !== 'p'" class="beat" :class="variant">{{ beat }}</div>
     <LiveTooltip v-show="showTooltip" :skill="skill" :position="position" :affected="affected"></LiveTooltip>
+    <Popover v-show="showGap" class="tooltip" :position="position">
+      <div v-if="gap !== null" class="heading">{{ gap }} ビート</div>
+      <div v-if="gap !== null && activated.length > 0" class="divider"></div>
+      <div v-if="activated.length > 0" class="ability">
+        <div v-for="item in activated" :key="item.abilityId">
+          {{ item.amount }} {{ buffAbilityTypeLabel(item.type, internalLabel) }}
+        </div>
+      </div>
+    </Popover>
   </div>
 </template>
 <script setup lang="ts">
-import { useFumenScaleFactor } from '~~/composable/localstorage-descriptors'
+import { useFumenScaleFactor, useInternalLabel } from '~~/composable/localstorage-descriptors'
+import { buffAbilityTypeLabel } from '~~/utils/common'
 import { AbilityType, BuffAbilityType, Lane, SkillData } from '~~/utils/types'
 import { cssBeat, cssBuff } from './helper'
 
@@ -23,6 +33,7 @@ interface Props {
   beat: number
   buff: AbilityType
   affected: { type: BuffAbilityType; amount: number }[]
+  activated: { abilityId: string; type: BuffAbilityType; amount: number }[]
   skill: SkillData | undefined
   lane: Lane
   gap: number | null
@@ -47,6 +58,8 @@ const showTooltip = ref(false)
 const showGap = ref(false)
 
 const position = computed(() => (props.lane === 0 ? 'right' : 'left'))
+
+const [internalLabel] = useInternalLabel()
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
@@ -117,5 +130,38 @@ $p-size: 8px;
   &.p {
     right: calc(100% + 4px + $p-size / 2);
   }
+}
+
+.tooltip {
+  z-index: 2;
+  padding: 6px 0;
+  display: grid;
+  gap: 4px;
+}
+
+@mixin padder {
+  padding: 0 8px;
+}
+
+.heading {
+  @include padder;
+}
+
+.divider {
+  position: relative;
+
+  &::before {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 95%;
+    border-top: 1px solid $surface2-stroke;
+  }
+}
+
+.ability {
+  @include padder;
 }
 </style>

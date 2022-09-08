@@ -12,6 +12,7 @@
           :lane="i"
           :gap="item.type === 'sp' || item.type === 'a' ? item.gap : null"
           :affected="item.type === 'sp' || item.type === 'a' ? item.affected : []"
+          :activated="item.activated"
           @long-press="handleLongPress(item.id)"
           @release="handleRelease"
         ></LiveSkill>
@@ -69,12 +70,14 @@ type Item = {
       type: 'sp' | 'a'
       index: SkillIndex | undefined
       fail: boolean
-      affected: { id: string; type: BuffAbilityType; amount: number }[]
+      affected: { type: BuffAbilityType; amount: number }[]
+      activated: { abilityId: string; type: BuffAbilityType; amount: number }[]
       gap: number | null
     }
   | {
       type: 'p'
       index: SkillIndex
+      activated: { abilityId: string; type: BuffAbilityType; amount: number }[]
     }
   | {
       type: 'buff'

@@ -30,14 +30,18 @@ export type Result = ({
   | {
       type: 'p'
       index: SkillIndex
+      // 発動したバフ
+      activated: { abilityId: string; type: BuffAbilityType; amount: number }[]
     }
   | {
       type: 'sp' | 'a'
       index: SkillIndex | undefined
       // 失敗したか否か
       fail: boolean
-      // 載っているバフ
+      // 載っているバフ(Result['id'])
       affected: { id: string; type: BuffAbilityType; amount: number }[]
+      // 発動したバフ
+      activated: { abilityId: string; type: BuffAbilityType; amount: number }[]
     }
   | {
       type: 'buff'
@@ -47,6 +51,7 @@ export type Result = ({
       affecting: boolean
       // どのスキル(Result['id'])から発動したか
       activatedBy: string
+      abilityId: string
     }
 ))[]
 
@@ -121,11 +126,15 @@ export function simulate(live: LiveData, rawIdols: Idols, laneConfig: LaneConfig
           fail: skill === null,
           index: skill?.index,
           beat: currentBeat,
+          activated: deriveActivated(aBuffResult, id),
           id,
         }))
 
         // SPスキルの発動チェック
         spState = deriveSpState(domain)
+
+        // SPスキルによるバフ
+        const spBuffResult = deriveNaiveBuffResult(spState, domain)
 
         const spResult = spState.map(({ id, lane, skill }) => ({
           type: 'sp' as const,
@@ -134,11 +143,9 @@ export function simulate(live: LiveData, rawIdols: Idols, laneConfig: LaneConfig
           fail: skill === null,
           index: skill?.index,
           beat: currentBeat,
+          activated: deriveActivated(spBuffResult, id),
           id,
         }))
-
-        // SPスキルによるバフ
-        const spBuffResult = deriveNaiveBuffResult(spState, domain)
 
         // 更新処理
         const currentResult = [
@@ -216,6 +223,9 @@ export function simulate(live: LiveData, rawIdols: Idols, laneConfig: LaneConfig
         // Pスキルの発動チェック
         pState = derivePState({ ...domain, ctState, aState, spState, availableBuff: availableBuffBeforeP })
 
+        // Pスキルによるバフ
+        const pBuffResult = derivePBuffResult({ pState, ...domain })
+
         const pResult = pState.map(({ id, lane, skill }) => ({
           type: 'p' as const,
           // とりあえず1個目の効果を優先
@@ -223,11 +233,9 @@ export function simulate(live: LiveData, rawIdols: Idols, laneConfig: LaneConfig
           lane,
           index: skill.index,
           beat: currentBeat,
+          activated: deriveActivated(pBuffResult, id),
           id,
         }))
-
-        // Pスキルによるバフ
-        const pBuffResult = derivePBuffResult({ pState, ...domain })
 
         // 更新処理
         const currentResult = [...pResult, ...pBuffResult.map((v) => ({ ...v, affecting: false }))]
@@ -575,6 +583,7 @@ const deriveNaiveBuffResult = (
           amount: ability.amount,
           beat: currentBeat,
           activatedBy: id,
+          abilityId: ability.id,
           id: uid(),
         }))
       })
@@ -602,11 +611,21 @@ const derivePBuffResult = (domain: Pick<DomainState, 'pState' | 'idols' | 'live'
           amount: ability.amount,
           beat: currentBeat,
           activatedBy: id,
+          abilityId: ability.id,
           id: uid(),
         }))
       })
   })
 }
+
+const deriveActivated = (
+  buffResult: { abilityId: string; buff: BuffAbilityType; amount: number; activatedBy: string }[],
+  activatedBy: string
+) =>
+  buffResult
+    .filter((v) => v.activatedBy === activatedBy)
+    .map(({ abilityId, buff, amount }) => ({ abilityId, type: buff, amount }))
+    .filter((value, index, array) => array.findIndex((v) => value.abilityId === v.abilityId) === index)
 
 const filterCondition = (
   condition: AbilityCondition,
