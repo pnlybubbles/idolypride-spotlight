@@ -5,8 +5,9 @@
       <template v-for="item in lanes[i]" :key="item.id">
         <LiveSkill
           v-if="item.type === 'sp' || item.type === 'a' || item.type === 'p'"
+          :beat="item.beat"
+          :buff="item.buff"
           :variant="item.type"
-          v-bind="item"
           :skill="getSkill(i, item.index)"
           :lane="i"
           :gap="item.type === 'sp' || item.type === 'a' ? item.gap : null"
