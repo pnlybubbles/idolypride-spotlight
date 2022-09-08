@@ -9,6 +9,7 @@
           v-bind="item"
           :skill="getSkill(i, item.index)"
           :lane="i"
+          :gap="item.type === 'sp' || item.type === 'a' ? item.gap : null"
           @long-press="handleLongPress(item.id)"
           @release="handleRelease"
         ></LiveSkill>
@@ -27,7 +28,7 @@
 </template>
 <script setup lang="ts">
 import { isType, simulate } from './simulate'
-import { ArrayN } from '~~/utils'
+import { ArrayN, unreachable } from '~~/utils'
 import { AbilityType, BuffAbilityType, IdolData, Lane, LiveData, SkillIndex, LaneConfig } from '~~/utils/types'
 import { LANES, px } from '~~/utils/common'
 import { useFumenScaleFactor } from '~~/composable/localstorage-descriptors'
@@ -67,6 +68,7 @@ type Item = {
       index: SkillIndex | undefined
       fail: boolean
       affected: { id: string; type: BuffAbilityType; amount: number }[]
+      gap: number | null
     }
   | {
       type: 'p'
@@ -87,26 +89,37 @@ const lanes = computed(() =>
       .filter((v) => v.lane === lane)
       .sort((a, b) => a.beat - b.beat)
       .reduce((acc, c) => {
-        if (c.type !== 'buff') {
+        if (c.type === 'a' || c.type === 'sp') {
+          const prevBeat = acc
+            .filter((v) => v.type === c.type)
+            .map((v) => v.beat)
+            .reduce((max, v) => Math.max(max ?? 0, v), null as null | number)
+          const gap = prevBeat !== null ? c.beat - prevBeat : null
+          const item = { ...c, gap }
           // アイドルが未選択の場合はシミュレート結果のスキル失敗を打ち消す
-          return [...acc, props.idols[lane] == null ? { ...c, fail: false } : c]
+          return [...acc, props.idols[lane] == null ? { ...item, fail: false } : item]
+        } else if (c.type === 'p') {
+          return [...acc, c]
+        } else if (c.type === 'buff') {
+          const occupiedShift = acc
+            .filter(isType('buff'))
+            .filter((v) => v.beat + v.span >= c.beat)
+            .map((v) => v.shift)
+          const availableShift = new Array(occupiedShift.reduce((p, c) => Math.max(p, c), 0) + 2)
+            .fill(null)
+            .map((_, i) => i)
+            .filter((v) => !occupiedShift.includes(v))
+          const shift = availableShift[0] ?? 0
+          return [
+            ...acc,
+            {
+              ...c,
+              shift,
+            },
+          ]
+        } else {
+          return unreachable(c.type)
         }
-        const occupiedShift = acc
-          .filter(isType('buff'))
-          .filter((v) => v.beat + v.span >= c.beat)
-          .map((v) => v.shift)
-        const availableShift = new Array(occupiedShift.reduce((p, c) => Math.max(p, c), 0) + 2)
-          .fill(null)
-          .map((_, i) => i)
-          .filter((v) => !occupiedShift.includes(v))
-        const shift = availableShift[0] ?? 0
-        return [
-          ...acc,
-          {
-            ...c,
-            shift,
-          },
-        ]
       }, [] as Item[])
   )
 )

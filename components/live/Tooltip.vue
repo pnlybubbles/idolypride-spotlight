@@ -49,9 +49,7 @@ const [internalLabel] = useInternalLabel()
 .tooltip {
   z-index: 2;
   padding: 6px 0;
-  font-size: $typography-s;
   text-align: left;
-  width: max-content;
   max-width: 120px;
   display: grid;
   gap: 4px;

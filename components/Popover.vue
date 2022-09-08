@@ -19,6 +19,9 @@ withDefaults(defineProps<Props>(), { position: 'left' })
   top: 50%;
   background-color: $surface2;
   color: $text4;
+  font-size: $typography-s;
+  padding: 6px 8px;
+  width: max-content;
 
   &.left {
     right: 50%;

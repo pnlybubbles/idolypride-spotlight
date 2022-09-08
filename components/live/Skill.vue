@@ -2,8 +2,8 @@
   <div class="skill">
     <Interactive
       class="hit"
-      @long-press="$emit('longPress')"
-      @release="$emit('release')"
+      @long-press="$emit('longPress'), (showGap = true)"
+      @release="$emit('release'), (showGap = false)"
       @click="showTooltip = !showTooltip"
     >
       <div class="marker" :class="{ fail, [variant]: true }"></div>
@@ -14,9 +14,10 @@
       v-show="showTooltip"
       :activated="activated"
       :skill="skill"
-      :position="lane === 0 ? 'right' : 'left'"
+      :position="position"
     ></LiveTooltip>
-    <LiveTooltip v-else v-show="showTooltip" :skill="skill" :position="lane === 0 ? 'right' : 'left'"></LiveTooltip>
+    <LiveTooltip v-else v-show="showTooltip" :skill="skill" :position="position"></LiveTooltip>
+    <Popover v-if="gap !== null" v-show="showGap" :position="position">{{ gap }} ビート</Popover>
   </div>
 </template>
 <script setup lang="ts">
@@ -32,6 +33,7 @@ interface Props {
   activated?: { type: BuffAbilityType; amount: number }[]
   skill: SkillData | undefined
   lane: Lane
+  gap: number | null
 }
 
 const props = defineProps<Props>()
@@ -45,11 +47,14 @@ defineEmits<Emits>()
 
 const [scaleFactor] = useFumenScaleFactor()
 
-const { fail, beat, buff } = toRefs(props)
+const { fail, beat, buff, gap } = toRefs(props)
 const top = computed(() => cssBeat(beat.value, scaleFactor.value))
 const color = computed(() => cssBuff(buff.value))
 
 const showTooltip = ref(false)
+const showGap = ref(false)
+
+const position = computed(() => (props.lane === 0 ? 'right' : 'left'))
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
