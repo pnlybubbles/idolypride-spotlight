@@ -8,7 +8,7 @@
           @release="$emit('release'), (showGap = false)"
           @click="showTooltip = !showTooltip"
         >
-          <div class="marker" :class="{ fail, [variant]: true }"></div>
+          <div class="marker" :class="{ fail, highlighted: present, [variant]: true }"></div>
         </Interactive>
       </template>
       <div v-if="showGap" class="tooltip">
@@ -116,6 +116,10 @@ $p-size: 8px;
   &.fail {
     border-color: red;
     background: repeating-linear-gradient(45deg, red, red 2px, transparent 2px, transparent 6px);
+  }
+
+  &.highlighted {
+    box-shadow: 0 0 8px v-bind(color);
   }
 }
 
