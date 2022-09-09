@@ -12,7 +12,7 @@
         </Interactive>
       </template>
       <div v-if="showGap" class="tooltip">
-        <div v-if="gap !== null" class="gap">{{ gap }} ビート</div>
+        <div v-if="gap !== null" class="gap">{{ SKILL_TYPE[variant] }}間隔: {{ gap }}</div>
         <div v-if="gap !== null && activated.length > 0" class="divider"></div>
         <div v-if="activated.length > 0" class="ability">
           <div v-for="item in activated" :key="item.abilityId">
@@ -27,7 +27,7 @@
 </template>
 <script setup lang="ts">
 import { useFumenScaleFactor, useInternalLabel } from '~~/composable/localstorage-descriptors'
-import { buffAbilityTypeLabel } from '~~/utils/common'
+import { buffAbilityTypeLabel, SKILL_TYPE } from '~~/utils/common'
 import { AbilityType, BuffAbilityType, Lane, SkillData } from '~~/utils/types'
 import { cssBeat, cssBuff } from './helper'
 
