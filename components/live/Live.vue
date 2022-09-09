@@ -88,13 +88,27 @@ type Item = {
     }
 )
 
-const lanes = computed(() =>
-  LANES.map((lane) =>
+const lanes = computed(() => {
+  // ビート数が多い順にソートしておく(findで先頭から探したいので)
+  const spBeats = simulated.value.result
+    .filter((v) => v.type === 'sp')
+    .map((v) => v.beat)
+    .sort()
+    .reverse()
+  return LANES.map((lane) =>
     simulated.value.result
       .filter((v) => v.lane === lane)
       .sort((a, b) => a.beat - b.beat)
       .reduce((acc, c) => {
-        if (c.type === 'a' || c.type === 'sp') {
+        if (c.type === 'sp') {
+          // SPの場合はビート間隔計算をレーンまたいで行う
+          const prevBeat = spBeats.find((v) => v < c.beat)
+          const gap = prevBeat !== undefined ? c.beat - prevBeat : null
+          const item = { ...c, gap }
+          // アイドルが未選択の場合はシミュレート結果のスキル失敗を打ち消す
+          return [...acc, props.idols[lane] == null ? { ...item, fail: false } : item]
+        } else if (c.type === 'a') {
+          // Aスキルの場合は同一レーンでのみビート間隔計算する
           const prevBeat = acc
             .filter((v) => v.type === c.type)
             .map((v) => v.beat)
@@ -127,7 +141,7 @@ const lanes = computed(() =>
         }
       }, [] as Item[])
   )
-)
+})
 
 const highlighted = ref<string | null>(null)
 
