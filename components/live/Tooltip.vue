@@ -1,5 +1,5 @@
 <template>
-  <Popover class="tooltip" :position="position">
+  <div class="tooltip">
     <div v-if="skill" class="heading">
       <div class="name">{{ skill.name }}</div>
       <div class="detail">
@@ -15,7 +15,7 @@
         </div>
       </div>
     </template>
-  </Popover>
+  </div>
 </template>
 <script setup lang="ts">
 import { BuffAbilityType, SkillData } from '~~/utils/types'
@@ -23,9 +23,9 @@ import { BuffAbilityType, SkillData } from '~~/utils/types'
 interface Props {
   skill: SkillData | undefined
   affected: { type: BuffAbilityType; amount: number }[]
-  position?: 'left' | 'right'
 }
-const props = withDefaults(defineProps<Props>(), { position: 'left' })
+const props = defineProps<Props>()
+
 const showBuff = computed(() => props.affected.length > 0)
 </script>
 <style lang="scss" scoped>

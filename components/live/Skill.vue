@@ -1,24 +1,28 @@
 <template>
   <div class="skill">
-    <Interactive
-      class="hit"
-      @long-press="$emit('longPress'), (showGap = true)"
-      @release="$emit('release'), (showGap = false)"
-      @click="showTooltip = !showTooltip"
-    >
-      <div class="marker" :class="{ fail, [variant]: true }"></div>
-    </Interactive>
-    <div v-if="variant !== 'p'" class="beat" :class="variant">{{ beat }}</div>
-    <LiveTooltip v-show="showTooltip" :skill="skill" :position="position" :affected="affected"></LiveTooltip>
-    <Popover v-show="showGap" v-if="gap !== null || activated.length > 0" class="tooltip" :position="position">
-      <div v-if="gap !== null" class="gap">{{ gap }} ビート</div>
-      <div v-if="gap !== null && activated.length > 0" class="divider"></div>
-      <div v-if="activated.length > 0" class="ability">
-        <div v-for="item in activated" :key="item.abilityId">
-          {{ item.amount }} {{ buffAbilityTypeLabel(item.type, internalLabel) }}
+    <Popover v-model:present="present" position="center" :disabled="!(gap !== null || activated.length > 0)">
+      <template #anchor>
+        <Interactive
+          class="hit"
+          @long-press="$emit('longPress'), (showGap = true)"
+          @release="$emit('release'), (showGap = false)"
+          @click="showTooltip = !showTooltip"
+        >
+          <div class="marker" :class="{ fail, [variant]: true }"></div>
+        </Interactive>
+      </template>
+      <div v-if="showGap" class="tooltip">
+        <div v-if="gap !== null" class="gap">{{ gap }} ビート</div>
+        <div v-if="gap !== null && activated.length > 0" class="divider"></div>
+        <div v-if="activated.length > 0" class="ability">
+          <div v-for="item in activated" :key="item.abilityId">
+            {{ item.amount }} {{ buffAbilityTypeLabel(item.type, internalLabel) }}
+          </div>
         </div>
       </div>
+      <LiveTooltip v-if="showTooltip" :skill="skill" :affected="affected"></LiveTooltip>
     </Popover>
+    <div v-if="variant !== 'p'" class="beat" :class="variant">{{ beat }}</div>
   </div>
 </template>
 <script setup lang="ts">
@@ -57,7 +61,10 @@ const color = computed(() => cssBuff(buff.value))
 const showTooltip = ref(false)
 const showGap = ref(false)
 
-const position = computed(() => (props.lane === 0 ? 'right' : 'left'))
+const present = computed({
+  get: () => showTooltip.value || showGap.value,
+  set: () => ((showTooltip.value = false), (showGap.value = false)),
+})
 
 const [internalLabel] = useInternalLabel()
 </script>
