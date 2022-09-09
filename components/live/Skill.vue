@@ -1,21 +1,33 @@
 <template>
   <div class="skill">
-    <Interactive class="hit" @long-press="$emit('long-press')" @click="showTooltip = !showTooltip">
-      <div class="marker" :class="{ fail, [variant]: true }"></div>
-    </Interactive>
+    <Popover v-model:present="present" position="center" :disabled="!(gap !== null || activated.length > 0)">
+      <template #anchor>
+        <Interactive
+          class="hit"
+          @long-press="$emit('longPress'), (showGap = true)"
+          @release="$emit('release'), (showGap = false)"
+          @click="showTooltip = !showTooltip"
+        >
+          <div class="marker" :class="{ fail, highlighted: present, [variant]: true }"></div>
+        </Interactive>
+      </template>
+      <div v-if="showGap" class="tooltip">
+        <div v-if="gap !== null" class="gap">{{ SKILL_TYPE[variant] }}間隔: {{ gap }}</div>
+        <div v-if="gap !== null && activated.length > 0" class="divider"></div>
+        <div v-if="activated.length > 0" class="ability">
+          <div v-for="item in activated" :key="item.abilityId">
+            {{ item.amount }} {{ buffAbilityTypeLabel(item.type, internalLabel) }}
+          </div>
+        </div>
+      </div>
+      <LiveTooltip v-if="showTooltip" :skill="skill" :affected="affected"></LiveTooltip>
+    </Popover>
     <div v-if="variant !== 'p'" class="beat" :class="variant">{{ beat }}</div>
-    <LiveTooltip
-      v-if="activated !== undefined"
-      v-show="showTooltip"
-      :activated="activated"
-      :skill="skill"
-      :position="lane === 0 ? 'right' : 'left'"
-    ></LiveTooltip>
-    <LiveTooltip v-else v-show="showTooltip" :skill="skill" :position="lane === 0 ? 'right' : 'left'"></LiveTooltip>
   </div>
 </template>
 <script setup lang="ts">
-import { useFumenScaleFactor } from '~~/composable/localstorage-descriptors'
+import { useFumenScaleFactor, useInternalLabel } from '~~/composable/localstorage-descriptors'
+import { buffAbilityTypeLabel, SKILL_TYPE } from '~~/utils/common'
 import { AbilityType, BuffAbilityType, Lane, SkillData } from '~~/utils/types'
 import { cssBeat, cssBuff } from './helper'
 
@@ -24,26 +36,37 @@ interface Props {
   fail?: boolean
   beat: number
   buff: AbilityType
-  activated?: { type: BuffAbilityType; amount: number }[]
+  affected: { type: BuffAbilityType; amount: number }[]
+  activated: { abilityId: string; type: BuffAbilityType; amount: number }[]
   skill: SkillData | undefined
   lane: Lane
+  gap: number | null
 }
 
 const props = defineProps<Props>()
 
 interface Emits {
-  (e: 'long-press'): void
+  (e: 'longPress'): void
+  (e: 'release'): void
 }
 
 defineEmits<Emits>()
 
 const [scaleFactor] = useFumenScaleFactor()
 
-const { fail, beat, buff } = toRefs(props)
+const { fail, beat, buff, gap } = toRefs(props)
 const top = computed(() => cssBeat(beat.value, scaleFactor.value))
 const color = computed(() => cssBuff(buff.value))
 
 const showTooltip = ref(false)
+const showGap = ref(false)
+
+const present = computed({
+  get: () => showTooltip.value || showGap.value,
+  set: () => ((showTooltip.value = false), (showGap.value = false)),
+})
+
+const [internalLabel] = useInternalLabel()
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
@@ -94,6 +117,10 @@ $p-size: 8px;
     border-color: red;
     background: repeating-linear-gradient(45deg, red, red 2px, transparent 2px, transparent 6px);
   }
+
+  &.highlighted {
+    box-shadow: 0 0 8px v-bind(color);
+  }
 }
 
 .beat {
@@ -114,5 +141,38 @@ $p-size: 8px;
   &.p {
     right: calc(100% + 4px + $p-size / 2);
   }
+}
+
+.tooltip {
+  z-index: 2;
+  padding: 6px 0;
+  display: grid;
+  gap: 4px;
+}
+
+@mixin padder {
+  padding: 0 8px;
+}
+
+.gap {
+  @include padder;
+}
+
+.divider {
+  position: relative;
+
+  &::before {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 95%;
+    border-top: 1px solid $surface2-stroke;
+  }
+}
+
+.ability {
+  @include padder;
 }
 </style>

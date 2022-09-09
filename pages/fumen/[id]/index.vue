@@ -103,9 +103,11 @@ useHead(DEFAULT_META)
 @import '~~/components/partials/token.scss';
 .idol {
   @include lane-grid;
-  position: sticky;
+  /* スキル表示のツールチップが下に潜って見えなくなってしまうので、いったんstickyをやめる */
+  /* TODO: ある程度スクロールしたところで動的にstickyに切り替えてもよいかも */
+  /* position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 1; */
   background-color: $background1;
   margin-bottom: 8px;
 }

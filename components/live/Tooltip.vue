@@ -1,5 +1,5 @@
 <template>
-  <div class="tooltip" :class="[position]" @touchstart.stop @touchend.stop>
+  <div class="tooltip">
     <div v-if="skill" class="heading">
       <div class="name">{{ skill.name }}</div>
       <div class="detail">
@@ -7,37 +7,26 @@
       </div>
     </div>
     <div v-else class="fail">スキル失敗</div>
-    <template v-if="Object.keys(aggregatedActivated).length > 0">
+    <template v-if="showBuff">
       <div class="divider"></div>
       <div class="buff">
-        <div v-for="(value, key) in aggregatedActivated" :key="key" class="item">
-          {{ value && value > 20 ? `20 (${value})` : value }} {{ buffAbilityTypeLabel(key, internalLabel) }}
+        <div class="scrolling">
+          <LiveBuffText :affected="affected"></LiveBuffText>
         </div>
       </div>
     </template>
   </div>
 </template>
 <script setup lang="ts">
-import { useInternalLabel } from '~~/composable/localstorage-descriptors'
 import { BuffAbilityType, SkillData } from '~~/utils/types'
-import { buffAbilityTypeLabel } from '~~/utils/common'
 
 interface Props {
   skill: SkillData | undefined
-  activated?: { type: BuffAbilityType; amount: number }[]
-  position?: 'left' | 'right'
+  affected: { type: BuffAbilityType; amount: number }[]
 }
-const props = withDefaults(defineProps<Props>(), { position: 'left', activated: () => [] })
+const props = defineProps<Props>()
 
-// 同じバフが2重でかかったりするので集計する
-const aggregatedActivated = computed(() =>
-  props.activated.reduce(
-    (acc, v) => ({ ...acc, [v.type]: (acc[v.type] ?? 0) + v.amount }),
-    {} as { [key in BuffAbilityType]?: number }
-  )
-)
-
-const [internalLabel] = useInternalLabel()
+const showBuff = computed(() => props.affected.length > 0)
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
@@ -47,30 +36,11 @@ const [internalLabel] = useInternalLabel()
 }
 
 .tooltip {
-  @include round-corner;
-  @include background-blur;
-  position: absolute;
   z-index: 2;
-  top: 50%;
-  background-color: $surface2;
-  color: $text4;
   padding: 6px 0;
-  font-size: $typography-s;
-  text-align: left;
-  width: max-content;
   max-width: 120px;
   display: grid;
   gap: 4px;
-
-  &.left {
-    right: 50%;
-    transform: translate(-4px, 4px);
-  }
-
-  &.right {
-    left: 50%;
-    transform: translate(4px, 4px);
-  }
 }
 
 .heading {
@@ -117,11 +87,12 @@ const [internalLabel] = useInternalLabel()
   overflow-x: auto;
   padding-bottom: 8px;
   margin-bottom: -8px;
-}
-
-.item {
-  @include padder;
-  display: inline-flex;
   white-space: nowrap;
+
+  .scrolling {
+    @include padder;
+    display: inline-flex;
+    flex-direction: column;
+  }
 }
 </style>

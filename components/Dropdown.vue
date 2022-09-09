@@ -97,6 +97,7 @@ watchEffect(() => {
   display: grid;
   padding: 4px 0;
   gap: 1px;
+  z-index: 1;
 }
 
 .option {

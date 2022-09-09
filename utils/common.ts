@@ -119,6 +119,15 @@ export const IDOL_ROLE = {
   supporter: 'サポーター',
 } as const
 
+/**
+ * スキル種別のラベル
+ */
+export const SKILL_TYPE = {
+  sp: 'SPスキル',
+  a: 'Aスキル',
+  p: 'Pスキル',
+}
+
 export const abilityEnhanceLabel = (enhance: AbilityEnhance, internal: boolean) =>
   internal
     ? `${enhance.type}${'value' in enhance ? ` ${enhance.value}` : ''}`

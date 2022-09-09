@@ -1,5 +1,5 @@
 <template>
-  <div class="buff" :class="{ affected }"></div>
+  <div class="buff" :class="{ affected, highlighted }"></div>
 </template>
 <script setup lang="ts">
 import { useFumenScaleFactor } from '~~/composable/localstorage-descriptors'
@@ -28,10 +28,14 @@ interface Props {
    * バフがなんらかのスキルに影響があったか
    */
   affected: boolean
+  /**
+   * ハイライト表示
+   */
+  highlighted: boolean
 }
 
 const props = defineProps<Props>()
-const { beat, buff, affected, shift, span } = toRefs(props)
+const { beat, buff, affected, shift, span, highlighted } = toRefs(props)
 
 const [scaleFactor] = useFumenScaleFactor()
 const top = computed(() => cssBeat(beat.value, scaleFactor.value))
@@ -56,6 +60,10 @@ $shift-scale: 7px;
   &.affected {
     background: none;
     background-color: v-bind(color);
+  }
+
+  &.highlighted {
+    opacity: 1;
   }
 }
 </style>
