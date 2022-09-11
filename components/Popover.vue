@@ -4,6 +4,7 @@
     <div v-show="present" ref="hoveredRef" class="popover">
       <slot></slot>
     </div>
+    <div v-show="present" class="tip"></div>
   </div>
 </template>
 <script setup lang="ts">
@@ -79,5 +80,14 @@ onUnmounted(() => observer.disconnect())
   left: v-bind(hoveredOffset);
   transform: translate(-50%, calc(-1 * v-bind(offset)));
   z-index: 1;
+}
+
+.tip {
+  position: absolute;
+  top: 0;
+  left: -8px;
+  border: 8px solid transparent;
+  border-top: 8px solid $surface2;
+  transform: translate(0, calc(-1 * v-bind(offset)));
 }
 </style>
