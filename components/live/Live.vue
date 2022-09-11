@@ -10,6 +10,7 @@
           :variant="item.type"
           :skill="getSkill(i, item.index)"
           :lane="i"
+          :fail="item.type === 'p' ? null : item.fail"
           :gap="item.type === 'sp' || item.type === 'a' ? item.gap : null"
           :affected="item.type === 'sp' || item.type === 'a' ? item.affected : []"
           :activated="item.activated"

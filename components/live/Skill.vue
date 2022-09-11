@@ -33,7 +33,7 @@ import { cssBeat, cssBuff } from './helper'
 
 interface Props {
   variant: 'a' | 'sp' | 'p'
-  fail?: boolean
+  fail: boolean | null
   beat: number
   buff: AbilityType
   affected: { type: BuffAbilityType; amount: number }[]
