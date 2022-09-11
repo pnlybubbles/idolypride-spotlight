@@ -20,7 +20,7 @@
           </div>
         </div>
       </div>
-      <LiveTooltip v-if="showTooltip" :skill="skill" :affected="affected"></LiveTooltip>
+      <LiveTooltip v-if="showTooltip && !showGap" :skill="skill" :affected="affected"></LiveTooltip>
     </Popover>
     <div v-if="variant !== 'p'" class="beat" :class="variant">{{ beat }}</div>
   </div>
