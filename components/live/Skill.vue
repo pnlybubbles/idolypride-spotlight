@@ -132,6 +132,10 @@ $p-size: 8px;
 
   &.highlighted {
     box-shadow: 0 0 8px v-bind(color);
+
+    &.fail {
+      box-shadow: 0 0 8px red;
+    }
   }
 }
 
