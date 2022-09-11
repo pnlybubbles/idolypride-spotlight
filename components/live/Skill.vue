@@ -1,9 +1,10 @@
 <template>
   <div class="skill">
-    <Popover v-model:present="present" position="center" :disabled="!(gap !== null || activated.length > 0)">
+    <Popover v-model:present="present" position="center">
       <template #anchor>
         <Interactive
           class="hit"
+          :class="{ big: variant === 'a' || variant === 'sp' }"
           @long-press="$emit('longPress'), (showGap = true)"
           @release="$emit('release'), (showGap = false)"
           @click="showTooltip = !showTooltip"
@@ -16,11 +17,12 @@
         <div v-if="gap !== null && activated.length > 0" class="divider"></div>
         <div v-if="activated.length > 0" class="ability">
           <div v-for="item in activated" :key="item.abilityId">
-            {{ item.amount }} {{ buffAbilityTypeLabel(item.type, internalLabel) }}
+            {{ deriveDisabledAmount(item.type) ? '' : `${item.amount} `
+            }}{{ buffAbilityTypeLabel(item.type, internalLabel) }} (レーン: {{ laneLabel(item.target) }})
           </div>
         </div>
       </div>
-      <LiveTooltip v-if="showTooltip" :skill="skill" :affected="affected"></LiveTooltip>
+      <LiveTooltip v-if="showTooltip && !showGap" :skill="skill" :affected="affected"></LiveTooltip>
     </Popover>
     <div v-if="variant !== 'p'" class="beat" :class="variant">{{ beat }}</div>
   </div>
@@ -29,15 +31,16 @@
 import { useFumenScaleFactor, useInternalLabel } from '~~/composable/localstorage-descriptors'
 import { buffAbilityTypeLabel, SKILL_TYPE } from '~~/utils/common'
 import { AbilityType, BuffAbilityType, Lane, SkillData } from '~~/utils/types'
+import { deriveDisabledAmount } from '../idol-form/helper'
 import { cssBeat, cssBuff } from './helper'
 
 interface Props {
   variant: 'a' | 'sp' | 'p'
-  fail?: boolean
+  fail: boolean | null
   beat: number
   buff: AbilityType
   affected: { type: BuffAbilityType; amount: number }[]
-  activated: { abilityId: string; type: BuffAbilityType; amount: number }[]
+  activated: { abilityId: string; type: BuffAbilityType; amount: number; target: Lane[] }[]
   skill: SkillData | undefined
   lane: Lane
   gap: number | null
@@ -54,19 +57,24 @@ defineEmits<Emits>()
 
 const [scaleFactor] = useFumenScaleFactor()
 
-const { fail, beat, buff, gap } = toRefs(props)
-const top = computed(() => cssBeat(beat.value, scaleFactor.value))
-const color = computed(() => cssBuff(buff.value))
+const top = computed(() => cssBeat(props.beat, scaleFactor.value))
+const color = computed(() => cssBuff(props.buff))
 
 const showTooltip = ref(false)
 const showGap = ref(false)
 
 const present = computed({
-  get: () => showTooltip.value || showGap.value,
+  get: () => showTooltip.value || (showGap.value && (props.gap !== null || props.activated.length > 0)),
   set: () => ((showTooltip.value = false), (showGap.value = false)),
 })
 
 const [internalLabel] = useInternalLabel()
+
+const laneLabel = (target: Lane[]) =>
+  [...target]
+    .sort()
+    .map((v) => v + 1)
+    .join(',')
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
@@ -84,6 +92,11 @@ const [internalLabel] = useInternalLabel()
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+
+  &.big {
+    width: 80px;
+    height: 40px;
+  }
 }
 
 $sp-size: 40px;
@@ -120,6 +133,10 @@ $p-size: 8px;
 
   &.highlighted {
     box-shadow: 0 0 8px v-bind(color);
+
+    &.fail {
+      box-shadow: 0 0 8px red;
+    }
   }
 }
 
@@ -129,6 +146,7 @@ $p-size: 8px;
   position: absolute;
   font-size: $typography-m;
   color: $text3;
+  pointer-events: none;
 
   &.sp {
     right: calc(100% + 4px + $sp-size / 2);

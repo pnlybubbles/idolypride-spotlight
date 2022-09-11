@@ -10,6 +10,7 @@
           :variant="item.type"
           :skill="getSkill(i, item.index)"
           :lane="i"
+          :fail="item.type === 'p' ? null : item.fail"
           :gap="item.type === 'sp' || item.type === 'a' ? item.gap : null"
           :affected="item.type === 'sp' || item.type === 'a' ? item.affected : []"
           :activated="item.activated"
@@ -71,13 +72,13 @@ type Item = {
       index: SkillIndex | undefined
       fail: boolean
       affected: { type: BuffAbilityType; amount: number }[]
-      activated: { abilityId: string; type: BuffAbilityType; amount: number }[]
+      activated: { abilityId: string; type: BuffAbilityType; amount: number; target: Lane[] }[]
       gap: number | null
     }
   | {
       type: 'p'
       index: SkillIndex
-      activated: { abilityId: string; type: BuffAbilityType; amount: number }[]
+      activated: { abilityId: string; type: BuffAbilityType; amount: number; target: Lane[] }[]
     }
   | {
       type: 'buff'
@@ -140,8 +141,16 @@ const lanes = computed(() => {
           return unreachable(c.type)
         }
       }, [] as Item[])
+      .sort((a, b) => LANE_ITEM_ORDERING[a.type] - LANE_ITEM_ORDERING[b.type])
   )
 })
+
+const LANE_ITEM_ORDERING = {
+  buff: 0,
+  a: 1,
+  sp: 2,
+  p: 3,
+}
 
 const highlighted = ref<string | null>(null)
 

@@ -52,6 +52,8 @@ export type BuffTargetWithoutSuffix =
   | 'unknown'
 export type BuffTargetWithSuffix =
   | 'scorer'
+  | 'supporter'
+  | 'buffer'
   | 'opponent-scorer'
   | 'lowstamina'
   | 'debuff'

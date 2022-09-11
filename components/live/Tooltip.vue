@@ -1,9 +1,13 @@
 <template>
   <div class="tooltip">
     <div v-if="skill" class="heading">
-      <div class="name">{{ skill.name }}</div>
+      <div class="title">
+        <SkillTag :skill="skill" mini invert></SkillTag>
+        <div class="name">{{ skill.name }}</div>
+        <div class="level">Lv.{{ skill.level }}</div>
+      </div>
       <div class="detail">
-        <SkillText :skill="skill" class="scrolling" with-ct></SkillText>
+        <SkillText :skill="skill" class="scrolling" delimiter="newline" :with-lv="false"></SkillText>
       </div>
     </div>
     <div v-else class="fail">スキル失敗</div>
@@ -38,24 +42,31 @@ const showBuff = computed(() => props.affected.length > 0)
 .tooltip {
   z-index: 2;
   padding: 6px 0;
-  max-width: 120px;
   display: grid;
   gap: 4px;
 }
 
 .heading {
-  overflow: hidden;
+  display: grid;
+  grid: auto auto / auto;
+  gap: 4px;
 }
 
 .fail {
   @include padder;
 }
 
-.name {
+.title {
   @include padder;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  display: grid;
+  grid: auto / auto-flow;
+  gap: 8px;
+  align-items: center;
+  justify-content: start;
+
+  .name {
+    font-size: $typography-s;
+  }
 }
 
 .detail {
@@ -65,7 +76,6 @@ const showBuff = computed(() => props.affected.length > 0)
 
   .scrolling {
     @include padder;
-    display: inline-flex;
   }
 }
 

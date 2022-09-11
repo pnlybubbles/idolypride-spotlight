@@ -226,7 +226,7 @@ export const formatPassiveAbility = (v: AbilityInput): PassiveAbilityData => {
   // - Pの場合は発動トリガーの条件をクリアした場合には必ず1つ以上の効果が発動しなくてはいけない
   const condition: AbilityCondition = formatAbilityCondition(v.condition, v.conditionValue)
   if (v.div === 'score') {
-    const enhance = formatAbilityEnhance(v.enhance, 0)
+    const enhance = formatAbilityEnhance(v.enhance, v.enhanceValue)
     return { id, div: 'score', amount, enhance, condition }
   }
   const type = defined(v.type, 'type must not be null with action-buff')

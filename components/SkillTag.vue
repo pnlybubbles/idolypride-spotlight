@@ -1,5 +1,5 @@
 <template>
-  <div class="skill-tag" :class="{ mini }">
+  <div class="skill-tag" :class="{ mini, invert }">
     <div class="skill-type">{{ skill.type.toUpperCase() }}</div>
     <div v-if="skill.type !== 'sp'" class="skill-ct">{{ skill.ct === 0 ? '-' : skill.ct }}</div>
   </div>
@@ -10,6 +10,7 @@ import { SkillData } from '~~/utils/types'
 interface Props {
   skill: SkillData
   mini?: boolean
+  invert?: boolean
 }
 defineProps<Props>()
 </script>
@@ -23,6 +24,14 @@ defineProps<Props>()
   display: grid;
   grid: auto / auto-flow;
   gap: 4px;
+
+  &.invert {
+    background-color: $surface3;
+
+    .skill-ct {
+      color: $text2;
+    }
+  }
 
   .skill-type {
     font-size: $typography-s;

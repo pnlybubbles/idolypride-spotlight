@@ -390,6 +390,8 @@ export const isBuffTargetWithoutSuffix = isKeyInObject(BUFF_TARGET_WITHOUT_SUFFI
 // 効果対象 (X人付き)
 export const BUFF_TARGET_WITH_SUFFIX: Record<BuffTargetWithSuffix, string> = {
   scorer: 'スコアラーX人',
+  supporter: 'サポーターX人',
+  buffer: 'バッファーX人',
   'high-vocal': 'ボーカルが高いX人',
   'high-dance': 'ダンスが高いX人',
   'high-visual': 'ビジュアルが高いX人',

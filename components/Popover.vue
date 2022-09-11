@@ -4,6 +4,7 @@
     <div v-show="present" ref="hoveredRef" class="popover">
       <slot></slot>
     </div>
+    <div v-show="present" class="tip"></div>
   </div>
 </template>
 <script setup lang="ts">
@@ -44,15 +45,13 @@ const measureHoveredOffset = () => {
 
 const hoveredOffset = ref('0px')
 
-const observer = new IntersectionObserver(
-  (e) => {
-    // 再計算は表示時のみ
-    if (e.some((v) => v.isIntersecting)) {
-      hoveredOffset.value = px(measureHoveredOffset())
-    }
-  },
-  { threshold: 0 }
-)
+const observer = new ResizeObserver(() => {
+  // 再計算は表示時のみ
+  if (!props.present) {
+    return
+  }
+  hoveredOffset.value = px(measureHoveredOffset())
+})
 
 onMounted(() => {
   if (!hoveredRef.value) return
@@ -80,5 +79,17 @@ onUnmounted(() => observer.disconnect())
   bottom: 50%;
   left: v-bind(hoveredOffset);
   transform: translate(-50%, calc(-1 * v-bind(offset)));
+  z-index: 1;
+}
+
+.tip {
+  position: absolute;
+  top: 0;
+  left: -8px;
+  border: 8px solid transparent;
+  border-top: 8px solid $surface2;
+  transform: translate(0, calc(-1 * v-bind(offset)));
+  pointer-events: none;
+  z-index: 1;
 }
 </style>
