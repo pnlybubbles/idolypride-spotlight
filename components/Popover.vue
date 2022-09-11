@@ -44,15 +44,13 @@ const measureHoveredOffset = () => {
 
 const hoveredOffset = ref('0px')
 
-const observer = new IntersectionObserver(
-  (e) => {
-    // 再計算は表示時のみ
-    if (e.some((v) => v.isIntersecting)) {
-      hoveredOffset.value = px(measureHoveredOffset())
-    }
-  },
-  { threshold: 0 }
-)
+const observer = new ResizeObserver(() => {
+  // 再計算は表示時のみ
+  if (!props.present) {
+    return
+  }
+  hoveredOffset.value = px(measureHoveredOffset())
+})
 
 onMounted(() => {
   if (!hoveredRef.value) return
