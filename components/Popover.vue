@@ -89,5 +89,6 @@ onUnmounted(() => observer.disconnect())
   border: 8px solid transparent;
   border-top: 8px solid $surface2;
   transform: translate(0, calc(-1 * v-bind(offset)));
+  pointer-events: none;
 }
 </style>
