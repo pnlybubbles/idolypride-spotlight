@@ -4,6 +4,7 @@
       <template #anchor>
         <Interactive
           class="hit"
+          :class="{ big: variant === 'a' || variant === 'sp' }"
           @long-press="$emit('longPress'), (showGap = true)"
           @release="$emit('release'), (showGap = false)"
           @click="showTooltip = !showTooltip"
@@ -90,6 +91,11 @@ const laneLabel = (target: Lane[]) =>
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+
+  &.big {
+    width: 80px;
+    height: 40px;
+  }
 }
 
 $sp-size: 40px;
@@ -135,6 +141,7 @@ $p-size: 8px;
   position: absolute;
   font-size: $typography-m;
   color: $text3;
+  pointer-events: none;
 
   &.sp {
     right: calc(100% + 4px + $sp-size / 2);

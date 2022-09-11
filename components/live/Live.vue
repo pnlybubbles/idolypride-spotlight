@@ -141,8 +141,16 @@ const lanes = computed(() => {
           return unreachable(c.type)
         }
       }, [] as Item[])
+      .sort((a, b) => LANE_ITEM_ORDERING[a.type] - LANE_ITEM_ORDERING[b.type])
   )
 })
+
+const LANE_ITEM_ORDERING = {
+  buff: 0,
+  a: 1,
+  sp: 2,
+  p: 3,
+}
 
 const highlighted = ref<string | null>(null)
 
