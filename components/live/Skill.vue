@@ -1,6 +1,6 @@
 <template>
   <div class="skill">
-    <Popover v-model:present="present" position="center" :disabled="!(gap !== null || activated.length > 0)">
+    <Popover v-model:present="present" position="center">
       <template #anchor>
         <Interactive
           class="hit"
@@ -54,15 +54,14 @@ defineEmits<Emits>()
 
 const [scaleFactor] = useFumenScaleFactor()
 
-const { fail, beat, buff, gap } = toRefs(props)
-const top = computed(() => cssBeat(beat.value, scaleFactor.value))
-const color = computed(() => cssBuff(buff.value))
+const top = computed(() => cssBeat(props.beat, scaleFactor.value))
+const color = computed(() => cssBuff(props.buff))
 
 const showTooltip = ref(false)
 const showGap = ref(false)
 
 const present = computed({
-  get: () => showTooltip.value || showGap.value,
+  get: () => showTooltip.value || (showGap.value && (props.gap !== null || props.activated.length > 0)),
   set: () => ((showTooltip.value = false), (showGap.value = false)),
 })
 
