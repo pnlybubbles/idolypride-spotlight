@@ -31,7 +31,7 @@ export type Result = ({
       type: 'p'
       index: SkillIndex
       // 発動したバフ
-      activated: { abilityId: string; type: BuffAbilityType; amount: number }[]
+      activated: { abilityId: string; type: BuffAbilityType; amount: number; target: Lane[] }[]
     }
   | {
       type: 'sp' | 'a'
@@ -41,7 +41,7 @@ export type Result = ({
       // 載っているバフ(Result['id'])
       affected: { id: string; type: BuffAbilityType; amount: number }[]
       // 発動したバフ
-      activated: { abilityId: string; type: BuffAbilityType; amount: number }[]
+      activated: { abilityId: string; type: BuffAbilityType; amount: number; target: Lane[] }[]
     }
   | {
       type: 'buff'
@@ -619,13 +619,34 @@ const derivePBuffResult = (domain: Pick<DomainState, 'pState' | 'idols' | 'live'
 }
 
 const deriveActivated = (
-  buffResult: { abilityId: string; buff: BuffAbilityType; amount: number; activatedBy: string }[],
+  buffResult: {
+    abilityId: string
+    buff: BuffAbilityType
+    amount: number
+    lane: Lane
+    activatedBy: string
+  }[],
   activatedBy: string
 ) =>
   buffResult
     .filter((v) => v.activatedBy === activatedBy)
-    .map(({ abilityId, buff, amount }) => ({ abilityId, type: buff, amount }))
-    .filter((value, index, array) => array.findIndex((v) => value.abilityId === v.abilityId) === index)
+    .reduce<{ abilityId: string; type: BuffAbilityType; amount: number; target: Lane[] }[]>(
+      (acc, { abilityId, buff, amount, lane }) =>
+        produce(acc, (draft) => {
+          const index = acc.findIndex((v) => v.abilityId === abilityId)
+          if (index !== -1) {
+            draft[index]?.target.push(lane)
+          } else {
+            draft.push({
+              abilityId,
+              type: buff,
+              amount,
+              target: [lane],
+            })
+          }
+        }),
+      []
+    )
 
 const filterCondition = (
   condition: AbilityCondition,

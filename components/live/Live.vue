@@ -72,13 +72,13 @@ type Item = {
       index: SkillIndex | undefined
       fail: boolean
       affected: { type: BuffAbilityType; amount: number }[]
-      activated: { abilityId: string; type: BuffAbilityType; amount: number }[]
+      activated: { abilityId: string; type: BuffAbilityType; amount: number; target: Lane[] }[]
       gap: number | null
     }
   | {
       type: 'p'
       index: SkillIndex
-      activated: { abilityId: string; type: BuffAbilityType; amount: number }[]
+      activated: { abilityId: string; type: BuffAbilityType; amount: number; target: Lane[] }[]
     }
   | {
       type: 'buff'

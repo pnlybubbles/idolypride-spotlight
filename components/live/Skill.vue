@@ -16,7 +16,8 @@
         <div v-if="gap !== null && activated.length > 0" class="divider"></div>
         <div v-if="activated.length > 0" class="ability">
           <div v-for="item in activated" :key="item.abilityId">
-            {{ item.amount }} {{ buffAbilityTypeLabel(item.type, internalLabel) }}
+            {{ item.amount }} {{ buffAbilityTypeLabel(item.type, internalLabel) }} (レーン:
+            {{ laneLabel(item.target) }})
           </div>
         </div>
       </div>
@@ -37,7 +38,7 @@ interface Props {
   beat: number
   buff: AbilityType
   affected: { type: BuffAbilityType; amount: number }[]
-  activated: { abilityId: string; type: BuffAbilityType; amount: number }[]
+  activated: { abilityId: string; type: BuffAbilityType; amount: number; target: Lane[] }[]
   skill: SkillData | undefined
   lane: Lane
   gap: number | null
@@ -66,6 +67,12 @@ const present = computed({
 })
 
 const [internalLabel] = useInternalLabel()
+
+const laneLabel = (target: Lane[]) =>
+  [...target]
+    .sort()
+    .map((v) => v + 1)
+    .join(',')
 </script>
 <style lang="scss" scoped>
 @import '~~/components/partials/token.scss';
