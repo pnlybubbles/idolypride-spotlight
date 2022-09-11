@@ -17,8 +17,8 @@
         <div v-if="gap !== null && activated.length > 0" class="divider"></div>
         <div v-if="activated.length > 0" class="ability">
           <div v-for="item in activated" :key="item.abilityId">
-            {{ item.amount }} {{ buffAbilityTypeLabel(item.type, internalLabel) }} (レーン:
-            {{ laneLabel(item.target) }})
+            {{ deriveDisabledAmount(item.type) ? '' : `${item.amount} `
+            }}{{ buffAbilityTypeLabel(item.type, internalLabel) }} (レーン: {{ laneLabel(item.target) }})
           </div>
         </div>
       </div>
@@ -31,6 +31,7 @@
 import { useFumenScaleFactor, useInternalLabel } from '~~/composable/localstorage-descriptors'
 import { buffAbilityTypeLabel, SKILL_TYPE } from '~~/utils/common'
 import { AbilityType, BuffAbilityType, Lane, SkillData } from '~~/utils/types'
+import { deriveDisabledAmount } from '../idol-form/helper'
 import { cssBeat, cssBuff } from './helper'
 
 interface Props {
