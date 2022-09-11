@@ -80,5 +80,6 @@ onUnmounted(() => observer.disconnect())
   bottom: 50%;
   left: v-bind(hoveredOffset);
   transform: translate(-50%, calc(-1 * v-bind(offset)));
+  z-index: 1;
 }
 </style>
