@@ -94,7 +94,7 @@ const laneLabel = (target: Lane[]) =>
   transform: translate(-50%, -50%);
 
   &.big {
-    width: 80px;
+    width: 40px;
     height: 40px;
   }
 }
