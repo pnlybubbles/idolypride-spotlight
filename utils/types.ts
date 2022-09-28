@@ -128,6 +128,10 @@ export type AbilityEnhance =
       value: number
     }
   | {
+      type: 'combo-less-than-80'
+      value: number
+    }
+  | {
       type: `in-${IdolType}-lane`
       value: number
     }
