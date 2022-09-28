@@ -85,6 +85,7 @@ export type AbilityConditionWithoutValue =
   | `${IfAnyone}eye-catch`
   | `${IfAnyone}tension-up`
   | `${IfAnyone}critical-up`
+  | `${IfAnyone}critical-score-up`
   | `${IfAnyone}${'score' | 'a-score' | 'sp-score' | 'cmb-score' | 'beat-score'}-up`
   | 'unknown'
 export type AbilityCondition =
