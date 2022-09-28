@@ -36,6 +36,7 @@ export type ActionAbilityType =
   | 'debuff-recovery'
   | 'debuff-inverse'
   | 'buff-erase'
+  | `${IdolType}-buff-erase`
   | 'shift-before-sp'
   | 'shift-before-a'
   | 'delegate-buff'
@@ -84,6 +85,7 @@ export type AbilityConditionWithoutValue =
   | `${IfAnyone}eye-catch`
   | `${IfAnyone}tension-up`
   | `${IfAnyone}critical-up`
+  | `${IfAnyone}critical-score-up`
   | `${IfAnyone}${'score' | 'a-score' | 'sp-score' | 'cmb-score' | 'beat-score'}-up`
   | 'unknown'
 export type AbilityCondition =
@@ -111,6 +113,7 @@ export type AbilityEnhance =
         | 'audience-rate-less'
         | 'skill-activated'
         | IdolType
+        | `${IdolType}-boost`
         | 'critical-rate'
         | 'critical-score'
         | 'score'
@@ -125,6 +128,10 @@ export type AbilityEnhance =
     }
   | {
       type: 'combo-more-than-80'
+      value: number
+    }
+  | {
+      type: 'combo-less-than-80'
       value: number
     }
   | {

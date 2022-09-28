@@ -467,6 +467,8 @@ const AVAILAVLE_TRIGGER: Record<SkillTriggerType, boolean> = {
   'stamina-greater-than': false,
   'stamina-less-than': false,
   'anyone-stamina-less-than': true,
+  'critical-score-up': false,
+  'anyone-critical-score-up': true,
 }
 const availableTrigger = (t: SkillTriggerType) => AVAILAVLE_TRIGGER[t]
 
