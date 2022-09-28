@@ -36,6 +36,7 @@ export type ActionAbilityType =
   | 'debuff-recovery'
   | 'debuff-inverse'
   | 'buff-erase'
+  | `${IdolType}-buff-erase`
   | 'shift-before-sp'
   | 'shift-before-a'
   | 'delegate-buff'
