@@ -57,10 +57,13 @@ export type ArrayN<T, N extends number, A extends unknown[] = []> = A extends { 
  * @example
  * Length<[string, string, string]> // => 3
  */
-type Length<A> = A extends { length: infer N } ? N : never
+type Length<A extends readonly unknown[]> = A['length']
 
 export function indexed<A extends readonly unknown[]>(array: A) {
-  return array.map((value, index) => [value, index]) as [A[number], NumberUnion<Length<A>>][]
+  return array.map((value, index) => [value, index]) as [
+    A[number],
+    number extends Length<A> ? number : NumberUnion<Length<A>>
+  ][]
 }
 
 export function mapArrayN<A extends readonly unknown[], U>(
