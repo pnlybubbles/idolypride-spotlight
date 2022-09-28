@@ -111,6 +111,7 @@ export type AbilityEnhance =
         | 'audience-rate-less'
         | 'skill-activated'
         | IdolType
+        | `${IdolType}-boost`
         | 'critical-rate'
         | 'critical-score'
         | 'score'
