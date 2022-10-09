@@ -334,6 +334,8 @@ const ABILITY_TYPE_DISABLED_AMOUNT: Record<AbilityType, boolean> = {
   'debuff-guard': true,
   'a-score': false,
   'a-score-add': false,
+  'sp-score-add': false,
+  'p-score-add': false,
   'beat-score': false,
   'buff-amount': false,
   'buff-span': false,
@@ -368,9 +370,9 @@ const ABILITY_TYPE_DISABLED_AMOUNT: Record<AbilityType, boolean> = {
 export const deriveDisabledAmount = (type: AbilityType): boolean => ABILITY_TYPE_DISABLED_AMOUNT[type]
 
 /**
- * SPスキルスコア上昇の場合は、持続ビートは存在しない (便宜的にspan=1にする)
+ * SPスキルスコア上昇,SPスキルスコア付与の場合は、持続ビートは存在しない (便宜的にspan=1にするがライブ最後まで持続してスタックしていく)
  */
-export const disableSpan = (t: AbilityType) => t === 'sp-score'
+export const disableSpan = (t: AbilityType) => t === 'sp-score' || t === 'sp-score-add'
 
 /**
  * Pスキルにしかライブ中1回のCT表示は存在しない

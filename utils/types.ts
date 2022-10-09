@@ -23,6 +23,8 @@ export type BuffAbilityType =
   | 'slump'
   | 'debuff-guard'
   | 'a-score-add'
+  | 'sp-score-add'
+  | 'p-score-add'
   | 'unknown'
   | `${IdolType}-down`
   | `${IdolType}-boost`
@@ -132,6 +134,10 @@ export type AbilityEnhance =
     }
   | {
       type: 'combo-less-than-80'
+      value: number
+    }
+  | {
+      type: 'critical'
       value: number
     }
   | {

@@ -68,6 +68,8 @@ export const theme: Theme = {
     'visual-buff-erase': normal,
     slump: normal,
     'a-score-add': colors[1],
+    'sp-score-add': colors[8],
+    'p-score-add': colors[1],
     'delegate-buff': normal,
   },
 }

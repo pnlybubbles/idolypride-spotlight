@@ -337,7 +337,7 @@ export function simulate(live: LiveData, rawIdols: Idols, laneConfig: LaneConfig
                 ...shiftState.buff,
                 id: uid(),
                 beat: currentBeat,
-                span: clampSpan(shiftState.buff.span, live.beat, currentBeat),
+                span: deriveRealSpan(shiftState.buff.span, live.beat, currentBeat),
               })
               shiftState.activated = true
             }
@@ -363,7 +363,7 @@ export function simulate(live: LiveData, rawIdols: Idols, laneConfig: LaneConfig
           )) {
             if (effectAbility.div === 'action-buff' && effectAbility.type === 'buff-span') {
               // 効果を延長する
-              buffResult.span = clampSpan(buffResult.span + effectAbility.amount, live.beat, buffResult.beat)
+              buffResult.span = deriveRealSpan(buffResult.span + effectAbility.amount, live.beat, buffResult.beat)
             }
           }
         }
@@ -579,7 +579,7 @@ const deriveNaiveBuffResult = (
           type: 'buff' as const,
           buff: ability.type,
           lane,
-          span: clampSpan(ability.span, live.beat, currentBeat),
+          span: deriveRealSpan(ability.span, live.beat, currentBeat),
           amount: ability.amount,
           beat: currentBeat,
           activatedBy: id,
@@ -607,7 +607,7 @@ const derivePBuffResult = (domain: Pick<DomainState, 'pState' | 'idols' | 'live'
           type: 'buff' as const,
           buff: ability.type,
           lane,
-          span: clampSpan(ability.span, live.beat, currentBeat),
+          span: deriveRealSpan(ability.span, live.beat, currentBeat),
           amount: ability.amount,
           beat: currentBeat,
           activatedBy: id,
@@ -926,8 +926,12 @@ const appendBeat =
   (currentBeat: number) =>
   <T>(v: T) => ({ ...v, beat: currentBeat })
 
-const clampSpan = (span: number, liveBeat: number, spanStartBeat: number) =>
-  Math.min(span, liveBeat - spanStartBeat + 1)
+/**
+ * ライブの長さを考慮してオーバーしないようにspanを調整する。
+ * span=1は特別扱いしてライブの最後まで持続するようにする。
+ */
+const deriveRealSpan = (span: number, liveBeat: number, spanStartBeat: number) =>
+  span === 1 ? liveBeat - spanStartBeat + 1 : Math.min(span, liveBeat - spanStartBeat + 1)
 
 export const isType =
   <Type extends string>(type: Type) =>
