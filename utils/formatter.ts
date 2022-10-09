@@ -458,6 +458,7 @@ type AbilityEnhanceWithValue = Extract<AbilityEnhance, { value: unknown } | null
 export const ABILITY_ENHANCE_WITH_VALUE: Record<AbilityEnhanceWithValue, string> = {
   'combo-more-than-80': 'コンボ数が80以上の時 倍率がX%に上昇',
   'combo-less-than-80': 'コンボ数が80以下の時 倍率がX%に上昇',
+  critical: 'クリティカル発動時 倍率がX%に上昇',
   'in-vocal-lane': '自身がボーカルレーンの時 倍率がX%に上昇',
   'in-dance-lane': '自身がダンスレーンの時 倍率がX%に上昇',
   'in-visual-lane': '自身がビジュアルレーンの時 倍率がX%に上昇',

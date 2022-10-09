@@ -137,6 +137,10 @@ export type AbilityEnhance =
       value: number
     }
   | {
+      type: 'critical'
+      value: number
+    }
+  | {
       type: `in-${IdolType}-lane`
       value: number
     }
