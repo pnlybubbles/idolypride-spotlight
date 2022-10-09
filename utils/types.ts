@@ -23,6 +23,8 @@ export type BuffAbilityType =
   | 'slump'
   | 'debuff-guard'
   | 'a-score-add'
+  | 'sp-score-add'
+  | 'p-score-add'
   | 'unknown'
   | `${IdolType}-down`
   | `${IdolType}-boost`

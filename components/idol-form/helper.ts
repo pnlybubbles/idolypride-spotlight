@@ -334,6 +334,8 @@ const ABILITY_TYPE_DISABLED_AMOUNT: Record<AbilityType, boolean> = {
   'debuff-guard': true,
   'a-score': false,
   'a-score-add': false,
+  'sp-score-add': false,
+  'p-score-add': false,
   'beat-score': false,
   'buff-amount': false,
   'buff-span': false,

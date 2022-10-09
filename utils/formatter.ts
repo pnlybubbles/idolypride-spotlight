@@ -353,6 +353,8 @@ export const BUFF_ABILITY_TYPE: Record<BuffAbilityType, string> = {
   'visual-boost': 'ビジュアルブースト',
   'debuff-guard': '低下効果防止',
   'a-score-add': 'Aスキルスコア追加',
+  'sp-score-add': 'SPスキルスコア付与',
+  'p-score-add': 'Pスキルスコア付与',
   slump: '不調',
   unknown: '不明',
 }
