@@ -80,6 +80,7 @@ export const UNIT_NAME = [
   'TRINITYAiLE with 初音ミク',
   '兵藤雫×天動瑠依',
   '白石沙季×白石千紗',
+  '琴乃×莉央',
   '星見プロダクション',
 ] as const
 export type UnitName = typeof UNIT_NAME[number]
@@ -98,6 +99,7 @@ export const UNIT_TO_IDOL_NAME: Record<UnitName, IdolName[]> = {
   'TRINITYAiLE with 初音ミク': ['初音ミク', '天動瑠依', '鈴村優', '奥山すみれ'],
   '兵藤雫×天動瑠依': ['兵藤雫', '天動瑠依'],
   '白石沙季×白石千紗': ['白石沙季', '白石千紗'],
+  '琴乃×莉央': ['長瀬琴乃', '神崎莉央'],
   星見プロダクション: [],
 }
 

@@ -189,7 +189,7 @@ type RequiredSerialized<T> = {
     on_conflict?: unknown
   }
     ? {
-        data: RequiredSerialized<NonNullable<T[K]>['data'][number]>[]
+        data: NonNullable<T[K]>['data'][number][]
         on_conflict?: NonNullable<NonNullable<T[K]>['on_conflict']>
       }
     : T[K]
@@ -217,7 +217,7 @@ export const serializeIdol = (
   },
 })
 
-const serializeSkill = (v: SkillData, upsert: boolean): RequiredSerialized<Skill_Insert_Input> => ({
+const serializeSkill = (v: SkillData, upsert: boolean): RequiredSerialized<Omit<Skill_Insert_Input, 'idol'>> => ({
   id: upsert && v.id !== '' ? v.id : uuid(),
   index: v.index,
   name: v.name,
