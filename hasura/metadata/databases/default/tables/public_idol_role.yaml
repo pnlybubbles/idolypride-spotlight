@@ -1,4 +1,12 @@
 table:
-  schema: public
   name: idol_role
+  schema: public
 is_enum: true
+array_relationships:
+  - name: idols
+    using:
+      foreign_key_constraint_on:
+        column: role
+        table:
+          name: idol
+          schema: public

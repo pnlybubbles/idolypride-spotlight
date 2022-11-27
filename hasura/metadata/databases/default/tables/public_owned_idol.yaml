@@ -1,6 +1,10 @@
 table:
-  schema: public
   name: owned_idol
+  schema: public
+object_relationships:
+  - name: idol
+    using:
+      foreign_key_constraint_on: idol_id
 insert_permissions:
   - role: user
     permission:
@@ -36,7 +40,6 @@ update_permissions:
 delete_permissions:
   - role: user
     permission:
-      backend_only: false
       filter:
         user_id:
           _eq: X-Hasura-User-Id

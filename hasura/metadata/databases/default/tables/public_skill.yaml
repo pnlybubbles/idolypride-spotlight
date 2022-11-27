@@ -1,14 +1,21 @@
 table:
-  schema: public
   name: skill
+  schema: public
+object_relationships:
+  - name: idol
+    using:
+      foreign_key_constraint_on: idol_id
+  - name: skill_type
+    using:
+      foreign_key_constraint_on: type
 array_relationships:
   - name: abilities
     using:
       foreign_key_constraint_on:
         column: skill_id
         table:
-          schema: public
           name: ability
+          schema: public
 insert_permissions:
   - role: user
     permission:
@@ -18,22 +25,22 @@ insert_permissions:
               - user_id:
                   _eq: X-Hasura-User-Id
               - _exists:
+                  _table:
+                    name: user
+                    schema: public
                   _where:
                     id:
                       _eq: X-Hasura-User-Id
-                  _table:
-                    schema: public
-                    name: user
           - _exists:
+              _table:
+                name: user
+                schema: public
               _where:
                 _and:
                   - id:
                       _eq: X-Hasura-User-Id
                   - allow:
                       _eq: true
-              _table:
-                schema: public
-                name: user
       set:
         user_id: x-hasura-User-Id
       columns:
@@ -63,12 +70,12 @@ select_permissions:
         - user_id
       filter:
         _exists:
+          _table:
+            name: user
+            schema: public
           _where:
             id:
               _eq: X-Hasura-User-Id
-          _table:
-            schema: public
-            name: user
 update_permissions:
   - role: user
     permission:
@@ -85,31 +92,30 @@ update_permissions:
           - user_id:
               _eq: X-Hasura-User-Id
           - _exists:
+              _table:
+                name: user
+                schema: public
               _where:
                 _and:
                   - id:
                       _eq: X-Hasura-User-Id
                   - allow:
                       _eq: true
-              _table:
-                schema: public
-                name: user
       check: null
 delete_permissions:
   - role: user
     permission:
-      backend_only: false
       filter:
         _or:
           - user_id:
               _eq: X-Hasura-User-Id
           - _exists:
+              _table:
+                name: user
+                schema: public
               _where:
                 _and:
                   - id:
                       _eq: X-Hasura-User-Id
                   - allow:
                       _eq: true
-              _table:
-                schema: public
-                name: user
