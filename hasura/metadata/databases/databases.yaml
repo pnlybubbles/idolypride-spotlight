@@ -6,4 +6,4 @@
         from_env: PG_DATABASE_URL1
       isolation_level: read-committed
       use_prepared_statements: false
-  tables: "!include default/tables/tables.yaml"
+  tables: '!include default/tables/tables.yaml'
